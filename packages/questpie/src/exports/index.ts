@@ -1,7 +1,7 @@
 // Re-export everything from server
 export * from "#questpie/server/index.js";
 
-import { config } from "#questpie/cli/config.js";
+import { config as cliConfig } from "#questpie/cli/config.js";
 // Standalone functions (backwards compat - prefer using q.collection(), q.job(), etc.)
 import { collection } from "#questpie/server/collection/builder/collection-builder.js";
 // Import for q namespace
@@ -9,13 +9,21 @@ import {
 	createCallableBuilder,
 	questpie,
 } from "#questpie/server/config/builder.js";
+import {
+	config,
+	createApp,
+	module,
+} from "#questpie/server/config/create-app.js";
 import { defaultFields } from "#questpie/server/fields/builtin/defaults.js";
 import { fn } from "#questpie/server/functions/define-function.js";
 import { global } from "#questpie/server/global/builder/global-builder.js";
 import { auth } from "#questpie/server/integrated/auth/config.js";
 import { email } from "#questpie/server/integrated/mailer/template.js";
 import { job } from "#questpie/server/integrated/queue/job.js";
-import { starterModule } from "#questpie/server/modules/starter/index.js";
+import {
+	starter,
+	starterModule,
+} from "#questpie/server/modules/starter/index.js";
 import { rpc } from "#questpie/server/rpc/factory.js";
 
 // Create the base builder with default fields
@@ -82,7 +90,7 @@ const q = Object.assign(callableQ, {
 	 * Define CLI configuration (questpie.config.ts)
 	 * @example export default q.config({ app: app, cli: { migrations: { directory: "./migrations" } } })
 	 */
-	config,
+	config: cliConfig,
 
 	/**
 	 * Create standalone RPC contract builder.
@@ -92,6 +100,17 @@ const q = Object.assign(callableQ, {
 
 export { q };
 
-// Re-export standalone functions for backwards compatibility
-// Prefer using q.collection(), q.job(), etc. for better type inference
-export { collection, global, job, fn, email, auth, config, rpc };
+// Re-export standalone functions
+export {
+	auth,
+	collection,
+	config,
+	createApp,
+	email,
+	fn,
+	global,
+	job,
+	module,
+	rpc,
+	starter,
+};

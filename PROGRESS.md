@@ -135,36 +135,36 @@ feat: support plain object job/function definitions, split barbershop jobs and f
 
 ### packages/questpie changes
 
-- [ ] Export `config()` factory function — validates and returns config object
+- [x] Export `config()` factory function — validates and returns config object
   > RFC §12, §12.1 (Config Shape)
-- [ ] Export `module()` factory function — validates and returns module object
+- [x] Export `module()` factory function — validates and returns module object
   > RFC §13.1, §13.5 (Module Shape)
-- [ ] `createApp()` accepts config + discovered entities (prepared for codegen)
+- [x] `createApp()` accepts config + discovered entities (prepared for codegen)
   > RFC §15.1 (Complete `.generated/index.ts` Example)
 
 ### packages/admin changes
 
-- [ ] `adminModule` → `admin()` function returning `module({...})`
+- [x] `adminModule` → `admin()` function returning `module({...})`
   > RFC §13.3 (Admin Module)
-- [ ] `auditModule` → `audit()` function returning `module({...})`
+- [x] `auditModule` → `audit()` function returning `module({...})`
   > RFC §13.4 (Audit Module)
-- [ ] Move sidebar/dashboard from builder plugins to `admin()` options / `ConfigExtensions`
+- [x] Move sidebar/dashboard from builder plugins to `admin()` options / `ConfigExtensions`
   > RFC §5.8 (Sidebar & Dashboard Configuration)
 
 ### Barbershop migration
 
-- [ ] Create `questpie.config.ts` with full config shape
+- [x] Create `questpie.config.ts` with full config shape
   > RFC §12 — modules, db, app, storage, email, queue, locale, adminLocale, branding
-- [ ] Move `auth.ts` config from builder chain to standalone file
+- [x] Move `auth.ts` config from builder chain to config-level `auth` property
   > RFC §9 (Auth), §9.1 (File Convention)
-- [ ] Move messages to `messages/en.ts`, `messages/sk.ts`
+- [x] Keep messages in `i18n/en.ts`, `i18n/sk.ts` — referenced from config via `translations`
   > RFC §10 (Messages / i18n), §10.1 (File Convention)
-- [ ] Move sidebar config to `admin({ sidebar })` in config or keep as standalone file
+- [x] Move sidebar config to `admin({ sidebar })` in config
   > RFC §5.8
-- [ ] Move dashboard config similarly
+- [x] Move dashboard config to `admin({ dashboard })` in config
   > RFC §5.8
-- [ ] Delete `builder.ts` — no `qb` builder needed
-- [ ] Delete `app.ts` — replaced by `.generated/index.ts`
+- [x] Delete `builder.ts` — no `qb` builder needed
+- [x] Rewrite `app.ts` — uses `createApp()` with config + entities
 
 ### Commit
 

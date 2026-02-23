@@ -153,8 +153,11 @@ export {
 } from "./fields/index.js";
 // Main admin module - the complete backend for admin panel
 export {
+	type AdminOptions,
 	// Action functions
 	actionFunctions,
+	// New module() factory function
+	admin,
 	adminModule,
 	adminRpc,
 	// Reactive field functions
@@ -190,6 +193,8 @@ export {
 export {
 	type AuditDashboardWidgetOptions,
 	type AuditModuleOptions,
+	// New module() factory function
+	audit,
 	auditLogCollection,
 	auditModule,
 	createAuditDashboardWidget,

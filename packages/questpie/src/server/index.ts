@@ -51,12 +51,14 @@ export type {
 	InferSessionFromApp,
 } from "./config/context.js";
 export * from "./config/context.js";
+export * from "./config/create-app.js";
 // QuestpieBuilder extensions for module augmentation
 export type {
 	QuestpieBuilderExtensions,
 	QuestpieStateOf,
 } from "./config/extensions.js";
 export * from "./config/global-hooks-types.js";
+export * from "./config/module-types.js";
 export * from "./config/questpie.js";
 export * from "./config/types.js";
 export * from "./fields/index.js";

@@ -8,7 +8,10 @@ import {
 	verificationsCollection,
 } from "#questpie/server/collection/defaults/auth.js";
 import { QuestpieBuilder } from "#questpie/server/config/builder.js";
+import { module } from "#questpie/server/config/create-app.js";
+import type { ModuleDefinition } from "#questpie/server/config/module-types.js";
 import { coreAuthOptions } from "#questpie/server/integrated/auth/index.js";
+import { job } from "#questpie/server/integrated/queue/job.js";
 import { coreBackendMessages } from "./messages.js";
 
 /**
@@ -125,3 +128,49 @@ export const starterModule = starterBase
 	})
 	.auth(coreAuthOptions)
 	.messages(coreBackendMessages);
+
+// ============================================================================
+// starter() — module() alternative for use with config() + createApp()
+// ============================================================================
+
+/**
+ * Starter module as a `ModuleDefinition` for use with `config({ modules: [starter()] })`.
+ *
+ * Equivalent to the builder-based `starterModule`, but returns a plain data object
+ * compatible with the `module()` / `createApp()` API.
+ *
+ * @see RFC §13.2 (Starter Module)
+ */
+export function starter(): ModuleDefinition {
+	return module({
+		name: "questpie-starter",
+		collections: {
+			user: usersCollection,
+			assets: assetsCollection,
+			session: sessionsCollection,
+			account: accountsCollection,
+			verification: verificationsCollection,
+			apikey: apiKeysCollection,
+		},
+		jobs: {
+			realtimeCleanup: job({
+				name: "questpie.realtime.cleanup",
+				schema: z.object({}),
+				options: {
+					cron: "0 * * * *",
+				},
+				handler: async ({ app }) => {
+					await app.realtime.cleanupOutbox(true);
+				},
+			}),
+		},
+		auth: coreAuthOptions,
+		messages: coreBackendMessages as Record<string, Record<string, string>>,
+		defaultAccess: {
+			read: ({ session }: any) => !!session,
+			create: ({ session }: any) => !!session,
+			update: ({ session }: any) => !!session,
+			delete: ({ session }: any) => !!session,
+		},
+	});
+}

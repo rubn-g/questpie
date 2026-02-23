@@ -546,3 +546,146 @@ export const adminModule = adminBaseBuilder
 	);
 
 export type AdminModule = typeof adminModule;
+
+// ============================================================================
+// admin() — module() alternative for use with config() + createApp()
+// ============================================================================
+
+import type { ModuleDefinition } from "questpie";
+import { module, starter } from "questpie";
+import { createComponentProxy } from "../../patch.js";
+
+/**
+ * Options for the admin module when used via `config({ modules: [admin({...})] })`.
+ */
+export interface AdminOptions {
+	/** Branding — app name, logo, etc. */
+	branding?: { name?: unknown; logo?: unknown };
+	/** Sidebar config — callback or static object. */
+	sidebar?: ((ctx: any) => any) | Record<string, any>;
+	/** Dashboard config — callback or static object. */
+	dashboard?: ((ctx: any) => any) | Record<string, any>;
+	/** Admin UI locale config. */
+	adminLocale?: { locales: string[]; defaultLocale: string };
+}
+
+/**
+ * Default sidebar provided by the admin module.
+ * Shows an "administration" section with users and assets.
+ */
+const defaultAdminSidebar = {
+	sections: [
+		{
+			id: "administration",
+			title: { key: "defaults.sidebar.administration" },
+			items: [
+				{
+					type: "collection",
+					collection: "user",
+					icon: { type: "icon", props: { name: "ph:users" } },
+				},
+				{
+					type: "collection",
+					collection: "assets",
+					icon: { type: "icon", props: { name: "ph:image" } },
+				},
+			],
+		},
+	],
+};
+
+/**
+ * Admin module as a `ModuleDefinition` for use with `config({ modules: [admin()] })`.
+ *
+ * Equivalent to the builder-based `adminModule`, but returns a plain data object
+ * compatible with the `module()` / `createApp()` API.
+ *
+ * @example
+ * ```ts
+ * import { config } from "questpie";
+ * import { admin } from "@questpie/admin/server";
+ *
+ * export default config({
+ *   modules: [admin({ branding: { name: "My App" } })],
+ *   app: { url: process.env.APP_URL! },
+ *   db: { url: process.env.DATABASE_URL! },
+ *   email: { adapter: new ConsoleAdapter() },
+ * });
+ * ```
+ *
+ * @see RFC §13.3 (Admin Module)
+ */
+export function admin(options?: AdminOptions): ModuleDefinition {
+	// Resolve sidebar callback if needed
+	let resolvedSidebar = options?.sidebar ?? defaultAdminSidebar;
+	if (typeof resolvedSidebar === "function") {
+		const sProxy = {
+			sidebar: (cfg: any) => cfg,
+			section: (cfg: any) => ({ items: [], ...cfg }),
+		};
+		// Create a permissive component proxy for sidebar callbacks
+		const cProxy = createComponentProxy({} as any);
+		resolvedSidebar = resolvedSidebar({ s: sProxy, c: cProxy });
+	}
+
+	// Resolve dashboard callback if needed
+	let resolvedDashboard = options?.dashboard;
+	if (typeof resolvedDashboard === "function") {
+		const dProxy = {
+			dashboard: (cfg: any) => cfg,
+			stats: (cfg: any) => ({ type: "stats" as const, ...cfg }),
+			recentItems: (cfg: any) => ({ type: "recentItems" as const, ...cfg }),
+			chart: (cfg: any) => ({ type: "chart" as const, ...cfg }),
+			value: (cfg: any) => ({ type: "value" as const, ...cfg }),
+			table: (cfg: any) => ({ type: "table" as const, ...cfg }),
+			timeline: (cfg: any) => ({ type: "timeline" as const, ...cfg }),
+			progress: (cfg: any) => ({ type: "progress" as const, ...cfg }),
+		};
+		const cProxy = createComponentProxy({} as any);
+		const aProxy = {
+			action: (cfg: any) => cfg,
+			link: (cfg: any) => cfg,
+			create: ({ collection, ...cfg }: any) => ({
+				...cfg,
+				href: `/admin/collections/${collection}/create`,
+			}),
+			global: ({ global: g, ...cfg }: any) => ({
+				...cfg,
+				href: `/admin/globals/${g}`,
+			}),
+		};
+		resolvedDashboard = resolvedDashboard({
+			d: dProxy,
+			c: cProxy,
+			a: aProxy,
+		});
+	}
+
+	// Use the same collections already built by adminModule
+	// This avoids duplicating the complex collection config code
+	const adminCollections = adminModule.state.collections;
+
+	return module({
+		name: "questpie-admin",
+		modules: [starter()],
+		collections: adminCollections as any,
+		fields: adminFields as any,
+		functions: {
+			...setupFunctions,
+			...localeFunctions,
+			...previewFunctions,
+			...adminConfigFunctions,
+			...actionFunctions,
+			...translationFunctions,
+			...widgetDataFunctions,
+			...reactiveFunctions,
+		},
+		listViews: { table: q.listView("table") },
+		editViews: { form: q.editView("form") },
+		components: { icon: q.component("icon"), badge: q.component("badge") },
+		sidebar: resolvedSidebar,
+		dashboard: resolvedDashboard,
+		branding: options?.branding,
+		adminLocale: options?.adminLocale,
+	});
+}

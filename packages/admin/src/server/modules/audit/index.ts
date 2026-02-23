@@ -9,6 +9,7 @@ import { createCollectionAuditHooks, createGlobalAuditHooks } from "./hooks.js";
 import { auditCleanupJob } from "./jobs/audit-cleanup.job.js";
 
 export { auditLogCollection } from "./collections/audit-log.collection.js";
+
 /**
  * Options for the audit module.
  */
@@ -116,6 +117,63 @@ export interface AuditDashboardWidgetOptions {
  * }))
  * ```
  */
+// ============================================================================
+// audit() — module() alternative for use with config() + createApp()
+// ============================================================================
+
+import type { ModuleDefinition } from "questpie";
+import { module } from "questpie";
+
+/**
+ * Audit module as a `ModuleDefinition` for use with `config({ modules: [audit()] })`.
+ *
+ * Equivalent to the builder-based `auditModule` / `createAuditModule()`, but returns
+ * a plain data object compatible with the `module()` / `createApp()` API.
+ *
+ * @example
+ * ```ts
+ * import { config } from "questpie";
+ * import { admin, audit } from "@questpie/admin/server";
+ *
+ * export default config({
+ *   modules: [admin(), audit()],
+ *   app: { url: process.env.APP_URL! },
+ *   db: { url: process.env.DATABASE_URL! },
+ * });
+ * ```
+ *
+ * @see RFC §13.4 (Audit Module)
+ */
+export function audit(options?: AuditModuleOptions): ModuleDefinition {
+	const collectionHooks = createCollectionAuditHooks();
+	const globalHooks = createGlobalAuditHooks();
+
+	return module({
+		name: "questpie-audit",
+		collections: {
+			adminAuditLog: auditLogCollection,
+		},
+		jobs: {
+			auditCleanup: auditCleanupJob,
+		},
+		hooks: {
+			collections: [
+				{
+					afterChange: collectionHooks.afterChange,
+					afterDelete: collectionHooks.afterDelete,
+					afterTransition: collectionHooks.afterTransition,
+				},
+			],
+			globals: [
+				{
+					afterChange: globalHooks.afterChange,
+					afterTransition: globalHooks.afterTransition,
+				},
+			],
+		},
+	});
+}
+
 export function createAuditDashboardWidget(
 	options?: AuditDashboardWidgetOptions,
 ): ServerTimelineWidget {
