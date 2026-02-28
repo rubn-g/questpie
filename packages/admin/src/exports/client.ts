@@ -58,17 +58,9 @@ export {
 	type AdminModule,
 	adminModule,
 } from "#questpie/admin/client/builder/defaults/starter.js";
-// Entry point
+// Entry point (deprecated — use generated admin config from .generated/client.ts)
+/** @deprecated Use generated admin config instead of qa().use(adminModule) */
 export { qa } from "#questpie/admin/client/builder/qa.js";
-// Registry types for module augmentation
-export type {
-	AdminTypeRegistry,
-	IsRegistered,
-	RegisteredAdmin,
-	RegisteredCMS,
-	RegisteredCollectionNames,
-	RegisteredGlobalNames,
-} from "#questpie/admin/client/builder/registry.js";
 // Typed hooks factory
 export {
 	createTypedHooks,
@@ -311,8 +303,10 @@ export type CollectionNames<TApp extends QuestpieApp> =
 /**
  * Extract global names from a QuestpieApp config
  */
-export type GlobalNames<TApp extends QuestpieApp> =
-	keyof NonNullable<TApp["globals"]> & string;
+export type GlobalNames<TApp extends QuestpieApp> = keyof NonNullable<
+	TApp["globals"]
+> &
+	string;
 
 /**
  * Extract collection item type

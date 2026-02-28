@@ -6,7 +6,7 @@
  */
 
 import { DEFAULT_LOCALE, DEFAULT_LOCALE_CONFIG } from "questpie/shared";
-import type { AdminBuilder } from "./admin-builder";
+import { AdminBuilder } from "./admin-builder";
 import type { AdminBuilderState } from "./admin-types";
 import type { RegisteredAdmin } from "./registry";
 
@@ -28,11 +28,16 @@ type ExtractBuilderStates<T> = {
 };
 
 /**
- * Input type for Admin - accepts either an AdminBuilder or Admin instance
+ * Input type for Admin - accepts AdminBuilder, Admin instance, or plain state.
+ *
+ * The plain state form is used by generated admin client configs from codegen.
+ * It must have the same shape as `AdminBuilderState` (fields, components,
+ * listViews, editViews, pages, widgets, blocks, translations, locale, defaultViews).
  */
 export type AdminInput<TState extends AdminBuilderState = AdminBuilderState> =
 	| AdminBuilder<TState>
-	| Admin<TState>;
+	| Admin<TState>
+	| TState;
 
 // ============================================================================
 // Admin Class
@@ -60,7 +65,12 @@ export class Admin<TState extends AdminBuilderState = AdminBuilderState> {
 	constructor(public readonly state: TState) {}
 
 	/**
-	 * Normalize input to Admin instance (internal helper)
+	 * Normalize input to Admin instance.
+	 *
+	 * Accepts three input forms:
+	 * - `Admin` instance — returned as-is
+	 * - `AdminBuilder` instance — extracts `.state` and wraps
+	 * - Plain `AdminBuilderState` object — wraps directly (from codegen)
 	 */
 	static normalize<TState extends AdminBuilderState>(
 		input: AdminInput<TState>,
@@ -68,7 +78,11 @@ export class Admin<TState extends AdminBuilderState = AdminBuilderState> {
 		if (input instanceof Admin) {
 			return input;
 		}
-		return new Admin(input.state);
+		if (input instanceof AdminBuilder) {
+			return new Admin(input.state);
+		}
+		// Plain state object (from generated config)
+		return new Admin(input as TState);
 	}
 
 	// ============================================================================

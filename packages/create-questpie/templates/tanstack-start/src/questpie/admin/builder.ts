@@ -1,4 +1,7 @@
-import { adminModule, qa } from "@questpie/admin/client";
-import type { App } from "@/questpie/server/app.js";
-
-export const builder = qa<App>().use(adminModule);
+/**
+ * @deprecated Import from "~/questpie/admin/.generated/client" instead.
+ *
+ * This file is kept for backward compatibility only.
+ * New code should import the generated admin config directly.
+ */
+export { default as builder } from "./.generated/client";
