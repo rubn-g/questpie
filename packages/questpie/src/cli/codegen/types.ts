@@ -246,37 +246,37 @@ export interface CategoryDeclaration {
 }
 
 // ============================================================================
-// Codegen Plugin
+// Codegen Target Contribution
 // ============================================================================
 
 /**
- * A codegen plugin can register additional file patterns to discover
- * and transform the codegen context before code is emitted.
+ * A single plugin's contribution to a codegen target.
  *
- * Plugins are registered in `questpie.config.ts` via the `plugins` array
- * in `runtimeConfig()`.
+ * Each plugin declares what it contributes to each target via
+ * `targets: Record<string, CodegenTargetContribution>`. Multiple plugins
+ * may contribute to the same target — their contributions are merged by
+ * `resolveTargetGraph()`.
  *
- * @example
- * ```ts
- * export function adminPlugin(): CodegenPlugin {
- *   return {
- *     name: "questpie-admin",
- *     discover: {
- *       blocks: "blocks/*.ts",
- *       sidebar: { pattern: "sidebar.ts", mergeStrategy: "spread" },
- *       dashboard: { pattern: "dashboard.ts", mergeStrategy: "spread" },
- *       branding: "branding.ts",
- *       adminLocale: "admin-locale.ts",
- *     },
- *   };
- * }
- * ```
- *
- * @see RFC-MODULE-ARCHITECTURE §4.6 (Plugin Discover API)
+ * @see PLAN-PLUGIN-CONSISTENCY.md §4 (New Plugin Contract)
  */
-export interface CodegenPlugin {
-	/** Unique plugin name. */
-	name: string;
+export interface CodegenTargetContribution {
+	/**
+	 * Root directory for discovery, relative to the resolved server root.
+	 * e.g. `"."` for server-side files, `"../admin"` for client admin files.
+	 */
+	root: string;
+
+	/**
+	 * Output directory within root for generated files.
+	 * @default ".generated"
+	 */
+	outDir?: string;
+
+	/**
+	 * Primary output filename for this target.
+	 * e.g. `"index.ts"` for server, `"client.ts"` for admin client.
+	 */
+	outputFile: string;
 
 	/**
 	 * Declare directory-pattern categories for file discovery.
@@ -284,9 +284,6 @@ export interface CodegenPlugin {
 	 *
 	 * Categories drive the full pipeline: file scanning, import generation,
 	 * type emission, and runtime code in createApp().
-	 *
-	 * The core plugin declares built-in categories (collections, globals, etc.).
-	 * Other plugins declare their own (blocks, views, components).
 	 */
 	categories?: Record<string, CategoryDeclaration>;
 
@@ -295,10 +292,6 @@ export interface CodegenPlugin {
 	 * Key = state key (e.g. "blocks"), value = pattern definition.
 	 *
 	 * Supports both string shorthand and full DiscoverPattern objects.
-	 *
-	 * Use `categories` for directory-pattern categories that need full
-	 * type/emission control. Use `discover` for simpler patterns like
-	 * single files or directory patterns that follow the default behavior.
 	 */
 	discover?: Record<string, DiscoverPattern>;
 
@@ -310,29 +303,8 @@ export interface CodegenPlugin {
 
 	/**
 	 * Registry declarations for codegen-generated typed factories.
-	 * Each entry describes an extension method that should appear on
-	 * collection(), global(), or block() factories.
-	 *
-	 * Codegen reads these registries and generates typed wrapper methods
-	 * that call `builder.set(stateKey, value)` under the hood. No monkey-patching.
 	 *
 	 * @see RFC-CONTEXT-FIRST §6.4 (Third-Party Plugin Extensions)
-	 *
-	 * @example
-	 * ```ts
-	 * registries: {
-	 *   collectionExtensions: {
-	 *     admin: {
-	 *       stateKey: "admin",
-	 *       imports: [{ name: "AdminCollectionConfig", from: "@questpie/admin/server" }],
-	 *     },
-	 *     list: {
-	 *       stateKey: "adminList",
-	 *       imports: [{ name: "ListViewConfig", from: "@questpie/admin/server" }],
-	 *     },
-	 *   },
-	 * }
-	 * ```
 	 */
 	registries?: {
 		/** Extension methods for collection() factory. */
@@ -348,26 +320,158 @@ export interface CodegenPlugin {
 	/**
 	 * Callback parameter definitions for extension methods.
 	 *
-	 * Replaces the hardcoded `f/v/c/a` switch in `emitCallbackContext()` with
-	 * plugin-contributed inline proxy factory code.
-	 *
 	 * When an extension's `callbackContextParams` lists `["v", "f"]`, codegen
-	 * looks up each key in the merged callback params from all plugins and
-	 * emits the corresponding `proxyCode` inline.
-	 *
-	 * @example
-	 * ```ts
-	 * callbackParams: {
-	 *   f: {
-	 *     proxyCode: "new Proxy({}, { get: (_, prop) => String(prop) })",
-	 *   },
-	 *   c: {
-	 *     proxyCode: 'new Proxy({}, { get: (_, prop) => (...args) => ({ type: String(prop), props: typeof args[0] === "string" ? { name: args[0] } : args[0] ?? {} }) })',
-	 *   },
-	 * }
-	 * ```
+	 * looks up each key in the merged callback params and emits the
+	 * corresponding `proxyCode` inline.
 	 */
 	callbackParams?: Record<string, CallbackParamDefinition>;
+
+	/**
+	 * Optional custom generator for this target.
+	 * When provided, replaces the default template generation.
+	 * Only one plugin may provide a generator per target.
+	 *
+	 * @see PLAN-PLUGIN-CONSISTENCY.md §4 (CodegenTargetContribution)
+	 */
+	generate?: (
+		ctx: CodegenTargetGenerateContext,
+	) => Promise<CodegenTargetOutput> | CodegenTargetOutput;
+}
+
+// ============================================================================
+// Target Generate Context & Output
+// ============================================================================
+
+/**
+ * Context passed to a custom target generator.
+ * Provides access to all discovered files and the resolved target metadata.
+ */
+export interface CodegenTargetGenerateContext {
+	/** The resolved target being generated. */
+	target: ResolvedTarget;
+	/** Discovery result for this target. */
+	discovered: DiscoveryResult;
+	/** Extra imports added by transforms. */
+	extraImports: Array<{ name: string; path: string }>;
+	/** Extra type declarations added by transforms. */
+	extraTypeDeclarations: string[];
+	/** Extra runtime code added by transforms. */
+	extraRuntimeCode: string[];
+	/** Extra entity key-value pairs added by transforms. */
+	extraEntities: Map<string, string>;
+}
+
+/**
+ * Output from a custom target generator.
+ */
+export interface CodegenTargetOutput {
+	/** Generated file content. */
+	code: string;
+	/** Optional additional files to write (relative path → content). */
+	additionalFiles?: Record<string, string>;
+}
+
+// ============================================================================
+// Resolved Target
+// ============================================================================
+
+/**
+ * A fully resolved target — the result of merging all plugin contributions
+ * for a single target ID.
+ *
+ * Created by `resolveTargetGraph()`. Used internally by `runCodegen()`
+ * to drive discovery, transforms, and generation for each target.
+ */
+export interface ResolvedTarget {
+	/** Target identifier (e.g. "server", "admin-client"). */
+	id: string;
+
+	/** Root directory for discovery, relative to the server root. */
+	root: string;
+
+	/** Output directory for generated files. */
+	outDir: string;
+
+	/** Primary output filename. */
+	outputFile: string;
+
+	/** Merged categories from all contributing plugins. */
+	categories: Record<string, CategoryDeclaration>;
+
+	/** Merged discover patterns from all contributing plugins. */
+	discover: Record<string, DiscoverPattern>;
+
+	/** Merged registries from all contributing plugins. */
+	registries: {
+		collectionExtensions: Record<string, RegistryExtension>;
+		globalExtensions: Record<string, RegistryExtension>;
+		singletonFactories: Record<string, SingletonFactory>;
+		moduleRegistries: Record<string, ModuleRegistryConfig>;
+	};
+
+	/** Merged callback parameter definitions from all contributing plugins. */
+	callbackParams: Record<string, CallbackParamDefinition>;
+
+	/** All transform functions from contributing plugins, in plugin order. */
+	transforms: Array<(ctx: CodegenContext) => void>;
+
+	/** Custom generator (at most one per target). */
+	generate?: (
+		ctx: CodegenTargetGenerateContext,
+	) => Promise<CodegenTargetOutput> | CodegenTargetOutput;
+}
+
+// ============================================================================
+// Codegen Plugin
+// ============================================================================
+
+/**
+ * A codegen plugin declares contributions to one or more codegen targets.
+ *
+ * Plugins are registered in `questpie.config.ts` via the `plugins` array
+ * in `runtimeConfig()`.
+ *
+ * Each plugin contributes categories, discover patterns, registries,
+ * transforms, and callback params to specific targets. Contributions from
+ * multiple plugins are merged per target by `resolveTargetGraph()`.
+ *
+ * @example
+ * ```ts
+ * export function adminPlugin(): CodegenPlugin {
+ *   return {
+ *     name: "questpie-admin",
+ *     targets: {
+ *       server: {
+ *         root: ".",
+ *         outputFile: "index.ts",
+ *         discover: {
+ *           views: "views/*.ts",
+ *           blocks: "blocks/*.ts",
+ *           branding: "branding.ts",
+ *         },
+ *         registries: { ... },
+ *       },
+ *     },
+ *   };
+ * }
+ * ```
+ *
+ * @see PLAN-PLUGIN-CONSISTENCY.md §4 (New Plugin Contract)
+ */
+export interface CodegenPlugin {
+	/** Unique plugin name. */
+	name: string;
+
+	/**
+	 * Target contributions keyed by target ID.
+	 *
+	 * Well-known target IDs:
+	 * - `"server"` — server-side generated output (index.ts + factories.ts)
+	 * - `"admin-client"` — admin client generated output (client.ts)
+	 *
+	 * Plugins may define additional target IDs.
+	 */
+	targets: Record<string, CodegenTargetContribution>;
 }
 
 /**
@@ -581,6 +685,12 @@ export interface CodegenOptions {
 	plugins?: CodegenPlugin[];
 	/** If true, don't write files — just return the generated code. */
 	dryRun?: boolean;
+
+	/**
+	 * Target ID to generate. When omitted, defaults to "server".
+	 * In Phase B+, runCodegen will iterate all targets; for now it processes one.
+	 */
+	targetId?: string;
 
 	/**
 	 * Module codegen mode.

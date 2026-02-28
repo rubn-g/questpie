@@ -17,10 +17,12 @@ import { generateFactoryTemplate } from "./factory-template.js";
 import { generateModuleTemplate } from "./module-template.js";
 import { generateTemplate } from "./template.js";
 import type {
+	CategoryDeclaration,
 	CodegenContext,
 	CodegenOptions,
 	CodegenPlugin,
 	CodegenResult,
+	ResolvedTarget,
 } from "./types.js";
 
 // ============================================================================
@@ -41,131 +43,276 @@ import type {
 export function coreCodegenPlugin(): CodegenPlugin {
 	return {
 		name: "questpie-core",
-		categories: {
-			collections: {
-				dirs: ["collections"],
-				prefix: "coll",
-				registryKey: true,
-				includeInAppState: true,
-				extractFromModules: true,
-			},
-			globals: {
-				dirs: ["globals"],
-				prefix: "glob",
-				registryKey: true,
-				includeInAppState: true,
-				extractFromModules: true,
-			},
-			jobs: {
-				dirs: ["jobs"],
-				prefix: "job",
-				registryKey: true,
-				includeInAppState: true,
-				extractFromModules: true,
-			},
-			functions: {
-				dirs: ["functions"],
-				recursive: true,
-				prefix: "fn",
-				emit: "nested",
-				keySeparator: ".",
-				typeEmit: "functions",
-				registryKey: true,
-				includeInAppState: true,
-				extractFromModules: true,
-			},
-			routes: {
-				dirs: ["routes"],
-				recursive: true,
-				prefix: "route",
-				keySeparator: "/",
-				registryKey: true,
-				includeInAppState: true,
-				extractFromModules: true,
-			},
-			messages: {
-				dirs: ["messages"],
-				prefix: "msg",
-				typeEmit: "messages",
-				registryKey: false,
-				includeInAppState: false,
-				extractFromModules: false,
-			},
-			services: {
-				dirs: ["services"],
-				prefix: "svc",
-				typeEmit: "services",
-				extraTypeImports: [
-					'import type { ServiceInstanceOf } from "questpie";',
-				],
-				registryKey: true,
-				includeInAppState: true,
-				extractFromModules: true,
-				appContextEmit: "services",
-			},
-			emails: {
-				dirs: ["emails"],
-				prefix: "email",
-				typeEmit: "emails",
-				createAppKey: "emailTemplates",
-				extraTypeImports: ['import type { MailerService } from "questpie";'],
-				registryKey: "emails",
-				includeInAppState: false,
-				extractFromModules: false,
-			},
-			migrations: {
-				dirs: ["migrations"],
-				prefix: "mig",
-				emit: "array",
-				typeEmit: "none",
-				registryKey: false,
-				includeInAppState: false,
-				extractFromModules: false,
-			},
-			seeds: {
-				dirs: ["seeds"],
-				prefix: "seed",
-				emit: "array",
-				typeEmit: "none",
-				registryKey: false,
-				includeInAppState: false,
-				extractFromModules: false,
-			},
-		},
-		discover: {
-			modules: "modules.ts",
-			fields: "fields.ts",
-			locale: "locale.ts",
-			hooks: "hooks.ts",
-			defaultAccess: "access.ts",
-			contextResolver: "context.ts",
-		},
-		registries: {
-			singletonFactories: {
-				locale: {
-					configType: "LocaleConfig",
-					imports: [{ name: "LocaleConfig", from: "questpie" }],
+		targets: {
+			server: {
+				root: ".",
+				outputFile: "index.ts",
+				categories: {
+					collections: {
+						dirs: ["collections"],
+						prefix: "coll",
+						registryKey: true,
+						includeInAppState: true,
+						extractFromModules: true,
+					},
+					globals: {
+						dirs: ["globals"],
+						prefix: "glob",
+						registryKey: true,
+						includeInAppState: true,
+						extractFromModules: true,
+					},
+					jobs: {
+						dirs: ["jobs"],
+						prefix: "job",
+						registryKey: true,
+						includeInAppState: true,
+						extractFromModules: true,
+					},
+					functions: {
+						dirs: ["functions"],
+						recursive: true,
+						prefix: "fn",
+						emit: "nested",
+						keySeparator: ".",
+						typeEmit: "functions",
+						registryKey: true,
+						includeInAppState: true,
+						extractFromModules: true,
+					},
+					routes: {
+						dirs: ["routes"],
+						recursive: true,
+						prefix: "route",
+						keySeparator: "/",
+						registryKey: true,
+						includeInAppState: true,
+						extractFromModules: true,
+					},
+					messages: {
+						dirs: ["messages"],
+						prefix: "msg",
+						typeEmit: "messages",
+						registryKey: false,
+						includeInAppState: false,
+						extractFromModules: false,
+					},
+					services: {
+						dirs: ["services"],
+						prefix: "svc",
+						typeEmit: "services",
+						extraTypeImports: [
+							'import type { ServiceInstanceOf } from "questpie";',
+						],
+						registryKey: true,
+						includeInAppState: true,
+						extractFromModules: true,
+						appContextEmit: "services",
+					},
+					emails: {
+						dirs: ["emails"],
+						prefix: "email",
+						typeEmit: "emails",
+						createAppKey: "emailTemplates",
+						extraTypeImports: [
+							'import type { MailerService } from "questpie";',
+						],
+						registryKey: "emails",
+						includeInAppState: false,
+						extractFromModules: false,
+					},
+					migrations: {
+						dirs: ["migrations"],
+						prefix: "mig",
+						emit: "array",
+						typeEmit: "none",
+						registryKey: false,
+						includeInAppState: false,
+						extractFromModules: false,
+					},
+					seeds: {
+						dirs: ["seeds"],
+						prefix: "seed",
+						emit: "array",
+						typeEmit: "none",
+						registryKey: false,
+						includeInAppState: false,
+						extractFromModules: false,
+					},
 				},
-				hooks: {
-					configType: "GlobalHooksInput",
-					imports: [{ name: "GlobalHooksInput", from: "questpie" }],
+				discover: {
+					modules: "modules.ts",
+					fields: "fields.ts",
+					locale: "locale.ts",
+					hooks: "hooks.ts",
+					defaultAccess: "access.ts",
+					contextResolver: "context.ts",
 				},
-				access: {
-					configType: "CollectionAccess",
-					imports: [{ name: "CollectionAccess", from: "questpie" }],
+				registries: {
+					singletonFactories: {
+						locale: {
+							configType: "LocaleConfig",
+							imports: [{ name: "LocaleConfig", from: "questpie" }],
+						},
+						hooks: {
+							configType: "GlobalHooksInput",
+							imports: [{ name: "GlobalHooksInput", from: "questpie" }],
+						},
+						access: {
+							configType: "CollectionAccess",
+							imports: [{ name: "CollectionAccess", from: "questpie" }],
+						},
+						context: {
+							configType: "ContextResolver",
+							imports: [{ name: "ContextResolver", from: "questpie" }],
+						},
+					},
 				},
-				context: {
-					configType: "ContextResolver",
-					imports: [{ name: "ContextResolver", from: "questpie" }],
+				callbackParams: {
+					f: {
+						proxyCode: "new Proxy({}, { get: (_, prop) => String(prop) })",
+					},
 				},
-			},
-		},
-		callbackParams: {
-			f: {
-				proxyCode: "new Proxy({}, { get: (_, prop) => String(prop) })",
 			},
 		},
 	};
+}
+
+// ============================================================================
+// Target Graph Resolution
+// ============================================================================
+
+/**
+ * Merge all plugin target contributions into a resolved target graph.
+ *
+ * Rules:
+ * - Multiple plugins may contribute categories/discover/registries/transforms
+ *   to the same target — contributions are merged.
+ * - `root`, `outDir`, `outputFile` must be consistent across all contributors
+ *   for the same target ID. Any conflict is a codegen error.
+ * - Only one `generate` function is allowed per target.
+ *
+ * @see PLAN-PLUGIN-CONSISTENCY.md §5 (Codegen Orchestration Model)
+ */
+export function resolveTargetGraph(
+	plugins: CodegenPlugin[],
+): Map<string, ResolvedTarget> {
+	const targets = new Map<string, ResolvedTarget>();
+
+	for (const plugin of plugins) {
+		for (const [targetId, contribution] of Object.entries(plugin.targets)) {
+			let target = targets.get(targetId);
+
+			if (!target) {
+				// First contribution for this target — initialize
+				target = {
+					id: targetId,
+					root: contribution.root,
+					outDir: contribution.outDir ?? ".generated",
+					outputFile: contribution.outputFile,
+					categories: {},
+					discover: {},
+					registries: {
+						collectionExtensions: {},
+						globalExtensions: {},
+						singletonFactories: {},
+						moduleRegistries: {},
+					},
+					callbackParams: {},
+					transforms: [],
+				};
+				targets.set(targetId, target);
+			} else {
+				// Validate consistency of root/outDir/outputFile
+				if (contribution.root !== target.root) {
+					throw new Error(
+						`[codegen] Target "${targetId}" root conflict: ` +
+							`plugin "${plugin.name}" declares root "${contribution.root}" ` +
+							`but a previous plugin set root "${target.root}".`,
+					);
+				}
+				if (
+					contribution.outDir !== undefined &&
+					contribution.outDir !== target.outDir
+				) {
+					throw new Error(
+						`[codegen] Target "${targetId}" outDir conflict: ` +
+							`plugin "${plugin.name}" declares outDir "${contribution.outDir}" ` +
+							`but a previous plugin set outDir "${target.outDir}".`,
+					);
+				}
+				if (contribution.outputFile !== target.outputFile) {
+					throw new Error(
+						`[codegen] Target "${targetId}" outputFile conflict: ` +
+							`plugin "${plugin.name}" declares outputFile "${contribution.outputFile}" ` +
+							`but a previous plugin set outputFile "${target.outputFile}".`,
+					);
+				}
+			}
+
+			// Merge categories
+			if (contribution.categories) {
+				Object.assign(target.categories, contribution.categories);
+			}
+
+			// Merge discover patterns
+			if (contribution.discover) {
+				Object.assign(target.discover, contribution.discover);
+			}
+
+			// Merge registries (deep per sub-key)
+			if (contribution.registries) {
+				const reg = contribution.registries;
+				if (reg.collectionExtensions) {
+					Object.assign(
+						target.registries.collectionExtensions,
+						reg.collectionExtensions,
+					);
+				}
+				if (reg.globalExtensions) {
+					Object.assign(
+						target.registries.globalExtensions,
+						reg.globalExtensions,
+					);
+				}
+				if (reg.singletonFactories) {
+					Object.assign(
+						target.registries.singletonFactories,
+						reg.singletonFactories,
+					);
+				}
+				if (reg.moduleRegistries) {
+					Object.assign(
+						target.registries.moduleRegistries,
+						reg.moduleRegistries,
+					);
+				}
+			}
+
+			// Merge callback params
+			if (contribution.callbackParams) {
+				Object.assign(target.callbackParams, contribution.callbackParams);
+			}
+
+			// Collect transform functions
+			if (contribution.transform) {
+				target.transforms.push(contribution.transform);
+			}
+
+			// Only one generator per target
+			if (contribution.generate) {
+				if (target.generate) {
+					throw new Error(
+						`[codegen] Target "${targetId}" has multiple generators. ` +
+							`Plugin "${plugin.name}" provides a generator but one already exists.`,
+					);
+				}
+				target.generate = contribution.generate;
+			}
+		}
+	}
+
+	return targets;
 }
 
 // ============================================================================
@@ -173,24 +320,41 @@ export function coreCodegenPlugin(): CodegenPlugin {
 // ============================================================================
 
 /**
- * Run codegen: discover files, run plugins, generate template, write output.
+ * Run codegen: resolve target graph, discover files, run transforms, generate output.
  *
  * When `options.module` is set, generates a `module.ts` file (static module
  * definition for npm packages). Otherwise generates `index.ts` (root app).
  *
  * @see RFC-MODULE-ARCHITECTURE §9.1 (Root App), §9.2 (Module)
+ * @see PLAN-PLUGIN-CONSISTENCY.md §5 (Codegen Orchestration Model)
  */
 export async function runCodegen(
 	options: CodegenOptions,
 ): Promise<CodegenResult> {
 	const { rootDir, configPath, outDir, dryRun } = options;
-	// Always prepend core plugin for singleton factories (locale, hooks, access, context)
+
+	// Always prepend core plugin
 	const plugins = [coreCodegenPlugin(), ...(options.plugins ?? [])];
 
-	// 1. Discover files
-	const discovered = await discoverFiles(rootDir, outDir, plugins);
+	// 1. Resolve target graph from all plugins
+	const targetGraph = resolveTargetGraph(plugins);
+	const targetId = options.targetId ?? "server";
+	const target = targetGraph.get(targetId);
 
-	// 1b. Warn about files with named exports (not default)
+	if (!target) {
+		const available = [...targetGraph.keys()].join(", ");
+		throw new Error(
+			`[codegen] Target "${targetId}" not found. Available targets: ${available || "(none)"}`,
+		);
+	}
+
+	// 2. Discover files using the resolved target's categories and discover patterns
+	const discovered = await discoverFiles(rootDir, outDir, {
+		categories: target.categories,
+		discover: target.discover,
+	});
+
+	// 2b. Warn about files with named exports (not default)
 	const allFiles: import("./types.js").DiscoveredFile[] = [];
 	for (const catMap of discovered.categories.values()) {
 		for (const file of catMap.values()) {
@@ -210,7 +374,7 @@ export async function runCodegen(
 		}
 	}
 
-	// 2. Build codegen context for plugins
+	// 3. Build codegen context for transforms
 	const extraImports: Array<{ name: string; path: string }> = [];
 	const extraTypeDeclarations: string[] = [];
 	const extraRuntimeCode: string[] = [];
@@ -235,14 +399,12 @@ export async function runCodegen(
 		},
 	};
 
-	// 3. Run plugin transforms
-	for (const plugin of plugins) {
-		if (plugin.transform) {
-			plugin.transform(ctx);
-		}
+	// 4. Run all transforms from the resolved target (in plugin order)
+	for (const transform of target.transforms) {
+		transform(ctx);
 	}
 
-	// 3b. Rewrite self-package imports in module mode
+	// 4b. Rewrite self-package imports in module mode
 	// When generating modules within a package, plugin transforms may add
 	// imports referencing the package's own name (e.g. "@questpie/admin/server").
 	// TypeScript resolves these via the "types" export condition to stale dist/
@@ -264,7 +426,7 @@ export async function runCodegen(
 		}
 	}
 
-	// 4. Generate template — module or root app
+	// 5. Generate template — module or root app
 	let code: string;
 	let outputFile: string;
 
@@ -272,16 +434,10 @@ export async function runCodegen(
 		// Module mode: generate module.ts (static module definition)
 		outputFile = options.module.outputFile ?? "module.ts";
 
-		// Build merged category metadata from all plugins
-		const categoryMeta = new Map<
-			string,
-			import("./types.js").CategoryDeclaration
-		>();
-		for (const plugin of plugins) {
-			if (!plugin.categories) continue;
-			for (const [name, decl] of Object.entries(plugin.categories)) {
-				categoryMeta.set(name, decl);
-			}
+		// Build category metadata map from the resolved target
+		const categoryMeta = new Map<string, CategoryDeclaration>();
+		for (const [name, decl] of Object.entries(target.categories)) {
+			categoryMeta.set(name, decl);
 		}
 
 		code = generateModuleTemplate({
@@ -296,12 +452,13 @@ export async function runCodegen(
 		});
 	} else {
 		// Root app mode: generate index.ts (app with createApp)
-		outputFile = "index.ts";
+		outputFile = target.outputFile;
 		const configImportPath = computeRelativeImport(outDir, configPath);
 		code = generateTemplate({
 			configImportPath,
 			discovered,
-			plugins,
+			categories: target.categories,
+			singletonFactories: target.registries.singletonFactories,
 			extraImports: extraImports.length > 0 ? extraImports : undefined,
 			extraTypeDeclarations:
 				extraTypeDeclarations.length > 0 ? extraTypeDeclarations : undefined,
@@ -311,17 +468,17 @@ export async function runCodegen(
 		});
 	}
 
-	// 5. Generate factories if plugins declare registries (root app only)
+	// 6. Generate factories if target has registries (root app only)
 	let factoriesCode: string | null = null;
 	if (!options.module) {
 		const hasModules = discovered.singles.has("modules");
 		factoriesCode = generateFactoryTemplate({
-			plugins,
+			target,
 			hasModules,
 		});
 	}
 
-	// 6. Write output
+	// 7. Write output
 	const outputPath = join(outDir, outputFile);
 	if (!dryRun) {
 		await mkdir(outDir, { recursive: true });

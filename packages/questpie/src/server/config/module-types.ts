@@ -30,10 +30,12 @@ export type {
 	CallbackParamDefinition,
 	CategoryDeclaration,
 	CodegenPlugin,
+	CodegenTargetContribution,
 	DiscoverPattern,
 	DiscoveryResult,
 	ModuleRegistryConfig,
 	RegistryExtension,
+	ResolvedTarget,
 	SingletonFactory,
 } from "#questpie/cli/codegen/types.js";
 

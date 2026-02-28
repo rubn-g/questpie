@@ -41,202 +41,256 @@ import type { CodegenPlugin } from "questpie";
 export function adminPlugin(): CodegenPlugin {
 	return {
 		name: "questpie-admin",
-		discover: {
-			views: "views/*.ts",
-			components: "components/*.ts",
-			blocks: "blocks/*.ts",
-			sidebar: "sidebar.ts",
-			dashboard: "dashboard.ts",
-			branding: "branding.ts",
-			adminLocale: "admin-locale.ts",
-		},
-		registries: {
-			moduleRegistries: {
-				views: {
-					placeholder: "$VIEW_NAMES",
-					registryKey: "views",
+		targets: {
+			server: {
+				root: ".",
+				outputFile: "index.ts",
+				discover: {
+					views: "views/*.ts",
+					components: "components/*.ts",
+					blocks: "blocks/*.ts",
+					sidebar: "sidebar.ts",
+					dashboard: "dashboard.ts",
+					branding: "branding.ts",
+					adminLocale: "admin-locale.ts",
 				},
-				listViews: {
-					placeholder: "$LIST_VIEW_NAMES",
-					recordPlaceholder: "$LIST_VIEWS",
-					registryKey: "listViews",
-				},
-				editViews: {
-					placeholder: "$EDIT_VIEW_NAMES",
-					recordPlaceholder: "$EDIT_VIEWS",
-					registryKey: "editViews",
-				},
-				components: {
-					placeholder: "$COMPONENT_NAMES",
-					recordPlaceholder: "$COMPONENTS",
-					registryKey: "components",
-					typeRegistry: {
-						module: "@questpie/admin/server",
-						interface: "ComponentTypeRegistry",
+				registries: {
+					moduleRegistries: {
+						views: {
+							placeholder: "$VIEW_NAMES",
+							registryKey: "views",
+						},
+						listViews: {
+							placeholder: "$LIST_VIEW_NAMES",
+							recordPlaceholder: "$LIST_VIEWS",
+							registryKey: "listViews",
+						},
+						editViews: {
+							placeholder: "$EDIT_VIEW_NAMES",
+							recordPlaceholder: "$EDIT_VIEWS",
+							registryKey: "editViews",
+						},
+						components: {
+							placeholder: "$COMPONENT_NAMES",
+							recordPlaceholder: "$COMPONENTS",
+							registryKey: "components",
+							typeRegistry: {
+								module: "@questpie/admin/server",
+								interface: "ComponentTypeRegistry",
+							},
+						},
+					},
+					collectionExtensions: {
+						admin: {
+							stateKey: "admin",
+							imports: [
+								{
+									name: "AdminCollectionConfig",
+									from: "@questpie/admin/server",
+								},
+								{
+									name: "AdminConfigContext",
+									from: "@questpie/admin/server",
+								},
+								{
+									name: "createComponentProxy",
+									from: "@questpie/admin/server",
+								},
+							],
+							configType:
+								"AdminCollectionConfig | ((ctx: AdminConfigContext<$COMPONENTS>) => AdminCollectionConfig)",
+							isCallback: true,
+							callbackContextParams: ["c"],
+						},
+						list: {
+							stateKey: "adminList",
+							imports: [
+								{
+									name: "ListViewConfig",
+									from: "@questpie/admin/server",
+								},
+								{
+									name: "ListViewConfigContext",
+									from: "@questpie/admin/server",
+								},
+								{
+									name: "createViewProxy",
+									from: "@questpie/admin/server",
+								},
+								{
+									name: "createFieldProxy",
+									from: "@questpie/admin/server",
+								},
+								{
+									name: "createActionProxy",
+									from: "@questpie/admin/server",
+								},
+							],
+							configType:
+								"(ctx: ListViewConfigContext<TState extends { fieldDefinitions: infer F extends Record<string, any> } ? F : Record<string, any>, $LIST_VIEWS>) => ListViewConfig",
+							isCallback: true,
+							callbackContextParams: ["v", "f", "a"],
+						},
+						form: {
+							stateKey: "adminForm",
+							imports: [
+								{
+									name: "FormViewConfig",
+									from: "@questpie/admin/server",
+								},
+								{
+									name: "FormViewConfigContext",
+									from: "@questpie/admin/server",
+								},
+							],
+							configType:
+								"(ctx: FormViewConfigContext<TState extends { fieldDefinitions: infer F extends Record<string, any> } ? F : Record<string, any>, $EDIT_VIEWS>) => FormViewConfig",
+							isCallback: true,
+							callbackContextParams: ["v", "f"],
+						},
+						preview: {
+							stateKey: "adminPreview",
+							imports: [
+								{
+									name: "PreviewConfig",
+									from: "@questpie/admin/server",
+								},
+							],
+							configType: "PreviewConfig",
+						},
+						actions: {
+							stateKey: "adminActions",
+							imports: [
+								{
+									name: "ServerActionsConfig",
+									from: "@questpie/admin/server",
+								},
+								{
+									name: "ActionsConfigContext",
+									from: "@questpie/admin/server",
+								},
+							],
+							configType:
+								"(ctx: ActionsConfigContext<Record<string, unknown>, $COMPONENTS>) => ServerActionsConfig",
+							isCallback: true,
+							callbackContextParams: ["a", "c", "f"],
+						},
+					},
+					globalExtensions: {
+						admin: {
+							stateKey: "admin",
+							imports: [
+								{
+									name: "AdminGlobalConfig",
+									from: "@questpie/admin/server",
+								},
+								{
+									name: "AdminConfigContext",
+									from: "@questpie/admin/server",
+								},
+							],
+							configType:
+								"AdminGlobalConfig | ((ctx: AdminConfigContext<$COMPONENTS>) => AdminGlobalConfig)",
+							isCallback: true,
+							callbackContextParams: ["c"],
+						},
+						form: {
+							stateKey: "adminForm",
+							imports: [
+								{
+									name: "FormViewConfig",
+									from: "@questpie/admin/server",
+								},
+								{
+									name: "FormViewConfigContext",
+									from: "@questpie/admin/server",
+								},
+							],
+							configType:
+								"(ctx: FormViewConfigContext<TState extends { fieldDefinitions: infer F extends Record<string, any> } ? F : Record<string, any>, $EDIT_VIEWS>) => FormViewConfig",
+							isCallback: true,
+							callbackContextParams: ["v", "f"],
+						},
+					},
+					singletonFactories: {
+						branding: {
+							configType: "ServerBrandingConfig",
+							imports: [
+								{
+									name: "ServerBrandingConfig",
+									from: "@questpie/admin/server",
+								},
+							],
+						},
+						adminLocale: {
+							configType: "AdminLocaleConfig",
+							imports: [
+								{
+									name: "AdminLocaleConfig",
+									from: "@questpie/admin/server",
+								},
+							],
+						},
+						sidebar: {
+							configType: "SidebarContribution",
+							imports: [
+								{
+									name: "SidebarContribution",
+									from: "@questpie/admin/server",
+								},
+							],
+							isCallback: true,
+						},
+						dashboard: {
+							configType: "DashboardContribution",
+							imports: [
+								{
+									name: "DashboardContribution",
+									from: "@questpie/admin/server",
+								},
+							],
+							isCallback: true,
+						},
 					},
 				},
-			},
-			collectionExtensions: {
-				admin: {
-					stateKey: "admin",
-					imports: [
-						{ name: "AdminCollectionConfig", from: "@questpie/admin/server" },
-						{ name: "AdminConfigContext", from: "@questpie/admin/server" },
-						{ name: "createComponentProxy", from: "@questpie/admin/server" },
-					],
-					configType:
-						"AdminCollectionConfig | ((ctx: AdminConfigContext<$COMPONENTS>) => AdminCollectionConfig)",
-					isCallback: true,
-					callbackContextParams: ["c"],
-				},
-				list: {
-					stateKey: "adminList",
-					imports: [
-						{ name: "ListViewConfig", from: "@questpie/admin/server" },
-						{
-							name: "ListViewConfigContext",
-							from: "@questpie/admin/server",
-						},
-						{ name: "createViewProxy", from: "@questpie/admin/server" },
-						{ name: "createFieldProxy", from: "@questpie/admin/server" },
-						{ name: "createActionProxy", from: "@questpie/admin/server" },
-					],
-					configType:
-						"(ctx: ListViewConfigContext<TState extends { fieldDefinitions: infer F extends Record<string, any> } ? F : Record<string, any>, $LIST_VIEWS>) => ListViewConfig",
-					isCallback: true,
-					callbackContextParams: ["v", "f", "a"],
-				},
-				form: {
-					stateKey: "adminForm",
-					imports: [
-						{ name: "FormViewConfig", from: "@questpie/admin/server" },
-						{
-							name: "FormViewConfigContext",
-							from: "@questpie/admin/server",
-						},
-					],
-					configType:
-						"(ctx: FormViewConfigContext<TState extends { fieldDefinitions: infer F extends Record<string, any> } ? F : Record<string, any>, $EDIT_VIEWS>) => FormViewConfig",
-					isCallback: true,
-					callbackContextParams: ["v", "f"],
-				},
-				preview: {
-					stateKey: "adminPreview",
-					imports: [{ name: "PreviewConfig", from: "@questpie/admin/server" }],
-					configType: "PreviewConfig",
-				},
-				actions: {
-					stateKey: "adminActions",
-					imports: [
-						{ name: "ServerActionsConfig", from: "@questpie/admin/server" },
-						{
-							name: "ActionsConfigContext",
-							from: "@questpie/admin/server",
-						},
-					],
-					configType:
-						"(ctx: ActionsConfigContext<Record<string, unknown>, $COMPONENTS>) => ServerActionsConfig",
-					isCallback: true,
-					callbackContextParams: ["a", "c", "f"],
-				},
-			},
-			globalExtensions: {
-				admin: {
-					stateKey: "admin",
-					imports: [
-						{ name: "AdminGlobalConfig", from: "@questpie/admin/server" },
-						{ name: "AdminConfigContext", from: "@questpie/admin/server" },
-					],
-					configType:
-						"AdminGlobalConfig | ((ctx: AdminConfigContext<$COMPONENTS>) => AdminGlobalConfig)",
-					isCallback: true,
-					callbackContextParams: ["c"],
-				},
-				form: {
-					stateKey: "adminForm",
-					imports: [
-						{ name: "FormViewConfig", from: "@questpie/admin/server" },
-						{
-							name: "FormViewConfigContext",
-							from: "@questpie/admin/server",
-						},
-					],
-					configType:
-						"(ctx: FormViewConfigContext<TState extends { fieldDefinitions: infer F extends Record<string, any> } ? F : Record<string, any>, $EDIT_VIEWS>) => FormViewConfig",
-					isCallback: true,
-					callbackContextParams: ["v", "f"],
-				},
-			},
-			singletonFactories: {
-				branding: {
-					configType: "ServerBrandingConfig",
-					imports: [
-						{ name: "ServerBrandingConfig", from: "@questpie/admin/server" },
-					],
-				},
-				adminLocale: {
-					configType: "AdminLocaleConfig",
-					imports: [
-						{ name: "AdminLocaleConfig", from: "@questpie/admin/server" },
-					],
-				},
-				sidebar: {
-					configType: "SidebarContribution",
-					imports: [
-						{ name: "SidebarContribution", from: "@questpie/admin/server" },
-					],
-					isCallback: true,
-				},
-				dashboard: {
-					configType: "DashboardContribution",
-					imports: [
-						{ name: "DashboardContribution", from: "@questpie/admin/server" },
-					],
-					isCallback: true,
-				},
-			},
-		},
-		transform(ctx) {
-			// Derive listViews/editViews from discovered views.
-			// Each view file defines a view with a `kind` ("list" or "edit").
-			// At codegen time we can't parse kinds, so we emit a runtime
-			// derivation that filters the `views` record by kind.
-			const viewFiles = ctx.categories.get("views");
-			if (viewFiles && viewFiles.size > 0) {
-				// Import the filter helper
-				ctx.addImport("{ filterViewsByKind }", "@questpie/admin/server");
+				transform(ctx) {
+					// Derive listViews/editViews from discovered views.
+					const viewFiles = ctx.categories.get("views");
+					if (viewFiles && viewFiles.size > 0) {
+						ctx.addImport("{ filterViewsByKind }", "@questpie/admin/server");
 
-				// Build view variable references for the filter calls
-				const viewVarNames = [...viewFiles.values()]
-					.sort((a, b) => a.key.localeCompare(b.key))
-					.map((f) => `${f.key}: ${f.varName}`);
-				const viewsObj = `{ ${viewVarNames.join(", ")} }`;
+						const viewVarNames = [...viewFiles.values()]
+							.sort((a, b) => a.key.localeCompare(b.key))
+							.map((f) => `${f.key}: ${f.varName}`);
+						const viewsObj = `{ ${viewVarNames.join(", ")} }`;
 
-				ctx.addRuntimeCode(
-					`listViews: filterViewsByKind(${viewsObj}, "list"),`,
-				);
-				ctx.addRuntimeCode(
-					`editViews: filterViewsByKind(${viewsObj}, "edit"),`,
-				);
-			}
+						ctx.addRuntimeCode(
+							`listViews: filterViewsByKind(${viewsObj}, "list"),`,
+						);
+						ctx.addRuntimeCode(
+							`editViews: filterViewsByKind(${viewsObj}, "edit"),`,
+						);
+					}
 
-			// Ensure dashboard exists as empty array when no dashboard.ts found
-			if (!ctx.singles.has("dashboard")) {
-				ctx.addRuntimeCode("dashboard: [] as const,");
-			}
-		},
-		callbackParams: {
-			v: {
-				proxyCode:
-					"new Proxy({}, { get: (_, prop) => (config: any) => ({ view: String(prop), ...config }) })",
-			},
-			c: {
-				proxyCode:
-					'new Proxy({}, { get: (_, prop) => (...args: any[]) => ({ type: String(prop), props: typeof args[0] === "string" ? { name: args[0] } : args[0] ?? {} }) })',
-			},
-			a: {
-				proxyCode:
-					"new Proxy({ custom: (name: string, config: any) => ({ id: name, ...config }) }, { get: (target, prop) => (target as any)[prop] ?? String(prop) })",
+					// Ensure dashboard exists as empty array when no dashboard.ts found
+					if (!ctx.singles.has("dashboard")) {
+						ctx.addRuntimeCode("dashboard: [] as const,");
+					}
+				},
+				callbackParams: {
+					v: {
+						proxyCode:
+							"new Proxy({}, { get: (_, prop) => (config: any) => ({ view: String(prop), ...config }) })",
+					},
+					c: {
+						proxyCode:
+							'new Proxy({}, { get: (_, prop) => (...args: any[]) => ({ type: String(prop), props: typeof args[0] === "string" ? { name: args[0] } : args[0] ?? {} }) })',
+					},
+					a: {
+						proxyCode:
+							"new Proxy({ custom: (name: string, config: any) => ({ id: name, ...config }) }, { get: (target, prop) => (target as any)[prop] ?? String(prop) })",
+					},
+				},
 			},
 		},
 	};

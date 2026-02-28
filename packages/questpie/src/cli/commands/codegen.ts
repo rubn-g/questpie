@@ -429,16 +429,18 @@ export async function devCommand(options: DevOptions): Promise<void> {
 		"features",
 	]);
 
-	// Add directories from plugin discover patterns (e.g. "blocks/*.ts" → "blocks")
+	// Add directories from plugin target discover patterns (e.g. "blocks/*.ts" → "blocks")
 	for (const plugin of plugins) {
-		if (!plugin.discover) continue;
-		for (const pattern of Object.values(plugin.discover)) {
-			const patternStr =
-				typeof pattern === "string" ? pattern : pattern.pattern;
-			// Extract directory name from glob (e.g. "blocks/*.ts" → "blocks")
-			const dirMatch = patternStr.match(/^([^/*]+)\//);
-			if (dirMatch) {
-				watchDirs.add(dirMatch[1]);
+		for (const contribution of Object.values(plugin.targets)) {
+			if (!contribution.discover) continue;
+			for (const pattern of Object.values(contribution.discover)) {
+				const patternStr =
+					typeof pattern === "string" ? pattern : pattern.pattern;
+				// Extract directory name from glob (e.g. "blocks/*.ts" → "blocks")
+				const dirMatch = patternStr.match(/^([^/*]+)\//);
+				if (dirMatch) {
+					watchDirs.add(dirMatch[1]);
+				}
 			}
 		}
 	}

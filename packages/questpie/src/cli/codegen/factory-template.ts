@@ -15,9 +15,9 @@
 
 import type {
 	CallbackParamDefinition,
-	CodegenPlugin,
 	ModuleRegistryConfig,
 	RegistryExtension,
+	ResolvedTarget,
 	SingletonFactory,
 } from "./types.js";
 
@@ -26,78 +26,60 @@ import type {
 // ============================================================================
 
 export interface FactoryTemplateOptions {
-	/** Codegen plugins with registries. */
-	plugins: CodegenPlugin[];
+	/** The resolved target with merged registries and callback params. */
+	target: ResolvedTarget;
 	/** Whether modules.ts exists (new architecture). */
 	hasModules: boolean;
 }
 
 /**
  * Generate `.generated/factories.ts` content.
- * Returns null if no plugins declare registries (no factories needed).
+ * Returns null if the target declares no registries (no factories needed).
  */
 export function generateFactoryTemplate(
 	options: FactoryTemplateOptions,
 ): string | null {
-	const { plugins, hasModules } = options;
+	const { target, hasModules } = options;
 
-	// Collect all extensions from all plugins
+	// Extract merged registries and callback params from the resolved target
 	const collExtensions = new Map<string, RegistryExtension>();
 	const globalExtensions = new Map<string, RegistryExtension>();
 	const singletonFactories = new Map<string, SingletonFactory>();
 	const allImports = new Map<string, Set<string>>(); // from → Set<name>
 
-	for (const plugin of plugins) {
-		if (!plugin.registries) continue;
-
-		if (plugin.registries.collectionExtensions) {
-			for (const [name, ext] of Object.entries(
-				plugin.registries.collectionExtensions,
-			)) {
-				collExtensions.set(name, ext);
-				collectImports(ext, allImports);
-			}
-		}
-
-		if (plugin.registries.globalExtensions) {
-			for (const [name, ext] of Object.entries(
-				plugin.registries.globalExtensions,
-			)) {
-				globalExtensions.set(name, ext);
-				collectImports(ext, allImports);
-			}
-		}
-
-		if (plugin.registries.singletonFactories) {
-			for (const [name, factory] of Object.entries(
-				plugin.registries.singletonFactories,
-			)) {
-				singletonFactories.set(name, factory);
-				collectSingletonImports(factory, allImports);
-			}
-		}
+	for (const [name, ext] of Object.entries(
+		target.registries.collectionExtensions,
+	)) {
+		collExtensions.set(name, ext);
+		collectImports(ext, allImports);
 	}
 
-	// Collect module registries from all plugins
+	for (const [name, ext] of Object.entries(
+		target.registries.globalExtensions,
+	)) {
+		globalExtensions.set(name, ext);
+		collectImports(ext, allImports);
+	}
+
+	for (const [name, factory] of Object.entries(
+		target.registries.singletonFactories,
+	)) {
+		singletonFactories.set(name, factory);
+		collectSingletonImports(factory, allImports);
+	}
+
+	// Module registries from the resolved target
 	const moduleRegistries = new Map<string, ModuleRegistryConfig>();
-	for (const plugin of plugins) {
-		if (plugin.registries?.moduleRegistries) {
-			for (const [key, config] of Object.entries(
-				plugin.registries.moduleRegistries,
-			)) {
-				moduleRegistries.set(key, config);
-			}
-		}
+	for (const [key, config] of Object.entries(
+		target.registries.moduleRegistries,
+	)) {
+		moduleRegistries.set(key, config);
 	}
 
-	// Collect callback params from all plugins (later plugin wins on conflict)
+	// Callback params from the resolved target
 	const callbackParams = new Map<string, CallbackParamDefinition>();
-	for (const plugin of plugins) {
-		if (plugin.callbackParams) {
-			for (const [key, def] of Object.entries(plugin.callbackParams)) {
-				callbackParams.set(key, def);
-			}
-		}
+	for (const [key, def] of Object.entries(target.callbackParams)) {
+		callbackParams.set(key, def);
 	}
 
 	// If nothing declared, no factories file needed

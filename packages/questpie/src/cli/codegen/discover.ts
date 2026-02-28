@@ -12,7 +12,6 @@ import { readdir, readFile, stat } from "node:fs/promises";
 import { basename, extname, join, relative } from "node:path";
 import type {
 	CategoryDeclaration,
-	CodegenPlugin,
 	DiscoveredFile,
 	DiscoverPattern,
 	DiscoveryResult,
@@ -186,20 +185,30 @@ async function discoverFeatures(
 // ============================================================================
 
 /**
+ * Options for file discovery, extracted from a resolved target.
+ */
+export interface DiscoverFilesOptions {
+	/** Merged category declarations from all contributing plugins. */
+	categories?: Record<string, CategoryDeclaration>;
+	/** Merged discover patterns from all contributing plugins. */
+	discover?: Record<string, DiscoverPattern>;
+}
+
+/**
  * Discover all entity files in the questpie root directory.
  *
- * Iterates over all plugins' `categories` (directory-pattern categories)
+ * Iterates over merged `categories` (directory-pattern categories)
  * and `discover` (single/spread/custom patterns) to build a unified
  * DiscoveryResult.
  *
  * @param rootDir — Directory containing questpie.config.ts
  * @param outDir — .generated output directory (for computing relative import paths)
- * @param plugins — Codegen plugins that declare categories and discovery patterns
+ * @param options — Merged categories and discover patterns from the resolved target
  */
 export async function discoverFiles(
 	rootDir: string,
 	outDir: string,
-	plugins?: CodegenPlugin[],
+	options?: DiscoverFilesOptions,
 ): Promise<DiscoveryResult> {
 	const result: DiscoveryResult = {
 		categories: new Map(),
@@ -208,43 +217,39 @@ export async function discoverFiles(
 		spreads: new Map(),
 	};
 
-	// ── Phase 1: Discover all plugin-declared categories ──────
+	// ── Phase 1: Discover all category-declared directories ──────
 	// Categories are directory-pattern categories like collections, globals, blocks, etc.
-	// Each plugin can declare categories; they're processed in plugin order.
-	if (plugins) {
-		for (const plugin of plugins) {
-			if (!plugin.categories) continue;
-			for (const [name, decl] of Object.entries(plugin.categories)) {
-				const category = toDiscoveryCategory(name, decl);
-				const map =
-					result.categories.get(name) ?? new Map<string, DiscoveredFile>();
+	if (options?.categories) {
+		for (const [name, decl] of Object.entries(options.categories)) {
+			const category = toDiscoveryCategory(name, decl);
+			const map =
+				result.categories.get(name) ?? new Map<string, DiscoveredFile>();
 
-				// Scan by-type layout
-				for (const dir of category.dirs) {
-					const scanPath = join(rootDir, dir);
-					const files = await scanDir(scanPath, scanPath, category.recursive);
-					for (const relFile of files) {
-						const file = await processFile(
-							rootDir,
-							outDir,
-							join(dir, relFile),
-							category,
-						);
-						checkConflict(map, file, category.category);
-						map.set(file.key, file);
-					}
-				}
-
-				// Scan by-feature layout
-				const featureFiles = await discoverFeatures(rootDir, category);
-				for (const { relPath } of featureFiles) {
-					const file = await processFile(rootDir, outDir, relPath, category);
+			// Scan by-type layout
+			for (const dir of category.dirs) {
+				const scanPath = join(rootDir, dir);
+				const files = await scanDir(scanPath, scanPath, category.recursive);
+				for (const relFile of files) {
+					const file = await processFile(
+						rootDir,
+						outDir,
+						join(dir, relFile),
+						category,
+					);
 					checkConflict(map, file, category.category);
 					map.set(file.key, file);
 				}
-
-				result.categories.set(name, map);
 			}
+
+			// Scan by-feature layout
+			const featureFiles = await discoverFeatures(rootDir, category);
+			for (const { relPath } of featureFiles) {
+				const file = await processFile(rootDir, outDir, relPath, category);
+				checkConflict(map, file, category.category);
+				map.set(file.key, file);
+			}
+
+			result.categories.set(name, map);
 		}
 	}
 
@@ -269,49 +274,45 @@ export async function discoverFiles(
 	}
 
 	// ── Phase 3: Discover plugin discover patterns ────────────
-	// These are single-file, spread, and directory patterns from plugin.discover.
-	if (plugins) {
-		for (const plugin of plugins) {
-			if (!plugin.discover) continue;
-			for (const [stateKey, rawPattern] of Object.entries(plugin.discover)) {
-				const resolved = resolveDiscoverPattern(rawPattern);
+	// These are single-file, spread, and directory patterns from the merged target.
+	if (options?.discover) {
+		for (const [stateKey, rawPattern] of Object.entries(options.discover)) {
+			const resolved = resolveDiscoverPattern(rawPattern);
 
-				if (resolved.cardinality === "single") {
-					if (resolved.mergeStrategy === "spread") {
-						// Spread pattern — collect root + features/{name}/pattern into an ordered array
-						await discoverSpreadFile(
-							rootDir,
-							outDir,
-							stateKey,
-							resolved,
-							result.spreads,
-						);
-					} else {
-						// Default single — only the root-level file is used
-						await discoverSingleFile(
-							rootDir,
-							outDir,
-							stateKey,
-							resolved,
-							result.singles,
-						);
-					}
-				} else {
-					// Directory pattern (e.g. "blocks/*.ts") — goes into categories
-					const existing =
-						result.categories.get(stateKey) ??
-						new Map<string, DiscoveredFile>();
-					await discoverDirectoryPattern(
+			if (resolved.cardinality === "single") {
+				if (resolved.mergeStrategy === "spread") {
+					// Spread pattern — collect root + features/{name}/pattern into an ordered array
+					await discoverSpreadFile(
 						rootDir,
 						outDir,
 						stateKey,
 						resolved,
-						existing,
+						result.spreads,
 					);
+				} else {
+					// Default single — only the root-level file is used
+					await discoverSingleFile(
+						rootDir,
+						outDir,
+						stateKey,
+						resolved,
+						result.singles,
+					);
+				}
+			} else {
+				// Directory pattern (e.g. "blocks/*.ts") — goes into categories
+				const existing =
+					result.categories.get(stateKey) ?? new Map<string, DiscoveredFile>();
+				await discoverDirectoryPattern(
+					rootDir,
+					outDir,
+					stateKey,
+					resolved,
+					existing,
+				);
 
-					if (existing.size > 0) {
-						result.categories.set(stateKey, existing);
-					}
+				if (existing.size > 0) {
+					result.categories.set(stateKey, existing);
 				}
 			}
 		}

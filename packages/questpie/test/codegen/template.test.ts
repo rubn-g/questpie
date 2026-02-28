@@ -12,18 +12,38 @@
  * 8. Nested functions — dot-separated keys build nested object
  */
 import { describe, expect, it } from "bun:test";
-import { coreCodegenPlugin } from "../../src/cli/codegen/index.js";
+import {
+	coreCodegenPlugin,
+	resolveTargetGraph,
+} from "../../src/cli/codegen/index.js";
 import { generateTemplate } from "../../src/cli/codegen/template.js";
 import type {
+	CategoryDeclaration,
+	CodegenPlugin,
 	DiscoveredFile,
 	DiscoveryResult,
+	SingletonFactory,
 } from "../../src/cli/codegen/types.js";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Helpers
 // ─────────────────────────────────────────────────────────────────────────────
 
-const corePlugins = () => [coreCodegenPlugin()];
+/** Resolve the "server" target from the core plugin (and optional extras). */
+function serverTarget(extraPlugins: CodegenPlugin[] = []) {
+	const graph = resolveTargetGraph([coreCodegenPlugin(), ...extraPlugins]);
+	return graph.get("server")!;
+}
+
+/** Get merged categories from the resolved server target. */
+function coreCategories(): Record<string, CategoryDeclaration> {
+	return serverTarget().categories;
+}
+
+/** Get merged singleton factories from the resolved server target. */
+function coreSingletonFactories(): Record<string, SingletonFactory> {
+	return serverTarget().registries.singletonFactories;
+}
 
 function makeFile(
 	key: string,
@@ -127,7 +147,8 @@ describe("generateTemplate — minimal (modules.ts only)", () => {
 	code = generateTemplate({
 		configImportPath: "../questpie.config",
 		discovered: minimalResult(),
-		plugins: corePlugins(),
+		categories: coreCategories(),
+		singletonFactories: coreSingletonFactories(),
 	});
 
 	it("emits auto-generated header", () => {
@@ -217,7 +238,8 @@ describe("generateTemplate — collections", () => {
 		const code = generateTemplate({
 			configImportPath: "../questpie.config",
 			discovered: result,
-			plugins: corePlugins(),
+			categories: coreCategories(),
+			singletonFactories: coreSingletonFactories(),
 		});
 
 		expect(code).toContain(
@@ -239,7 +261,8 @@ describe("generateTemplate — collections", () => {
 		const code = generateTemplate({
 			configImportPath: "../questpie.config",
 			discovered: result,
-			plugins: corePlugins(),
+			categories: coreCategories(),
+			singletonFactories: coreSingletonFactories(),
 		});
 
 		expect(code).toContain('import _coll_posts from "../collections/posts"');
@@ -259,7 +282,8 @@ describe("generateTemplate — collections", () => {
 		const code = generateTemplate({
 			configImportPath: "../questpie.config",
 			discovered: result,
-			plugins: corePlugins(),
+			categories: coreCategories(),
+			singletonFactories: coreSingletonFactories(),
 		});
 
 		expect(code).toContain("collections: {");
@@ -280,7 +304,8 @@ describe("generateTemplate — collections", () => {
 		const code = generateTemplate({
 			configImportPath: "../questpie.config",
 			discovered: result,
-			plugins: corePlugins(),
+			categories: coreCategories(),
+			singletonFactories: coreSingletonFactories(),
 		});
 
 		expect(code).toContain(
@@ -311,7 +336,8 @@ describe("generateTemplate — collections", () => {
 		const code = generateTemplate({
 			configImportPath: "../questpie.config",
 			discovered: result,
-			plugins: corePlugins(),
+			categories: coreCategories(),
+			singletonFactories: coreSingletonFactories(),
 		});
 
 		const postsIdx = code.indexOf("posts: _coll_posts,");
@@ -339,7 +365,8 @@ describe("generateTemplate — globals", () => {
 		const code = generateTemplate({
 			configImportPath: "../questpie.config",
 			discovered: result,
-			plugins: corePlugins(),
+			categories: coreCategories(),
+			singletonFactories: coreSingletonFactories(),
 		});
 
 		expect(code).toContain("globals: {");
@@ -369,7 +396,8 @@ describe("generateTemplate — migrations", () => {
 		const code = generateTemplate({
 			configImportPath: "../questpie.config",
 			discovered: result,
-			plugins: corePlugins(),
+			categories: coreCategories(),
+			singletonFactories: coreSingletonFactories(),
 		});
 
 		// Flat array (sorted alphabetically by key: 001Init < 002AddUsers)
@@ -390,7 +418,8 @@ describe("generateTemplate — migrations", () => {
 		const code = generateTemplate({
 			configImportPath: "../questpie.config",
 			discovered: result,
-			plugins: corePlugins(),
+			categories: coreCategories(),
+			singletonFactories: coreSingletonFactories(),
 		});
 
 		expect(code).toContain('import _mig_001Init from "../migrations/001-init"');
@@ -422,7 +451,8 @@ describe("generateTemplate — seeds", () => {
 		const code = generateTemplate({
 			configImportPath: "../questpie.config",
 			discovered: result,
-			plugins: corePlugins(),
+			categories: coreCategories(),
+			singletonFactories: coreSingletonFactories(),
 		});
 
 		// Flat array (sorted: demoData < siteSettings)
@@ -449,7 +479,8 @@ describe("generateTemplate — services", () => {
 		const code = generateTemplate({
 			configImportPath: "../questpie.config",
 			discovered: result,
-			plugins: corePlugins(),
+			categories: coreCategories(),
+			singletonFactories: coreSingletonFactories(),
 		});
 
 		expect(code).toContain('import type { ServiceInstanceOf } from "questpie"');
@@ -469,7 +500,8 @@ describe("generateTemplate — services", () => {
 		const code = generateTemplate({
 			configImportPath: "../questpie.config",
 			discovered: result,
-			plugins: corePlugins(),
+			categories: coreCategories(),
+			singletonFactories: coreSingletonFactories(),
 		});
 
 		expect(code).toContain("stripe: ServiceInstanceOf<typeof _svc_stripe>;");
@@ -489,7 +521,8 @@ describe("generateTemplate — services", () => {
 		const code = generateTemplate({
 			configImportPath: "../questpie.config",
 			discovered: result,
-			plugins: corePlugins(),
+			categories: coreCategories(),
+			singletonFactories: coreSingletonFactories(),
 		});
 
 		// Should appear inside declare module "questpie" { interface AppContext
@@ -512,7 +545,8 @@ describe("generateTemplate — emails", () => {
 		const code = generateTemplate({
 			configImportPath: "../questpie.config",
 			discovered: result,
-			plugins: corePlugins(),
+			categories: coreCategories(),
+			singletonFactories: coreSingletonFactories(),
 		});
 
 		expect(code).toContain('import type { MailerService } from "questpie"');
@@ -528,7 +562,8 @@ describe("generateTemplate — emails", () => {
 		const code = generateTemplate({
 			configImportPath: "../questpie.config",
 			discovered: result,
-			plugins: corePlugins(),
+			categories: coreCategories(),
+			singletonFactories: coreSingletonFactories(),
 		});
 
 		expect(code).toContain("email: MailerService<AppEmailTemplates>;");
@@ -544,7 +579,8 @@ describe("generateTemplate — emails", () => {
 		const code = generateTemplate({
 			configImportPath: "../questpie.config",
 			discovered: result,
-			plugins: corePlugins(),
+			categories: coreCategories(),
+			singletonFactories: coreSingletonFactories(),
 		});
 
 		expect(code).toContain("emailTemplates: {");
@@ -567,7 +603,8 @@ describe("generateTemplate — functions (nested keys)", () => {
 		const code = generateTemplate({
 			configImportPath: "../questpie.config",
 			discovered: result,
-			plugins: corePlugins(),
+			categories: coreCategories(),
+			singletonFactories: coreSingletonFactories(),
 		});
 
 		expect(code).toContain("functions: {");
@@ -587,7 +624,8 @@ describe("generateTemplate — functions (nested keys)", () => {
 		const code = generateTemplate({
 			configImportPath: "../questpie.config",
 			discovered: result,
-			plugins: corePlugins(),
+			categories: coreCategories(),
+			singletonFactories: coreSingletonFactories(),
 		});
 
 		expect(code).toContain("admin: {");
@@ -614,7 +652,8 @@ describe("generateTemplate — functions (nested keys)", () => {
 		const code = generateTemplate({
 			configImportPath: "../questpie.config",
 			discovered: result,
-			plugins: corePlugins(),
+			categories: coreCategories(),
+			singletonFactories: coreSingletonFactories(),
 		});
 
 		// admin appears once as a group
@@ -639,7 +678,8 @@ describe("generateTemplate — auth", () => {
 		const code = generateTemplate({
 			configImportPath: "../questpie.config",
 			discovered: result,
-			plugins: corePlugins(),
+			categories: coreCategories(),
+			singletonFactories: coreSingletonFactories(),
 		});
 
 		expect(code).toContain('import _auth from "../auth"');
@@ -675,7 +715,8 @@ describe("generateTemplate — plugin singles", () => {
 		const code = generateTemplate({
 			configImportPath: "../questpie.config",
 			discovered: result,
-			plugins: corePlugins(),
+			categories: coreCategories(),
+			singletonFactories: coreSingletonFactories(),
 		});
 
 		expect(code).toContain('import _sidebar from "../sidebar"');
@@ -703,7 +744,8 @@ describe("generateTemplate — core singles", () => {
 		const code = generateTemplate({
 			configImportPath: "../questpie.config",
 			discovered: result,
-			plugins: corePlugins(),
+			categories: coreCategories(),
+			singletonFactories: coreSingletonFactories(),
 		});
 
 		expect(code).toContain("locale: _locale as any,");
@@ -723,7 +765,8 @@ describe("generateTemplate — core singles", () => {
 		const code = generateTemplate({
 			configImportPath: "../questpie.config",
 			discovered: result,
-			plugins: corePlugins(),
+			categories: coreCategories(),
+			singletonFactories: coreSingletonFactories(),
 		});
 
 		expect(code).toContain("contextResolver: _contextResolver as any,");
@@ -758,7 +801,8 @@ describe("generateTemplate — spreads", () => {
 		const code = generateTemplate({
 			configImportPath: "../questpie.config",
 			discovered: result,
-			plugins: corePlugins(),
+			categories: coreCategories(),
+			singletonFactories: coreSingletonFactories(),
 		});
 
 		expect(code).toContain('import _sidebar_root from "../sidebar"');
@@ -776,7 +820,8 @@ describe("generateTemplate — spreads", () => {
 		const code = generateTemplate({
 			configImportPath: "../questpie.config",
 			discovered: result,
-			plugins: corePlugins(),
+			categories: coreCategories(),
+			singletonFactories: coreSingletonFactories(),
 		});
 
 		expect(code).toContain(
@@ -792,7 +837,8 @@ describe("generateTemplate — spreads", () => {
 		const code = generateTemplate({
 			configImportPath: "../questpie.config",
 			discovered: result,
-			plugins: corePlugins(),
+			categories: coreCategories(),
+			singletonFactories: coreSingletonFactories(),
 		});
 
 		expect(code).toContain("sidebar: [...(_sidebar_root as any ?? [])],");
@@ -806,7 +852,8 @@ describe("generateTemplate — spreads", () => {
 		const code = generateTemplate({
 			configImportPath: "../questpie.config",
 			discovered: result,
-			plugins: corePlugins(),
+			categories: coreCategories(),
+			singletonFactories: coreSingletonFactories(),
 		});
 
 		expect(code).toContain('type _ModuleSidebar = _MP<"sidebar">');
@@ -820,7 +867,8 @@ describe("generateTemplate — spreads", () => {
 		const code = generateTemplate({
 			configImportPath: "../questpie.config",
 			discovered: result,
-			plugins: corePlugins(),
+			categories: coreCategories(),
+			singletonFactories: coreSingletonFactories(),
 		});
 
 		// Spread singles should not appear as plain singles (no "sidebar: _sidebar_root as any,")
@@ -835,7 +883,8 @@ describe("generateTemplate — spreads", () => {
 		const code = generateTemplate({
 			configImportPath: "../questpie.config",
 			discovered: result,
-			plugins: corePlugins(),
+			categories: coreCategories(),
+			singletonFactories: coreSingletonFactories(),
 		});
 
 		expect(code).toContain("Sidebar (spread)");
@@ -860,7 +909,8 @@ describe("generateTemplate — spreads", () => {
 		const code = generateTemplate({
 			configImportPath: "../questpie.config",
 			discovered: result,
-			plugins: corePlugins(),
+			categories: coreCategories(),
+			singletonFactories: coreSingletonFactories(),
 		});
 
 		expect(code).toContain("sidebar: [...(_sidebar_root as any ?? [])],");
@@ -879,7 +929,8 @@ describe("generateTemplate — factory re-exports", () => {
 		const code = generateTemplate({
 			configImportPath: "../questpie.config",
 			discovered: minimalResult(),
-			plugins: corePlugins(),
+			categories: coreCategories(),
+			singletonFactories: coreSingletonFactories(),
 		});
 
 		expect(code).toContain("collection");
@@ -888,13 +939,12 @@ describe("generateTemplate — factory re-exports", () => {
 	});
 
 	it("adds plugin singleton factories to re-exports", () => {
-		const code = generateTemplate({
-			configImportPath: "../questpie.config",
-			discovered: minimalResult(),
-			plugins: [
-				...corePlugins(),
-				{
-					name: "admin",
+		const adminPlugin: CodegenPlugin = {
+			name: "admin",
+			targets: {
+				server: {
+					root: ".",
+					outputFile: "index.ts",
 					registries: {
 						singletonFactories: {
 							branding: {
@@ -904,7 +954,15 @@ describe("generateTemplate — factory re-exports", () => {
 						},
 					},
 				},
-			],
+			},
+		};
+		const target = serverTarget([adminPlugin]);
+
+		const code = generateTemplate({
+			configImportPath: "../questpie.config",
+			discovered: minimalResult(),
+			categories: target.categories,
+			singletonFactories: target.registries.singletonFactories,
 		});
 
 		expect(code).toContain("branding");

@@ -17,9 +17,9 @@
 
 import type {
 	CategoryDeclaration,
-	CodegenPlugin,
 	DiscoveredFile,
 	DiscoveryResult,
+	SingletonFactory,
 } from "./types.js";
 
 // ============================================================================
@@ -31,8 +31,10 @@ export interface TemplateOptions {
 	configImportPath: string;
 	/** Discovery result with all found files. */
 	discovered: DiscoveryResult;
-	/** Codegen plugins (for computing factory re-exports). */
-	plugins?: CodegenPlugin[];
+	/** Merged category declarations from the resolved target. */
+	categories?: Record<string, CategoryDeclaration>;
+	/** Merged singleton factories from the resolved target (for re-export names). */
+	singletonFactories?: Record<string, SingletonFactory>;
 	/** Additional imports from plugins. */
 	extraImports?: Array<{ name: string; path: string }>;
 	/** Additional type declarations from plugins. */
@@ -53,15 +55,16 @@ export function generateTemplate(options: TemplateOptions): string {
 	const {
 		configImportPath,
 		discovered,
-		plugins,
+		categories,
+		singletonFactories,
 		extraImports,
 		extraTypeDeclarations,
 		extraRuntimeCode,
 		extraEntities,
 	} = options;
 
-	// Collect category declarations from all plugins
-	const allDecls = collectCategoryDeclarations(plugins);
+	// Build category declarations map from the resolved target
+	const allDecls = collectCategoryDeclarations(categories);
 	const declaredCatNames = new Set(allDecls.keys());
 
 	// modules.ts is required — new architecture only
@@ -505,7 +508,7 @@ export function generateTemplate(options: TemplateOptions): string {
 	lines.push(
 		"// Import from #questpie: import { collection, global, branding, ... } from '#questpie';",
 	);
-	const factoryNames = getFactoryNames(plugins);
+	const factoryNames = getFactoryNames(singletonFactories);
 	lines.push(`export { ${factoryNames.join(", ")} } from "./factories.js";`);
 	lines.push("");
 
@@ -629,19 +632,15 @@ function emitNewArchitectureRuntime(
 // ============================================================================
 
 /**
- * Collect all CategoryDeclaration metadata from all plugins.
- * Returns a map of category name → declaration.
+ * Build a Map of category declarations from the resolved target's merged categories.
  */
 function collectCategoryDeclarations(
-	plugins?: CodegenPlugin[],
+	categories?: Record<string, CategoryDeclaration>,
 ): Map<string, CategoryDeclaration> {
 	const result = new Map<string, CategoryDeclaration>();
-	if (!plugins) return result;
-	for (const plugin of plugins) {
-		if (!plugin.categories) continue;
-		for (const [name, decl] of Object.entries(plugin.categories)) {
-			result.set(name, decl);
-		}
+	if (!categories) return result;
+	for (const [name, decl] of Object.entries(categories)) {
+		result.set(name, decl);
 	}
 	return result;
 }
@@ -885,18 +884,16 @@ function safeKey(key: string): string {
 }
 
 /**
- * Collect all factory export names from plugins.
+ * Collect all factory export names from the resolved target.
  * Always includes "collection" and "global", plus any singleton factories.
  */
-function getFactoryNames(plugins?: CodegenPlugin[]): string[] {
+function getFactoryNames(
+	singletonFactories?: Record<string, SingletonFactory>,
+): string[] {
 	const names = new Set(["collection", "global"]);
-	if (plugins) {
-		for (const plugin of plugins) {
-			if (plugin.registries?.singletonFactories) {
-				for (const name of Object.keys(plugin.registries.singletonFactories)) {
-					names.add(name);
-				}
-			}
+	if (singletonFactories) {
+		for (const name of Object.keys(singletonFactories)) {
+			names.add(name);
 		}
 	}
 	return [...names].sort();

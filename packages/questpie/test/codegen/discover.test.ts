@@ -10,18 +10,26 @@ import { afterEach, beforeEach, describe, expect, it } from "bun:test";
 import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import type { DiscoverFilesOptions } from "../../src/cli/codegen/discover.js";
 import {
 	detectExportType,
 	discoverFiles,
 	kebabToCamelCase,
 } from "../../src/cli/codegen/discover.js";
-import { coreCodegenPlugin } from "../../src/cli/codegen/index.js";
+import {
+	coreCodegenPlugin,
+	resolveTargetGraph,
+} from "../../src/cli/codegen/index.js";
 
 /**
- * Helper: get the core plugins array.
+ * Helper: resolve the core server target and return DiscoverFilesOptions.
  * Most tests need core categories (collections, globals, etc.) to be declared.
  */
-const corePlugins = () => [coreCodegenPlugin()];
+function coreDiscoverOptions(): DiscoverFilesOptions {
+	const graph = resolveTargetGraph([coreCodegenPlugin()]);
+	const target = graph.get("server")!;
+	return { categories: target.categories, discover: target.discover };
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // kebabToCamelCase
@@ -198,7 +206,7 @@ describe("discoverFiles", () => {
 	// ── Empty project ──────────────────────────────────────────────────────────
 
 	it("returns empty maps for an empty directory", async () => {
-		const result = await discoverFiles(rootDir, outDir, corePlugins());
+		const result = await discoverFiles(rootDir, outDir, coreDiscoverOptions());
 		// All core categories exist but are empty
 		expect(cat(result, "collections").size).toBe(0);
 		expect(cat(result, "globals").size).toBe(0);
@@ -220,7 +228,7 @@ describe("discoverFiles", () => {
 		await write("collections/posts.ts", "export const posts = {};");
 		await write("collections/blog-posts.ts", "export const blogPosts = {};");
 
-		const result = await discoverFiles(rootDir, outDir, corePlugins());
+		const result = await discoverFiles(rootDir, outDir, coreDiscoverOptions());
 		const collections = cat(result, "collections");
 		expect(collections.size).toBe(2);
 		expect(collections.has("posts")).toBe(true);
@@ -230,7 +238,7 @@ describe("discoverFiles", () => {
 	it("sets correct varName and importPath for collections", async () => {
 		await write("collections/posts.ts", "export const posts = {};");
 
-		const result = await discoverFiles(rootDir, outDir, corePlugins());
+		const result = await discoverFiles(rootDir, outDir, coreDiscoverOptions());
 		const file = cat(result, "collections").get("posts")!;
 		expect(file.varName).toBe("_coll_posts");
 		expect(file.importPath).toBe("../collections/posts");
@@ -242,7 +250,7 @@ describe("discoverFiles", () => {
 		await write("collections/index.ts", "export * from './posts';");
 		await write("collections/posts.ts", "export const posts = {};");
 
-		const result = await discoverFiles(rootDir, outDir, corePlugins());
+		const result = await discoverFiles(rootDir, outDir, coreDiscoverOptions());
 		const collections = cat(result, "collections");
 		expect(collections.size).toBe(1);
 		expect(collections.has("posts")).toBe(true);
@@ -252,7 +260,7 @@ describe("discoverFiles", () => {
 		await write("collections/_utils.ts", "export const util = {};");
 		await write("collections/posts.ts", "export const posts = {};");
 
-		const result = await discoverFiles(rootDir, outDir, corePlugins());
+		const result = await discoverFiles(rootDir, outDir, coreDiscoverOptions());
 		const collections = cat(result, "collections");
 		expect(collections.size).toBe(1);
 		expect(collections.has("posts")).toBe(true);
@@ -263,7 +271,7 @@ describe("discoverFiles", () => {
 	it("discovers globals", async () => {
 		await write("globals/site-settings.ts", "export const siteSettings = {};");
 
-		const result = await discoverFiles(rootDir, outDir, corePlugins());
+		const result = await discoverFiles(rootDir, outDir, coreDiscoverOptions());
 		const globals = cat(result, "globals");
 		expect(globals.size).toBe(1);
 		const file = globals.get("siteSettings")!;
@@ -276,7 +284,7 @@ describe("discoverFiles", () => {
 		await write("jobs/send-emails.ts");
 		await write("jobs/cleanup.ts");
 
-		const result = await discoverFiles(rootDir, outDir, corePlugins());
+		const result = await discoverFiles(rootDir, outDir, coreDiscoverOptions());
 		const jobs = cat(result, "jobs");
 		expect(jobs.size).toBe(2);
 		expect(jobs.has("sendEmails")).toBe(true);
@@ -288,14 +296,14 @@ describe("discoverFiles", () => {
 	it("discovers flat functions with simple keys", async () => {
 		await write("functions/get-users.ts");
 
-		const result = await discoverFiles(rootDir, outDir, corePlugins());
+		const result = await discoverFiles(rootDir, outDir, coreDiscoverOptions());
 		expect(cat(result, "functions").has("getUsers")).toBe(true);
 	});
 
 	it("discovers nested functions with dot-separated keys", async () => {
 		await write("functions/admin/get-stats.ts");
 
-		const result = await discoverFiles(rootDir, outDir, corePlugins());
+		const result = await discoverFiles(rootDir, outDir, coreDiscoverOptions());
 		const functions = cat(result, "functions");
 		expect(functions.has("admin.getStats")).toBe(true);
 
@@ -310,7 +318,7 @@ describe("discoverFiles", () => {
 		await write("migrations/001-init.ts");
 		await write("migrations/002-add-users.ts");
 
-		const result = await discoverFiles(rootDir, outDir, corePlugins());
+		const result = await discoverFiles(rootDir, outDir, coreDiscoverOptions());
 		const migrations = cat(result, "migrations");
 		expect(migrations.size).toBe(2);
 		expect(migrations.has("001Init")).toBe(true);
@@ -326,7 +334,7 @@ describe("discoverFiles", () => {
 		await write("seeds/demo-data.ts");
 		await write("seeds/site-settings.ts");
 
-		const result = await discoverFiles(rootDir, outDir, corePlugins());
+		const result = await discoverFiles(rootDir, outDir, coreDiscoverOptions());
 		const seeds = cat(result, "seeds");
 		expect(seeds.size).toBe(2);
 		expect(seeds.has("demoData")).toBe(true);
@@ -341,7 +349,7 @@ describe("discoverFiles", () => {
 	it("discovers auth.ts as a single file", async () => {
 		await write("auth.ts", "export default {};");
 
-		const result = await discoverFiles(rootDir, outDir, corePlugins());
+		const result = await discoverFiles(rootDir, outDir, coreDiscoverOptions());
 		expect(result.auth).not.toBeNull();
 		expect(result.auth!.key).toBe("auth");
 		expect(result.auth!.varName).toBe("_auth");
@@ -352,7 +360,7 @@ describe("discoverFiles", () => {
 		await write("auth.ts", "export default {};");
 		await write("collections/posts.ts", "export const posts = {};");
 
-		const result = await discoverFiles(rootDir, outDir, corePlugins());
+		const result = await discoverFiles(rootDir, outDir, coreDiscoverOptions());
 		expect(cat(result, "collections").size).toBe(1);
 		expect(result.auth).not.toBeNull();
 	});
@@ -362,7 +370,7 @@ describe("discoverFiles", () => {
 	it("discovers modules.ts as a single", async () => {
 		await write("modules.ts", "export default [];");
 
-		const result = await discoverFiles(rootDir, outDir, corePlugins());
+		const result = await discoverFiles(rootDir, outDir, coreDiscoverOptions());
 		expect(result.singles.has("modules")).toBe(true);
 		const file = result.singles.get("modules")!;
 		expect(file.varName).toBe("_modules");
@@ -372,21 +380,21 @@ describe("discoverFiles", () => {
 	it("discovers locale.ts as a single", async () => {
 		await write("locale.ts", "export default {};");
 
-		const result = await discoverFiles(rootDir, outDir, corePlugins());
+		const result = await discoverFiles(rootDir, outDir, coreDiscoverOptions());
 		expect(result.singles.has("locale")).toBe(true);
 	});
 
 	it("discovers context.ts as contextResolver single", async () => {
 		await write("context.ts", "export default {};");
 
-		const result = await discoverFiles(rootDir, outDir, corePlugins());
+		const result = await discoverFiles(rootDir, outDir, coreDiscoverOptions());
 		expect(result.singles.has("contextResolver")).toBe(true);
 	});
 
 	it("discovers access.ts as defaultAccess single", async () => {
 		await write("access.ts", "export default {};");
 
-		const result = await discoverFiles(rootDir, outDir, corePlugins());
+		const result = await discoverFiles(rootDir, outDir, coreDiscoverOptions());
 		expect(result.singles.has("defaultAccess")).toBe(true);
 	});
 
@@ -398,7 +406,7 @@ describe("discoverFiles", () => {
 			"export const articles = {};",
 		);
 
-		const result = await discoverFiles(rootDir, outDir, corePlugins());
+		const result = await discoverFiles(rootDir, outDir, coreDiscoverOptions());
 		expect(cat(result, "collections").has("articles")).toBe(true);
 	});
 
@@ -409,7 +417,7 @@ describe("discoverFiles", () => {
 			"export const articles = {};",
 		);
 
-		const result = await discoverFiles(rootDir, outDir, corePlugins());
+		const result = await discoverFiles(rootDir, outDir, coreDiscoverOptions());
 		const collections = cat(result, "collections");
 		expect(collections.size).toBe(2);
 		expect(collections.has("posts")).toBe(true);
@@ -425,9 +433,9 @@ describe("discoverFiles", () => {
 			"export const posts = {};",
 		);
 
-		await expect(discoverFiles(rootDir, outDir, corePlugins())).rejects.toThrow(
-			/duplicate collections key "posts"/,
-		);
+		await expect(
+			discoverFiles(rootDir, outDir, coreDiscoverOptions()),
+		).rejects.toThrow(/duplicate collections key "posts"/);
 	});
 
 	// ── Plugin discovery ──────────────────────────────────────────────────────
@@ -437,12 +445,9 @@ describe("discoverFiles", () => {
 		await write("blocks/cta.ts", "export const cta = {};");
 		await write("modules.ts", "export default [];");
 
-		const result = await discoverFiles(rootDir, outDir, [
-			{
-				name: "test-plugin",
-				discover: { blocks: "blocks/*.ts" },
-			},
-		]);
+		const result = await discoverFiles(rootDir, outDir, {
+			discover: { blocks: "blocks/*.ts" },
+		});
 
 		// Plugin directory patterns go into categories
 		expect(result.categories.has("blocks")).toBe(true);
@@ -454,12 +459,9 @@ describe("discoverFiles", () => {
 	it("discovers plugin single-file pattern (e.g. sidebar.ts)", async () => {
 		await write("sidebar.ts", "export default [];");
 
-		const result = await discoverFiles(rootDir, outDir, [
-			{
-				name: "test-plugin",
-				discover: { sidebar: "sidebar.ts" },
-			},
-		]);
+		const result = await discoverFiles(rootDir, outDir, {
+			discover: { sidebar: "sidebar.ts" },
+		});
 
 		expect(result.singles.has("sidebar")).toBe(true);
 		const file = result.singles.get("sidebar")!;
@@ -495,8 +497,7 @@ describe("discoverFiles — mergeStrategy spread", () => {
 		await writeFile(full, content, "utf-8");
 	}
 
-	const spreadPlugin = {
-		name: "admin",
+	const spreadOpts: DiscoverFilesOptions = {
 		discover: {
 			sidebar: { pattern: "sidebar.ts", mergeStrategy: "spread" as const },
 		},
@@ -505,7 +506,7 @@ describe("discoverFiles — mergeStrategy spread", () => {
 	it("goes to spreads map, not singles map, when mergeStrategy is spread", async () => {
 		await write("sidebar.ts");
 
-		const result = await discoverFiles(rootDir, outDir, [spreadPlugin]);
+		const result = await discoverFiles(rootDir, outDir, spreadOpts);
 
 		expect(result.singles.has("sidebar")).toBe(false);
 		expect(result.spreads.has("sidebar")).toBe(true);
@@ -514,7 +515,7 @@ describe("discoverFiles — mergeStrategy spread", () => {
 	it("collects only root file when no features dir exists", async () => {
 		await write("sidebar.ts");
 
-		const result = await discoverFiles(rootDir, outDir, [spreadPlugin]);
+		const result = await discoverFiles(rootDir, outDir, spreadOpts);
 		const files = result.spreads.get("sidebar")!;
 
 		expect(files).toHaveLength(1);
@@ -527,7 +528,7 @@ describe("discoverFiles — mergeStrategy spread", () => {
 		await write("features/audit/sidebar.ts");
 		await write("features/admin/sidebar.ts");
 
-		const result = await discoverFiles(rootDir, outDir, [spreadPlugin]);
+		const result = await discoverFiles(rootDir, outDir, spreadOpts);
 		const files = result.spreads.get("sidebar")!;
 
 		expect(files).toHaveLength(3);
@@ -540,7 +541,7 @@ describe("discoverFiles — mergeStrategy spread", () => {
 		await write("features/admin/sidebar.ts");
 		await write("features/audit/sidebar.ts");
 
-		const result = await discoverFiles(rootDir, outDir, [spreadPlugin]);
+		const result = await discoverFiles(rootDir, outDir, spreadOpts);
 		const files = result.spreads.get("sidebar")!;
 
 		expect(files).toHaveLength(2);
@@ -549,7 +550,7 @@ describe("discoverFiles — mergeStrategy spread", () => {
 	});
 
 	it("produces empty spreads map when no files match", async () => {
-		const result = await discoverFiles(rootDir, outDir, [spreadPlugin]);
+		const result = await discoverFiles(rootDir, outDir, spreadOpts);
 
 		expect(result.spreads.has("sidebar")).toBe(false);
 	});
@@ -557,15 +558,14 @@ describe("discoverFiles — mergeStrategy spread", () => {
 	it("camelCases feature names in varName", async () => {
 		await write("features/blog-section/sidebar.ts");
 
-		const result = await discoverFiles(rootDir, outDir, [spreadPlugin]);
+		const result = await discoverFiles(rootDir, outDir, spreadOpts);
 		const files = result.spreads.get("sidebar")!;
 
 		expect(files[0].varName).toBe("_sidebar_blogSection");
 	});
 
-	it("supports multiple spread keys from the same plugin", async () => {
-		const multiPlugin = {
-			name: "admin",
+	it("supports multiple spread keys from the same discover options", async () => {
+		const multiOpts: DiscoverFilesOptions = {
 			discover: {
 				sidebar: { pattern: "sidebar.ts", mergeStrategy: "spread" as const },
 				dashboard: {
@@ -578,7 +578,7 @@ describe("discoverFiles — mergeStrategy spread", () => {
 		await write("features/admin/sidebar.ts");
 		await write("dashboard.ts");
 
-		const result = await discoverFiles(rootDir, outDir, [multiPlugin]);
+		const result = await discoverFiles(rootDir, outDir, multiOpts);
 
 		expect(result.spreads.get("sidebar")).toHaveLength(2);
 		expect(result.spreads.get("dashboard")).toHaveLength(1);
@@ -587,7 +587,7 @@ describe("discoverFiles — mergeStrategy spread", () => {
 	it("importPath is relative from outDir to the spread file", async () => {
 		await write("features/admin/sidebar.ts");
 
-		const result = await discoverFiles(rootDir, outDir, [spreadPlugin]);
+		const result = await discoverFiles(rootDir, outDir, spreadOpts);
 		const [file] = result.spreads.get("sidebar")!;
 
 		expect(file.importPath).toBe("../features/admin/sidebar");
