@@ -944,7 +944,7 @@ function UserFooter() {
 													<img
 														src={getFlagUrl(locale.code)}
 														alt={locale.code}
-														className="h-3 w-4 rounded-[2px] object-cover"
+														className="h-3 w-4 rounded-sm object-cover"
 														onError={(e) => {
 															e.currentTarget.style.display = "none";
 														}}
