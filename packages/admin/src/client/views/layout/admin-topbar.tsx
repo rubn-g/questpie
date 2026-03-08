@@ -40,13 +40,13 @@ export const AdminTopbar = React.memo(function AdminTopbar({
 	const shouldShowThemeToggle = setTheme && showThemeToggle !== false;
 
 	return (
-		<header className="relative sticky top-0 z-30 flex h-16 w-full items-center justify-between border-b border-border bg-background px-4 md:px-6 after:absolute after:inset-x-0 after:bottom-0 after:h-px after:bg-gradient-to-r after:from-transparent after:via-primary/15 after:to-transparent">
+		<header className="relative sticky top-0 z-30 flex h-14 w-full items-center justify-between border-b border-border bg-background px-4 md:px-6">
 			<div className="flex items-center gap-2">
 				{/* Sidebar toggle - works for both mobile (opens sheet) and desktop (collapses) */}
 				<SidebarTrigger />
 
 				{/* Breadcrumbs */}
-				<nav className="hidden md:flex items-center gap-1.5 text-sm text-muted-foreground">
+				<nav className="hidden md:flex items-center gap-1.5 font-mono text-xs text-muted-foreground">
 					{resolvedBreadcrumbs.map((crumb) => {
 						const CrumbIcon = crumb.icon;
 						const crumbLabel = resolveText(crumb.label);
