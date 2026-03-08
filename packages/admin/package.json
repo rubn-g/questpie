@@ -34,7 +34,8 @@
 			"default": "./src/exports/shared.ts"
 		},
 		"./*": "./*",
-		"./client/styles/index.css": "./src/client/styles/index.css"
+		"./client/styles/index.css": "./src/client/styles/index.css",
+		"./client/module": "./src/server/modules/admin/client/index.ts"
 	},
 	"scripts": {
 		"dev": "tsdown --watch",
@@ -48,7 +49,7 @@
 		"@dnd-kit/core": "^6.3.1",
 		"@dnd-kit/sortable": "^10.0.0",
 		"@dnd-kit/utilities": "^3.2.2",
-		"@fontsource-variable/dm-sans": "^5.2.8",
+		"@fontsource-variable/geist": "^5.2.8",
 		"@fontsource-variable/jetbrains-mono": "^5.2.8",
 		"@hookform/resolvers": "^5.1.0",
 		"@iconify/react": "^6.0.2",
@@ -113,7 +114,6 @@
 		"@types/react": "^19.2.0",
 		"@types/react-dom": "^19.2.0",
 		"babel-plugin-react-compiler": "^1.0.0",
-		"drizzle-orm": "1.0.0-beta.6-4414a19",
 		"tinyglobby": "^0.2.15",
 		"tsdown": "^0.18.3",
 		"typescript": "^5.9.2"
@@ -138,7 +138,8 @@
 				"default": "./dist/shared.mjs"
 			},
 			"./*": "./*",
-			"./client/styles/index.css": "./dist/client/styles/index.css"
+			"./client/styles/index.css": "./dist/client/styles/index.css",
+			"./client/module": "./dist/server/modules/admin/client/index.mjs"
 		}
 	},
 	"main": "./dist/index.mjs",
