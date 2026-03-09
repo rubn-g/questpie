@@ -841,7 +841,7 @@ function AdminRouterInner({
 			?.view;
 		const viewNameFromConfig = getConfiguredViewName((config as any)?.list);
 		const selectedListView = viewNameFromSchema ?? viewNameFromConfig;
-		if (!selectedListView) {
+		if (!selectedListView && process.env.NODE_ENV !== "production") {
 			console.warn(`No list view configured for collection "${name}". Add .list() to the collection.`);
 		}
 		const selectedListViewDefinition = views[selectedListView];
@@ -855,7 +855,7 @@ function AdminRouterInner({
 		const listViewLoader = getViewLoader(selectedListViewDefinition);
 
 		// Kind validation
-		if (selectedListViewDefinition && (selectedListViewDefinition as any).kind !== "list") {
+		if (selectedListViewDefinition && (selectedListViewDefinition as any).kind !== "list" && process.env.NODE_ENV !== "production") {
 			console.warn(`View "${selectedListView}" kind "${(selectedListViewDefinition as any).kind}" != expected "list"`);
 		}
 
@@ -906,7 +906,7 @@ function AdminRouterInner({
 			?.view;
 		const viewNameFromConfig = getConfiguredViewName((config as any)?.form);
 		const selectedFormView = viewNameFromSchema ?? viewNameFromConfig;
-		if (!selectedFormView) {
+		if (!selectedFormView && process.env.NODE_ENV !== "production") {
 			console.warn(`No form view configured for collection "${name}". Add .form() to the collection.`);
 		}
 		const selectedFormViewDefinition = views[selectedFormView];
@@ -920,7 +920,7 @@ function AdminRouterInner({
 		const formViewLoader = getViewLoader(selectedFormViewDefinition);
 
 		// Kind validation
-		if (selectedFormViewDefinition && (selectedFormViewDefinition as any).kind !== "form") {
+		if (selectedFormViewDefinition && (selectedFormViewDefinition as any).kind !== "form" && process.env.NODE_ENV !== "production") {
 			console.warn(`View "${selectedFormView}" kind "${(selectedFormViewDefinition as any).kind}" != expected "form"`);
 		}
 
@@ -980,7 +980,7 @@ function AdminRouterInner({
 		const viewNameFromSchema = (activeGlobalSchema as any)?.admin?.form?.view;
 		const viewNameFromConfig = getConfiguredViewName((config as any)?.form);
 		const selectedFormView = viewNameFromSchema ?? viewNameFromConfig;
-		if (!selectedFormView) {
+		if (!selectedFormView && process.env.NODE_ENV !== "production") {
 			console.warn(`No form view configured for global "${name}". Add .form() to the global.`);
 		}
 		const selectedFormViewDefinition = views[selectedFormView];
@@ -994,7 +994,7 @@ function AdminRouterInner({
 		const globalViewLoader = getViewLoader(selectedFormViewDefinition);
 
 		// Kind validation
-		if (selectedFormViewDefinition && (selectedFormViewDefinition as any).kind !== "form") {
+		if (selectedFormViewDefinition && (selectedFormViewDefinition as any).kind !== "form" && process.env.NODE_ENV !== "production") {
 			console.warn(`View "${selectedFormView}" kind "${(selectedFormViewDefinition as any).kind}" != expected "form"`);
 		}
 

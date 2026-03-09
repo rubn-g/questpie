@@ -566,7 +566,7 @@ export class Questpie<TConfig extends QuestpieConfig = QuestpieConfig> {
 								try {
 									await globalFn({ ...ctx, collection: name });
 								} catch (err) {
-									console.error(
+									this.logger.error(
 										`[QuestPie] Global collection hook "${hookName}" error for "${name}":`,
 										err,
 									);
@@ -593,7 +593,7 @@ export class Questpie<TConfig extends QuestpieConfig = QuestpieConfig> {
 								try {
 									await globalFn({ ...ctx, collection: name });
 								} catch (err) {
-									console.error(
+									this.logger.error(
 										`[QuestPie] Global collection hook "${hookName}" error for "${name}":`,
 										err,
 									);
@@ -628,7 +628,7 @@ export class Questpie<TConfig extends QuestpieConfig = QuestpieConfig> {
 								try {
 									await globalFn({ ...ctx, global: name });
 								} catch (err) {
-									console.error(
+									this.logger.error(
 										`[QuestPie] Global global hook "${hookName}" error for "${name}":`,
 										err,
 									);
@@ -655,7 +655,7 @@ export class Questpie<TConfig extends QuestpieConfig = QuestpieConfig> {
 								try {
 									await globalFn({ ...ctx, global: name });
 								} catch (err) {
-									console.error(
+									this.logger.error(
 										`[QuestPie] Global global hook "${hookName}" error for "${name}":`,
 										err,
 									);
