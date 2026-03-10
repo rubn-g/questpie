@@ -2,16 +2,30 @@
  * Object Field Factory (V2)
  */
 
-import { jsonb } from "drizzle-orm/pg-core";
+import { jsonb, type PgJsonbBuilder } from "drizzle-orm/pg-core";
 import { z } from "zod";
 import { objectOps } from "../operators/builtin.js";
 import { createField } from "../field-class.js";
-import type { DefaultFieldState } from "../field-class-types.js";
+import type { DefaultFieldState, FieldState } from "../field-class-types.js";
 import type { FieldDefinition, FieldDefinitionState, NestedFieldMetadata } from "../types.js";
 
-export type ObjectFieldState = DefaultFieldState & {
+/**
+ * Infer the data type from nested field definitions.
+ * Resolves each field's notNull + data to produce the typed object shape.
+ */
+type InferObjectData<TFields extends Record<string, Field<any>>> = {
+	[K in keyof TFields]: TFields[K] extends { readonly _: infer S extends FieldState }
+		? S extends { notNull: true }
+			? S["data"]
+			: S["data"] | null
+		: unknown;
+};
+
+export type ObjectFieldState<TData = Record<string, unknown>> = DefaultFieldState & {
 	type: "object";
-	data: Record<string, unknown>;
+	data: TData;
+	column: PgJsonbBuilder;
+	operators: typeof objectOps;
 };
 
 /**
@@ -28,10 +42,10 @@ export type ObjectFieldState = DefaultFieldState & {
  * })
  * ```
  */
-export function object(
-	fields: Record<string, Field<any>>,
-): Field<ObjectFieldState> {
-	return createField<ObjectFieldState>({
+export function object<TFields extends Record<string, Field<any>>>(
+	fields: TFields,
+): Field<ObjectFieldState<InferObjectData<TFields>>> {
+	return createField<ObjectFieldState<InferObjectData<TFields>>>({
 		type: "object",
 		columnFactory: (name) => jsonb(name),
 		schemaFactory: () => {

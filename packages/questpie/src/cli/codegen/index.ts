@@ -181,13 +181,13 @@ export function coreCodegenPlugin(): CodegenPlugin {
 						dir: "collections",
 						description: "Collection definition",
 						template: ({ kebab, camel }) =>
-							`import { collection } from "questpie";\n\nexport const ${camel} = collection("${kebab}")\n\t.fields(({ f }) => ({\n\t\ttitle: f.text("Title"),\n\t}))\n\t.title(({ f }) => f.title);\n`,
+							`import { collection } from "#questpie/factories";\n\nexport const ${camel} = collection("${kebab}")\n\t.fields(({ f }) => ({\n\t\ttitle: f.text("Title"),\n\t}))\n\t.title(({ f }) => f.title);\n`,
 					},
 					global: {
 						dir: "globals",
 						description: "Global definition",
 						template: ({ kebab, camel }) =>
-							`import { global } from "questpie";\n\nexport const ${camel} = global("${kebab}")\n\t.fields(({ f }) => ({\n\t\ttitle: f.text("Title"),\n\t}));\n`,
+							`import { global } from "#questpie/factories";\n\nexport const ${camel} = global("${kebab}")\n\t.fields(({ f }) => ({\n\t\ttitle: f.text("Title"),\n\t}));\n`,
 					},
 					fn: {
 						dir: "functions",

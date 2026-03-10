@@ -20,41 +20,37 @@ import type {
 export const auditLogCollection = collection("admin_audit_log")
 	.fields(({ f }) => ({
 		/** Action performed: create, update, delete, transition, custom */
-		action: f.text({ required: true, maxLength: 50, label: "Action" }),
+		action: f.text(50).required().label("Action"),
 
 		/** Resource type: collection, global, auth, system, custom */
-		resourceType: f.text({
-			required: true,
-			maxLength: 50,
-			label: "Resource Type",
-		}),
+		resourceType: f.text(50).required().label("Resource Type"),
 
 		/** Resource slug (collection/global name) */
-		resource: f.text({ required: true, maxLength: 255, label: "Resource" }),
+		resource: f.text(255).required().label("Resource"),
 
 		/** ID of the specific record (null for globals) */
-		resourceId: f.text({ maxLength: 255, label: "Resource ID" }),
+		resourceId: f.text(255).label("Resource ID"),
 
 		/** Denormalized display label for the affected record */
-		resourceLabel: f.text({ maxLength: 500, label: "Resource Label" }),
+		resourceLabel: f.text(500).label("Resource Label"),
 
 		/** User who performed the action */
-		userId: f.text({ maxLength: 255, label: "User ID" }),
+		userId: f.text(255).label("User ID"),
 
 		/** Denormalized user display name */
-		userName: f.text({ maxLength: 255, label: "User Name" }),
+		userName: f.text(255).label("User Name"),
 
 		/** Locale context of the operation */
-		locale: f.text({ maxLength: 10, label: "Locale" }),
+		locale: f.text(10).label("Locale"),
 
 		/** Field-level diffs: { field: { from, to } } or null */
-		changes: f.json({ label: "Changes" }),
+		changes: f.json().label("Changes"),
 
 		/** Extra context metadata */
-		metadata: f.json({ label: "Metadata" }),
+		metadata: f.json().label("Metadata"),
 
 		/** Human-readable title: "User Action ResourceType 'ResourceLabel'" */
-		title: f.text({ maxLength: 1000, label: "Title" }),
+		title: f.text(1000).label("Title"),
 	}))
 	.options({
 		timestamps: true,

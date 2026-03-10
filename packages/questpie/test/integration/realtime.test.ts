@@ -196,8 +196,8 @@ describe("realtime", () => {
 		it("logs realtime changes for create/update/delete", async () => {
 			const adapter = new MockRealtimeAdapter();
 			const posts = collection("posts").fields(({ f }) => ({
-				title: f.textarea({ required: true, localized: true }),
-				slug: f.textarea({ required: true }),
+				title: f.textarea().required().localized(),
+				slug: f.textarea().required(),
 			}));
 
 			const testModule = { collections: { posts }, locale: {
@@ -246,8 +246,8 @@ describe("realtime", () => {
 		it("logs bulk update/delete operations", async () => {
 			const adapter = new MockRealtimeAdapter();
 			const posts = collection("posts").fields(({ f }) => ({
-				title: f.textarea({ required: true }),
-				slug: f.textarea({ required: true }),
+				title: f.textarea().required(),
+				slug: f.textarea().required(),
 			}));
 
 			const testModule = { collections: {
@@ -289,8 +289,8 @@ describe("realtime", () => {
 		it("includes payload in realtime events", async () => {
 			const adapter = new MockRealtimeAdapter();
 			const posts = collection("posts").fields(({ f }) => ({
-				title: f.textarea({ required: true }),
-				status: f.textarea({ required: true }),
+				title: f.textarea().required(),
+				status: f.textarea().required(),
 			}));
 
 			const testModule = { collections: {
@@ -331,8 +331,8 @@ describe("realtime", () => {
 		it("only notifies subscribers with matching WHERE filter", async () => {
 			const adapter = new MockRealtimeAdapter();
 			const messages = collection("messages").fields(({ f }) => ({
-				chatId: f.textarea({ required: true }),
-				content: f.textarea({ required: true }),
+				chatId: f.textarea().required(),
+				content: f.textarea().required(),
 			}));
 
 			const testModule = { collections: {
@@ -398,9 +398,9 @@ describe("realtime", () => {
 		it("handles complex WHERE filters with multiple fields", async () => {
 			const adapter = new MockRealtimeAdapter();
 			const posts = collection("posts").fields(({ f }) => ({
-				status: f.textarea({ required: true }),
-				authorId: f.textarea({ required: true }),
-				title: f.textarea({ required: true }),
+				status: f.textarea().required(),
+				authorId: f.textarea().required(),
+				title: f.textarea().required(),
 			}));
 
 			const testModule = { collections: {
@@ -458,9 +458,9 @@ describe("realtime", () => {
 		it("refreshes create events for complex OR filters", async () => {
 			const adapter = new MockRealtimeAdapter();
 			const posts = collection("posts").fields(({ f }) => ({
-				title: f.textarea({ required: true }),
-				status: f.textarea({ required: true }),
-				authorId: f.textarea({ required: true }),
+				title: f.textarea().required(),
+				status: f.textarea().required(),
+				authorId: f.textarea().required(),
 			}));
 
 			const testModule = { collections: { posts } };
@@ -497,8 +497,8 @@ describe("realtime", () => {
 		it("conservatively refreshes create for complex filters", async () => {
 			const adapter = new MockRealtimeAdapter();
 			const posts = collection("posts").fields(({ f }) => ({
-				title: f.textarea({ required: true }),
-				status: f.textarea({ required: true }),
+				title: f.textarea().required(),
+				status: f.textarea().required(),
 			}));
 
 			const testModule = { collections: { posts } };
@@ -535,8 +535,8 @@ describe("realtime", () => {
 		it("filters by boolean fields", async () => {
 			const adapter = new MockRealtimeAdapter();
 			const tasks = collection("tasks").fields(({ f }) => ({
-				title: f.textarea({ required: true }),
-				completed: f.boolean({ required: true, default: false }),
+				title: f.textarea().required(),
+				completed: f.boolean().required().default(false),
 			}));
 
 			const testModule = { collections: {
@@ -580,8 +580,8 @@ describe("realtime", () => {
 		it("filters by numeric fields", async () => {
 			const adapter = new MockRealtimeAdapter();
 			const products = collection("products").fields(({ f }) => ({
-				name: f.textarea({ required: true }),
-				categoryId: f.number({ required: true }),
+				name: f.textarea().required(),
+				categoryId: f.number().required(),
 			}));
 
 			const testModule = { collections: {
@@ -623,9 +623,9 @@ describe("realtime", () => {
 		it("supports wildcard collection subscriptions", async () => {
 			const adapter = new MockRealtimeAdapter();
 			const posts = collection("posts")
-				.fields(({ f }) => ({ title: f.textarea({ required: true }) }));
+				.fields(({ f }) => ({ title: f.textarea().required() }));
 			const comments = collection("comments")
-				.fields(({ f }) => ({ content: f.textarea({ required: true }) }));
+				.fields(({ f }) => ({ content: f.textarea().required() }));
 
 			const testModule = { collections: {
 				posts,
@@ -662,8 +662,8 @@ describe("realtime", () => {
 		it("re-sends snapshot when record leaves filter on update", async () => {
 			const adapter = new MockRealtimeAdapter();
 			const posts = collection("posts").fields(({ f }) => ({
-				title: f.textarea({ required: true }),
-				status: f.textarea({ required: true }),
+				title: f.textarea().required(),
+				status: f.textarea().required(),
 			}));
 
 			const testModule = { collections: { posts } };
@@ -707,8 +707,8 @@ describe("realtime", () => {
 		it("re-sends snapshot for filtered subscriber on delete", async () => {
 			const adapter = new MockRealtimeAdapter();
 			const posts = collection("posts").fields(({ f }) => ({
-				title: f.textarea({ required: true }),
-				status: f.textarea({ required: true }),
+				title: f.textarea().required(),
+				status: f.textarea().required(),
 			}));
 
 			const testModule = { collections: { posts } };
@@ -755,17 +755,13 @@ describe("realtime", () => {
 		it("notifies subscribers when related resource changes", async () => {
 			const adapter = new MockRealtimeAdapter();
 			const users = collection("users")
-				.fields(({ f }) => ({ name: f.textarea({ required: true }) }))
+				.fields(({ f }) => ({ name: f.textarea().required() }))
 				.access({ read: true, create: true, update: true, delete: true });
 
 			const messages = collection("messages").fields(({ f }) => ({
-				chatId: f.textarea({ required: true }),
-				content: f.textarea({ required: true }),
-				user: f.relation({
-					to: "users",
-					required: true,
-					relationName: "user",
-				}),
+				chatId: f.textarea().required(),
+				content: f.textarea().required(),
+				user: f.relation("users").required().relationName("user"),
 			})).access({ read: true, create: true, update: true, delete: true });
 
 			const testModule = {
@@ -825,24 +821,16 @@ describe("realtime", () => {
 		it("handles nested WITH relations (comments -> posts -> users)", async () => {
 			const adapter = new MockRealtimeAdapter();
 			const users = collection("users")
-				.fields(({ f }) => ({ name: f.textarea({ required: true }) }));
+				.fields(({ f }) => ({ name: f.textarea().required() }));
 
 			const posts = collection("posts").fields(({ f }) => ({
-				title: f.textarea({ required: true }),
-				user: f.relation({
-					to: "users",
-					required: true,
-					relationName: "user",
-				}),
+				title: f.textarea().required(),
+				user: f.relation("users").required().relationName("user"),
 			}));
 
 			const comments = collection("comments").fields(({ f }) => ({
-				content: f.textarea({ required: true }),
-				post: f.relation({
-					to: "posts",
-					required: true,
-					relationName: "post",
-				}),
+				content: f.textarea().required(),
+				post: f.relation("posts").required().relationName("post"),
 			}));
 
 			const testModule = { collections: {
@@ -918,15 +906,11 @@ describe("realtime", () => {
 		it("service-level WITH dependency tracking", async () => {
 			const adapter = new MockRealtimeAdapter();
 			const categories = collection("categories")
-				.fields(({ f }) => ({ name: f.textarea({ required: true }) }));
+				.fields(({ f }) => ({ name: f.textarea().required() }));
 
 			const products = collection("products").fields(({ f }) => ({
-				name: f.textarea({ required: true }),
-				category: f.relation({
-					to: "categories",
-					required: true,
-					relationName: "category",
-				}),
+				name: f.textarea().required(),
+				category: f.relation("categories").required().relationName("category"),
 			}));
 
 			const testModule = { collections: {
@@ -1024,15 +1008,12 @@ describe("realtime", () => {
 		it("global subscriptions with WITH referencing collections", async () => {
 			const adapter = new MockRealtimeAdapter();
 			const categories = collection("categories")
-				.fields(({ f }) => ({ name: f.textarea({ required: true }) }))
+				.fields(({ f }) => ({ name: f.textarea().required() }))
 				.access({ read: true, create: true, update: true, delete: true });
 
 			const settings = global("settings").fields(({ f }) => ({
 				siteName: f.textarea(),
-				defaultCategory: f.relation({
-					to: "categories",
-					relationName: "defaultCategory",
-				}),
+				defaultCategory: f.relation("categories").relationName("defaultCategory"),
 			})).access({ read: true, update: true });
 
 			const testModule = {
@@ -1098,7 +1079,7 @@ describe("realtime", () => {
 		it("restarts adapter after all subscribers disconnect", async () => {
 			const adapter = new LifecycleTrackingRealtimeAdapter();
 			const items = collection("items")
-				.fields(({ f }) => ({ name: f.textarea({ required: true }) }));
+				.fields(({ f }) => ({ name: f.textarea().required() }));
 
 			const testModule = { collections: { items } };
 
@@ -1129,9 +1110,9 @@ describe("realtime", () => {
 		it("handles multiple subscribers with different filters", async () => {
 			const adapter = new MockRealtimeAdapter();
 			const orders = collection("orders").fields(({ f }) => ({
-				status: f.textarea({ required: true }),
-				customerId: f.textarea({ required: true }),
-				total: f.number({ required: true }),
+				status: f.textarea().required(),
+				customerId: f.textarea().required(),
+				total: f.number().required(),
 			}));
 
 			const testModule = { collections: {
@@ -1199,7 +1180,7 @@ describe("realtime", () => {
 		it("properly cleans up subscriptions", async () => {
 			const adapter = new MockRealtimeAdapter();
 			const items = collection("items")
-				.fields(({ f }) => ({ name: f.textarea({ required: true }) }));
+				.fields(({ f }) => ({ name: f.textarea().required() }));
 
 			const testModule = { collections: {
 				items,
@@ -1232,7 +1213,7 @@ describe("realtime", () => {
 		it("handles empty WHERE filter (matches all)", async () => {
 			const adapter = new MockRealtimeAdapter();
 			const logs = collection("logs")
-				.fields(({ f }) => ({ message: f.textarea({ required: true }) }));
+				.fields(({ f }) => ({ message: f.textarea().required() }));
 
 			const testModule = { collections: {
 				logs,
@@ -1262,8 +1243,8 @@ describe("realtime", () => {
 		it("scales filtered routing across many subscribers", async () => {
 			const adapter = new MockRealtimeAdapter();
 			const messages = collection("messages").fields(({ f }) => ({
-				roomId: f.textarea({ required: true }),
-				content: f.textarea({ required: true }),
+				roomId: f.textarea().required(),
+				content: f.textarea().required(),
 			}));
 
 			const testModule = { collections: { messages } };
@@ -1318,7 +1299,7 @@ describe("realtime", () => {
 		it("cleans up old realtime log rows with retentionDays", async () => {
 			const adapter = new MockRealtimeAdapter();
 			const items = collection("items")
-				.fields(({ f }) => ({ name: f.textarea({ required: true }) }));
+				.fields(({ f }) => ({ name: f.textarea().required() }));
 
 			const testModule = { collections: { items } };
 
@@ -1355,7 +1336,7 @@ describe("realtime", () => {
 		it("cleans up consumed realtime rows using min consumed seq", async () => {
 			const adapter = new MockRealtimeAdapter();
 			const items = collection("items")
-				.fields(({ f }) => ({ name: f.textarea({ required: true }) }));
+				.fields(({ f }) => ({ name: f.textarea().required() }));
 
 			const testModule = { collections: { items } };
 
@@ -1414,8 +1395,8 @@ describe("realtime", () => {
 			const adapter = new MockRealtimeAdapter();
 			const secrets = collection("secrets")
 				.fields(({ f }) => ({
-					content: f.textarea({ required: true }),
-					level: f.textarea({ required: true }),
+					content: f.textarea().required(),
+					level: f.textarea().required(),
 				}))
 				.access({
 					read: ({ session }) => (session?.user as any)?.role === "admin",
@@ -1469,8 +1450,8 @@ describe("realtime", () => {
 			const adapter = new MockRealtimeAdapter();
 			const secrets = collection("secrets")
 				.fields(({ f }) => ({
-					content: f.textarea({ required: true }),
-					level: f.textarea({ required: true }),
+					content: f.textarea().required(),
+					level: f.textarea().required(),
 				}))
 				.access({
 					read: ({ session }) => (session?.user as any)?.role === "admin",
@@ -1516,9 +1497,9 @@ describe("realtime", () => {
 			const adapter = new MockRealtimeAdapter();
 			const documents = collection("documents")
 				.fields(({ f }) => ({
-					title: f.textarea({ required: true }),
-					content: f.textarea({ required: true }),
-					internalNotes: f.textarea({ required: true }),
+					title: f.textarea().required(),
+					content: f.textarea().required(),
+					internalNotes: f.textarea().required(),
 				}))
 				.access({
 					read: true,
@@ -1575,8 +1556,8 @@ describe("realtime", () => {
 			const adapter = new MockRealtimeAdapter();
 			const config = global("config")
 				.fields(({ f }) => ({
-					apiKey: f.textarea({ required: true }),
-					publicName: f.textarea({ required: true }),
+					apiKey: f.textarea().required(),
+					publicName: f.textarea().required(),
 				}))
 				.access({
 					read: ({ session }) => (session?.user as any)?.role === "admin",
@@ -1639,8 +1620,8 @@ describe("realtime", () => {
 		it("should stream multiple snapshots on rapid updates", async () => {
 			const adapter = new MockRealtimeAdapter();
 			const counters = collection("counters").fields(({ f }) => ({
-				name: f.textarea({ required: true }),
-				value: f.number({ required: true, default: 0 }),
+				name: f.textarea().required(),
+				value: f.number().required().default(0),
 			})).access({ read: true, create: true, update: true, delete: true });
 
 			const testModule = {
@@ -1717,7 +1698,7 @@ describe("realtime", () => {
 		it("should handle client disconnection gracefully", async () => {
 			const adapter = new MockRealtimeAdapter();
 			const items = collection("items")
-				.fields(({ f }) => ({ name: f.textarea({ required: true }) }));
+				.fields(({ f }) => ({ name: f.textarea().required() }));
 
 			const testModule = {
 				collections: {

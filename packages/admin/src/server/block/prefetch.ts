@@ -450,16 +450,19 @@ export async function processDocumentBlocksPrefetch<
  *
  * @example
  * ```ts
+ * // collections/pages/index.ts
+ * import { collection } from "questpie";
  * import { createBlocksPrefetchHook } from "@questpie/admin/server";
  *
- * const pages = q.collection("pages")
- *   .fields(({ f }) => ({
+ * export default collection("pages", {
+ *   fields: ({ f }) => ({
  *     title: f.text({ required: true }),
  *     content: f.blocks({ allowedBlocks: ["hero", "text"] }),
- *   }))
- *   .hooks({
+ *   }),
+ *   hooks: {
  *     afterRead: createBlocksPrefetchHook(),
- *   });
+ *   },
+ * });
  * ```
  */
 export function createBlocksPrefetchHook() {

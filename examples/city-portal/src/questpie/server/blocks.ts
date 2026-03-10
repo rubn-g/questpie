@@ -55,50 +55,30 @@ export const heroBlock = block("hero")
 		order: 1,
 	}))
 	.fields(({ f }) => ({
-		title: f.text({
-			label: "Title",
-			required: true,
-		}),
-		subtitle: f.textarea({
-			label: "Subtitle",
-		}),
-		backgroundImage: f.upload({
-			label: "Background Image",
-			accept: ["image/*"],
-		}),
-		overlayOpacity: f.number({
-			label: "Overlay Opacity",
-			default: 60,
-		}),
-		alignment: f.select({
-			label: "Alignment",
-			options: [
+		title: f.text().label("Title").required(),
+		subtitle: f.textarea().label("Subtitle"),
+		backgroundImage: f.upload({ mimeTypes: ["image/*"] }).label("Background Image"),
+		overlayOpacity: f.number().label("Overlay Opacity").default(60),
+		alignment: f
+			.select([
 				{ value: "left", label: "Left" },
 				{ value: "center", label: "Center" },
 				{ value: "right", label: "Right" },
-			],
-			default: "center",
-		}),
-		ctaText: f.text({
-			label: "CTA Text",
-		}),
-		ctaLink: f.text({
-			label: "CTA Link",
-		}),
-		showSearch: f.boolean({
-			label: "Show Search Bar",
-			default: false,
-		}),
-		height: f.select({
-			label: "Height",
-			options: [
+			])
+			.label("Alignment")
+			.default("center"),
+		ctaText: f.text().label("CTA Text"),
+		ctaLink: f.text().label("CTA Link"),
+		showSearch: f.boolean().label("Show Search Bar").default(false),
+		height: f
+			.select([
 				{ value: "small", label: "Small" },
 				{ value: "medium", label: "Medium" },
 				{ value: "large", label: "Large" },
 				{ value: "full", label: "Full" },
-			],
-			default: "medium",
-		}),
+			])
+			.label("Height")
+			.default("medium"),
 	}));
 
 export const ctaBlock = block("cta")
@@ -109,28 +89,18 @@ export const ctaBlock = block("cta")
 		order: 2,
 	}))
 	.fields(({ f }) => ({
-		title: f.text({
-			label: "Title",
-			required: true,
-		}),
-		description: f.textarea({
-			label: "Description",
-		}),
-		buttonText: f.text({
-			label: "Button Text",
-		}),
-		buttonLink: f.text({
-			label: "Button Link",
-		}),
-		variant: f.select({
-			label: "Variant",
-			options: [
+		title: f.text().label("Title").required(),
+		description: f.textarea().label("Description"),
+		buttonText: f.text().label("Button Text"),
+		buttonLink: f.text().label("Button Link"),
+		variant: f
+			.select([
 				{ value: "highlight", label: "Highlight" },
 				{ value: "dark", label: "Dark" },
 				{ value: "light", label: "Light" },
-			],
-			default: "highlight",
-		}),
+			])
+			.label("Variant")
+			.default("highlight"),
 	}));
 
 export const announcementBannerBlock = block("announcement-banner")
@@ -141,14 +111,8 @@ export const announcementBannerBlock = block("announcement-banner")
 		order: 3,
 	}))
 	.fields(({ f }) => ({
-		count: f.number({
-			label: "Number to Show",
-			default: 3,
-		}),
-		showExpired: f.boolean({
-			label: "Show Expired",
-			default: false,
-		}),
+		count: f.number().label("Number to Show").default(3),
+		showExpired: f.boolean().label("Show Expired").default(false),
 	}))
 	.prefetch(async ({ values, ctx }) => {
 		const app = ctx.app as App;
@@ -179,30 +143,25 @@ export const textBlock = block("text")
 		order: 1,
 	}))
 	.fields(({ f }) => ({
-		content: f.richText({
-			label: "Content",
-			required: true,
-		}),
-		maxWidth: f.select({
-			label: "Max Width",
-			options: [
+		content: f.richText().label("Content").required(),
+		maxWidth: f
+			.select([
 				{ value: "narrow", label: "Narrow" },
 				{ value: "medium", label: "Medium" },
 				{ value: "wide", label: "Wide" },
 				{ value: "full", label: "Full" },
-			],
-			default: "medium",
-		}),
-		padding: f.select({
-			label: "Padding",
-			options: [
+			])
+			.label("Max Width")
+			.default("medium"),
+		padding: f
+			.select([
 				{ value: "none", label: "None" },
 				{ value: "small", label: "Small" },
 				{ value: "medium", label: "Medium" },
 				{ value: "large", label: "Large" },
-			],
-			default: "medium",
-		}),
+			])
+			.label("Padding")
+			.default("medium"),
 	}));
 
 export const headingBlock = block("heading")
@@ -213,29 +172,24 @@ export const headingBlock = block("heading")
 		order: 2,
 	}))
 	.fields(({ f }) => ({
-		text: f.text({
-			label: "Text",
-			required: true,
-		}),
-		level: f.select({
-			label: "Level",
-			options: [
+		text: f.text().label("Text").required(),
+		level: f
+			.select([
 				{ value: "h1", label: "H1" },
 				{ value: "h2", label: "H2" },
 				{ value: "h3", label: "H3" },
 				{ value: "h4", label: "H4" },
-			],
-			default: "h2",
-		}),
-		align: f.select({
-			label: "Alignment",
-			options: [
+			])
+			.label("Level")
+			.default("h2"),
+		align: f
+			.select([
 				{ value: "left", label: "Left" },
 				{ value: "center", label: "Center" },
 				{ value: "right", label: "Right" },
-			],
-			default: "left",
-		}),
+			])
+			.label("Alignment")
+			.default("left"),
 	}));
 
 export const imageBlock = block("image")
@@ -246,37 +200,26 @@ export const imageBlock = block("image")
 		order: 3,
 	}))
 	.fields(({ f }) => ({
-		image: f.upload({
-			label: "Image",
-			accept: ["image/*"],
-			required: true,
-		}),
-		caption: f.text({
-			label: "Caption",
-		}),
-		alt: f.text({
-			label: "Alt Text",
-			description: "Description for accessibility",
-		}),
-		aspectRatio: f.select({
-			label: "Aspect Ratio",
-			options: [
+		image: f.upload({ mimeTypes: ["image/*"] }).label("Image").required(),
+		caption: f.text().label("Caption"),
+		alt: f.text().label("Alt Text").description("Description for accessibility"),
+		aspectRatio: f
+			.select([
 				{ value: "original", label: "Original" },
 				{ value: "square", label: "Square" },
 				{ value: "video", label: "16:9" },
 				{ value: "portrait", label: "3:4" },
-			],
-			default: "original",
-		}),
-		width: f.select({
-			label: "Width",
-			options: [
+			])
+			.label("Aspect Ratio")
+			.default("original"),
+		width: f
+			.select([
 				{ value: "full", label: "Full Width" },
 				{ value: "medium", label: "Medium" },
 				{ value: "small", label: "Small" },
-			],
-			default: "full",
-		}),
+			])
+			.label("Width")
+			.default("full"),
 	}));
 
 export const galleryBlock = block("gallery")
@@ -287,35 +230,25 @@ export const galleryBlock = block("gallery")
 		order: 4,
 	}))
 	.fields(({ f }) => ({
-		title: f.text({
-			label: "Title",
-		}),
-		images: f.json({
-			label: "Images",
-			description: "Array of image data",
-		}),
-		columns: f.select({
-			label: "Columns",
-			options: [
+		title: f.text().label("Title"),
+		images: f.json().label("Images").description("Array of image data"),
+		columns: f
+			.select([
 				{ value: "2", label: "2" },
 				{ value: "3", label: "3" },
 				{ value: "4", label: "4" },
-			],
-			default: "3",
-		}),
-		showCaptions: f.boolean({
-			label: "Show Captions",
-			default: true,
-		}),
-		gap: f.select({
-			label: "Gap",
-			options: [
+			])
+			.label("Columns")
+			.default("3"),
+		showCaptions: f.boolean().label("Show Captions").default(true),
+		gap: f
+			.select([
 				{ value: "small", label: "Small" },
 				{ value: "medium", label: "Medium" },
 				{ value: "large", label: "Large" },
-			],
-			default: "medium",
-		}),
+			])
+			.label("Gap")
+			.default("medium"),
 	}));
 
 export const imageTextBlock = block("image-text")
@@ -326,30 +259,18 @@ export const imageTextBlock = block("image-text")
 		order: 5,
 	}))
 	.fields(({ f }) => ({
-		image: f.upload({
-			label: "Image",
-			accept: ["image/*"],
-		}),
-		imagePosition: f.select({
-			label: "Image Position",
-			options: [
+		image: f.upload({ mimeTypes: ["image/*"] }).label("Image"),
+		imagePosition: f
+			.select([
 				{ value: "left", label: "Left" },
 				{ value: "right", label: "Right" },
-			],
-			default: "left",
-		}),
-		title: f.text({
-			label: "Title",
-		}),
-		content: f.richText({
-			label: "Content",
-		}),
-		ctaText: f.text({
-			label: "CTA Text",
-		}),
-		ctaLink: f.text({
-			label: "CTA Link",
-		}),
+			])
+			.label("Image Position")
+			.default("left"),
+		title: f.text().label("Title"),
+		content: f.richText().label("Content"),
+		ctaText: f.text().label("CTA Text"),
+		ctaLink: f.text().label("CTA Link"),
 	}));
 
 export const videoBlock = block("video")
@@ -360,17 +281,13 @@ export const videoBlock = block("video")
 		order: 6,
 	}))
 	.fields(({ f }) => ({
-		title: f.text({
-			label: "Title",
-		}),
-		url: f.text({
-			label: "Video URL",
-			description: "YouTube or Vimeo URL",
-			required: true,
-		}),
-		caption: f.text({
-			label: "Caption",
-		}),
+		title: f.text().label("Title"),
+		url: f
+			.text()
+			.label("Video URL")
+			.description("YouTube or Vimeo URL")
+			.required(),
+		caption: f.text().label("Caption"),
 	}));
 
 export const accordionBlock = block("accordion")
@@ -381,17 +298,12 @@ export const accordionBlock = block("accordion")
 		order: 7,
 	}))
 	.fields(({ f }) => ({
-		title: f.text({
-			label: "Title",
-		}),
-		items: f.json({
-			label: "Items",
-			description: "Array of {title, content} objects",
-		}),
-		allowMultipleOpen: f.boolean({
-			label: "Allow Multiple Open",
-			default: false,
-		}),
+		title: f.text().label("Title"),
+		items: f
+			.json()
+			.label("Items")
+			.description("Array of {title, content} objects"),
+		allowMultipleOpen: f.boolean().label("Allow Multiple Open").default(false),
 	}));
 
 // ============================================================================
@@ -406,21 +318,11 @@ export const latestNewsBlock = block("latest-news")
 		order: 1,
 	}))
 	.fields(({ f }) => ({
-		title: f.text({
-			label: "Title",
-			default: "Latest News",
-		}),
-		count: f.number({
-			label: "Number of Articles",
-			default: 3,
-		}),
-		showFeatured: f.boolean({
-			label: "Show Featured First",
-			default: true,
-		}),
-		category: f.select({
-			label: "Filter by Category",
-			options: [
+		title: f.text().label("Title").default("Latest News"),
+		count: f.number().label("Number of Articles").default(3),
+		showFeatured: f.boolean().label("Show Featured First").default(true),
+		category: f
+			.select([
 				{ value: "all", label: "All Categories" },
 				{ value: "general", label: "General" },
 				{ value: "council", label: "Council News" },
@@ -428,17 +330,16 @@ export const latestNewsBlock = block("latest-news")
 				{ value: "planning", label: "Planning" },
 				{ value: "community", label: "Community" },
 				{ value: "transport", label: "Transport" },
-			],
-			default: "all",
-		}),
-		layout: f.select({
-			label: "Layout",
-			options: [
+			])
+			.label("Filter by Category")
+			.default("all"),
+		layout: f
+			.select([
 				{ value: "grid", label: "Grid" },
 				{ value: "list", label: "List" },
-			],
-			default: "grid",
-		}),
+			])
+			.label("Layout")
+			.default("grid"),
 	}))
 	.prefetch(async ({ values, ctx }) => {
 		const app = ctx.app as App;
@@ -467,18 +368,12 @@ export const contactsListBlock = block("contacts-list")
 		order: 2,
 	}))
 	.fields(({ f }) => ({
-		title: f.text({
-			label: "Title",
-			default: "Contact Us",
-		}),
-		showAll: f.boolean({
-			label: "Show All Contacts",
-			default: true,
-		}),
-		contactIds: f.json({
-			label: "Specific Contacts",
-			description: "Array of contact IDs (if not showing all)",
-		}),
+		title: f.text().label("Title").default("Contact Us"),
+		showAll: f.boolean().label("Show All Contacts").default(true),
+		contactIds: f
+			.json()
+			.label("Specific Contacts")
+			.description("Array of contact IDs (if not showing all)"),
 	}))
 	.prefetch(async ({ values, ctx }) => {
 		const app = ctx.app as App;
@@ -504,13 +399,9 @@ export const documentsListBlock = block("documents-list")
 		order: 3,
 	}))
 	.fields(({ f }) => ({
-		title: f.text({
-			label: "Title",
-			default: "Documents",
-		}),
-		category: f.select({
-			label: "Filter by Category",
-			options: [
+		title: f.text().label("Title").default("Documents"),
+		category: f
+			.select([
 				{ value: "all", label: "All Categories" },
 				{ value: "policy", label: "Policy" },
 				{ value: "minutes", label: "Meeting Minutes" },
@@ -520,13 +411,10 @@ export const documentsListBlock = block("documents-list")
 				{ value: "report", label: "Report" },
 				{ value: "form", label: "Form" },
 				{ value: "guide", label: "Guide" },
-			],
-			default: "all",
-		}),
-		limit: f.number({
-			label: "Max Documents",
-			default: 10,
-		}),
+			])
+			.label("Filter by Category")
+			.default("all"),
+		limit: f.number().label("Max Documents").default(10),
 	}))
 	.prefetch(async ({ values, ctx }) => {
 		const app = ctx.app as App;
@@ -556,34 +444,31 @@ export const columnsBlock = block("columns")
 	}))
 	.allowChildren()
 	.fields(({ f }) => ({
-		columns: f.select({
-			label: "Columns",
-			options: [
+		columns: f
+			.select([
 				{ value: "2", label: "2" },
 				{ value: "3", label: "3" },
 				{ value: "4", label: "4" },
-			],
-			default: "2",
-		}),
-		gap: f.select({
-			label: "Gap",
-			options: [
+			])
+			.label("Columns")
+			.default("2"),
+		gap: f
+			.select([
 				{ value: "small", label: "Small" },
 				{ value: "medium", label: "Medium" },
 				{ value: "large", label: "Large" },
-			],
-			default: "medium",
-		}),
-		padding: f.select({
-			label: "Padding",
-			options: [
+			])
+			.label("Gap")
+			.default("medium"),
+		padding: f
+			.select([
 				{ value: "none", label: "None" },
 				{ value: "small", label: "Small" },
 				{ value: "medium", label: "Medium" },
 				{ value: "large", label: "Large" },
-			],
-			default: "medium",
-		}),
+			])
+			.label("Padding")
+			.default("medium"),
 	}));
 
 export const spacerBlock = block("spacer")
@@ -594,16 +479,15 @@ export const spacerBlock = block("spacer")
 		order: 2,
 	}))
 	.fields(({ f }) => ({
-		size: f.select({
-			label: "Size",
-			options: [
+		size: f
+			.select([
 				{ value: "small", label: "S" },
 				{ value: "medium", label: "M" },
 				{ value: "large", label: "L" },
 				{ value: "xlarge", label: "XL" },
-			],
-			default: "medium",
-		}),
+			])
+			.label("Size")
+			.default("medium"),
 	}));
 
 export const dividerBlock = block("divider")
@@ -614,24 +498,22 @@ export const dividerBlock = block("divider")
 		order: 3,
 	}))
 	.fields(({ f }) => ({
-		style: f.select({
-			label: "Style",
-			options: [
+		style: f
+			.select([
 				{ value: "solid", label: "Solid" },
 				{ value: "dashed", label: "Dashed" },
 				{ value: "dotted", label: "Dotted" },
-			],
-			default: "solid",
-		}),
-		width: f.select({
-			label: "Width",
-			options: [
+			])
+			.label("Style")
+			.default("solid"),
+		width: f
+			.select([
 				{ value: "full", label: "Full" },
 				{ value: "medium", label: "Medium" },
 				{ value: "small", label: "Small" },
-			],
-			default: "full",
-		}),
+			])
+			.label("Width")
+			.default("full"),
 	}));
 
 // ============================================================================

@@ -10,7 +10,7 @@ In QuestPie, a field definition is not just a form widget or a database column. 
 ## What One Field Definition Produces
 
 ```ts
-price: f.number({ required: true, label: "Price (cents)" })
+price: f.number().required().label("Price (cents)")
 ```
 
 From this single line, QuestPie derives:
@@ -42,7 +42,7 @@ With QuestPie:
 
 ```text
 // With QuestPie — defined once
-f.number({ required: true, label: "Price" })
+f.number().required().label("Price")
 → database, validation, types, UI all derived automatically
 ```
 
@@ -71,15 +71,15 @@ Add a field to a collection, re-run codegen:
 ```ts
 // Before
 .fields(({ f }) => ({
-  title: f.text({ required: true }),
-  body: f.richText(),
+  title: f.text().required(),
+  body: f.textarea(),
 }))
 
 // After — add status field
 .fields(({ f }) => ({
-  title: f.text({ required: true }),
-  body: f.richText(),
-  status: f.select({ options: ["draft", "published"], default: "draft" }),
+  title: f.text().required(),
+  body: f.textarea(),
+  status: f.select(["draft", "published"]).default("draft"),
 }))
 ```
 

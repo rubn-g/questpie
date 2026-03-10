@@ -6,9 +6,9 @@ import { runTestDbMigrations } from "../utils/test-db";
 
 const users = collection("users")
 	.fields(({ f }) => ({
-		email: f.text({ required: true, maxLength: 255 }),
-		name: f.textarea({ required: true }),
-		ssn: f.text({ maxLength: 20 }), // Restricted field - defined in .access()
+		email: f.text(255).required(),
+		name: f.textarea().required(),
+		ssn: f.text(20), // Restricted field - defined in .access()
 		salary: f.textarea(), // Restricted field - defined in .access()
 		bio: f.textarea(), // Unrestricted field
 	}))
@@ -34,8 +34,8 @@ const users = collection("users")
 
 const publicPosts = collection("public_posts")
 	.fields(({ f }) => ({
-		title: f.textarea({ required: true }),
-		content: f.textarea({ required: true }),
+		title: f.textarea().required(),
+		content: f.textarea().required(),
 		draft: f.textarea(), // No access rules
 	}))
 	.title(({ f }) => f.title)

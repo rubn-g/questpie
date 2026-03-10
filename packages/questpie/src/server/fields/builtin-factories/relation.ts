@@ -10,7 +10,7 @@
  * - morphMany: Reverse polymorphic
  */
 
-import { jsonb, varchar } from "drizzle-orm/pg-core";
+import { jsonb, varchar, type PgVarcharBuilder } from "drizzle-orm/pg-core";
 import { z } from "zod";
 import type { KnownCollectionNames } from "../../config/app-context.js";
 import {
@@ -30,25 +30,36 @@ import type {
 // Types
 // ============================================================================
 
-export type RelationFieldState = DefaultFieldState & {
+export type RelationFieldState<TTo extends string = string> = DefaultFieldState & {
 	type: "relation";
 	data: string;
+	column: PgVarcharBuilder<[string, ...string[]]>;
+	operators: typeof belongsToOps;
+	relationTo: TTo;
+	relationKind: "one";
 };
 
-export type ToManyRelationFieldState = DefaultFieldState & {
+export type ToManyRelationFieldState<TTo extends string = string> = DefaultFieldState & {
 	type: "relation";
 	data: string[];
 	virtual: true;
+	operators: typeof toManyOps;
+	relationTo: TTo;
+	relationKind: "many";
 };
 
 export type MorphToFieldState = DefaultFieldState & {
 	type: "relation";
 	data: { type: string; id: string };
+	operators: typeof belongsToOps;
 };
 
-export type MultipleRelationFieldState = DefaultFieldState & {
+export type MultipleRelationFieldState<TTo extends string = string> = DefaultFieldState & {
 	type: "relation";
 	data: string[];
+	operators: typeof multipleOps;
+	relationTo: TTo;
+	relationKind: "one";
 };
 
 type RelationTarget =
@@ -160,7 +171,7 @@ function buildRelationMetadata(state: import("../field-class-types.js").FieldRun
  * subject: f.relation({ users: "users", posts: "posts" }).required()
  * ```
  */
-export function relation(target: RelationTarget): Field<RelationFieldState> {
+export function relation<TTo extends string>(target: TTo | Exclude<RelationTarget, string>): Field<RelationFieldState<TTo>> {
 	const isPoly = isPolymorphicTarget(target);
 
 	if (isPoly) {
@@ -196,7 +207,7 @@ export function relation(target: RelationTarget): Field<RelationFieldState> {
 	}
 
 	// Default: belongsTo
-	return createField<RelationFieldState>({
+	return createField<RelationFieldState<TTo>>({
 		type: "relation",
 		columnFactory: (name) => varchar(name, { length: 36 }),
 		schemaFactory: () => z.string().uuid(),
@@ -216,37 +227,6 @@ export function relation(target: RelationTarget): Field<RelationFieldState> {
 // ============================================================================
 // Chain Methods
 // ============================================================================
-
-declare module "../field-class.js" {
-	interface Field<TState> {
-		/** Convert to hasMany relation (FK on target table). */
-		hasMany(config: {
-			foreignKey: string;
-			onDelete?: ReferentialAction;
-			relationName?: string;
-		}): Field<TState & { virtual: true }>;
-
-		/** Convert to manyToMany relation (junction table). */
-		manyToMany(config: {
-			through: JunctionTarget;
-			sourceField?: string;
-			targetField?: string;
-			relationName?: string;
-		}): Field<TState & { virtual: true }>;
-
-		/** Convert to multiple relation (jsonb array of FKs). */
-		multiple(): Field<TState>;
-
-		/** Set onDelete action. */
-		onDelete(action: ReferentialAction): Field<TState>;
-
-		/** Set onUpdate action. */
-		onUpdate(action: ReferentialAction): Field<TState>;
-
-		/** Set relation name (for disambiguation). */
-		relationName(name: string): Field<TState>;
-	}
-}
 
 Field.prototype.hasMany = function (config) {
 	return new Field({
@@ -284,7 +264,7 @@ Field.prototype.multiple = function () {
 		columnFactory: (name: string) => jsonb(name),
 		schemaFactory: () => z.array(z.string().uuid()),
 		operatorSet: multipleOps,
-	});
+	}) as any;
 };
 
 Field.prototype.onDelete = function (action) {

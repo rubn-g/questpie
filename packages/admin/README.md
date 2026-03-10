@@ -72,9 +72,9 @@ Admin metadata, list views, and form views are defined on the collection itself:
 ```ts
 const posts = collection("posts")
   .fields(({ f }) => ({
-    title: f.text({ label: "Title", required: true }),
-    content: f.richText({ label: "Content" }),
-    status: f.select({ label: "Status", options: ["draft", "published"] }),
+    title: f.text(255).required().label("Title"),
+    content: f.richText().label("Content"),
+    status: f.select(["draft", "published"]).label("Status"),
     cover: f.upload({ to: "assets", mimeTypes: ["image/*"] }),
     publishedAt: f.date(),
   }))
@@ -191,6 +191,8 @@ import type { App } from "../server/.generated";
 
 export const admin = qa<App>().use(adminModule);
 ```
+
+> **Note:** The old `.toNamespace()` call has been removed. `qa<App>().use(adminModule)` is the complete builder.
 
 ### 2. Typed Hooks
 

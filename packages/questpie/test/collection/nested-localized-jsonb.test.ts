@@ -20,10 +20,10 @@ type PageContent = any;
 
 const pages = collection("pages")
 	.fields(({ f }) => ({
-		slug: f.text({ required: true, maxLength: 100 }),
+		slug: f.text(100).required(),
 		// A localized field is needed to create the i18n table with _localized column
 		// for storing nested $i18n marker values
-		title: f.text({ localized: true }),
+		title: f.text().localized(),
 		// JSON field - $i18n markers in the content will be auto-detected and handled
 		// by the localization system. The _localized column in i18n table stores the extracted values.
 		content: f.json(),

@@ -36,13 +36,19 @@ export const getBlogPost = createServerFn({ method: "GET" })
 				id: post.id,
 				title: post.title,
 				slug: post.slug,
-				content: post.content as any,
+				content: post.content,
 				excerpt: post.excerpt,
 				readingTime: post.readingTime,
 				status: post.status,
 				publishedAt: post.publishedAt,
-				author: post.author as any,
-				coverImage: (post.coverImage as any)?.url ?? null,
+				author: post.author
+					? {
+							name: post.author.name,
+							email: post.author.email,
+							image: post.author.image,
+						}
+					: null,
+				coverImage: post.coverImage?.url ?? null,
 				tags: post.tags,
 			},
 		};
@@ -73,8 +79,14 @@ export const getAllBlogPosts = createServerFn({ method: "GET" })
 				excerpt: p.excerpt,
 				readingTime: p.readingTime,
 				publishedAt: p.publishedAt,
-				author: p.author as any,
-				coverImage: (p.coverImage as any)?.url ?? null,
+				author: p.author
+					? {
+							name: p.author.name,
+							email: p.author.email,
+							image: p.author.image,
+						}
+					: null,
+				coverImage: p.coverImage?.url ?? null,
 				tags: p.tags,
 			})),
 		};

@@ -7,7 +7,7 @@ import { runTestDbMigrations } from "../utils/test-db";
 describe("collection IDs (field builder)", () => {
 	describe("default id", () => {
 		const posts = collection("posts").fields(({ f }) => ({
-			title: f.text({ required: true, maxLength: 255 }),
+			title: f.text(255).required(),
 		}));
 
 		let setup: Awaited<ReturnType<typeof buildMockApp>>;
@@ -47,8 +47,8 @@ describe("collection IDs (field builder)", () => {
 	describe("i18n with default id", () => {
 		const posts = collection("posts")
 			.fields(({ f }) => ({
-				sku: f.text({ required: true, maxLength: 50 }),
-				title: f.text({ required: true, localized: true, maxLength: 255 }),
+				sku: f.text(50).required(),
+				title: f.text(255).required().localized(),
 			}))
 			.title(({ f }) => f.title);
 
@@ -98,7 +98,7 @@ describe("collection IDs (field builder)", () => {
 	describe("versioning with default id", () => {
 		const posts = collection("posts")
 			.fields(({ f }) => ({
-				title: f.text({ required: true, maxLength: 255 }),
+				title: f.text(255).required(),
 			}))
 			.options({ versioning: true });
 
@@ -140,8 +140,8 @@ describe("collection IDs (field builder)", () => {
 	describe("combined i18n + versioning with default id", () => {
 		const posts = collection("posts")
 			.fields(({ f }) => ({
-				sku: f.text({ required: true, maxLength: 50 }),
-				title: f.text({ required: true, localized: true, maxLength: 255 }),
+				sku: f.text(50).required(),
+				title: f.text(255).required().localized(),
 			}))
 			.options({ versioning: true });
 

@@ -115,7 +115,7 @@ describe("getSchema() Integration", () => {
 	// Test collection
 	const posts = collection("posts")
 		.fields(({ f }) => ({
-			title: f.text({ required: true, maxLength: 255 }),
+			title: f.text(255).required(),
 			content: f.textarea(),
 		}))
 		.title(({ f }) => f.title)

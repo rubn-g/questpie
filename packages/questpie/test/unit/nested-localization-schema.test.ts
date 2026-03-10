@@ -14,10 +14,8 @@ describe("extractNestedLocalizationSchema", () => {
 	it("returns null for non-localized object field", () => {
 		const col = collection("test").fields(({ f }) => ({
 			profile: f.object({
-				fields: {
-					name: f.text({ required: true }),
-					age: f.number(),
-				},
+				name: f.text().required(),
+				age: f.number(),
 			}),
 		}));
 
@@ -29,10 +27,8 @@ describe("extractNestedLocalizationSchema", () => {
 	it("extracts schema for object with localized nested field", () => {
 		const col = collection("test").fields(({ f }) => ({
 			profile: f.object({
-				fields: {
-					name: f.text({ required: true }),
-					description: f.text({ localized: true }),
-				},
+				name: f.text().required(),
+				description: f.text().localized(),
 			}),
 		}));
 
@@ -44,20 +40,14 @@ describe("extractNestedLocalizationSchema", () => {
 	it("extracts schema for deeply nested localized fields", () => {
 		const col = collection("test").fields(({ f }) => ({
 			workingHours: f.object({
-				fields: {
-					monday: f.object({
-						fields: {
-							isOpen: f.boolean(),
-							note: f.text({ localized: true }),
-						},
-					}),
-					tuesday: f.object({
-						fields: {
-							isOpen: f.boolean(),
-							note: f.text({ localized: true }),
-						},
-					}),
-				},
+				monday: f.object({
+					isOpen: f.boolean(),
+					note: f.text().localized(),
+				}),
+				tuesday: f.object({
+					isOpen: f.boolean(),
+					note: f.text().localized(),
+				}),
 			}),
 		}));
 
@@ -71,14 +61,10 @@ describe("extractNestedLocalizationSchema", () => {
 
 	it("extracts schema for array with localized item fields", () => {
 		const col = collection("test").fields(({ f }) => ({
-			links: f.array({
-				of: f.object({
-					fields: {
-						platform: f.text({ required: true }),
-						description: f.text({ localized: true }),
-					},
-				}),
-			}),
+			links: f.object({
+				platform: f.text().required(),
+				description: f.text().localized(),
+			}).array(),
 		}));
 
 		const fieldDef = col.state.fieldDefinitions!.links;
@@ -90,14 +76,10 @@ describe("extractNestedLocalizationSchema", () => {
 
 	it("returns null for array without localized fields", () => {
 		const col = collection("test").fields(({ f }) => ({
-			links: f.array({
-				of: f.object({
-					fields: {
-						platform: f.text({ required: true }),
-						url: f.text(),
-					},
-				}),
-			}),
+			links: f.object({
+				platform: f.text().required(),
+				url: f.text(),
+			}).array(),
 		}));
 
 		const fieldDef = col.state.fieldDefinitions!.links;
@@ -108,23 +90,15 @@ describe("extractNestedLocalizationSchema", () => {
 	it("extracts schema for mixed nested structure", () => {
 		const col = collection("test").fields(({ f }) => ({
 			content: f.object({
-				fields: {
-					title: f.text({ localized: true }),
-					settings: f.object({
-						fields: {
-							theme: f.text(),
-							greeting: f.text({ localized: true }),
-						},
-					}),
-					items: f.array({
-						of: f.object({
-							fields: {
-								name: f.text(),
-								label: f.text({ localized: true }),
-							},
-						}),
-					}),
-				},
+				title: f.text().localized(),
+				settings: f.object({
+					theme: f.text(),
+					greeting: f.text().localized(),
+				}),
+				items: f.object({
+					name: f.text(),
+					label: f.text().localized(),
+				}).array(),
 			}),
 		}));
 
@@ -141,22 +115,16 @@ describe("extractNestedLocalizationSchema", () => {
 describe("extractNestedLocalizationSchemas", () => {
 	it("extracts schemas for all JSONB fields in collection", () => {
 		const col = collection("test").fields(({ f }) => ({
-			name: f.text({ required: true }),
-			bio: f.text({ localized: true }), // Top-level localized - not nested
+			name: f.text().required(),
+			bio: f.text().localized(), // Top-level localized - not nested
 			metadata: f.object({
-				fields: {
-					views: f.number(),
-					lastNote: f.text({ localized: true }),
-				},
+				views: f.number(),
+				lastNote: f.text().localized(),
 			}),
-			tags: f.array({
-				of: f.object({
-					fields: {
-						name: f.text(),
-						description: f.text({ localized: true }),
-					},
-				}),
-			}),
+			tags: f.object({
+				name: f.text(),
+				description: f.text().localized(),
+			}).array(),
 		}));
 
 		const schemas = extractNestedLocalizationSchemas(
@@ -172,8 +140,8 @@ describe("extractNestedLocalizationSchemas", () => {
 
 	it("returns empty object for collection without nested localized fields", () => {
 		const col = collection("simple").fields(({ f }) => ({
-			name: f.text({ required: true }),
-			title: f.text({ localized: true }), // Top-level only
+			name: f.text().required(),
+			title: f.text().localized(), // Top-level only
 		}));
 
 		const schemas = extractNestedLocalizationSchemas(

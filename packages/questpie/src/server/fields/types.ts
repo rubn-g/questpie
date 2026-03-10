@@ -104,7 +104,7 @@ export interface FieldDefinition<TState extends FieldDefinitionState> {
 	/**
 	 * Optional: Get nested fields (for object/array types).
 	 */
-	getNestedFields?(): Record<string, FieldDefinition<FieldDefinitionState>>;
+	getNestedFields?(): Record<string, FieldDefinition<FieldDefinitionState>> | undefined;
 
 	/**
 	 * Optional: Modify select query (for relations, computed fields).
@@ -743,46 +743,66 @@ export type EmptyFieldState = {
 // ============================================================================
 
 /**
+ * Infer V1 FieldLocation from V2 FieldState properties.
+ * - localized: true → "i18n"
+ * - virtual: true + type: "relation" → "relation"
+ * - virtual: true → "virtual"
+ * - else → "main"
+ */
+export type InferLocationFromV2State<TState extends import("./field-class-types.js").FieldState> =
+	TState extends { localized: true }
+		? "i18n"
+		: TState extends { virtual: true; type: "relation" }
+			? "relation"
+			: TState extends { virtual: true }
+				? "virtual"
+				: "main";
+
+/**
  * Extract fields by location from field definitions.
- * Used to separate main table fields, i18n fields, virtual fields, and relations.
+ * Supports both V1 FieldDefinition (via state.location) and V2 Field (via inferred location).
  */
 export type ExtractFieldsByLocation<
-	TFields extends Record<string, FieldDefinition<FieldDefinitionState>>,
+	TFields extends Record<string, any>,
 	TLocation extends FieldLocation,
 > = {
-	[K in keyof TFields as TFields[K] extends FieldDefinition<infer TState>
-		? TState["location"] extends TLocation
+	[K in keyof TFields as TFields[K] extends { readonly _: infer TState extends import("./field-class-types.js").FieldState }
+		? InferLocationFromV2State<TState> extends TLocation
 			? K
 			: never
-		: never]: TFields[K];
+		: TFields[K] extends FieldDefinition<infer TState>
+			? TState["location"] extends TLocation
+				? K
+				: never
+			: never]: TFields[K];
 };
 
 /**
  * Extract main table fields (location: "main")
  */
 export type ExtractMainFields<
-	TFields extends Record<string, FieldDefinition<FieldDefinitionState>>,
+	TFields extends Record<string, any>,
 > = ExtractFieldsByLocation<TFields, "main">;
 
 /**
  * Extract localized fields (location: "i18n")
  */
 export type ExtractI18nFields<
-	TFields extends Record<string, FieldDefinition<FieldDefinitionState>>,
+	TFields extends Record<string, any>,
 > = ExtractFieldsByLocation<TFields, "i18n">;
 
 /**
  * Extract virtual fields (location: "virtual")
  */
 export type ExtractVirtualFields<
-	TFields extends Record<string, FieldDefinition<FieldDefinitionState>>,
+	TFields extends Record<string, any>,
 > = ExtractFieldsByLocation<TFields, "virtual">;
 
 /**
  * Extract relation fields (location: "relation")
  */
 export type ExtractRelationFields<
-	TFields extends Record<string, FieldDefinition<FieldDefinitionState>>,
+	TFields extends Record<string, any>,
 > = ExtractFieldsByLocation<TFields, "relation">;
 
 /**

@@ -41,7 +41,7 @@ describe("adapter route config", () => {
 	describe("search reindex access", () => {
 		const posts = collection("posts")
 			.fields(({ f }) => ({
-				title: f.text({ required: true }),
+				title: f.text().required(),
 			}))
 			.access({
 				read: true,
@@ -118,7 +118,7 @@ describe("adapter route config", () => {
 
 		const documents = collection("documents")
 			.fields(({ f }) => ({
-				title: f.text({ required: true }),
+				title: f.text().required(),
 			}))
 			.upload({ visibility: "public" });
 

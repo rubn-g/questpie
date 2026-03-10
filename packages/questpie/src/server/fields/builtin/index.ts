@@ -1,100 +1,57 @@
 /**
- * Built-in Field Types
+ * Built-in Field Types — Barrel
  *
- * Re-exports all built-in field type definitions and factories.
- * Import this module to register all built-in fields with the default registry.
- *
- * NOTE: Module augmentation is no longer used.
- * Field types are now derived from questpie.state.fields at compile time.
- * BuiltinFields type in builder.ts maps the default set.
+ * Re-exports V2 field factories and the builtinFields map.
  */
 
+// V2 factories
 export {
-	type ArrayFieldConfig,
-	type ArrayFieldMeta,
-	arrayField,
-} from "./array.js";
-// Boolean field
-export {
-	type BooleanFieldConfig,
-	type BooleanFieldMeta,
-	booleanField,
-} from "./boolean.js";
-// Date/Time fields
-export { type DateFieldConfig, type DateFieldMeta, dateField } from "./date.js";
-export {
-	type DatetimeFieldConfig,
-	type DatetimeFieldMeta,
-	datetimeField,
-} from "./datetime.js";
-/**
- * Default field factories map.
- * Use this with QuestpieBuilder.fields() to register all built-in fields.
- *
- * @example
- * ```ts
- * import { questpie, defaultFields } from "@questpie/server";
- *
- * const q = questpie({ name: "app" })
- *   .fields(defaultFields);
- * ```
- */
-export { builtinFields, type DefaultFields, defaultFields } from "./defaults.js";
-export {
-	type EmailFieldConfig,
-	type EmailFieldMeta,
-	emailField,
-} from "./email.js";
-export {
-	type JsonFieldConfig,
-	type JsonFieldMeta,
-	type JsonValue,
-	jsonField,
-} from "./json.js";
-// Numeric fields
-export {
-	type NumberFieldConfig,
-	type NumberFieldMeta,
-	numberField,
-} from "./number.js";
-// Complex fields
-export {
-	type ObjectFieldConfig,
-	type ObjectFieldMeta,
-	objectField,
-} from "./object.js";
-// Relation fields
-// Note: RelationFieldMetadata is exported from ../types.ts to avoid duplicate exports
-// which cause TS4023 errors during declaration generation
-export {
-	type InferredRelationType,
-	type InferredRelationType as RelationType, // Alias for backwards compatibility
-	inferRelationType,
-	type ReferentialAction,
-	type RelationFieldConfig,
-	type RelationFieldMeta,
-	type RelationTarget,
-	relationField,
-} from "./relation.js";
-// Select/Enum field
-export {
-	type SelectFieldConfig,
-	type SelectFieldMeta,
+	text,
+	type TextFieldState,
+	textarea,
+	type TextareaFieldState,
+	email,
+	type EmailFieldState,
+	url,
+	type UrlFieldState,
+	number,
+	type NumberFieldState,
+	boolean,
+	type BooleanFieldState,
+	date,
+	type DateFieldState,
+	datetime,
+	type DatetimeFieldState,
+	time,
+	type TimeFieldState,
+	select,
 	type SelectOption,
-	selectField,
-} from "./select.js";
-// Text-based fields
-export { type TextFieldConfig, type TextFieldMeta, textField } from "./text.js";
+	type SelectFieldState,
+	json,
+	type JsonFieldState,
+	type JsonValue,
+	object,
+	type ObjectFieldState,
+	from,
+	type CustomFieldState,
+	relation,
+	type RelationFieldState,
+	upload,
+	type UploadFieldState,
+} from "../builtin-factories/index.js";
+
+// Builtin fields map
 export {
-	type TextareaFieldConfig,
-	type TextareaFieldMeta,
-	textareaField,
-} from "./textarea.js";
-export { type TimeFieldConfig, type TimeFieldMeta, timeField } from "./time.js";
-// Upload field
-export {
-	type UploadFieldConfig,
-	type UploadFieldMeta,
-	uploadField,
-} from "./upload.js";
-export { type UrlFieldConfig, type UrlFieldMeta, urlField } from "./url.js";
+	builtinFields,
+	type BuiltinFields,
+	defaultFields,
+	type DefaultFields,
+} from "./defaults.js";
+
+// Re-export types from types.ts that were previously co-located with V1 builtin files
+export type {
+	InferredRelationType,
+	ReferentialAction,
+	RelationFieldMetadata,
+	SelectFieldMetadata,
+} from "../types.js";

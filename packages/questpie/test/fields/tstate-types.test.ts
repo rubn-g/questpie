@@ -22,12 +22,10 @@ const f = createFieldBuilder(defaultFields);
 describe("TState Type Inference (compile-time only)", () => {
 	test("field state is correctly typed", () => {
 		// Create field definitions
-		const titleField = f.text({ required: true, maxLength: 255 });
-		const contentField = f.text({ localized: true });
-		const excerptField = f.text({ virtual: true });
-		const countField = f.number({
-			virtual: sql<number>`(SELECT COUNT(*))`,
-		});
+		const titleField = f.text(255).required();
+		const contentField = f.text().localized();
+		const excerptField = f.text().virtual();
+		const countField = f.number().virtual(sql<number>`(SELECT COUNT(*))`);
 
 		// Type tests - these should compile without errors
 		type TitleState = typeof titleField.state;
@@ -66,27 +64,27 @@ describe("TState Type Inference (compile-time only)", () => {
 
 	test("input variations are correctly inferred", () => {
 		// required: true
-		const requiredField = f.text({ required: true });
+		const requiredField = f.text().required();
 		type RequiredInput = typeof requiredField.state.input;
 		const _required: RequiredInput = "test"; // should be string
 
 		// default value
-		const defaultField = f.text({ default: "untitled" });
+		const defaultField = f.text().default("untitled");
 		type DefaultInput = typeof defaultField.state.input;
 		const _default: DefaultInput = undefined; // should be string | undefined
 
 		// input: false
-		const noInputField = f.text({ input: false });
+		const noInputField = f.text().inputFalse();
 		type NoInput = typeof noInputField.state.input;
 		// NoInput should be never
 
 		// input: "optional"
-		const optionalField = f.text({ input: "optional" });
+		const optionalField = f.text().inputOptional();
 		type OptionalInput = typeof optionalField.state.input;
 		const _optional: OptionalInput = undefined; // should be string | undefined
 
 		// virtual + input: true
-		const virtualWithInput = f.text({ virtual: true, input: true });
+		const virtualWithInput = f.text().virtual().inputTrue();
 		type VirtualWithInput = typeof virtualWithInput.state.input;
 		const _virtualInput: VirtualWithInput = undefined; // should be string | undefined
 
@@ -97,19 +95,17 @@ describe("TState Type Inference (compile-time only)", () => {
 
 	test("output variations are correctly inferred", () => {
 		// default
-		const normalField = f.text({});
+		const normalField = f.text();
 		type NormalOutput = typeof normalField.state.output;
 		const _normal: NormalOutput = "test"; // should be string
 
 		// output: false
-		const hiddenField = f.text({ output: false });
+		const hiddenField = f.text().outputFalse();
 		type HiddenOutput = typeof hiddenField.state.output;
 		// HiddenOutput should be never
 
 		// access.read function
-		const restrictedField = f.text({
-			access: { read: (ctx: any) => (ctx.user as any)?.role === "admin" },
-		});
+		const restrictedField = f.text().access({ read: (ctx: any) => (ctx.user as any)?.role === "admin" });
 		type RestrictedOutput = typeof restrictedField.state.output;
 		// RestrictedOutput might be string depending on field def - just test compilation
 		const _restricted: RestrictedOutput = "test";
@@ -119,8 +115,8 @@ describe("TState Type Inference (compile-time only)", () => {
 	});
 
 	test("toColumn returns correct values", () => {
-		const textCol = f.text({ required: true });
-		const virtualCol = f.text({ virtual: true });
+		const textCol = f.text().required();
+		const virtualCol = f.text().virtual();
 
 		// Non-virtual field returns column
 		const column = textCol.toColumn("title");

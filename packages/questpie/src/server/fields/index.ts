@@ -9,34 +9,34 @@
  *
  * @example
  * ```ts
- * import { field, createFieldBuilder, builtinFields } from "questpie/server/fields";
+ * import { createFieldBuilder, builtinFields } from "questpie/server/fields";
  *
- * // Using built-in fields
+ * // Using built-in fields (V2 chain syntax)
  * const posts = collection("posts").fields(({ f }) => ({
- *   title: f.text({ required: true, maxLength: 255 }),
- *   content: f.textarea({ required: true }),
- *   status: f.select({
- *     options: [
- *       { value: "draft", label: "Draft" },
- *       { value: "published", label: "Published" },
- *     ],
- *   }),
+ *   title: f.text(255).required(),
+ *   content: f.textarea().localized(),
+ *   status: f.select([
+ *     { value: "draft", label: "Draft" },
+ *     { value: "published", label: "Published" },
+ *   ]),
  * }));
- *
- * // Creating custom fields
- * const slugField = field<SlugFieldConfig, string>()({
- *   type: "slug" as const,
- *   _value: undefined as unknown as string,
- *   toColumn: (name, config) => varchar({ length: 255 }),
- *   toZodSchema: (config) => z.string().regex(/^[a-z0-9-]+$/),
- *   getOperators: <TApp>(config) => ({ column: stringOperators, jsonb: stringJsonbOperators }),
- *   getMetadata: (config) => ({ type: "slug", ... }),
- * });
  * ```
  */
 
 // V2 Field builder class
 export { Field } from "./field-class.js";
+export { createField } from "./field-class.js";
+
+// V2 Field state types
+export type {
+	DefaultFieldState,
+	FieldState,
+	FieldRuntimeState,
+	ArrayFieldState,
+	ExtractSelectType,
+	ExtractInputType,
+	ExtractWhereType,
+} from "./field-class-types.js";
 
 // Builder
 export {
@@ -51,9 +51,11 @@ export {
 	type FieldValues,
 	type InferFieldsFromFactory,
 } from "./builder.js";
-// Built-in field types
-export * from "./builtin/index.js";
-// Define field helper
+
+// V2 Built-in field factories
+export * from "./builtin-factories/index.js";
+
+// V1 field.ts — kept for InferSelectType (used by field-types.ts) and admin's rich-text/blocks
 export {
 	type BuildFieldState,
 	createFieldDefinition,
@@ -64,6 +66,7 @@ export {
 	type FieldDef,
 	field,
 } from "./field.js";
+
 // Reactive field system
 export {
 	extractDependencies,
@@ -87,6 +90,7 @@ export {
 	trackDependencies,
 	trackDepsFunction,
 } from "./reactive.js";
+
 // Core types
 export type {
 	AnyFieldDefinition,

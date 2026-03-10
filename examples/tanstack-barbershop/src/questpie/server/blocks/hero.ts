@@ -9,45 +9,43 @@ export const heroBlock = block("hero")
 		order: 1,
 	}))
 	.fields(({ f }) => ({
-		title: f.text({
-			label: { en: "Title", sk: "Nadpis" },
-			localized: true,
-			required: true,
-		}),
-		subtitle: f.textarea({
-			label: { en: "Subtitle", sk: "Podnadpis" },
-			localized: true,
-		}),
-		backgroundImage: f.upload({
-			label: { en: "Background Image", sk: "Obrázok pozadia" },
-		}),
-		overlayOpacity: f.number({
-			label: { en: "Overlay Opacity", sk: "Priehľadnosť" },
-			defaultValue: 60,
-		}),
-		alignment: f.select({
-			label: { en: "Alignment", sk: "Zarovnanie" },
-			options: [
+		title: f
+			.text()
+			.label({ en: "Title", sk: "Nadpis" })
+			.localized()
+			.required(),
+		subtitle: f
+			.textarea()
+			.label({ en: "Subtitle", sk: "Podnadpis" })
+			.localized(),
+		backgroundImage: f
+			.upload()
+			.label({ en: "Background Image", sk: "Obrázok pozadia" }),
+		overlayOpacity: f
+			.number()
+			.label({ en: "Overlay Opacity", sk: "Priehľadnosť" })
+			.default(60),
+		alignment: f
+			.select([
 				{ value: "left", label: { en: "Left", sk: "Vľavo" } },
 				{ value: "center", label: { en: "Center", sk: "Stred" } },
 				{ value: "right", label: { en: "Right", sk: "Vpravo" } },
-			],
-			defaultValue: "center",
-		}),
-		ctaText: f.text({
-			label: { en: "CTA Text", sk: "Text tlačidla" },
-			localized: true,
-		}),
-		ctaLink: f.text({ label: { en: "CTA Link", sk: "Odkaz tlačidla" } }),
-		height: f.select({
-			label: { en: "Height", sk: "Výška" },
-			options: [
+			])
+			.label({ en: "Alignment", sk: "Zarovnanie" })
+			.default("center"),
+		ctaText: f
+			.text()
+			.label({ en: "CTA Text", sk: "Text tlačidla" })
+			.localized(),
+		ctaLink: f.text().label({ en: "CTA Link", sk: "Odkaz tlačidla" }),
+		height: f
+			.select([
 				{ value: "small", label: { en: "Small", sk: "Malá" } },
 				{ value: "medium", label: { en: "Medium", sk: "Stredná" } },
 				{ value: "large", label: { en: "Large", sk: "Veľká" } },
 				{ value: "full", label: { en: "Full", sk: "Plná" } },
-			],
-			defaultValue: "medium",
-		}),
+			])
+			.label({ en: "Height", sk: "Výška" })
+			.default("medium"),
 	}))
 	.prefetch({ with: { backgroundImage: true } });

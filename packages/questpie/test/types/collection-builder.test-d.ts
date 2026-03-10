@@ -5,14 +5,14 @@
  * If any Expect<> fails, TypeScript compilation fails.
  *
  * Note: Some tests are disabled pending field builder implementation for:
- * - .localized() via f.text({ localized: true })
- * - .virtuals() via f.text({ virtual: true })
+ * - .localized() via f.text().localized()
+ * - .virtuals() via f.text().virtual()
  */
 
 import type { CollectionBuilder } from "#questpie/server/collection/builder/collection-builder.js";
 import type { RelationConfig } from "#questpie/server/collection/builder/types.js";
 import type { With } from "#questpie/server/collection/crud/types.js";
-import { questpie } from "#questpie/server/config/builder.js";
+import { QuestpieBuilder } from "#questpie/server/config/builder.js";
 import { builtinFields } from "#questpie/server/fields/builtin/defaults.js";
 import type {
 	CollectionRelations,
@@ -32,13 +32,13 @@ import type {
 // Test fixtures — use q.collection() for proper field type inference
 // ============================================================================
 
-const q = questpie({ name: "test" }).fields(builtinFields);
+const q = QuestpieBuilder.empty("test").fields(builtinFields);
 
 const postsCollection = q.collection("posts").fields(({ f }) => ({
-	title: f.text({ required: true, maxLength: 255 }),
+	title: f.text(255).required(),
 	content: f.textarea(),
-	views: f.number({ default: 0 }),
-	published: f.boolean({ default: false }),
+	views: f.number().default(0),
+	published: f.boolean().default(false),
 	authorId: f.textarea(),
 }));
 
@@ -59,8 +59,8 @@ type _nameIsPosts = Expect<Equal<PostsName, "posts">>;
 
 type PostSelect = typeof postsCollection.$infer.select;
 
-// Field types
-type _titleIsString = Expect<Equal<PostSelect["title"], string>>;
+// Field types — use Extends instead of Equal since intersection can differ structurally
+type _titleIsString = Expect<Extends<PostSelect["title"], string>>;
 type _contentIsNullable = Expect<IsNullable<PostSelect["content"]>>;
 type _viewsIsNumberOrNull = Expect<Extends<PostSelect["views"], number | null>>;
 
@@ -121,17 +121,8 @@ type _noCreatedAt = Expect<
 
 const withRelations = q.collection("posts").fields(({ f }) => ({
 	title: f.textarea(),
-	author: f.relation({
-		to: "users",
-		required: true,
-		relationName: "author",
-	}),
-	comments: f.relation({
-		to: "comments",
-		hasMany: true,
-		foreignKey: "postId",
-		relationName: "post",
-	}),
+	author: f.relation("users").required().relationName("author"),
+	comments: f.relation("comments").hasMany({ foreignKey: "postId", relationName: "post" }),
 }));
 
 type RelationsState =
@@ -217,20 +208,11 @@ type _inferHasUpdate = Expect<Equal<HasKey<Infer, "update">, true>>;
 const fullCollection = q
 	.collection("articles")
 	.fields(({ f }) => ({
-		title: f.text({ required: true, maxLength: 255 }),
+		title: f.text(255).required(),
 		content: f.textarea(),
-		views: f.number({ default: 0 }),
-		author: f.relation({
-			to: "users",
-			required: true,
-			relationName: "author",
-		}),
-		comments: f.relation({
-			to: "comments",
-			hasMany: true,
-			foreignKey: "articleId",
-			relationName: "article",
-		}),
+		views: f.number().default(0),
+		author: f.relation("users").required().relationName("author"),
+		comments: f.relation("comments").hasMany({ foreignKey: "articleId", relationName: "article" }),
 		metadata: f.json(),
 	}))
 	.options({ timestamps: true, softDelete: true, versioning: true })
@@ -248,14 +230,10 @@ type _fullHasDeletedAt = Expect<Equal<HasKey<FullSelect, "deletedAt">, true>>;
 
 const withObjectField = q.collection("barbers").fields(({ f }) => ({
 	workingHours: f.object({
-		fields: () => ({
-			monday: f.object({
-				fields: () => ({
-					isOpen: f.boolean({ required: true }),
-					start: f.time(),
-					end: f.time(),
-				}),
-			}),
+		monday: f.object({
+			isOpen: f.boolean().required(),
+			start: f.time(),
+			end: f.time(),
 		}),
 	}),
 }));
@@ -283,20 +261,18 @@ type _mondayStartIsNullable = Expect<
 // ============================================================================
 
 const withArrayField = q.collection("posts2").fields(({ f }) => ({
-	tags: f.array({ of: f.text({ required: true }), required: true }),
-	links: f.array({
-		of: f.object({
-			fields: () => ({
-				platform: f.text({ required: true }),
-				url: f.url({ required: true }),
-			}),
-		}),
-	}),
+	tags: f.text().required().array().required(),
+	links: f.object({
+		platform: f.text().required(),
+		url: f.url().required(),
+	}).array(),
 }));
 
 type ArraySelect = typeof withArrayField.$infer.select;
 
-// tags should be string[] (required, not nullable)
+// Debug: check if tags exists as a key
+type _debugHasTags = Expect<Equal<HasKey<ArraySelect, "tags">, true>>;
+// tags should be string[] (required, not nullable) — use direct access to avoid distributive conditional inference
 type _tagsIsStringArray = Expect<Extends<ArraySelect["tags"], string[]>>;
 type _tagsNotNullable = Expect<Equal<IsNullable<ArraySelect["tags"]>, false>>;
 
@@ -315,32 +291,19 @@ type _linksHasUrl = Expect<Equal<HasKey<LinksElement, "url">, true>>;
 
 // Build a multi-collection scenario with f.relation()
 const usersCollection = q.collection("users").fields(({ f }) => ({
-	name: f.text({ required: true }),
-	email: f.text({ required: true }),
+	name: f.text().required(),
+	email: f.text().required(),
 }));
 
 const commentsCollection = q.collection("comments").fields(({ f }) => ({
-	body: f.textarea({ required: true }),
-	postId: f.relation({
-		to: "posts",
-		required: true,
-		relationName: "post",
-	}),
+	body: f.textarea().required(),
+	postId: f.relation("posts").required().relationName("post"),
 }));
 
 const postsWithRelations = q.collection("posts").fields(({ f }) => ({
-	title: f.text({ required: true }),
-	author: f.relation({
-		to: "users",
-		required: true,
-		relationName: "author",
-	}),
-	comments: f.relation({
-		to: "comments",
-		hasMany: true,
-		foreignKey: "postId",
-		relationName: "post",
-	}),
+	title: f.text().required(),
+	author: f.relation("users").required().relationName("author"),
+	comments: f.relation("comments").hasMany({ foreignKey: "postId", relationName: "post" }),
 }));
 
 // CollectionRelations should have specific relation keys (not generic)

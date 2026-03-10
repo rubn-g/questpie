@@ -1,5 +1,6 @@
 import type { BetterAuthOptions } from "better-auth";
-import type { MailAdapter, QueueAdapter } from "#questpie/exports/index.js";
+import type { MailAdapter } from "#questpie/server/integrated/mailer/adapter.js";
+import type { QueueAdapter } from "#questpie/server/integrated/queue/adapter.js";
 import { CollectionBuilder } from "#questpie/server/collection/builder/collection-builder.js";
 import type {
 	CollectionAccess,
@@ -590,7 +591,7 @@ export class QuestpieBuilder<
 	 *   },
 	 * } as const;
 	 *
-	 * const app = q({ name: "app" })
+	 * const app = questpie({ name: "app" })
 	 *   .messages(messages)
 	 *   .build({ ... });
 	 *
@@ -774,21 +775,15 @@ export class QuestpieBuilder<
 	 *
 	 * @example
 	 * ```ts
-	 * import { defaultFields } from "@questpie/server/fields/builtin";
+	 * // collections/posts/index.ts — file convention auto-discovers collections
+	 * import { collection } from "questpie";
 	 *
-	 * const q = questpie({ name: "app" })
-	 *   .fields(defaultFields);
-	 *
-	 * // Use q.collection() for type-safe field access:
-	 * const posts = q.collection("posts")
-	 *   .fields(({ f }) => ({
-	 *     title: f.text({ required: true }),  // ✅ autocomplete from defaultFields
+	 * export default collection("posts", {
+	 *   fields: ({ f }) => ({
+	 *     title: f.text({ required: true }),  // ✅ autocomplete from registered fields
 	 *     views: f.number({ min: 0 }),
-	 *   }));
-	 *
-	 * const app = q
-	 *   .collections({ posts })
-	 *   .build({ ... });
+	 *   }),
+	 * });
 	 * ```
 	 */
 	collection<TName extends string>(
@@ -1028,77 +1023,7 @@ export class QuestpieBuilder<
  *
  * @example
  * ```ts
- * // Custom upload collection without starter module
- * const app = questpie({ name: 'my-app' })
- *   .collections({
- *     media: collection("media")
- *       .fields({ alt: varchar("alt", { length: 500 }) })
- *       .upload({ visibility: "public", maxSize: 10_000_000 }),
- *   })
- *   .build({ db: { url: '...' }, storage: { driver: fsDriver(...) } })
+ * // Internal use only — use standalone factories (collection, global, etc.) instead
+ * const builder = QuestpieBuilder.empty("my-app").fields(defaultFields);
  * ```
  */
-export function questpie<TName extends string>(config: { name: TName }) {
-	return QuestpieBuilder.empty(config.name);
-}
-
-/**
- * Type for a callable QuestpieBuilder.
- * Can be invoked as a function to create new builders, while also having all builder methods.
- */
-export type CallableQuestpieBuilder<TState extends QuestpieBuilderState> =
-	QuestpieBuilder<TState> &
-		(<TName extends string>(config: {
-			name: TName;
-		}) => QuestpieBuilder<
-			QuestpieBuilderState<TName, {}, {}, {}, {}, {}, never, TState["fields"]>
-		>);
-
-/**
- * Create a callable QuestpieBuilder that can be both invoked as a function
- * and used directly as a builder instance.
- *
- * When called as a function, it creates a new builder with the same field types.
- * When used as an object, it provides all builder methods directly.
- *
- * @example
- * ```ts
- * const q = createCallableBuilder(
- *   questpie({ name: "base" }).fields(defaultFields)
- * );
- *
- * // Use as builder directly
- * const posts = q.collection("posts").fields(({ f }) => ({
- *   title: f.text({ required: true }),
- * }));
- *
- * // Or create new builder with same fields
- * const myApp = q({ name: "my-app" })
- *   .collections({ posts })
- *   .build({ ... });
- * ```
- */
-export function createCallableBuilder<TState extends QuestpieBuilderState>(
-	builder: QuestpieBuilder<TState>,
-): CallableQuestpieBuilder<TState> {
-	// Create the callable function
-	const callable = <TName extends string>(config: { name: TName }) => {
-		// Create new builder with same fields but fresh state
-		return QuestpieBuilder.empty(config.name).fields(
-			builder.state.fields,
-		) as any;
-	};
-
-	// Copy all properties and methods from the builder to the callable
-	Object.setPrototypeOf(callable, QuestpieBuilder.prototype);
-	Object.assign(callable, builder);
-
-	// Copy the state property explicitly
-	Object.defineProperty(callable, "state", {
-		value: builder.state,
-		writable: false,
-		enumerable: true,
-	});
-
-	return callable as CallableQuestpieBuilder<TState>;
-}

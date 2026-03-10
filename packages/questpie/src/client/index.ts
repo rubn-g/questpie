@@ -83,7 +83,7 @@ export class UploadError extends Error {
 	}
 }
 
-import type { AnyGlobal, GetGlobal } from "#questpie/exports/index.js";
+import type { AnyGlobal, GetGlobal } from "#questpie/shared/type-utils.js";
 import type { CollectionSchema } from "#questpie/server/collection/introspection.js";
 import type { CollectionMeta } from "#questpie/shared/collection-meta.js";
 import type { ApiErrorShape } from "#questpie/shared/error-types.js";

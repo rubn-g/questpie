@@ -9,21 +9,19 @@ export const dividerBlock = block("divider")
 		order: 3,
 	}))
 	.fields(({ f }) => ({
-		style: f.select({
-			label: { en: "Style", sk: "Štýl" },
-			options: [
+		style: f
+			.select([
 				{ value: "solid", label: "Solid" },
 				{ value: "dashed", label: "Dashed" },
-			],
-			defaultValue: "solid",
-		}),
-		width: f.select({
-			label: { en: "Width", sk: "Šírka" },
-			options: [
+			])
+			.label({ en: "Style", sk: "Štýl" })
+			.default("solid"),
+		width: f
+			.select([
 				{ value: "full", label: { en: "Full", sk: "Plná" } },
 				{ value: "medium", label: { en: "Medium", sk: "Stredná" } },
 				{ value: "small", label: { en: "Small", sk: "Malá" } },
-			],
-			defaultValue: "full",
-		}),
+			])
+			.label({ en: "Width", sk: "Šírka" })
+			.default("full"),
 	}));

@@ -7,11 +7,11 @@ import { runTestDbMigrations } from "../utils/test-db";
 
 const content = collection("content")
 	.fields(({ f }) => ({
-		title: f.text({ required: true, maxLength: 255 }),
+		title: f.text(255).required(),
 		description: f.textarea(),
 		richContent: f.json(),
-		isPublished: f.boolean({ default: false }),
-		viewCount: f.number({ default: 0 }),
+		isPublished: f.boolean().default(false),
+		viewCount: f.number().default(0),
 		publishedAt: f.datetime(),
 	}))
 	.options({

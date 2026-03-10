@@ -39,9 +39,9 @@ Think of QuestPie in three layers:
 import { collection } from "#questpie";
 
 export default collection("posts").fields(({ f }) => ({
-  title: f.text({ required: true }),
-  body: f.richText(),
-  status: f.select({ options: ["draft", "published"] }),
+  title: f.text().required(),
+  body: f.textarea(),
+  status: f.select(["draft", "published"]),
 }));
 ```
 

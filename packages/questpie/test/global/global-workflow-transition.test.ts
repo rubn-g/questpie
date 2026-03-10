@@ -6,7 +6,7 @@ import { runTestDbMigrations } from "../utils/test-db";
 
 const site_settings = global("site_settings")
 	.fields(({ f }) => ({
-		siteName: f.text({ required: true }),
+		siteName: f.text().required(),
 	}))
 	.options({
 		versioning: {
@@ -19,7 +19,7 @@ const site_settings = global("site_settings")
 
 const guarded_settings = global("guarded_settings")
 	.fields(({ f }) => ({
-		siteName: f.text({ required: true }),
+		siteName: f.text().required(),
 	}))
 	.options({
 		versioning: {
@@ -36,7 +36,7 @@ const guarded_settings = global("guarded_settings")
 
 const no_workflow_global = global("no_workflow_global")
 	.fields(({ f }) => ({
-		siteName: f.text({ required: true }),
+		siteName: f.text().required(),
 	}))
 	.options({
 		timestamps: true,

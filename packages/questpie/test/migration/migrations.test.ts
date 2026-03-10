@@ -29,9 +29,9 @@ describe("Migration System - Programmatic", () => {
 
 		// Define test collections using standalone collection()
 		const posts = collection("posts").fields(({ f }) => ({
-			title: f.text({ required: true, maxLength: 255 }),
+			title: f.text(255).required(),
 			content: f.textarea(),
-			published: f.boolean({ default: false }),
+			published: f.boolean().default(false),
 		}));
 
 		// Create app instance using new API
@@ -272,7 +272,7 @@ describe("Migration System - DrizzleMigrationGenerator", () => {
 		);
 
 		const posts = collection("posts").fields(({ f }) => ({
-			title: f.text({ required: true, maxLength: 255 }),
+			title: f.text(255).required(),
 			content: f.textarea(),
 		}));
 
@@ -312,7 +312,7 @@ describe("Migration System - DrizzleMigrationGenerator", () => {
 		);
 
 		const posts = collection("posts").fields(({ f }) => ({
-			title: f.text({ required: true, maxLength: 255 }),
+			title: f.text(255).required(),
 		}));
 
 		const def = module({ name: "test-app", collections: { posts } });

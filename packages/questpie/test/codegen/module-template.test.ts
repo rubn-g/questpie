@@ -491,8 +491,9 @@ describe("generateModuleTemplate — Registry augmentation", () => {
 		categoryMeta: baseCategoryMeta(),
 	});
 
-	it("emits declare module questpie with Registry", () => {
-		expect(output).toContain('declare module "questpie"');
+	it("emits declare global with Questpie namespace and Registry", () => {
+		expect(output).toContain("declare global {");
+		expect(output).toContain("namespace Questpie {");
 		expect(output).toContain("interface Registry {");
 	});
 

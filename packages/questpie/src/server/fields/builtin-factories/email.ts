@@ -2,7 +2,7 @@
  * Email Field Factory (V2)
  */
 
-import { varchar } from "drizzle-orm/pg-core";
+import { varchar, type PgVarcharBuilder } from "drizzle-orm/pg-core";
 import { z } from "zod";
 import { emailOps } from "../operators/builtin.js";
 import { createField } from "../field-class.js";
@@ -11,6 +11,8 @@ import type { DefaultFieldState } from "../field-class-types.js";
 export type EmailFieldState = DefaultFieldState & {
 	type: "email";
 	data: string;
+	column: PgVarcharBuilder<[string, ...string[]]>;
+	operators: typeof emailOps;
 };
 
 /**

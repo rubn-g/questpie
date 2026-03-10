@@ -5,7 +5,7 @@
  * Supports single uploads (belongsTo) and many-to-many via junction table.
  */
 
-import { varchar } from "drizzle-orm/pg-core";
+import { varchar, type PgVarcharBuilder } from "drizzle-orm/pg-core";
 import { z } from "zod";
 import type { KnownCollectionNames } from "../../config/app-context.js";
 import { belongsToOps, toManyOps } from "../operators/builtin.js";
@@ -17,9 +17,13 @@ import type { RelationFieldMetadata, ReferentialAction } from "../types.js";
 // Types
 // ============================================================================
 
-export type UploadFieldState = DefaultFieldState & {
+export type UploadFieldState<TTo extends string = "assets"> = DefaultFieldState & {
 	type: "upload";
 	data: string;
+	column: PgVarcharBuilder<[string, ...string[]]>;
+	operators: typeof belongsToOps;
+	relationTo: TTo;
+	relationKind: "one";
 };
 
 interface UploadConfig {
@@ -58,12 +62,12 @@ interface UploadConfig {
  * document: f.upload({ to: "media", mimeTypes: ["application/pdf"] })
  * ```
  */
-export function upload(config?: UploadConfig): Field<UploadFieldState> {
-	const { to = "assets", through, mimeTypes, maxSize, sourceField, targetField } = config ?? {};
+export function upload<TTo extends string = "assets">(config?: UploadConfig & { to?: TTo }): Field<UploadFieldState<TTo>> {
+	const { to = "assets" as TTo, through, mimeTypes, maxSize, sourceField, targetField } = config ?? {} as UploadConfig & { to?: TTo };
 
 	const isM2M = !!through;
 
-	return createField<UploadFieldState>({
+	return createField<UploadFieldState<TTo>>({
 		type: "upload",
 		columnFactory: isM2M ? null : (name) => varchar(name, { length: 36 }),
 		schemaFactory: () =>

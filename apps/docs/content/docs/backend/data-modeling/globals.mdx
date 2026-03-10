@@ -14,10 +14,10 @@ import { global } from "#questpie";
 
 export const siteSettings = global("site_settings")
   .fields(({ f }) => ({
-    shopName: f.text({ required: true, default: "My App" }),
-    tagline: f.text({ localized: true }),
+    shopName: f.text().required().default("My App"),
+    tagline: f.text().localized(),
     logo: f.upload({ to: "assets" }),
-    contactEmail: f.email({ required: true }),
+    contactEmail: f.email().required(),
   }))
   .admin(({ c }) => ({
     label: { en: "Site Settings", sk: "Nastavenia webu" },
@@ -82,49 +82,38 @@ import { global } from "#questpie";
 
 export const siteSettings = global("site_settings")
   .fields(({ f }) => ({
-    shopName: f.text({ required: true, default: "Sharp Cuts" }),
-    tagline: f.text({ localized: true }),
+    shopName: f.text().required().default("Sharp Cuts"),
+    tagline: f.text().localized(),
     logo: f.upload({ to: "assets" }),
 
-    navigation: f.array({
-      localized: true,
-      of: f.object({
-        fields: {
-          label: f.text({ required: true }),
-          href: f.text({ required: true }),
-          isExternal: f.boolean({ default: false }),
-        },
-      }),
-    }),
+    navigation: f.object({
+      label: f.text().required(),
+      href: f.text().required(),
+      isExternal: f.boolean().default(false),
+    }).array().localized(),
 
-    contactEmail: f.email({ required: true }),
+    contactEmail: f.email().required(),
     contactPhone: f.text(),
     address: f.text(),
 
     businessHours: f.object({
-      fields: {
-        monday: f.object({
-          fields: {
-            isOpen: f.boolean({ default: true }),
-            start: f.time(),
-            end: f.time(),
-          },
-        }),
-        // ... other days
-      },
+      monday: f.object({
+        isOpen: f.boolean().default(true),
+        start: f.time(),
+        end: f.time(),
+      }),
+      // ... other days
     }),
 
     bookingSettings: f.object({
-      fields: {
-        minAdvanceHours: f.number({ required: true }),
-        maxAdvanceDays: f.number({ required: true }),
-        slotDurationMinutes: f.number({ required: true }),
-        allowCancellation: f.boolean({ required: true }),
-      },
+      minAdvanceHours: f.number().required(),
+      maxAdvanceDays: f.number().required(),
+      slotDurationMinutes: f.number().required(),
+      allowCancellation: f.boolean().required(),
     }),
 
-    metaTitle: f.text({ localized: true }),
-    metaDescription: f.textarea({ localized: true }),
+    metaTitle: f.text().localized(),
+    metaDescription: f.textarea().localized(),
   }))
   .admin(({ c }) => ({
     label: { en: "Site Settings", sk: "Nastavenia webu" },

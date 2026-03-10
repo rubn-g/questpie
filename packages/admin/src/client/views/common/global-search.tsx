@@ -14,7 +14,7 @@
 import { Icon } from "@iconify/react";
 import * as React from "react";
 import { useCallback, useMemo, useRef, useState } from "react";
-import type { ComponentReference } from "#questpie/admin/server";
+import type { ComponentReference } from "#questpie/admin/server/augmentation.js";
 import { resolveIconElement } from "../../components/component-renderer";
 import { Kbd } from "../../components/ui/kbd";
 import {

@@ -40,7 +40,7 @@ import _fields from "../fields";
 import _sidebar from "../sidebar";
 
 // ── Plugin Imports ─────────────────────────────────────────
-import { filterViewsByKind } from "#questpie/admin/server/index.js";
+import { filterViewsByKind } from "#questpie/admin/server/registry-helpers.js";
 
 // ════════════════════════════════════════════════════════════
 // TYPES — composed from typeof references (zero inference cost)
@@ -128,5 +128,17 @@ const _module = {
 export type AdminModule = typeof _module;
 export default _module;
 
-// Registry augmentation is handled by the user's .generated/index.ts
-// to avoid circular type references and TS2717 conflicts with sub-modules.
+// ════════════════════════════════════════════════════════════
+// Registry augmentation — module registries
+// ════════════════════════════════════════════════════════════
+
+declare global {
+	namespace Questpie {
+		interface Registry {
+			views: AdminViews;
+			listViews: typeof _reg_listViews;
+			formViews: typeof _reg_formViews;
+			components: AdminComponents;
+		}
+	}
+}

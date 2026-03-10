@@ -2,7 +2,7 @@
  * Date Field Factory (V2)
  */
 
-import { date as pgDate } from "drizzle-orm/pg-core";
+import { date as pgDate, type PgDateStringBuilder } from "drizzle-orm/pg-core";
 import { z } from "zod";
 import { dateOps } from "../operators/builtin.js";
 import { createField, Field } from "../field-class.js";
@@ -11,6 +11,8 @@ import type { DefaultFieldState } from "../field-class-types.js";
 export type DateFieldState = DefaultFieldState & {
 	type: "date";
 	data: string;
+	column: PgDateStringBuilder;
+	operators: typeof dateOps;
 };
 
 /**
@@ -38,24 +40,12 @@ export function date(): Field<DateFieldState> {
 	});
 }
 
-/**
- * Add date-specific chain methods to Field.
- */
-declare module "../field-class.js" {
-	interface Field<TState> {
-		/** Auto-set to current date/time on create. */
-		autoNow(): Field<TState & { hasDefault: true }>;
-		/** Auto-update to current date/time on every update. */
-		autoNowUpdate(): Field<TState>;
-	}
-}
-
 Field.prototype.autoNow = function () {
 	return new Field({
 		...this._state,
 		hasDefault: true,
 		defaultValue: () => new Date(),
-	});
+	}) as any;
 };
 
 Field.prototype.autoNowUpdate = function () {

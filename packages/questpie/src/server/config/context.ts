@@ -148,10 +148,13 @@ export function runWithContext<T>(
  * }
  *
  * // Usage in hook - works because CRUD runs within runWithContext
- * const posts = q.collection("posts").hooks({
- *   afterChange: async () => {
- *     await logActivity("post_updated"); // ✅ Context available
- *   }
+ * // collections/posts/index.ts
+ * export default collection("posts", {
+ *   hooks: {
+ *     afterChange: async () => {
+ *       await logActivity("post_updated"); // ✅ Context available
+ *     },
+ *   },
  * });
  * ```
  *

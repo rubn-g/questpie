@@ -10,32 +10,29 @@ export const columnsBlock = block("columns")
 	}))
 	.allowChildren()
 	.fields(({ f }) => ({
-		columns: f.select({
-			label: { en: "Columns", sk: "Počet stĺpcov" },
-			options: [
+		columns: f
+			.select([
 				{ value: "2", label: "2" },
 				{ value: "3", label: "3" },
 				{ value: "4", label: "4" },
-			],
-			defaultValue: "2",
-		}),
-		gap: f.select({
-			label: { en: "Gap", sk: "Medzera" },
-			options: [
+			])
+			.label({ en: "Columns", sk: "Počet stĺpcov" })
+			.default("2"),
+		gap: f
+			.select([
 				{ value: "small", label: "Small" },
 				{ value: "medium", label: "Medium" },
 				{ value: "large", label: "Large" },
-			],
-			defaultValue: "medium",
-		}),
-		padding: f.select({
-			label: { en: "Padding", sk: "Odsadenie" },
-			options: [
+			])
+			.label({ en: "Gap", sk: "Medzera" })
+			.default("medium"),
+		padding: f
+			.select([
 				{ value: "none", label: { en: "None", sk: "Žiadne" } },
 				{ value: "small", label: { en: "Small", sk: "Malé" } },
 				{ value: "medium", label: { en: "Medium", sk: "Stredné" } },
 				{ value: "large", label: { en: "Large", sk: "Veľké" } },
-			],
-			defaultValue: "medium",
-		}),
+			])
+			.label({ en: "Padding", sk: "Odsadenie" })
+			.default("medium"),
 	}));

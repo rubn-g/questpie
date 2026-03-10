@@ -12,6 +12,7 @@
 		"realtime",
 		"kv",
 		"logger",
+		"multi-tenancy",
 		"deployment"
 	]
 }

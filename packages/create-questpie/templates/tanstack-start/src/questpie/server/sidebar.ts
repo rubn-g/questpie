@@ -1,7 +1,7 @@
 /**
  * Sidebar — admin panel sidebar configuration.
  */
-import { sidebar } from "#questpie";
+import { sidebar } from "#questpie/factories";
 
 export default sidebar(({ s, c }) =>
 	s.sidebar({

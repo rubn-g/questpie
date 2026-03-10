@@ -12,7 +12,7 @@ import { runTestDbMigrations } from "../utils/test-db";
 const assets = collection("assets")
 	.options({ timestamps: true })
 	.fields(({ f }) => ({
-		alt: f.text({ maxLength: 500 }),
+		alt: f.text(500),
 		caption: f.textarea(),
 	}))
 	.upload({
@@ -21,20 +21,14 @@ const assets = collection("assets")
 
 // Junction collection for many-to-many uploads
 const postAssets = collection("post_assets").fields(({ f }) => ({
-	post: f.relation({
-		to: "posts",
-		required: true,
-	}),
-	asset: f.relation({
-		to: "assets",
-		required: true,
-	}),
-	position: f.number({ default: 0 }),
+	post: f.relation("posts").required(),
+	asset: f.relation("assets").required(),
+	position: f.number().default(0),
 }));
 
 // Posts collection with upload + through (gallery)
 const posts = collection("posts").fields(({ f }) => ({
-	title: f.text({ required: true }),
+	title: f.text().required(),
 	// Gallery via many-to-many upload
 	gallery: f.upload({
 		to: "assets",

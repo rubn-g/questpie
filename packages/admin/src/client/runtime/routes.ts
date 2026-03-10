@@ -5,7 +5,7 @@
  */
 
 import type { QuestpieApp } from "questpie/client";
-import type { ComponentReference } from "#questpie/admin/server";
+import type { ComponentReference } from "#questpie/admin/server/augmentation.js";
 import type { CollectionNames, GlobalNames, IconComponent } from "../builder";
 import type { Admin } from "../builder/admin";
 import { isComponentReference } from "../components/component-renderer";

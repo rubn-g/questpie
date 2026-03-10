@@ -14,10 +14,10 @@ import { module, collection, job } from "questpie";
 
 const notificationsCollection = collection("notifications")
   .fields(({ f }) => ({
-    title: f.text({ required: true }),
+    title: f.text().required(),
     body: f.textarea(),
-    read: f.boolean({ default: false }),
-    userId: f.relation({ to: "user", required: true }),
+    read: f.boolean().default(false),
+    userId: f.relation("user").required(),
   }))
   .admin(({ c }) => ({
     label: { en: "Notifications" },

@@ -102,25 +102,23 @@ const adminUserCollection = collection("user")
 					},
 					submitLabel: { key: "defaults.users.actions.createUser.submit" },
 					fields: {
-						name: f.text({
-							label: { key: "defaults.users.fields.name.label" },
-							required: true,
-						}),
-						email: f.email({
-							label: { key: "defaults.users.fields.email.label" },
-							required: true,
-						}),
-						password: f.text({
-							label: {
+						name: f
+							.text()
+							.label({ key: "defaults.users.fields.name.label" })
+							.required(),
+						email: f
+							.email()
+							.label({ key: "defaults.users.fields.email.label" })
+							.required(),
+						password: f
+							.text()
+							.label({
 								key: "defaults.users.actions.createUser.fields.password.label",
-							},
-							required: true,
-							type: "password",
-							autoComplete: "new-password",
-						}),
-						role: f.select({
-							label: { key: "defaults.users.fields.role.label" },
-							options: [
+							})
+							.required()
+							.admin({ type: "password", autoComplete: "new-password" }),
+						role: f
+							.select([
 								{
 									value: "admin",
 									label: {
@@ -131,9 +129,9 @@ const adminUserCollection = collection("user")
 									value: "user",
 									label: { key: "defaults.users.fields.role.options.user" },
 								},
-							],
-							defaultValue: "user",
-						}),
+							])
+							.label({ key: "defaults.users.fields.role.label" })
+							.default("user"),
 					},
 				},
 				handler: async ({ data, auth, session }: any) => {
@@ -201,22 +199,20 @@ const adminUserCollection = collection("user")
 						key: "defaults.users.actions.resetPassword.submit",
 					},
 					fields: {
-						newPassword: f.text({
-							label: {
+						newPassword: f
+							.text()
+							.label({
 								key: "defaults.users.actions.resetPassword.fields.newPassword.label",
-							},
-							required: true,
-							type: "password",
-							autoComplete: "new-password",
-						}),
-						confirmPassword: f.text({
-							label: {
+							})
+							.required()
+							.admin({ type: "password", autoComplete: "new-password" }),
+						confirmPassword: f
+							.text()
+							.label({
 								key: "defaults.users.actions.resetPassword.fields.confirmPassword.label",
-							},
-							required: true,
-							type: "password",
-							autoComplete: "new-password",
-						}),
+							})
+							.required()
+							.admin({ type: "password", autoComplete: "new-password" }),
 					},
 				},
 				handler: async ({ data, itemId, auth, session }: any) => {

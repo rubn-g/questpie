@@ -14,14 +14,18 @@
 import {
 	type BaseFieldConfig,
 	type ContextualOperators,
+	type DefaultFieldState,
 	type FieldMetadataBase,
 	type KnownBlockNames,
+	Field,
+	createField,
 	field,
 	isNotNull,
 	isNull,
 	jsonb,
 	sql,
 } from "questpie";
+import type { PgJsonbBuilder } from "drizzle-orm/pg-core";
 
 import { z } from "zod";
 import type { AnyBlockDefinition } from "../block/block-builder.js";
@@ -243,6 +247,69 @@ function getBlocksOperators(): ContextualOperators {
  * });
  * ```
  */
+// ============================================================================
+// V2 Blocks Field State & Factory
+// ============================================================================
+
+export type BlocksFieldState = DefaultFieldState & {
+	type: "blocks";
+	data: BlocksDocument;
+	column: PgJsonbBuilder;
+};
+
+/**
+ * Create a blocks field (V2 factory).
+ *
+ * @example
+ * ```ts
+ * sections: f.blocks().required()
+ * ```
+ */
+export function blocks(): Field<BlocksFieldState> {
+	return createField<BlocksFieldState>({
+		type: "blocks",
+		columnFactory: (name) => jsonb(name) as any,
+		schemaFactory: () => {
+			const blockNodeSchema: z.ZodType<BlockNode> = z.lazy(() =>
+				z.object({
+					id: z.string(),
+					type: z.string(),
+					children: z.array(blockNodeSchema).default([]),
+				}),
+			);
+			return z.object({
+				_tree: z.array(blockNodeSchema),
+				_values: z.record(z.string(), z.record(z.string(), z.any())),
+			});
+		},
+		operatorSet: {
+			jsonbCast: null,
+			column: getBlocksOperators().column,
+		} as any,
+		metadataFactory: (state) => ({
+			type: "blocks" as const,
+			label: state.label,
+			description: state.description,
+			required: state.notNull ?? false,
+			localized: state.localized ?? false,
+			readOnly: state.input === false ? true : undefined,
+			writeOnly: state.output === false ? true : undefined,
+			meta: state.admin as any,
+		}),
+		notNull: false,
+		hasDefault: false,
+		localized: false,
+		virtual: false,
+		input: true,
+		output: true,
+		isArray: false,
+	});
+}
+
+// ============================================================================
+// V1 Blocks Field Definition (backward compat)
+// ============================================================================
+
 export const blocksField = field<BlocksFieldConfig, BlocksDocument>()({
 	type: "blocks" as const,
 	_value: undefined as unknown as BlocksDocument,

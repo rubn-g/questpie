@@ -7,7 +7,7 @@ import { runTestDbMigrations } from "../utils/test-db";
 
 const workflow_posts = collection("workflow_posts")
 	.fields(({ f }) => ({
-		title: f.text({ required: true }),
+		title: f.text().required(),
 	}))
 	.options({
 		versioning: {
@@ -20,7 +20,7 @@ const workflow_posts = collection("workflow_posts")
 
 const workflow_settings = global("workflow_settings")
 	.fields(({ f }) => ({
-		siteName: f.text({ required: true }),
+		siteName: f.text().required(),
 	}))
 	.options({
 		versioning: {

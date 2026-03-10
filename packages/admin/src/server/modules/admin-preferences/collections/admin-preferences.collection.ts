@@ -29,13 +29,13 @@ import { collection } from "questpie";
 export const adminPreferencesCollection = collection("admin_preferences")
 	.fields(({ f }) => ({
 		// User who owns this preference
-		userId: f.text({ required: true, maxLength: 255, label: "User ID" }),
+		userId: f.text(255).required().label("User ID"),
 
 		// Preference key (e.g., "viewState:posts")
-		key: f.text({ required: true, maxLength: 255, label: "Key" }),
+		key: f.text(255).required().label("Key"),
 
 		// Preference value (JSON)
-		value: f.json({ required: true, label: "Value" }),
+		value: f.json().required().label("Value"),
 	}))
 	.options({
 		timestamps: true,

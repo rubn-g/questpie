@@ -6,42 +6,24 @@ import { runTestDbMigrations } from "../utils/test-db";
 
 // Assets collection (target of many-to-many)
 const assets = collection("assets").fields(({ f }) => ({
-	filename: f.text({ required: true, maxLength: 255 }),
-	mimeType: f.text({ maxLength: 100 }),
+	filename: f.text(255).required(),
+	mimeType: f.text(100),
 }));
 
 // Junction table for candle settings images
 const candleSettingsImages = collection("candle_settings_images").fields(
 	({ f }) => ({
-		candleSettings: f.relation({
-			to: "candle_settings",
-			required: true,
-			onDelete: "cascade",
-		}),
-		asset: f.relation({
-			to: "assets",
-			required: true,
-			onDelete: "cascade",
-		}),
-		order: f.number({ default: 0 }),
+		candleSettings: f.relation("candle_settings").required().onDelete("cascade"),
+		asset: f.relation("assets").required().onDelete("cascade"),
+		order: f.number().default(0),
 	}),
 );
 
 // Candle settings global with many-to-many relation
 const candleSettings = global("candle_settings").fields(({ f }) => ({
-	pageTitle: f.text({
-		required: true,
-		maxLength: 255,
-		default: "Zapal svíčku",
-	}),
-	pageDescription: f.textarea({ default: "Test description" }),
-	images: f.relation({
-		to: "assets",
-		hasMany: true,
-		through: "candle_settings_images",
-		sourceField: "candleSettings", // FK column key (field name with unified API)
-		targetField: "asset", // FK column key (field name with unified API)
-	}),
+	pageTitle: f.text(255).required().default("Zapal svíčku"),
+	pageDescription: f.textarea().default("Test description"),
+	images: f.relation("assets").manyToMany({ through: "candle_settings_images", sourceField: "candleSettings", targetField: "asset" }),
 }));
 
 describe("global many-to-many relations", () => {

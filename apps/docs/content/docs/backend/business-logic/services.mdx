@@ -47,10 +47,10 @@ Services are available in every handler via `services` destructuring:
 ```ts title="collections/posts.ts"
 export const posts = collection("posts")
   .fields(({ f }) => ({
-    title: f.text({ label: "Title", required: true }),
-    content: f.richText({ label: "Content" }),
-    readingTime: f.number({ label: "Reading Time" }),
-    slug: f.text({ label: "Slug" }),
+    title: f.text().required().label("Title"),
+    content: f.textarea().label("Content"),
+    readingTime: f.number().label("Reading Time"),
+    slug: f.text().label("Slug"),
   }))
   .hooks({
     beforeChange: async ({ data, services }) => {

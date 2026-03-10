@@ -10,6 +10,7 @@
  */
 
 import type { SQL } from "drizzle-orm";
+import type { PgJsonbBuilder } from "drizzle-orm/pg-core";
 import type { I18nText } from "#questpie/shared/i18n/types.js";
 import type { OperatorSetDefinition } from "./operators/types.js";
 import type {
@@ -54,6 +55,10 @@ export interface FieldState {
 	isArray: boolean;
 	/** Operator set for WHERE clause generation */
 	operators: OperatorSetDefinition;
+	/** Relation/upload target collection name (for type-level dispatch) */
+	relationTo?: string | Record<string, string>;
+	/** Relation kind: "one" (belongsTo/upload), "many" (hasMany/manyToMany) */
+	relationKind?: "one" | "many";
 }
 
 /**
@@ -83,11 +88,13 @@ export type DefaultFieldState = {
  */
 export type ArrayFieldState<TInner extends FieldState> = Omit<
 	TInner,
-	"data" | "column" | "isArray" | "operators"
+	"data" | "column" | "isArray" | "operators" | "notNull" | "hasDefault"
 > & {
 	data: TInner["data"][];
-	column: unknown; // jsonb column
+	column: PgJsonbBuilder;
 	isArray: true;
+	notNull: false;
+	hasDefault: false;
 	operators: OperatorSetDefinition;
 	innerState: TInner;
 };

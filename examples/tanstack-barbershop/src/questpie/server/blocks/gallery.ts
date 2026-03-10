@@ -9,32 +9,27 @@ export const galleryBlock = block("gallery")
 		order: 5,
 	}))
 	.fields(({ f }) => ({
-		title: f.text({ label: { en: "Title", sk: "Nadpis" }, localized: true }),
-		images: f.upload({
-			label: { en: "Images", sk: "Obrázky" },
-			multiple: true,
-		}),
-		columns: f.select({
-			label: { en: "Columns", sk: "Stĺpce" },
-			options: [
+		title: f.text().label({ en: "Title", sk: "Nadpis" }).localized(),
+		images: f.upload().label({ en: "Images", sk: "Obrázky" }).multiple(),
+		columns: f
+			.select([
 				{ value: "2", label: "2" },
 				{ value: "3", label: "3" },
 				{ value: "4", label: "4" },
-			],
-			defaultValue: "3",
-		}),
-		gap: f.select({
-			label: { en: "Gap", sk: "Medzera" },
-			options: [
+			])
+			.label({ en: "Columns", sk: "Stĺpce" })
+			.default("3"),
+		gap: f
+			.select([
 				{ value: "small", label: "Small" },
 				{ value: "medium", label: "Medium" },
 				{ value: "large", label: "Large" },
-			],
-			defaultValue: "medium",
-		}),
+			])
+			.label({ en: "Gap", sk: "Medzera" })
+			.default("medium"),
 	}))
 	.prefetch(async ({ values, ctx }) => {
-		const ids = values.images || [];
+		const ids = (values.images as unknown as string[]) || [];
 		if (ids.length === 0) return { imageUrls: {} };
 		// assets is a module-provided collection (not in RegisteredCollections)
 		const res = await ctx.collections.assets.find({
@@ -43,7 +38,7 @@ export const galleryBlock = block("gallery")
 		});
 		const imageUrls: Record<string, string> = {};
 		for (const doc of res.docs) {
-			imageUrls[doc.id as string] = (doc as any).url;
+			imageUrls[doc.id as string] = doc.url as string;
 		}
 		return { imageUrls };
 	});

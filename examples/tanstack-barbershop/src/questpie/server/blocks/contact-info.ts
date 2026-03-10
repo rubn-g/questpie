@@ -9,11 +9,11 @@ export const contactInfoBlock = block("contact-info")
 		order: 4,
 	}))
 	.fields(({ f }) => ({
-		title: f.text({ label: { en: "Title", sk: "Nadpis" }, localized: true }),
-		showMap: f.boolean({
-			label: { en: "Show Map", sk: "Zobraziť mapu" },
-			defaultValue: true,
-		}),
+		title: f.text().label({ en: "Title", sk: "Nadpis" }).localized(),
+		showMap: f
+			.boolean()
+			.label({ en: "Show Map", sk: "Zobraziť mapu" })
+			.default(true),
 	}))
 	.prefetch(async ({ ctx }) => {
 		const settings = await ctx.globals.siteSettings.get({});

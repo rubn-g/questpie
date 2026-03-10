@@ -9,14 +9,13 @@ export const spacerBlock = block("spacer")
 		order: 2,
 	}))
 	.fields(({ f }) => ({
-		size: f.select({
-			label: { en: "Size", sk: "Veľkosť" },
-			options: [
+		size: f
+			.select([
 				{ value: "small", label: "S" },
 				{ value: "medium", label: "M" },
 				{ value: "large", label: "L" },
 				{ value: "xlarge", label: "XL" },
-			],
-			defaultValue: "medium",
-		}),
+			])
+			.label({ en: "Size", sk: "Veľkosť" })
+			.default("medium"),
 	}));

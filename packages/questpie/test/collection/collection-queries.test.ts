@@ -6,9 +6,9 @@ import { runTestDbMigrations } from "../utils/test-db";
 
 const posts = collection("posts")
 	.fields(({ f }) => ({
-		title: f.textarea({ required: true }),
-		slug: f.text({ required: true, maxLength: 255 }),
-		status: f.text({ maxLength: 50 }),
+		title: f.textarea().required(),
+		slug: f.text(255).required(),
+		status: f.text(50),
 		viewCount: f.number(),
 		isFeatured: f.boolean(),
 		publishedAt: f.datetime(),

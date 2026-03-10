@@ -6,50 +6,36 @@
  * - `queue` is used to schedule email notifications on publish
  * - No `import { app }` — everything comes from the hook context
  */
-import { collection } from "#questpie";
+import { collection } from "#questpie/factories";
 
 export const blogPosts = collection("blog_posts")
 	.fields(({ f }) => ({
-		title: f.text({
-			required: true,
-			label: { en: "Title", sk: "Názov" },
-		}),
-		slug: f.text({
-			label: { en: "Slug", sk: "Slug" },
-		}),
-		content: f.richText({
-			label: { en: "Content", sk: "Obsah" },
-		}),
-		excerpt: f.textarea({
-			label: { en: "Excerpt", sk: "Perex" },
-		}),
-		readingTime: f.number({
-			label: { en: "Reading Time (min)", sk: "Čas čítania (min)" },
-		}),
-		status: f.select({
-			required: true,
-			default: "draft",
-			label: { en: "Status", sk: "Stav" },
-			options: [
+		title: f.text().required().label({ en: "Title", sk: "Názov" }),
+		slug: f.text().label({ en: "Slug", sk: "Slug" }),
+		content: f.richText().label({ en: "Content", sk: "Obsah" }),
+		excerpt: f.textarea().label({ en: "Excerpt", sk: "Perex" }),
+		readingTime: f
+			.number()
+			.label({ en: "Reading Time (min)", sk: "Čas čítania (min)" }),
+		status: f
+			.select([
 				{ value: "draft", label: { en: "Draft", sk: "Koncept" } },
 				{ value: "published", label: { en: "Published", sk: "Publikované" } },
 				{ value: "archived", label: { en: "Archived", sk: "Archivované" } },
-			],
-		}),
-		publishedAt: f.datetime({
-			label: { en: "Published At", sk: "Publikované dňa" },
-		}),
-		author: f.relation({
-			to: "user",
-			label: { en: "Author", sk: "Autor" },
-		}),
-		coverImage: f.upload({
-			to: "assets",
-			label: { en: "Cover Image", sk: "Titulný obrázok" },
-		}),
-		tags: f.text({
-			label: { en: "Tags (comma-separated)", sk: "Tagy (čiarkou oddelené)" },
-		}),
+			])
+			.required()
+			.default("draft")
+			.label({ en: "Status", sk: "Stav" }),
+		publishedAt: f
+			.datetime()
+			.label({ en: "Published At", sk: "Publikované dňa" }),
+		author: f.relation("user").label({ en: "Author", sk: "Autor" }),
+		coverImage: f
+			.upload({ to: "assets" })
+			.label({ en: "Cover Image", sk: "Titulný obrázok" }),
+		tags: f
+			.text()
+			.label({ en: "Tags (comma-separated)", sk: "Tagy (čiarkou oddelené)" }),
 	}))
 	.title(({ f }) => f.title)
 	.admin(({ c }) => ({
@@ -122,6 +108,11 @@ export const blogPosts = collection("blog_posts")
 						: JSON.stringify(data.content);
 				data.excerpt = blog.extractExcerpt(contentStr);
 			}
+
+			// Auto-set publishedAt when publishing and not already set
+			if (data.status === "published" && !data.publishedAt) {
+				data.publishedAt = new Date();
+			}
 		},
 
 		/**
@@ -133,15 +124,9 @@ export const blogPosts = collection("blog_posts")
 			const justPublished =
 				data.status === "published" &&
 				(operation === "create" ||
-					(operation === "update" &&
-						(original)?.status !== "published"));
+					(operation === "update" && original?.status !== "published"));
 
 			if (justPublished) {
-				// Set publishedAt if not already set
-				if (!data.publishedAt) {
-					data.publishedAt = new Date();
-				}
-
 				// Enqueue subscriber notification
 				await queue.notifyBlogSubscribers.publish({
 					postId: data.id,

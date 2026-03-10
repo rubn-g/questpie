@@ -6,9 +6,9 @@ import { runTestDbMigrations } from "../utils/test-db";
 
 const products = collection("products")
 	.fields(({ f }) => ({
-		sku: f.text({ required: true, maxLength: 50 }),
-		name: f.text({ required: true, localized: true }),
-		description: f.text({ localized: true }),
+		sku: f.text(50).required(),
+		name: f.text().required().localized(),
+		description: f.text().localized(),
 	}))
 	.title(({ f }) => f.name)
 	.options({
@@ -20,7 +20,7 @@ const products = collection("products")
 // Collection without .title() - should fallback _title to id
 const simple_items = collection("simple_items")
 	.fields(({ f }) => ({
-		name: f.text({ required: true }),
+		name: f.text().required(),
 		description: f.text(),
 	}))
 	.options({
@@ -29,8 +29,8 @@ const simple_items = collection("simple_items")
 
 const locked_products = collection("locked_products")
 	.fields(({ f }) => ({
-		sku: f.text({ required: true, maxLength: 50 }),
-		name: f.text({ required: true, localized: true }),
+		sku: f.text(50).required(),
+		name: f.text().required().localized(),
 	}))
 	.title(({ f }) => f.name)
 	.options({
@@ -44,7 +44,7 @@ const locked_products = collection("locked_products")
 
 const workflow_posts = collection("workflow_posts")
 	.fields(({ f }) => ({
-		title: f.text({ required: true }),
+		title: f.text().required(),
 	}))
 	.options({
 		versioning: {
@@ -57,7 +57,7 @@ const workflow_posts = collection("workflow_posts")
 
 const guarded_workflow_posts = collection("guarded_workflow_posts")
 	.fields(({ f }) => ({
-		title: f.text({ required: true }),
+		title: f.text().required(),
 	}))
 	.options({
 		versioning: {

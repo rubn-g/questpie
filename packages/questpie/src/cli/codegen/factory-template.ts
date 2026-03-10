@@ -376,7 +376,7 @@ export function generateFactoryTemplate(
 		lines.push(" *");
 		lines.push(" * @example");
 		lines.push(" * ```ts");
-		lines.push(' * import { collection } from "#questpie";');
+		lines.push(' * import { collection } from "#questpie/factories";');
 		lines.push(" *");
 		lines.push(' * export default collection("posts")');
 		lines.push(

@@ -12,7 +12,7 @@ Blocks often reference related data — images, linked records, etc. Use `.prefe
 ```ts title="blocks/hero.ts"
 export const heroBlock = block("hero")
   .fields(({ f }) => ({
-    title: f.text({ required: true }),
+    title: f.text().required(),
     backgroundImage: f.upload({ to: "assets" }),
   }))
   .prefetch({

@@ -12,7 +12,7 @@ import { runTestDbMigrations } from "../utils/test-db";
 const assets = collection("assets")
 	.options({ timestamps: true })
 	.fields(({ f }) => ({
-		alt: f.text({ maxLength: 500 }),
+		alt: f.text(500),
 		caption: f.textarea(),
 	}))
 	.upload({
@@ -21,11 +21,8 @@ const assets = collection("assets")
 
 // Services collection that references assets (using f.relation())
 const services = collection("services").fields(({ f }) => ({
-	name: f.text({ required: true, maxLength: 255 }),
-	image: f.relation({
-		to: "assets",
-		relationName: "image",
-	}),
+	name: f.text(255).required(),
+	image: f.relation("assets").relationName("image"),
 }));
 
 // ==============================================================================

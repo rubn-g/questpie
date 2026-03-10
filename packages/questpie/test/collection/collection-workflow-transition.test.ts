@@ -6,7 +6,7 @@ import { runTestDbMigrations } from "../utils/test-db";
 
 const workflow_posts = collection("workflow_posts")
 	.fields(({ f }) => ({
-		title: f.text({ required: true }),
+		title: f.text().required(),
 	}))
 	.options({
 		versioning: {
@@ -19,7 +19,7 @@ const workflow_posts = collection("workflow_posts")
 
 const guarded_posts = collection("guarded_posts")
 	.fields(({ f }) => ({
-		title: f.text({ required: true }),
+		title: f.text().required(),
 	}))
 	.options({
 		versioning: {
@@ -36,7 +36,7 @@ const guarded_posts = collection("guarded_posts")
 
 const no_workflow = collection("no_workflow")
 	.fields(({ f }) => ({
-		title: f.text({ required: true }),
+		title: f.text().required(),
 	}))
 	.options({
 		timestamps: true,
@@ -45,7 +45,7 @@ const no_workflow = collection("no_workflow")
 // Collection with transition-specific access: only admins can transition
 const transition_access_posts = collection("transition_access_posts")
 	.fields(({ f }) => ({
-		title: f.text({ required: true }),
+		title: f.text().required(),
 	}))
 	.options({
 		versioning: {
@@ -68,7 +68,7 @@ const hookCalls: {
 
 const hooked_posts = collection("hooked_posts")
 	.fields(({ f }) => ({
-		title: f.text({ required: true }),
+		title: f.text().required(),
 	}))
 	.options({
 		versioning: {
@@ -95,7 +95,7 @@ const hooked_posts = collection("hooked_posts")
 
 const blocking_hooks_posts = collection("blocking_hooks_posts")
 	.fields(({ f }) => ({
-		title: f.text({ required: true }),
+		title: f.text().required(),
 	}))
 	.options({
 		versioning: {

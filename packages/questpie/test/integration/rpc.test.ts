@@ -29,11 +29,11 @@ const createDefinition = () => {
 	});
 
 	const posts = collection("posts").fields(({ f }) => ({
-		title: f.textarea({ required: true }),
+		title: f.textarea().required(),
 	}));
 
 	const settings = global("settings").fields(({ f }) => ({
-		title: f.textarea({ required: true }),
+		title: f.textarea().required(),
 	}));
 
 	return {
@@ -136,7 +136,7 @@ describe("rpc nested routers", () => {
 
 	beforeEach(async () => {
 		const posts = collection("posts").fields(({ f }) => ({
-			title: f.textarea({ required: true }),
+			title: f.textarea().required(),
 		}));
 		setup = await buildMockApp({
 			collections: { posts },

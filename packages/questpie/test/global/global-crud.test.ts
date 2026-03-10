@@ -6,7 +6,7 @@ import { runTestDbMigrations } from "../utils/test-db";
 
 const posts = collection("posts")
 	.fields(({ f }) => ({
-		title: f.textarea({ required: true }),
+		title: f.textarea().required(),
 	}))
 	.options({
 		versioning: true,
@@ -14,11 +14,8 @@ const posts = collection("posts")
 
 const site_config = global("site_config")
 	.fields(({ f }) => ({
-		siteName: f.text({ required: true, maxLength: 100 }),
-		featuredPost: f.relation({
-			to: "posts",
-			relationName: "featuredPost",
-		}),
+		siteName: f.text(100).required(),
+		featuredPost: f.relation("posts").relationName("featuredPost"),
 	}))
 	.options({
 		versioning: {
@@ -28,16 +25,16 @@ const site_config = global("site_config")
 	});
 
 const localized_config = global("localized_config").fields(({ f }) => ({
-	title: f.textarea({ localized: true }),
+	title: f.textarea().localized(),
 }));
 
 const auto_config = global("auto_config").fields(({ f }) => ({
-	mode: f.text({ maxLength: 20, default: "auto" }),
+	mode: f.text(20).default("auto"),
 }));
 
 const read_only_config = global("read_only_config")
 	.fields(({ f }) => ({
-		mode: f.text({ maxLength: 20, default: "read" }),
+		mode: f.text(20).default("read"),
 	}))
 	.access({
 		read: true,
@@ -46,7 +43,7 @@ const read_only_config = global("read_only_config")
 
 const workflow_config = global("workflow_config")
 	.fields(({ f }) => ({
-		title: f.text({ required: true }),
+		title: f.text().required(),
 	}))
 	.options({
 		versioning: {
@@ -59,7 +56,7 @@ const workflow_config = global("workflow_config")
 
 const guarded_workflow_config = global("guarded_workflow_config")
 	.fields(({ f }) => ({
-		title: f.text({ required: true }),
+		title: f.text().required(),
 	}))
 	.options({
 		versioning: {

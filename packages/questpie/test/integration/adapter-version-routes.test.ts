@@ -6,7 +6,7 @@ import { runTestDbMigrations } from "../utils/test-db";
 
 const posts = collection("posts")
 	.fields(({ f }) => ({
-		title: f.text({ required: true }),
+		title: f.text().required(),
 	}))
 	.options({
 		softDelete: true,
@@ -24,7 +24,7 @@ const posts = collection("posts")
 
 const settings = global("settings")
 	.fields(({ f }) => ({
-		siteName: f.text({ required: true }),
+		siteName: f.text().required(),
 	}))
 	.options({
 		versioning: {

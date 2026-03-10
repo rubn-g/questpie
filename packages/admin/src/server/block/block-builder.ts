@@ -568,13 +568,13 @@ export function block<TName extends string>(
  * (e.g., { title: string, count: number, showPrices: boolean }).
  */
 export type InferBlockValues<TState extends BlockBuilderState> =
-	TState["fields"] extends Record<string, FieldDefinition<FieldDefinitionState>>
+	TState["fields"] extends Record<string, any>
 		? {
-				[K in keyof TState["fields"]]: TState["fields"][K] extends FieldDefinition<
-					infer TFieldState
-				>
-					? TFieldState["value"]
-					: unknown;
+				[K in keyof TState["fields"]]: TState["fields"][K] extends { readonly _: infer TS }
+					? TS extends { data: infer D } ? D : unknown
+					: TState["fields"][K] extends FieldDefinition<infer TFieldState>
+						? TFieldState["value"]
+						: unknown;
 			}
 		: Record<string, unknown>;
 

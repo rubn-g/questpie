@@ -169,7 +169,7 @@ export function Footer({
 											key={day}
 											className="flex justify-between gap-4 text-muted-foreground"
 										>
-											<span>{t(`day.${day}` as any)}</span>
+											<span>{t(`day.${day}`)}</span>
 											<span>
 												{hours?.isOpen
 													? `${hours.start} - ${hours.end}`

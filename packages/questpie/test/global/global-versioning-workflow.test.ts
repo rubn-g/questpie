@@ -7,7 +7,7 @@ import { runTestDbMigrations } from "../utils/test-db";
 // Workflow shorthand
 const shorthand_config = global("shorthand_config")
 	.fields(({ f }) => ({
-		siteName: f.text({ required: true }),
+		siteName: f.text().required(),
 	}))
 	.options({
 		versioning: {
@@ -18,7 +18,7 @@ const shorthand_config = global("shorthand_config")
 // Full workflow config
 const workflow_config = global("workflow_config")
 	.fields(({ f }) => ({
-		siteName: f.text({ required: true }),
+		siteName: f.text().required(),
 	}))
 	.options({
 		versioning: {
@@ -32,7 +32,7 @@ const workflow_config = global("workflow_config")
 // Plain versioning
 const plain_versioned = global("plain_versioned")
 	.fields(({ f }) => ({
-		siteName: f.text({ required: true }),
+		siteName: f.text().required(),
 	}))
 	.options({
 		versioning: true,

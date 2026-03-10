@@ -1,42 +1,32 @@
 /**
  * Server-Side Type Definitions for Admin Package
  *
- * This file provides type definitions for admin-specific features.
- * The actual methods are added via runtime monkey patching in ./patch.ts.
- *
- * For type-safe usage, use the helper types:
- * - WithAdminMethods<T> - adds admin methods to QuestpieBuilder
- * - WithCollectionAdminMethods<T> - adds admin methods to CollectionBuilder
- * - WithGlobalAdminMethods<T> - adds admin methods to GlobalBuilder
+ * Type definitions for admin-specific features added to CollectionBuilder
+ * and GlobalBuilder via codegen-generated factories (`.admin()`, `.list()`, `.form()`).
  *
  * @example
  * ```ts
- * import { runtimeConfig } from "questpie";
- * import { adminModule } from "@questpie/admin/server";
+ * // collections/posts.ts (file convention)
+ * import { collection } from "#questpie/factories";
  *
- * export default runtimeConfig({
- *   modules: [adminModule],
- *   collections: {
- *     posts: collection("posts")
- *       .fields(({ f }) => ({
- *         title: f.text({ required: true }),
- *       }))
- *       // These methods are added by adminModule at runtime:
- *       .admin(({ c }) => ({
- *         label: { en: "Posts" },
- *         icon: c.icon("ph:article"),
- *       }))
- *       .list(({ v, f }) => v.table({
- *         columns: [f.title],
- *       }))
- *       .form(({ v, f }) => v.form({
- *         fields: [f.title],
- *       })),
- *   });
+ * export const posts = collection("posts")
+ *   .fields(({ f }) => ({
+ *     title: f.text({ required: true }),
+ *   }))
+ *   .admin(({ c }) => ({
+ *     label: { en: "Posts" },
+ *     icon: c.icon("ph:article"),
+ *   }))
+ *   .list(({ v, f }) => v.table({
+ *     columns: [f.title],
+ *   }))
+ *   .form(({ v, f }) => v.form({
+ *     fields: [f.title],
+ *   }));
  * ```
  */
 
-import type { QuestpieStateOf } from "questpie";
+import type { AppContext, QuestpieStateOf } from "questpie";
 import type { I18nText } from "questpie/shared";
 import type { AnyBlockBuilder } from "./block/index.js";
 
@@ -125,7 +115,7 @@ type BadgeReference = ComponentReference<
  * ```
  */
 // biome-ignore lint/complexity/noBannedTypes: Empty interface for declaration merging augmentation
-export interface ComponentTypeRegistry {}
+export type ComponentTypeRegistry = {};
 
 /**
  * Union of all registered component type names.
@@ -655,13 +645,7 @@ export interface AdminGlobalConfig {
  * Context available to widget loader and access functions on the server.
  * Provides typed access to collections, globals, and infrastructure.
  */
-export type WidgetFetchContext = {
-	collections: any;
-	globals: any;
-	db: any;
-	session?: any;
-	locale?: string;
-};
+export interface WidgetFetchContext extends AppContext {}
 
 /**
  * Per-widget access rule. Can be a boolean or async function.
@@ -1941,17 +1925,8 @@ export interface FormViewConfigContext<
 // ============================================================================
 
 /**
- * Admin methods added to QuestpieBuilder via monkey patching.
- * Use with type assertion when you need type safety:
- *
- * @example
- * ```ts
- * import type { WithAdminMethods } from "@questpie/admin/server";
- *
- * // adminModule adds these methods at runtime
- * const builder = q({ name: "app" }).use(adminModule) as WithAdminMethods<typeof q>;
- * builder.listView("table"); // now has type support
- * ```
+ * Admin methods added to QuestpieBuilder via codegen-generated factories.
+ * These are internal types used by the codegen system.
  */
 interface QuestpieBuilderAdminMethods<
 	TComponents extends Record<string, any> | string = string,
@@ -2161,12 +2136,7 @@ interface GlobalBuilderAdminMethods<
 }
 
 /**
- * Type helper to add admin methods to a QuestpieBuilder type.
- *
- * @example
- * ```ts
- * const builder = q({ name: "app" }).use(adminModule) as WithAdminMethods<typeof q>;
- * ```
+ * @deprecated No longer needed — admin methods are added via codegen factories.
  */
 export type WithAdminMethods<T> = T & QuestpieBuilderAdminMethods;
 

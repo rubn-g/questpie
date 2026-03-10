@@ -26,8 +26,8 @@ const articleDeletedJob = job({
 const createTestDefinition = () => {
 	const authors = collection("authors")
 		.fields(({ f }) => ({
-			name: f.textarea({ required: true }),
-			email: f.text({ required: true, maxLength: 255 }),
+			name: f.textarea().required(),
+			email: f.text(255).required(),
 			bio: f.textarea(),
 		}))
 		.title(({ f }) => f.name)
@@ -46,25 +46,15 @@ const createTestDefinition = () => {
 	// Define articles collection with relations
 	const articles = collection("articles")
 		.fields(({ f }) => ({
-			author: f.relation({
-				to: "authors",
-				required: true,
-				relationName: "author",
-			}),
-			title: f.textarea({ required: true }),
-			slug: f.text({ required: true, maxLength: 255 }),
+			author: f.relation("authors").required().relationName("author"),
+			title: f.textarea().required(),
+			slug: f.text(255).required(),
 			content: f.json(),
 			featuredImage: f.json(),
-			status: f.text({ maxLength: 50 }),
+			status: f.text(50),
 			viewCount: f.number(),
 			publishedAt: f.datetime(),
-			tags: f.relation({
-				to: "tags",
-				hasMany: true,
-				through: "article_tags",
-				sourceField: "article", // FK column key is field name with unified API
-				targetField: "tag",
-			}),
+			tags: f.relation("tags").manyToMany({ through: "article_tags", sourceField: "article", targetField: "tag" }),
 		}))
 		.title(({ f }) => f.title)
 		.options({
@@ -113,29 +103,15 @@ const createTestDefinition = () => {
 	// Define tags collection
 	const tags = collection("tags")
 		.fields(({ f }) => ({
-			name: f.textarea({ required: true }),
-			articles: f.relation({
-				to: "articles",
-				hasMany: true,
-				through: "article_tags",
-				sourceField: "tag", // FK column key is field name with unified API
-				targetField: "article",
-			}),
+			name: f.textarea().required(),
+			articles: f.relation("articles").manyToMany({ through: "article_tags", sourceField: "tag", targetField: "article" }),
 		}))
 		.title(({ f }) => f.name);
 
 	// Define junction table
 	const articleTags = collection("article_tags").fields(({ f }) => ({
-		article: f.relation({
-			to: "articles",
-			required: true,
-			onDelete: "cascade",
-		}),
-		tag: f.relation({
-			to: "tags",
-			required: true,
-			onDelete: "cascade",
-		}),
+		article: f.relation("articles").required().onDelete("cascade"),
+		tag: f.relation("tags").required().onDelete("cascade"),
 	}));
 
 	return {

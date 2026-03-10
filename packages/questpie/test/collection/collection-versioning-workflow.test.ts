@@ -7,7 +7,7 @@ import { runTestDbMigrations } from "../utils/test-db";
 // Workflow shorthand: versioning: { workflow: true } → draft/published
 const shorthand_posts = collection("shorthand_posts")
 	.fields(({ f }) => ({
-		title: f.text({ required: true }),
+		title: f.text().required(),
 	}))
 	.options({
 		versioning: {
@@ -18,7 +18,7 @@ const shorthand_posts = collection("shorthand_posts")
 // Full workflow config with stages
 const workflow_posts = collection("workflow_posts")
 	.fields(({ f }) => ({
-		title: f.text({ required: true }),
+		title: f.text().required(),
 	}))
 	.options({
 		versioning: {
@@ -32,7 +32,7 @@ const workflow_posts = collection("workflow_posts")
 // Plain versioning (no workflow) for comparison
 const plain_versioned = collection("plain_versioned")
 	.fields(({ f }) => ({
-		title: f.text({ required: true }),
+		title: f.text().required(),
 	}))
 	.options({
 		versioning: true,

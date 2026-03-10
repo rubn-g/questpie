@@ -255,7 +255,7 @@ export const BlockItem = React.memo(function BlockItem({
 // Helpers
 // ============================================================================
 
-import type { BlockSchema } from "#questpie/admin/server";
+import type { BlockSchema } from "#questpie/admin/server/block/index.js";
 
 function getBlockLabel(
 	block: BlockNode,

@@ -126,7 +126,7 @@ function _wrapGlob(builder: any): any {
  *
  * @example
  * ```ts
- * import { collection } from "#questpie";
+ * import { collection } from "#questpie/factories";
  *
  * export default collection("posts")
  *   .fields(({ f }) => ({ title: f.text({ required: true }) }))

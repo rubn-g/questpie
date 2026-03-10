@@ -14,9 +14,9 @@ A field that references one record from another collection:
 ```ts title="collections/appointments.ts"
 export const appointments = collection("appointments")
   .fields(({ f }) => ({
-    customer: f.relation({ to: "user", required: true }),
-    barber: f.relation({ to: "barbers", required: true }),
-    service: f.relation({ to: "services", required: true }),
+    customer: f.relation("user").required(),
+    barber: f.relation("barbers").required(),
+    service: f.relation("services").required(),
     // ...
   }));
 ```
@@ -39,15 +39,9 @@ Define the reverse side of a belongs-to — one record has many related records:
 ```ts title="collections/services.ts"
 export const services = collection("services")
   .fields(({ f }) => ({
-    name: f.text({ required: true }),
+    name: f.text().required(),
     // Reverse: this service has many barbers (via barberServices junction)
-    barbers: f.relation({
-      to: "barbers",
-      hasMany: true,
-      through: "barberServices",
-      sourceField: "service",
-      targetField: "barber",
-    }),
+    barbers: f.relation("barbers").manyToMany({ through: "barberServices", sourceField: "service", targetField: "barber" }),
   }));
 ```
 
@@ -60,8 +54,8 @@ import { collection } from "#questpie";
 
 export const barberServices = collection("barberServices")
   .fields(({ f }) => ({
-    barber: f.relation({ to: "barbers", required: true, onDelete: "cascade" }),
-    service: f.relation({ to: "services", required: true, onDelete: "cascade" }),
+    barber: f.relation("barbers").required().onDelete("cascade"),
+    service: f.relation("services").required().onDelete("cascade"),
   }))
   .admin(({ c }) => ({ hidden: true })); // Hide from admin sidebar
 ```
@@ -69,23 +63,11 @@ export const barberServices = collection("barberServices")
 Then reference it from both sides:
 
 ```ts title="collections/barbers.ts"
-services: f.relation({
-  to: "services",
-  hasMany: true,
-  through: "barberServices",
-  sourceField: "barber",   // FK in junction pointing to this collection
-  targetField: "service",  // FK in junction pointing to target collection
-}),
+services: f.relation("services").manyToMany({ through: "barberServices", sourceField: "barber", targetField: "service" }),
 ```
 
 ```ts title="collections/services.ts"
-barbers: f.relation({
-  to: "barbers",
-  hasMany: true,
-  through: "barberServices",
-  sourceField: "service",
-  targetField: "barber",
-}),
+barbers: f.relation("barbers").manyToMany({ through: "barberServices", sourceField: "service", targetField: "barber" }),
 ```
 
 ### Through Options

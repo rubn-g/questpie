@@ -39,13 +39,13 @@ export default locale({
 
 ## Localizing Fields
 
-Add `localized: true` to any field:
+Chain `.localized()` on any field:
 
 ```ts title="collections/services.ts"
 .fields(({ f }) => ({
-  name: f.text({ required: true, localized: true }),
-  description: f.textarea({ localized: true }),
-  price: f.number({ required: true }),  // NOT localized — same in all locales
+  name: f.text().required().localized(),
+  description: f.textarea().localized(),
+  price: f.number().required(),  // NOT localized — same in all locales
 }))
 ```
 
@@ -55,7 +55,7 @@ Localized fields create separate database columns per locale (e.g., `name_en`, `
 
 Most field types support localization:
 
-- `f.text()`, `f.textarea()`, `f.richText()`
+- `f.text()`, `f.textarea()`
 - `f.select()`
 - `f.array()`
 - `f.blocks()`
@@ -67,15 +67,14 @@ Numeric, boolean, date, and relation fields are typically **not** localized sinc
 Field labels and descriptions also support i18n — but this is for the **admin UI language**, not content localization:
 
 ```ts
-name: f.text({
-  label: { en: "Full Name", sk: "Celé meno" },
-  description: {
+name: f.text()
+  .label({ en: "Full Name", sk: "Celé meno" })
+  .description({
     en: "The barber's full display name",
     sk: "Celé zobrazovacie meno holiča",
-  },
-  required: true,
-  localized: true,  // Content is also localized
-}),
+  })
+  .required()
+  .localized(),  // Content is also localized
 ```
 
 ## Admin UI Locale
@@ -125,15 +124,10 @@ const services = await client.collections.services.find({
 Arrays can be localized as a whole — each locale has its own array:
 
 ```ts
-navigation: f.array({
-  localized: true,
-  of: f.object({
-    fields: {
-      label: f.text({ required: true }),
-      href: f.text({ required: true }),
-    },
-  }),
-}),
+navigation: f.object({
+  label: f.text().required(),
+  href: f.text().required(),
+}).array().localized(),
 ```
 
 ## Related Pages

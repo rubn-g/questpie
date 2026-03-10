@@ -2,7 +2,7 @@
 
 import type { BuildColumn, SQL } from "drizzle-orm";
 import type { PgTableWithColumns } from "drizzle-orm/pg-core";
-import type { Collection } from "#questpie/exports/index.js";
+import type { Collection } from "#questpie/server/collection/builder/collection.js";
 import type {
 	CollectionVersioningOptions,
 	ExtractFieldsByLocation,
@@ -268,7 +268,7 @@ export interface GlobalBuilderState {
 	fieldDefinitions: Record<string, any> | undefined;
 	/**
 	 * Phantom type for QuestpieBuilder reference.
-	 * Used to access field types registered via q.fields().
+	 * Used to access field types registered via the fields config.
 	 */
 	"~questpieApp"?: any;
 	/**

@@ -6,18 +6,24 @@
  *
  * @example
  * ```ts
+ * // questpie.config.ts
  * import { runtimeConfig } from "questpie";
  * import { adminModule } from "@questpie/admin/server";
  *
  * export default runtimeConfig({
  *   modules: [adminModule],  // Registers richText and blocks fields
- *   .collections({
- *     pages: q.collection("pages").fields(({ f }) => ({
- *       title: f.text({ required: true }),
- *       content: f.richText({ features: ["bold", "italic", "link"] }),
- *       sections: f.blocks({ allowedBlocks: ["hero", "text"] }),
- *     })),
- *   });
+ * });
+ *
+ * // collections/pages/index.ts — fields are now available via file convention
+ * import { collection } from "questpie";
+ *
+ * export default collection("pages", {
+ *   fields: ({ f }) => ({
+ *     title: f.text({ required: true }),
+ *     content: f.richText({ features: ["bold", "italic", "link"] }),
+ *     sections: f.blocks({ allowedBlocks: ["hero", "text"] }),
+ *   }),
+ * });
  * ```
  */
 
@@ -28,25 +34,25 @@ export type {
 	BlocksFieldMeta,
 	BlockValues,
 } from "./blocks.js";
-// Export field factories
-export { type BlocksFieldConfig, blocksField } from "./blocks.js";
+// Export field factories (V1 + V2)
+export { type BlocksFieldConfig, blocksField, blocks, type BlocksFieldState } from "./blocks.js";
 export type {
 	RichTextFeature,
 	RichTextFieldMeta,
 	TipTapDocument,
 	TipTapNode,
 } from "./rich-text.js";
-export { type RichTextFieldConfig, richTextField } from "./rich-text.js";
+export { type RichTextFieldConfig, richTextField, richText, type RichTextFieldState } from "./rich-text.js";
 
-// Import for adminFields record
-import { blocksField } from "./blocks.js";
-import { richTextField } from "./rich-text.js";
+// Import V2 factories for adminFields record
+import { blocks } from "./blocks.js";
+import { richText } from "./rich-text.js";
 
 /**
  * Admin field types to be registered with the field registry.
- * These are automatically registered when the `adminModule` is used.
+ * These are V2 factory functions — callable in `.fields()` callbacks.
  */
 export const adminFields = {
-	richText: richTextField,
-	blocks: blocksField,
+	richText,
+	blocks,
 } as const;

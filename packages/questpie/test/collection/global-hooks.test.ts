@@ -15,10 +15,10 @@ describe("global hooks injection", () => {
 		const createModule = (calls: typeof hookCalls) => ({
 			collections: {
 				articles: collection("articles").fields(({ f }) => ({
-					title: f.textarea({ required: true }),
+					title: f.textarea().required(),
 				})),
 				pages: collection("pages").fields(({ f }) => ({
-					title: f.textarea({ required: true }),
+					title: f.textarea().required(),
 				})),
 			},
 			hooks: {
@@ -132,13 +132,13 @@ describe("global hooks injection", () => {
 		const createModule = (calls: typeof hookCalls) => ({
 			collections: {
 				articles: collection("articles").fields(({ f }) => ({
-					title: f.textarea({ required: true }),
+					title: f.textarea().required(),
 				})),
 				pages: collection("pages").fields(({ f }) => ({
-					title: f.textarea({ required: true }),
+					title: f.textarea().required(),
 				})),
 				logs: collection("logs").fields(({ f }) => ({
-					message: f.textarea({ required: true }),
+					message: f.textarea().required(),
 				})),
 			},
 			hooks: {
@@ -197,7 +197,7 @@ describe("global hooks injection", () => {
 			setup = await buildMockApp({
 				collections: {
 					articles: collection("articles").fields(({ f }) => ({
-						title: f.textarea({ required: true }),
+						title: f.textarea().required(),
 					})),
 				},
 				hooks: {
@@ -238,11 +238,11 @@ describe("global hooks injection", () => {
 		const createModule = () => ({
 			collections: {
 				articles: collection("articles").fields(({ f }) => ({
-					title: f.textarea({ required: true }),
+					title: f.textarea().required(),
 				})),
 				auditLog: collection("audit_log").fields(({ f }) => ({
-					action: f.text({ required: true }),
-					resource: f.text({ required: true }),
+					action: f.text().required(),
+					resource: f.text().required(),
 					resourceId: f.text(),
 				})),
 			},
@@ -302,7 +302,7 @@ describe("global hooks injection", () => {
 		const createModule = () => ({
 			collections: {
 				articles: collection("articles").fields(({ f }) => ({
-					title: f.textarea({ required: true }),
+					title: f.textarea().required(),
 					slug: f.text(),
 				})),
 			},

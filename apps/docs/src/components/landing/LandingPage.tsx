@@ -16,14 +16,14 @@ function SectionBar({
 }) {
 	return (
 		<div className="grid grid-cols-[auto_1fr] border-b border-border">
-			<div className="bg-card px-5 py-4 text-5xl font-extrabold text-primary leading-none min-w-[100px] text-center border-r border-border flex items-center justify-center max-sm:text-3xl max-sm:px-4 max-sm:min-w-[72px]">
+			<div className="bg-card px-5 py-4 text-5xl font-extrabold font-mono text-primary leading-none min-w-[100px] text-center border-r border-border flex items-center justify-center max-sm:text-3xl max-sm:px-4 max-sm:min-w-[72px]">
 				{num}
 			</div>
 			<div className="px-5 py-4 flex flex-col justify-center">
-				<div className="text-[10px] tracking-[3px] uppercase text-primary">
+				<div className="font-mono text-[10px] tracking-[3px] uppercase text-primary">
 					{label}
 				</div>
-				<div className="text-base font-bold text-foreground mt-0.5 sm:text-lg">
+				<div className="font-mono text-[clamp(18px,2.5vw,24px)] font-bold text-foreground mt-0.5">
 					{title}
 				</div>
 			</div>
@@ -38,7 +38,17 @@ function Reveal({
 	children: ReactNode;
 	className?: string;
 }) {
-	return <div className={cn("rv", className)}>{children}</div>;
+	return (
+		<div
+			data-reveal
+			className={cn(
+				"opacity-0 translate-y-3 transition-all duration-500 [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] data-[visible]:opacity-100 data-[visible]:translate-y-0",
+				className,
+			)}
+		>
+			{children}
+		</div>
+	);
 }
 
 function Lmw({
@@ -113,97 +123,97 @@ function FileConventionsSection() {
 	const [layout, setLayout] = useState<"by-type" | "by-feature">("by-type");
 
 	const byTypeTree = (
-		<pre className="p-6" style={{ fontSize: 12 }}>
-			<span className="c">src/questpie/server/</span>
+		<pre className="px-5 py-4" style={{ fontSize: 12 }}>
+			<span className="text-muted-foreground/60">src/questpie/server/</span>
 			{`
 ├── collections/
 │   ├── `}
-			<span className="kw">posts.ts</span>
+			<span className="text-primary font-semibold">posts.ts</span>
 			{`
 │   └── `}
-			<span className="kw">users.ts</span>
+			<span className="text-primary font-semibold">users.ts</span>
 			{`
 ├── functions/
 │   └── `}
-			<span className="kw">admin/stats.ts</span>
+			<span className="text-primary font-semibold">admin/stats.ts</span>
 			{`
 ├── blocks/
 │   └── `}
-			<span className="kw">hero.ts</span>
+			<span className="text-primary font-semibold">hero.ts</span>
 			{`
 ├── jobs/
 │   └── `}
-			<span className="kw">send-newsletter.ts</span>
+			<span className="text-primary font-semibold">send-newsletter.ts</span>
 			{`
 ├── services/
 │   └── `}
-			<span className="kw">stripe.ts</span>
+			<span className="text-primary font-semibold">stripe.ts</span>
 			{`
 ├── seeds/
 │   └── `}
-			<span className="kw">demo-data.ts</span>
+			<span className="text-primary font-semibold">demo-data.ts</span>
 			{`
 └── `}
-			<span className="kw">auth.ts</span>
+			<span className="text-primary font-semibold">auth.ts</span>
 		</pre>
 	);
 
 	const byFeatureTree = (
-		<pre className="p-6" style={{ fontSize: 12 }}>
-			<span className="c">src/questpie/server/</span>
+		<pre className="px-5 py-4" style={{ fontSize: 12 }}>
+			<span className="text-muted-foreground/60">src/questpie/server/</span>
 			{`
 ├── blog/
 │   ├── `}
-			<span className="kw">posts.collection.ts</span>
+			<span className="text-primary font-semibold">posts.collection.ts</span>
 			{`
 │   ├── `}
-			<span className="kw">hero.block.ts</span>
+			<span className="text-primary font-semibold">hero.block.ts</span>
 			{`
 │   └── `}
-			<span className="kw">newsletter.job.ts</span>
+			<span className="text-primary font-semibold">newsletter.job.ts</span>
 			{`
 ├── shop/
 │   ├── `}
-			<span className="kw">products.collection.ts</span>
+			<span className="text-primary font-semibold">products.collection.ts</span>
 			{`
 │   ├── `}
-			<span className="kw">orders.collection.ts</span>
+			<span className="text-primary font-semibold">orders.collection.ts</span>
 			{`
 │   └── `}
-			<span className="kw">stripe.service.ts</span>
+			<span className="text-primary font-semibold">stripe.service.ts</span>
 			{`
 ├── shared/
 │   ├── `}
-			<span className="kw">users.collection.ts</span>
+			<span className="text-primary font-semibold">users.collection.ts</span>
 			{`
 │   └── `}
-			<span className="kw">stats.function.ts</span>
+			<span className="text-primary font-semibold">stats.function.ts</span>
 			{`
 └── `}
-			<span className="kw">auth.ts</span>
+			<span className="text-primary font-semibold">auth.ts</span>
 		</pre>
 	);
 
 	const byTypeBadges = [
-		["posts.ts", "CRUD + API + ADMIN", "l-success"],
-		["users.ts", "AUTH-CONNECTED ENTITY", "l-success"],
-		["admin/stats.ts", "TYPE-SAFE RPC", "primary"],
-		["hero.ts", "VISUAL BLOCK", "l-warning"],
-		["send-newsletter.ts", "BACKGROUND JOB", "l-info"],
-		["stripe.ts", "SINGLETON SERVICE", "muted-foreground"],
-		["demo-data.ts", "DB SEED", "muted-foreground"],
-		["auth.ts", "BETTER AUTH", "muted-foreground"],
+		["posts.ts", "CRUD + API + ADMIN", "text-[var(--syntax-string)]"],
+		["users.ts", "AUTH-CONNECTED ENTITY", "text-[var(--syntax-string)]"],
+		["admin/stats.ts", "TYPE-SAFE RPC", "text-primary"],
+		["hero.ts", "VISUAL BLOCK", "text-[#FFB300]"],
+		["send-newsletter.ts", "BACKGROUND JOB", "text-[#40C4FF]"],
+		["stripe.ts", "SINGLETON SERVICE", "text-muted-foreground"],
+		["demo-data.ts", "DB SEED", "text-muted-foreground"],
+		["auth.ts", "BETTER AUTH", "text-muted-foreground"],
 	];
 
 	const byFeatureBadges = [
-		["posts.collection.ts", "COLLECTION", "l-success"],
-		["hero.block.ts", "BLOCK", "l-warning"],
-		["newsletter.job.ts", "JOB", "l-info"],
-		["products.collection.ts", "COLLECTION", "l-success"],
-		["orders.collection.ts", "COLLECTION", "l-success"],
-		["stripe.service.ts", "SERVICE", "muted-foreground"],
-		["users.collection.ts", "COLLECTION", "l-success"],
-		["stats.function.ts", "RPC", "primary"],
+		["posts.collection.ts", "COLLECTION", "text-[var(--syntax-string)]"],
+		["hero.block.ts", "BLOCK", "text-[#FFB300]"],
+		["newsletter.job.ts", "JOB", "text-[#40C4FF]"],
+		["products.collection.ts", "COLLECTION", "text-[var(--syntax-string)]"],
+		["orders.collection.ts", "COLLECTION", "text-[var(--syntax-string)]"],
+		["stripe.service.ts", "SERVICE", "text-muted-foreground"],
+		["users.collection.ts", "COLLECTION", "text-[var(--syntax-string)]"],
+		["stats.function.ts", "RPC", "text-primary"],
 	];
 
 	const badges = layout === "by-type" ? byTypeBadges : byFeatureBadges;
@@ -223,7 +233,7 @@ function FileConventionsSection() {
 							type="button"
 							onClick={() => setLayout(mode)}
 							className={cn(
-								"flex-1 py-2 text-[10px] uppercase tracking-[2px] font-semibold transition-colors border-r border-border last:border-r-0",
+								"flex-1 py-2 font-mono text-[10px] uppercase tracking-[2px] font-semibold transition-colors border-r border-border last:border-r-0",
 								layout === mode
 									? "bg-card text-primary"
 									: "bg-background text-muted-foreground hover:text-foreground",
@@ -234,7 +244,7 @@ function FileConventionsSection() {
 					))}
 				</div>
 				<TwoCol>
-					<TwoColLeft className="code-block p-0!">
+					<TwoColLeft className="bg-background font-mono text-xs leading-relaxed text-muted-foreground p-0!">
 						{layout === "by-type" ? byTypeTree : byFeatureTree}
 					</TwoColLeft>
 					<TwoColRight className="p-0!">
@@ -245,12 +255,11 @@ function FileConventionsSection() {
 							{badges.map(([name, badge, color]) => (
 								<div
 									key={name}
-									className="flex justify-between items-center px-5 py-2.5 bg-background"
+									className="flex justify-between items-center px-5 py-2.5 bg-background text-[13px]"
 								>
-									<span className="text-foreground">{name}</span>
+									<span className="font-mono text-foreground">{name}</span>
 									<span
-										className="text-[10px] tracking-wide"
-										style={{ color: `var(--${color})` }}
+										className={cn("font-mono text-[10px] tracking-wide", color)}
 									>
 										{badge}
 									</span>
@@ -336,7 +345,7 @@ function Nav() {
 								key={item.label}
 								to={item.href}
 								params={item.params as never}
-								className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider transition-colors hover:text-foreground"
+								className="font-mono text-[11px] font-medium text-muted-foreground uppercase tracking-wider transition-colors hover:text-foreground"
 							>
 								{item.label}
 							</Link>
@@ -346,7 +355,7 @@ function Nav() {
 								href={item.href}
 								target="_blank"
 								rel="noreferrer"
-								className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider transition-colors hover:text-foreground"
+								className="font-mono text-[11px] font-medium text-muted-foreground uppercase tracking-wider transition-colors hover:text-foreground"
 							>
 								{item.label}
 							</a>
@@ -397,7 +406,7 @@ function Nav() {
 					<div className="mx-auto max-w-[1200px] flex flex-col gap-3">
 						<Link
 							to="/docs/$"
-							className="text-sm text-muted-foreground"
+							className="font-mono text-sm text-muted-foreground"
 							onClick={() => setMobileOpen(false)}
 						>
 							Docs
@@ -405,7 +414,7 @@ function Nav() {
 						<Link
 							to="/docs/$"
 							params={{ _splat: "examples" }}
-							className="text-sm text-muted-foreground"
+							className="font-mono text-sm text-muted-foreground"
 							onClick={() => setMobileOpen(false)}
 						>
 							Examples
@@ -414,7 +423,7 @@ function Nav() {
 							href="https://github.com/questpie/questpie"
 							target="_blank"
 							rel="noreferrer"
-							className="text-sm text-muted-foreground"
+							className="font-mono text-sm text-muted-foreground"
 							onClick={() => setMobileOpen(false)}
 						>
 							GitHub
@@ -446,7 +455,7 @@ function LandingFooter() {
 			<div className="mx-auto max-w-[1200px]">
 				<div className="grid grid-cols-4 gap-px bg-border max-sm:grid-cols-2">
 					<div className="bg-background p-5">
-						<div className="text-[9px] tracking-[2px] uppercase text-muted-foreground/60 mb-2">
+						<div className="font-mono text-[9px] tracking-[2px] uppercase text-muted-foreground/60 mb-2">
 							Product
 						</div>
 						<Link
@@ -479,7 +488,7 @@ function LandingFooter() {
 						</a>
 					</div>
 					<div className="bg-background p-5">
-						<div className="text-[9px] tracking-[2px] uppercase text-muted-foreground/60 mb-2">
+						<div className="font-mono text-[9px] tracking-[2px] uppercase text-muted-foreground/60 mb-2">
 							Ecosystem
 						</div>
 						<Link
@@ -512,7 +521,7 @@ function LandingFooter() {
 						</Link>
 					</div>
 					<div className="bg-background p-5">
-						<div className="text-[9px] tracking-[2px] uppercase text-muted-foreground/60 mb-2">
+						<div className="font-mono text-[9px] tracking-[2px] uppercase text-muted-foreground/60 mb-2">
 							Community
 						</div>
 						<a
@@ -541,10 +550,10 @@ function LandingFooter() {
 						</a>
 					</div>
 					<div className="bg-background p-5">
-						<div className="text-[9px] tracking-[2px] uppercase text-muted-foreground/60 mb-2">
+						<div className="font-mono text-[9px] tracking-[2px] uppercase text-muted-foreground/60 mb-2">
 							Install
 						</div>
-						<div className="text-xs text-primary mt-1">npx create-questpie</div>
+						<div className="font-mono text-xs text-primary mt-1">npx create-questpie</div>
 						<div className="text-[10px] text-muted-foreground mt-3 leading-relaxed">
 							MIT License
 							<br />
@@ -583,12 +592,12 @@ export function LandingPage() {
 		const obs = new IntersectionObserver(
 			(entries) => {
 				for (const e of entries) {
-					if (e.isIntersecting) e.target.classList.add("v");
+					if (e.isIntersecting) e.target.setAttribute("data-visible", "");
 				}
 			},
 			{ threshold: 0.1 },
 		);
-		document.querySelectorAll(".rv").forEach((el) => obs.observe(el));
+		document.querySelectorAll("[data-reveal]").forEach((el) => obs.observe(el));
 		return () => obs.disconnect();
 	}, []);
 
@@ -600,10 +609,10 @@ export function LandingPage() {
 			<section className="mt-14 border-b border-border">
 				<div className="grid grid-cols-2 min-h-[calc(100vh-56px)] max-w-[1200px] mx-auto border-x border-border max-[900px]:grid-cols-1">
 					<div className="px-6 py-16 sm:py-20 flex flex-col justify-center border-r border-border max-[900px]:border-r-0 max-[900px]:border-b max-[900px]:border-border">
-						<div className="text-[10px] tracking-[3px] text-primary uppercase mb-6">
+						<div className="font-mono text-[10px] tracking-[3px] text-primary uppercase mb-6">
 							Open source framework
 						</div>
-						<h1 className="text-[clamp(28px,5vw,52px)] font-extrabold text-foreground leading-[1.05] tracking-tight">
+						<h1 className="font-mono text-[clamp(28px,5vw,52px)] font-extrabold text-foreground leading-[1.05] tracking-tight">
 							One backend.
 							<br />
 							Ship everywhere.
@@ -617,7 +626,7 @@ export function LandingPage() {
 							<Link
 								to="/docs/$"
 								params={{ _splat: "start-here/first-app" }}
-								className="px-5 py-2.5 bg-primary border border-primary text-white text-[11px] font-semibold uppercase tracking-wider transition-colors hover:bg-primary/80"
+								className="font-mono px-5 py-2.5 bg-primary border border-primary text-white text-[11px] font-semibold uppercase tracking-wider transition-colors hover:bg-primary/80"
 							>
 								Get started &rarr;
 							</Link>
@@ -625,7 +634,7 @@ export function LandingPage() {
 								href="https://github.com/questpie/questpie"
 								target="_blank"
 								rel="noreferrer"
-								className="px-5 py-2.5 bg-background border border-border text-foreground text-[11px] font-semibold uppercase tracking-wider transition-colors hover:border-primary hover:text-primary"
+								className="font-mono px-5 py-2.5 bg-background border border-border text-foreground text-[11px] font-semibold uppercase tracking-wider transition-colors hover:border-primary hover:text-primary"
 							>
 								GitHub &#9733;
 							</a>
@@ -639,7 +648,7 @@ export function LandingPage() {
 							].map((t) => (
 								<span
 									key={t}
-									className="text-[10px] px-2.5 py-1 bg-card text-muted-foreground tracking-wide"
+									className="font-mono text-[10px] px-2.5 py-1 bg-card text-muted-foreground tracking-wide"
 								>
 									{t}
 								</span>
@@ -647,75 +656,75 @@ export function LandingPage() {
 						</div>
 					</div>
 					<div className="flex flex-col">
-						<div className="code-block flex-1 border-b border-border">
-							<pre>
-								<span className="kw">collection</span>(
-								<span className="s">"posts"</span>)
+						<div className="bg-background font-mono text-xs leading-relaxed text-muted-foreground flex-1 border-b border-border">
+							<pre className="p-6">
+								<span className="text-primary font-semibold">collection</span>(
+								<span className="text-[var(--syntax-string)]">"posts"</span>)
 								{`
   .`}
-								<span className="fn">fields</span>
+								<span className="text-[var(--syntax-function)]">fields</span>
 								{`(({ f }) => ({
     title:   f.`}
-								<span className="fn">text</span>(<span className="n">255</span>
-								).<span className="fn">required</span>
+								<span className="text-[var(--syntax-function)]">text</span>(<span className="text-[#FFB300]">255</span>
+								).<span className="text-[var(--syntax-function)]">required</span>
 								{`(),
     content: f.`}
-								<span className="fn">richText</span>().
-								<span className="fn">localized</span>
+								<span className="text-[var(--syntax-function)]">richText</span>().
+								<span className="text-[var(--syntax-function)]">localized</span>
 								{`(),
     status:  f.`}
-								<span className="fn">select</span>
+								<span className="text-[var(--syntax-function)]">select</span>
 								{`([
       { value: `}
-								<span className="s">"draft"</span>
+								<span className="text-[var(--syntax-string)]">"draft"</span>
 								{`, label: `}
-								<span className="s">"Draft"</span>
+								<span className="text-[var(--syntax-string)]">"Draft"</span>
 								{` },
       { value: `}
-								<span className="s">"published"</span>
+								<span className="text-[var(--syntax-string)]">"published"</span>
 								{`, label: `}
-								<span className="s">"Published"</span>
+								<span className="text-[var(--syntax-string)]">"Published"</span>
 								{` },
     ]),
     author:  f.`}
-								<span className="fn">relation</span>(
-								<span className="s">"users"</span>).
-								<span className="fn">required</span>
+								<span className="text-[var(--syntax-function)]">relation</span>(
+								<span className="text-[var(--syntax-string)]">"users"</span>).
+								<span className="text-[var(--syntax-function)]">required</span>
 								{`(),
     tags:    f.`}
-								<span className="fn">relation</span>(
-								<span className="s">"tags"</span>).
-								<span className="fn">hasMany</span>
+								<span className="text-[var(--syntax-function)]">relation</span>(
+								<span className="text-[var(--syntax-string)]">"tags"</span>).
+								<span className="text-[var(--syntax-function)]">hasMany</span>
 								{`({ foreignKey: `}
-								<span className="s">"postId"</span>
+								<span className="text-[var(--syntax-string)]">"postId"</span>
 								{` }),
     seo:     f.`}
-								<span className="fn">object</span>
+								<span className="text-[var(--syntax-function)]">object</span>
 								{`({
       title: f.`}
-								<span className="fn">text</span>
+								<span className="text-[var(--syntax-function)]">text</span>
 								{`(),
       desc:  f.`}
-								<span className="fn">text</span>(<span className="n">160</span>)
+								<span className="text-[var(--syntax-function)]">text</span>(<span className="text-[#FFB300]">160</span>)
 								{`,
     }),
   }))
   .`}
-								<span className="fn">access</span>
+								<span className="text-[var(--syntax-function)]">access</span>
 								{`({
     read: `}
-								<span className="kw">true</span>
+								<span className="text-primary font-semibold">true</span>
 								{`,
     create: ({ session }) => !!session,
     update: ({ session, doc }) =>
       doc.authorId === session?.user?.id,
   })
   .`}
-								<span className="fn">versioning</span>
+								<span className="text-[var(--syntax-function)]">versioning</span>
 								{`({ enabled: `}
-								<span className="kw">true</span>
+								<span className="text-primary font-semibold">true</span>
 								{`, maxVersions: `}
-								<span className="n">10</span>
+								<span className="text-[#FFB300]">10</span>
 								{` })`}
 							</pre>
 						</div>
@@ -728,7 +737,7 @@ export function LandingPage() {
 							].map((label) => (
 								<div
 									key={label}
-									className="bg-background px-3 py-2.5 text-[10px] tracking-wide text-success"
+									className="font-mono bg-background px-3 py-2.5 text-[10px] tracking-wide text-[#00E676]"
 								>
 									<span className="text-muted-foreground/40">→ </span>
 									{label}
@@ -749,47 +758,47 @@ export function LandingPage() {
 							title="Define once. Get the rest for free."
 						/>
 						<TwoCol>
-							<TwoColLeft className="code-block p-0!">
-								<pre className="p-6">
-									<span className="c">
+							<TwoColLeft className="bg-background font-mono text-xs leading-relaxed text-muted-foreground p-0!">
+								<pre className="px-5 py-4">
+									<span className="text-muted-foreground/60">
 										{"// This one definition generates:"}
 									</span>
 									{"\n"}
-									<span className="c">
+									<span className="text-muted-foreground/60">
 										{"// REST, RPC, Admin, Validation,"}
 									</span>
 									{"\n"}
-									<span className="c">{"// Client SDK, Realtime, Search"}</span>
+									<span className="text-muted-foreground/60">{"// Client SDK, Realtime, Search"}</span>
 									{"\n\n"}
-									<span className="kw">collection</span>(
-									<span className="s">"posts"</span>)
+									<span className="text-primary font-semibold">collection</span>(
+									<span className="text-[var(--syntax-string)]">"posts"</span>)
 									{`
   .`}
-									<span className="fn">fields</span>
+									<span className="text-[var(--syntax-function)]">fields</span>
 									{`(({ f }) => ({
     title:   f.`}
-									<span className="fn">text</span>(
-									<span className="n">255</span>).
-									<span className="fn">required</span>
+									<span className="text-[var(--syntax-function)]">text</span>(
+									<span className="text-[#FFB300]">255</span>).
+									<span className="text-[var(--syntax-function)]">required</span>
 									{`(),
     content: f.`}
-									<span className="fn">richText</span>().
-									<span className="fn">localized</span>
+									<span className="text-[var(--syntax-function)]">richText</span>().
+									<span className="text-[var(--syntax-function)]">localized</span>
 									{`(),
     status:  f.`}
-									<span className="fn">select</span>
+									<span className="text-[var(--syntax-function)]">select</span>
 									{`([...]).`}
-									<span className="fn">required</span>
+									<span className="text-[var(--syntax-function)]">required</span>
 									{`(),
     author:  f.`}
-									<span className="fn">relation</span>(
-									<span className="s">"users"</span>)
+									<span className="text-[var(--syntax-function)]">relation</span>(
+									<span className="text-[var(--syntax-string)]">"users"</span>)
 									{`,
   }))`}
 								</pre>
 							</TwoColLeft>
 							<TwoColRight>
-								<ul className="list-none text-xs p-0 m-0">
+								<ul className="list-none font-mono text-xs p-0 m-0">
 									{[
 										["REST API", "/api/collections/posts"],
 										["RPC functions", "typed, namespaced"],
@@ -805,7 +814,7 @@ export function LandingPage() {
 											key={title}
 											className="py-1 flex gap-2.5 border-b border-border"
 										>
-											<span className="text-success">&#10003;</span>
+											<span className="text-[#00E676]">&#10003;</span>
 											<span className="text-foreground">{title}</span>
 											<span className="text-muted-foreground ml-1">
 												&mdash;{" "}
@@ -813,7 +822,7 @@ export function LandingPage() {
 													? desc.split("→").map((part, i) => (
 															<span key={i}>
 																{i > 0 && (
-																	<span className="text-success"> → </span>
+																	<span className="text-[#00E676]"> → </span>
 																)}
 																{part.trim()}
 															</span>
@@ -861,13 +870,13 @@ export function LandingPage() {
 										<>
 											<div
 												key={`c-${cat}`}
-												className="px-4 py-2 text-[10px] tracking-[2px] text-primary uppercase bg-card flex items-center"
+												className="font-mono px-4 py-2 text-[10px] tracking-[2px] text-primary uppercase bg-card flex items-center"
 											>
 												{cat}
 											</div>
 											<div
 												key={`v-${cat}`}
-												className="px-4 py-2 text-foreground bg-background"
+												className="px-4 py-2 text-[13px] text-foreground bg-background"
 											>
 												{val}
 											</div>
@@ -875,30 +884,30 @@ export function LandingPage() {
 									))}
 								</div>
 							</TwoColLeft>
-							<TwoColRight className="code-block p-0! border-b-0!">
-								<pre className="p-6">
+							<TwoColRight className="bg-background font-mono text-xs leading-relaxed text-muted-foreground p-0! border-b-0!">
+								<pre className="px-5 py-4">
 									{`runtimeConfig({
   db: { url: `}
-									<span className="s">DATABASE_URL</span>
+									<span className="text-[var(--syntax-string)]">DATABASE_URL</span>
 									{` },
   queue: { adapter: `}
-									<span className="fn">pgBossAdapter</span>
+									<span className="text-[var(--syntax-function)]">pgBossAdapter</span>
 									{`() },
   search: `}
-									<span className="fn">postgresSearchAdapter</span>
+									<span className="text-[var(--syntax-function)]">postgresSearchAdapter</span>
 									{`(),
   realtime: { adapter: `}
-									<span className="fn">pgNotifyAdapter</span>
+									<span className="text-[var(--syntax-function)]">pgNotifyAdapter</span>
 									{`() },
   storage: { driver: `}
-									<span className="fn">s3Driver</span>
+									<span className="text-[var(--syntax-function)]">s3Driver</span>
 									{`({
     bucket: `}
-									<span className="s">"assets"</span>
+									<span className="text-[var(--syntax-string)]">"assets"</span>
 									{`
   }) },
   email: { adapter: `}
-									<span className="fn">smtpAdapter</span>
+									<span className="text-[var(--syntax-function)]">smtpAdapter</span>
 									{`() },
 })`}
 								</pre>
@@ -921,42 +930,42 @@ export function LandingPage() {
 							title="Ship the admin panel only when you need it."
 						/>
 						<TwoCol>
-							<TwoColLeft className="code-block p-0!">
-								<pre className="p-6">
-									<span className="kw">collection</span>(
-									<span className="s">"posts"</span>)
+							<TwoColLeft className="bg-background font-mono text-xs leading-relaxed text-muted-foreground p-0!">
+								<pre className="px-5 py-4">
+									<span className="text-primary font-semibold">collection</span>(
+									<span className="text-[var(--syntax-string)]">"posts"</span>)
 									{`
   .`}
-									<span className="fn">admin</span>
+									<span className="text-[var(--syntax-function)]">admin</span>
 									{`(({ c }) => ({
     label: { en: `}
-									<span className="s">"Posts"</span>
+									<span className="text-[var(--syntax-string)]">"Posts"</span>
 									{`, sk: `}
-									<span className="s">"Príspevky"</span>
+									<span className="text-[var(--syntax-string)]">"Príspevky"</span>
 									{` },
     icon: c.`}
-									<span className="fn">icon</span>(
-									<span className="s">"ph:article"</span>)
+									<span className="text-[var(--syntax-function)]">icon</span>(
+									<span className="text-[var(--syntax-string)]">"ph:article"</span>)
 									{`,
   }))
   .`}
-									<span className="fn">list</span>
+									<span className="text-[var(--syntax-function)]">list</span>
 									{`(({ v, f }) => v.`}
-									<span className="fn">table</span>
+									<span className="text-[var(--syntax-function)]">table</span>
 									{`({
     columns: [`}
-									<span className="s">"title"</span>
+									<span className="text-[var(--syntax-string)]">"title"</span>
 									{`, `}
-									<span className="s">"status"</span>
+									<span className="text-[var(--syntax-string)]">"status"</span>
 									{`, `}
-									<span className="s">"author"</span>
+									<span className="text-[var(--syntax-string)]">"author"</span>
 									{`],
     defaultSort: { field: f.createdAt },
   }))
   .`}
-									<span className="fn">form</span>
+									<span className="text-[var(--syntax-function)]">form</span>
 									{`(({ v, f }) => v.`}
-									<span className="fn">form</span>
+									<span className="text-[var(--syntax-function)]">form</span>
 									{`({
     fields: [f.title, f.content],
     sidebar: { fields: [f.status, f.author] },
@@ -967,9 +976,9 @@ export function LandingPage() {
 								</div>
 							</TwoColLeft>
 							<TwoColRight className="p-0!">
-								<div className="grid grid-cols-[140px_1fr] text-[11px] overflow-hidden max-[900px]:grid-cols-1">
+								<div className="grid grid-cols-[140px_1fr] font-mono text-[11px] overflow-hidden max-[900px]:grid-cols-1">
 									<div className="bg-card border-r border-border p-3 max-[900px]:border-r-0 max-[900px]:border-b max-[900px]:border-border max-[900px]:flex max-[900px]:gap-1 max-[900px]:flex-wrap">
-										<div className="text-[9px] tracking-[2px] text-muted-foreground/60 uppercase px-3.5 py-1 mb-1 max-[900px]:mb-0">
+										<div className="font-mono text-[9px] tracking-[2px] text-muted-foreground/60 uppercase px-3.5 py-1 mb-1 max-[900px]:mb-0">
 											Admin
 										</div>
 										<div className="px-3.5 py-1 text-foreground border-l-2 border-primary">
@@ -1000,55 +1009,55 @@ export function LandingPage() {
 												</span>
 											</div>
 										</div>
-										<table className="admin-table">
+										<table className="w-full border-collapse text-[11px]">
 											<thead>
 												<tr>
-													<th>Title</th>
-													<th>Status</th>
-													<th>Author</th>
-													<th>Date</th>
+													<th className="bg-card text-muted-foreground text-[9px] uppercase tracking-[1.5px] font-medium px-2.5 py-1.5 text-left border-b border-border">Title</th>
+													<th className="bg-card text-muted-foreground text-[9px] uppercase tracking-[1.5px] font-medium px-2.5 py-1.5 text-left border-b border-border">Status</th>
+													<th className="bg-card text-muted-foreground text-[9px] uppercase tracking-[1.5px] font-medium px-2.5 py-1.5 text-left border-b border-border">Author</th>
+													<th className="bg-card text-muted-foreground text-[9px] uppercase tracking-[1.5px] font-medium px-2.5 py-1.5 text-left border-b border-border">Date</th>
 												</tr>
 											</thead>
 											<tbody>
 												<tr>
-													<td className="text-foreground">
+													<td className="px-2.5 py-1.5 border-b border-border text-foreground">
 														Getting Started Guide
 													</td>
-													<td className="text-success text-[9px] tracking-wide">
+													<td className="px-2.5 py-1.5 border-b border-border text-[#00E676] text-[9px] tracking-wide">
 														PUBLISHED
 													</td>
-													<td>admin</td>
-													<td>Mar 6</td>
+													<td className="px-2.5 py-1.5 border-b border-border text-muted-foreground">admin</td>
+													<td className="px-2.5 py-1.5 border-b border-border text-muted-foreground">Mar 6</td>
 												</tr>
 												<tr>
-													<td className="text-foreground">
+													<td className="px-2.5 py-1.5 border-b border-border text-foreground">
 														Adapter Architecture
 													</td>
-													<td className="text-warning text-[9px] tracking-wide">
+													<td className="px-2.5 py-1.5 border-b border-border text-[#FFB300] text-[9px] tracking-wide">
 														DRAFT
 													</td>
-													<td>admin</td>
-													<td>Mar 5</td>
+													<td className="px-2.5 py-1.5 border-b border-border text-muted-foreground">admin</td>
+													<td className="px-2.5 py-1.5 border-b border-border text-muted-foreground">Mar 5</td>
 												</tr>
 												<tr>
-													<td className="text-foreground">
+													<td className="px-2.5 py-1.5 border-b border-border text-foreground">
 														File Conventions Deep Dive
 													</td>
-													<td className="text-success text-[9px] tracking-wide">
+													<td className="px-2.5 py-1.5 border-b border-border text-[#00E676] text-[9px] tracking-wide">
 														PUBLISHED
 													</td>
-													<td>admin</td>
-													<td>Mar 3</td>
+													<td className="px-2.5 py-1.5 border-b border-border text-muted-foreground">admin</td>
+													<td className="px-2.5 py-1.5 border-b border-border text-muted-foreground">Mar 3</td>
 												</tr>
 												<tr>
-													<td className="text-foreground">
+													<td className="px-2.5 py-1.5 border-b-0 text-foreground">
 														Block System Overview
 													</td>
-													<td className="text-warning text-[9px] tracking-wide">
+													<td className="px-2.5 py-1.5 border-b-0 text-[#FFB300] text-[9px] tracking-wide">
 														DRAFT
 													</td>
-													<td>admin</td>
-													<td>Mar 1</td>
+													<td className="px-2.5 py-1.5 border-b-0 text-muted-foreground">admin</td>
+													<td className="px-2.5 py-1.5 border-b-0 text-muted-foreground">Mar 1</td>
 												</tr>
 											</tbody>
 										</table>
@@ -1089,47 +1098,47 @@ export function LandingPage() {
 									)}
 									<div
 										key={step}
-										className="py-2 px-3.5 bg-card border border-border text-[11px] text-foreground max-sm:text-[10px] max-sm:py-1.5 max-sm:px-2.5"
+										className="font-mono py-2 px-3.5 bg-card border border-border text-[11px] text-foreground max-sm:text-[10px] max-sm:py-1.5 max-sm:px-2.5"
 									>
 										{step}
 									</div>
 								</>
 							))}
 						</div>
-						<div className="code-block border-b border-border">
-							<pre>
-								<span className="kw">const</span>
+						<div className="bg-background font-mono text-xs leading-relaxed text-muted-foreground border-b border-border">
+							<pre className="px-5 py-4">
+								<span className="text-primary font-semibold">const</span>
 								{` { docs } = `}
-								<span className="kw">await</span>
+								<span className="text-primary font-semibold">await</span>
 								{` client.collections.posts.`}
-								<span className="fn">find</span>
+								<span className="text-[var(--syntax-function)]">find</span>
 								{`({
   where: { status: { eq: `}
-								<span className="s">"published"</span>
+								<span className="text-[var(--syntax-string)]">"published"</span>
 								{` } },
   orderBy: { createdAt: `}
-								<span className="s">"desc"</span>
+								<span className="text-[var(--syntax-string)]">"desc"</span>
 								{` },
   with: { author: `}
-								<span className="kw">true</span>
+								<span className="text-primary font-semibold">true</span>
 								{`, tags: `}
-								<span className="kw">true</span>
+								<span className="text-primary font-semibold">true</span>
 								{` },
   locale: `}
-								<span className="s">"sk"</span>
+								<span className="text-[var(--syntax-string)]">"sk"</span>
 								{`,
 });
 `}
-								<span className="c">{"// docs[0].title → string"}</span>
+								<span className="text-muted-foreground/60">{"// docs[0].title → string"}</span>
 								{`
 `}
-								<span className="c">{"// docs[0].author → User"}</span>
+								<span className="text-muted-foreground/60">{"// docs[0].author → User"}</span>
 								{`
 `}
-								<span className="c">{"// docs[0].tags → Tag[]"}</span>
+								<span className="text-muted-foreground/60">{"// docs[0].tags → Tag[]"}</span>
 								{`
 `}
-								<span className="c">
+								<span className="text-muted-foreground/60">
 									{"// Change a field — TypeScript catches it everywhere."}
 								</span>
 							</pre>
@@ -1174,10 +1183,10 @@ export function LandingPage() {
 									key={idx}
 									className="bg-background p-5 transition-[outline-color] hover:outline hover:outline-1 hover:outline-primary hover:-outline-offset-1 hover:z-[2] hover:relative"
 								>
-									<div className="text-[10px] tracking-[3px] text-primary mb-1.5">
+									<div className="font-mono text-[10px] tracking-[3px] text-primary mb-1.5">
 										{idx}
 									</div>
-									<div className="text-[13px] font-bold text-foreground mb-1">
+									<div className="font-mono text-[13px] font-bold text-foreground mb-1">
 										{title}
 									</div>
 									<div className="text-xs text-muted-foreground leading-normal">
@@ -1205,47 +1214,47 @@ export function LandingPage() {
 						/>
 						<div className="grid gap-px bg-border grid-cols-[repeat(auto-fill,minmax(260px,1fr))]">
 							<div className="bg-background p-5 transition-[outline-color] hover:outline hover:outline-1 hover:outline-primary hover:-outline-offset-1 hover:z-[2] hover:relative">
-								<div className="text-[10px] tracking-[3px] text-primary mb-1.5">
+								<div className="font-mono text-[10px] tracking-[3px] text-primary mb-1.5">
 									WATCH
 								</div>
-								<div className="term my-2">
-									<span className="ps">$</span> questpie dev{"\n"}
-									<span className="ok">&#10003;</span> Watching...{"\n"}
-									<span className="ok">&#10003;</span> server (23 collections)
+								<div className="bg-background font-mono text-[11px] leading-[1.8] px-4 py-3 whitespace-pre text-muted-foreground my-2">
+									<span className="text-primary">$</span> questpie dev{"\n"}
+									<span className="text-[var(--syntax-string)]">&#10003;</span> Watching...{"\n"}
+									<span className="text-[var(--syntax-string)]">&#10003;</span> server (23 collections)
 									{"\n"}
-									<span className="ok">&#10003;</span> admin-client (15 blocks)
+									<span className="text-[var(--syntax-string)]">&#10003;</span> admin-client (15 blocks)
 								</div>
 								<div className="text-xs text-muted-foreground leading-normal">
 									Instant regeneration on file changes.
 								</div>
 							</div>
 							<div className="bg-background p-5 transition-[outline-color] hover:outline hover:outline-1 hover:outline-primary hover:-outline-offset-1 hover:z-[2] hover:relative">
-								<div className="text-[10px] tracking-[3px] text-primary mb-1.5">
+								<div className="font-mono text-[10px] tracking-[3px] text-primary mb-1.5">
 									SCAFFOLD
 								</div>
-								<div className="term my-2">
-									<span className="ps">$</span> questpie add collection products
+								<div className="bg-background font-mono text-[11px] leading-[1.8] px-4 py-3 whitespace-pre text-muted-foreground my-2">
+									<span className="text-primary">$</span> questpie add collection products
 									{"\n"}
-									<span className="ok">&#10003;</span> Created
+									<span className="text-[var(--syntax-string)]">&#10003;</span> Created
 									collections/products.ts{"\n"}
-									<span className="ok">&#10003;</span> Regenerated types
+									<span className="text-[var(--syntax-string)]">&#10003;</span> Regenerated types
 								</div>
 								<div className="text-xs text-muted-foreground leading-normal">
 									One command. Typed immediately.
 								</div>
 							</div>
 							<div className="bg-background p-5 transition-[outline-color] hover:outline hover:outline-1 hover:outline-primary hover:-outline-offset-1 hover:z-[2] hover:relative">
-								<div className="text-[10px] tracking-[3px] text-primary mb-1.5">
+								<div className="font-mono text-[10px] tracking-[3px] text-primary mb-1.5">
 									VALIDATE
 								</div>
-								<div className="term my-2">
-									<span className="er">
+								<div className="bg-background font-mono text-[11px] leading-[1.8] px-4 py-3 whitespace-pre text-muted-foreground my-2">
+									<span className="text-destructive">
 										&#10007; Server defines blocks/hero
 									</span>
 									{"\n"}
-									<span className="er">&nbsp; but no renderer found</span>
+									<span className="text-destructive">&nbsp; but no renderer found</span>
 									{"\n"}
-									<span className="fx">
+									<span className="text-primary">
 										&rarr; Create admin/blocks/hero.tsx
 									</span>
 								</div>
@@ -1254,22 +1263,22 @@ export function LandingPage() {
 								</div>
 							</div>
 							<div className="bg-background p-5 transition-[outline-color] hover:outline hover:outline-1 hover:outline-primary hover:-outline-offset-1 hover:z-[2] hover:relative">
-								<div className="text-[10px] tracking-[3px] text-primary mb-1.5">
+								<div className="font-mono text-[10px] tracking-[3px] text-primary mb-1.5">
 									REALTIME
 								</div>
 								<div
-									className="code-block my-2"
+									className="bg-background font-mono text-xs leading-relaxed text-muted-foreground my-2"
 									style={{ padding: "10px 14px", fontSize: 11 }}
 								>
 									<pre>
 										{`client.realtime.`}
-										<span className="fn">subscribe</span>
+										<span className="text-[var(--syntax-function)]">subscribe</span>
 										{`(
   { resource: `}
-										<span className="s">"posts"</span>
+										<span className="text-[var(--syntax-string)]">"posts"</span>
 										{` },
   (event) => `}
-										<span className="fn">updateUI</span>
+										<span className="text-[var(--syntax-function)]">updateUI</span>
 										{`(event)
 );`}
 									</pre>
@@ -1287,23 +1296,23 @@ export function LandingPage() {
 			<section className="border-y border-border">
 				<div className="grid grid-cols-[1fr_auto] max-w-[1200px] mx-auto border-x border-border max-[900px]:grid-cols-1">
 					<div className="py-10 px-6 border-r border-border max-[900px]:border-r-0 max-[900px]:border-b max-[900px]:border-border">
-						<h2 className="text-[clamp(20px,3vw,28px)] font-extrabold text-foreground tracking-tight">
+						<h2 className="font-mono text-[clamp(20px,3vw,28px)] font-extrabold text-foreground tracking-tight">
 							One backend. Ship everywhere.
 						</h2>
-						<div className="mt-3 text-sm text-primary">npx create-questpie</div>
+						<div className="font-mono mt-3 text-sm text-primary">npx create-questpie</div>
 					</div>
 					<div className="p-6 flex flex-col gap-px justify-center">
 						<Link
 							to="/docs/$"
 							params={{ _splat: "start-here/first-app" }}
-							className="px-5 py-2.5 bg-primary border border-primary text-white text-[11px] uppercase tracking-wider text-center block transition-colors hover:bg-primary/80"
+							className="font-mono px-5 py-2.5 bg-primary border border-primary text-white text-[11px] uppercase tracking-wider text-center block transition-colors hover:bg-primary/80"
 						>
 							Read the docs &rarr;
 						</Link>
 						<Link
 							to="/docs/$"
 							params={{ _splat: "examples" }}
-							className="px-5 py-2.5 bg-background border border-border text-foreground text-[11px] uppercase tracking-wider text-center block transition-colors hover:border-primary hover:text-primary"
+							className="font-mono px-5 py-2.5 bg-background border border-border text-foreground text-[11px] uppercase tracking-wider text-center block transition-colors hover:border-primary hover:text-primary"
 						>
 							Browse examples &rarr;
 						</Link>
@@ -1311,7 +1320,7 @@ export function LandingPage() {
 							href="https://github.com/questpie/questpie"
 							target="_blank"
 							rel="noreferrer"
-							className="px-5 py-2.5 bg-background border border-border text-foreground text-[11px] uppercase tracking-wider text-center block transition-colors hover:border-primary hover:text-primary"
+							className="font-mono px-5 py-2.5 bg-background border border-border text-foreground text-[11px] uppercase tracking-wider text-center block transition-colors hover:border-primary hover:text-primary"
 						>
 							Star on GitHub &#9733;
 						</a>

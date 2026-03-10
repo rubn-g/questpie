@@ -5,10 +5,7 @@ import type {
 	InferRelationConfigsFromFields,
 	RelationConfig,
 } from "#questpie/server/collection/builder/types.js";
-import type {
-	FieldDefinition,
-	FieldDefinitionState,
-} from "#questpie/server/fields/types.js";
+import type { FieldDefinition } from "#questpie/server/fields/types.js";
 
 // ============================================================================
 // Opaque Types for Better Autocomplete
@@ -41,12 +38,10 @@ export type DateInput = (Date | string) & {
 	readonly [__dateInputBrand]?: never;
 };
 
-import type {
-	Collection,
-	CollectionBuilder,
-	Global,
-	GlobalBuilder,
-} from "#questpie/server/index.js";
+import type { Collection } from "#questpie/server/collection/builder/collection.js";
+import type { CollectionBuilder } from "#questpie/server/collection/builder/collection-builder.js";
+import type { Global } from "#questpie/server/global/builder/global.js";
+import type { GlobalBuilder } from "#questpie/server/global/builder/global-builder.js";
 
 // ============================================================================
 // Performance Type Utilities
@@ -119,18 +114,28 @@ type CollectionFieldAccess<T> =
 	}
 		? FieldDefinitions extends Record<string, any>
 			? {
-					[K in keyof FieldDefinitions as FieldDefinitions[K] extends {
-						state: { config?: { access?: any } };
-					}
-						? NonNullable<
-								FieldDefinitions[K]["state"]["config"]
-							>["access"] extends undefined
-							? never
-							: K
+					[K in keyof FieldDefinitions as FieldHasAccess<FieldDefinitions[K]> extends true
+						? K
 						: never]?: true;
 				}
 			: Record<never, never>
 		: Record<never, never>;
+
+/** Check if a field definition (V1 or V2) has access rules. */
+type FieldHasAccess<TField> =
+	// V2 Field: check phantom type for access property
+	TField extends { readonly _: infer TState }
+		? "access" extends keyof TState
+			? TState["access"] extends undefined
+				? false
+				: true
+			: false
+		// V1 FieldDefinition: check state.config.access
+		: TField extends { state: { config?: { access?: any } } }
+			? NonNullable<TField["state"]["config"]>["access"] extends undefined
+				? false
+				: true
+			: false;
 
 /**
  * Make fields optional if they have access rules defined
@@ -204,7 +209,7 @@ type HasSpecificKeys<T extends Record<string, any>> = string extends keyof T
  * Falls back to generic Record when fieldDefinitions doesn't have specific fields.
  */
 type InferRelationsFromFieldDefs<TFieldDefs> =
-	TFieldDefs extends Record<string, FieldDefinition<FieldDefinitionState>>
+	TFieldDefs extends Record<string, { $types: any; toColumn: any }>
 		? InferRelationConfigsFromFields<TFieldDefs> extends infer TInferred
 			? TInferred extends Record<string, RelationConfig>
 				? keyof TInferred extends never

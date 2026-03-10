@@ -19,15 +19,12 @@ export const heroBlock = block("hero")
     category: "sections",
   }))
   .fields(({ f }) => ({
-    title: f.text({ localized: true, required: true }),
-    subtitle: f.textarea({ localized: true }),
+    title: f.text().required().localized(),
+    subtitle: f.textarea().localized(),
     backgroundImage: f.upload({ to: "assets" }),
-    overlayOpacity: f.number({ defaultValue: 60 }),
-    alignment: f.select({
-      options: ["left", "center", "right"],
-      defaultValue: "center",
-    }),
-    ctaText: f.text({ localized: true }),
+    overlayOpacity: f.number().default(60),
+    alignment: f.select(["left", "center", "right"]).default("center"),
+    ctaText: f.text().localized(),
     ctaLink: f.text(),
   }))
   .prefetch({ with: { backgroundImage: true } });
@@ -52,9 +49,9 @@ import { collection } from "#questpie";
 
 export const pages = collection("pages")
   .fields(({ f }) => ({
-    title: f.text({ required: true, localized: true }),
-    slug: f.text({ required: true }),
-    content: f.blocks({ localized: true }),  // Block content field
+    title: f.text().required().localized(),
+    slug: f.text().required(),
+    content: f.blocks().localized(),  // Block content field
   }));
 ```
 
@@ -85,10 +82,7 @@ export const spacerBlock = block("spacer")
     category: "layout",
   }))
   .fields(({ f }) => ({
-    height: f.select({
-      options: ["sm", "md", "lg", "xl"],
-      defaultValue: "md",
-    }),
+    height: f.select(["sm", "md", "lg", "xl"]).default("md"),
   }));
 ```
 

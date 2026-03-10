@@ -1,24 +1,20 @@
 /**
- * Tests for q.collection() and q.global() with field type inference
+ * Tests for collection() and global() with field type inference
  *
- * Verifies that field types from q.fields() flow through to
- * collection and global builders.
+ * Verifies that field types flow through to collection and global builders.
+ * Uses standalone collection() and global() which include builtinFields by default.
  */
 import { describe, expect, test } from "bun:test";
 import { collection } from "#questpie/server/collection/builder/collection-builder.js";
-import { questpie } from "#questpie/server/config/builder.js";
-import { defaultFields } from "#questpie/server/fields/builtin/defaults.js";
 import { global } from "#questpie/server/global/builder/global-builder.js";
 
-describe("q.collection() with field types", () => {
-	test("should create collection with typed fields from q.fields()", () => {
-		const q = questpie({ name: "test-app" }).fields(defaultFields);
-
-		const posts = q.collection("posts").fields(({ f }) => ({
-			title: f.text({ required: true }),
+describe("collection() with field types", () => {
+	test("should create collection with typed fields", () => {
+		const posts = collection("posts").fields(({ f }) => ({
+			title: f.text().required(),
 			content: f.textarea(),
-			views: f.number({ min: 0 }),
-			published: f.boolean({ default: false }),
+			views: f.number().min(0),
+			published: f.boolean().default(false),
 		}));
 
 		expect(posts.name).toBe("posts");
@@ -30,10 +26,8 @@ describe("q.collection() with field types", () => {
 	});
 
 	test("should throw error for unknown field type", () => {
-		const q = questpie({ name: "test-app" }).fields(defaultFields);
-
 		expect(() => {
-			q.collection("posts").fields(({ f }) => ({
+			collection("posts").fields(({ f }) => ({
 				// Using (f as any) to bypass type checking - this tests runtime error
 				title: (f as any).unknownField({ required: true }),
 			}));
@@ -43,7 +37,7 @@ describe("q.collection() with field types", () => {
 	test("standalone collection() should use builtin fields by default", () => {
 		// Standalone collection() now includes builtinFields by default
 		const posts = collection("posts").fields(({ f }) => ({
-			title: f.text({ required: true }),
+			title: f.text().required(),
 		}));
 
 		expect(posts.name).toBe("posts");
@@ -52,10 +46,8 @@ describe("q.collection() with field types", () => {
 	});
 
 	test("should work with field builder pattern", () => {
-		const q = questpie({ name: "test-app" }).fields(defaultFields);
-
-		const posts = q.collection("posts").fields(({ f }) => ({
-			title: f.text({ maxLength: 255 }),
+		const posts = collection("posts").fields(({ f }) => ({
+			title: f.text(255),
 		}));
 
 		expect(posts.name).toBe("posts");
@@ -63,14 +55,12 @@ describe("q.collection() with field types", () => {
 	});
 });
 
-describe("q.global() with field types", () => {
-	test("should create global with typed fields from q.fields()", () => {
-		const q = questpie({ name: "test-app" }).fields(defaultFields);
-
-		const settings = q.global("settings").fields(({ f }) => ({
-			siteName: f.text({ required: true }),
-			maintenanceMode: f.boolean({ default: false }),
-			maxUploadSize: f.number({ min: 0 }),
+describe("global() with field types", () => {
+	test("should create global with typed fields", () => {
+		const settings = global("settings").fields(({ f }) => ({
+			siteName: f.text().required(),
+			maintenanceMode: f.boolean().default(false),
+			maxUploadSize: f.number().min(0),
 		}));
 
 		expect(settings.name).toBe("settings");
@@ -81,10 +71,8 @@ describe("q.global() with field types", () => {
 	});
 
 	test("should throw error for unknown field type", () => {
-		const q = questpie({ name: "test-app" }).fields(defaultFields);
-
 		expect(() => {
-			q.global("settings").fields(({ f }) => ({
+			global("settings").fields(({ f }) => ({
 				// Using (f as any) to bypass type checking - this tests runtime error
 				title: (f as any).unknownField({ required: true }),
 			}));
@@ -94,7 +82,7 @@ describe("q.global() with field types", () => {
 	test("standalone global() should use builtin fields by default", () => {
 		// Standalone global() now includes builtinFields by default
 		const settings = global("settings").fields(({ f }) => ({
-			siteName: f.text({ required: true }),
+			siteName: f.text().required(),
 		}));
 
 		expect(settings.name).toBe("settings");
@@ -103,44 +91,22 @@ describe("q.global() with field types", () => {
 	});
 });
 
-describe("Full integration", () => {
-	test("should build app with q.collection() and q.global()", () => {
-		const q = questpie({ name: "integration-app" }).fields(defaultFields);
-
-		const posts = q.collection("posts").fields(({ f }) => ({
-			title: f.text({ required: true }),
-			content: f.textarea(),
-		}));
-
-		const settings = q.global("settings").fields(({ f }) => ({
-			siteName: f.text({ required: true }),
-		}));
-
-		const builder = q.collections({ posts }).globals({ settings });
-
-		expect(builder.state.collections.posts).toBe(posts);
-		expect(builder.state.globals.settings).toBe(settings);
-	});
-});
-
 describe("Destructured context pattern ({ f }) =>", () => {
 	test("collection().fields(({ f }) => ...) should work identically to (f) => ...", () => {
-		const q = questpie({ name: "test-app" }).fields(defaultFields);
-
 		// Old pattern
-		const postsOld = q.collection("posts_old").fields(({ f }) => ({
-			title: f.text({ required: true }),
+		const postsOld = collection("posts_old").fields(({ f }) => ({
+			title: f.text().required(),
 			content: f.textarea(),
-			views: f.number({ min: 0 }),
-			published: f.boolean({ default: false }),
+			views: f.number().min(0),
+			published: f.boolean().default(false),
 		}));
 
 		// New pattern
-		const postsNew = q.collection("posts_new").fields(({ f }) => ({
-			title: f.text({ required: true }),
+		const postsNew = collection("posts_new").fields(({ f }) => ({
+			title: f.text().required(),
 			content: f.textarea(),
-			views: f.number({ min: 0 }),
-			published: f.boolean({ default: false }),
+			views: f.number().min(0),
+			published: f.boolean().default(false),
 		}));
 
 		// Both should have the same table columns
@@ -156,18 +122,16 @@ describe("Destructured context pattern ({ f }) =>", () => {
 	});
 
 	test("global().fields(({ f }) => ...) should work identically to (f) => ...", () => {
-		const q = questpie({ name: "test-app" }).fields(defaultFields);
-
 		// Old pattern
-		const settingsOld = q.global("settings_old").fields(({ f }) => ({
-			siteName: f.text({ required: true }),
-			maintenanceMode: f.boolean({ default: false }),
+		const settingsOld = global("settings_old").fields(({ f }) => ({
+			siteName: f.text().required(),
+			maintenanceMode: f.boolean().default(false),
 		}));
 
 		// New pattern
-		const settingsNew = q.global("settings_new").fields(({ f }) => ({
-			siteName: f.text({ required: true }),
-			maintenanceMode: f.boolean({ default: false }),
+		const settingsNew = global("settings_new").fields(({ f }) => ({
+			siteName: f.text().required(),
+			maintenanceMode: f.boolean().default(false),
 		}));
 
 		expect(settingsNew.table.siteName).toBeDefined();
@@ -181,7 +145,7 @@ describe("Destructured context pattern ({ f }) =>", () => {
 
 	test("standalone collection() with ({ f }) => should use builtin fields", () => {
 		const posts = collection("posts").fields(({ f }) => ({
-			title: f.text({ required: true }),
+			title: f.text().required(),
 			content: f.textarea(),
 		}));
 
@@ -192,7 +156,7 @@ describe("Destructured context pattern ({ f }) =>", () => {
 
 	test("standalone global() with ({ f }) => should use builtin fields", () => {
 		const settings = global("settings").fields(({ f }) => ({
-			siteName: f.text({ required: true }),
+			siteName: f.text().required(),
 		}));
 
 		expect(settings.name).toBe("settings");
@@ -203,13 +167,11 @@ describe("Destructured context pattern ({ f }) =>", () => {
 		const barbers = collection("barbers").fields(({ f }) => {
 			const daySchedule = () =>
 				f.object({
-					fields: {
-						isOpen: f.boolean({ default: false }),
-					},
+					isOpen: f.boolean().default(false),
 				});
 
 			return {
-				name: f.text({ required: true }),
+				name: f.text().required(),
 				mondaySchedule: daySchedule(),
 			};
 		});
@@ -229,12 +191,10 @@ describe("Destructured context pattern ({ f }) =>", () => {
 
 describe("Type inference ($infer)", () => {
 	test("collection $infer types should be accessible", () => {
-		const q = questpie({ name: "type-test" }).fields(defaultFields);
-
-		const posts = q.collection("posts").fields(({ f }) => ({
-			title: f.text({ required: true }),
-			views: f.number({ default: 0 }),
-			published: f.boolean({ default: false }),
+		const posts = collection("posts").fields(({ f }) => ({
+			title: f.text().required(),
+			views: f.number().default(0),
+			published: f.boolean().default(false),
 		}));
 
 		// Verify $infer is defined and has the expected shape
@@ -255,11 +215,9 @@ describe("Type inference ($infer)", () => {
 	});
 
 	test("global $infer types should be accessible", () => {
-		const q = questpie({ name: "type-test" }).fields(defaultFields);
-
-		const settings = q.global("settings").fields(({ f }) => ({
-			siteName: f.text({ required: true }),
-			maintenanceMode: f.boolean({ default: false }),
+		const settings = global("settings").fields(({ f }) => ({
+			siteName: f.text().required(),
+			maintenanceMode: f.boolean().default(false),
 		}));
 
 		// Verify $infer is defined

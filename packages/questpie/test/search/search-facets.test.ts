@@ -13,12 +13,12 @@ import { runTestDbMigrations } from "../utils/test-db";
 
 const products = collection("products")
 	.fields(({ f }) => ({
-		name: f.text({ required: true, maxLength: 255 }),
+		name: f.text(255).required(),
 		description: f.textarea(),
-		status: f.text({ maxLength: 50, default: "draft" }),
-		category: f.text({ maxLength: 100 }),
+		status: f.text(50).default("draft"),
+		category: f.text(100),
 		price: f.number(),
-		tags: f.json({ default: [] }),
+		tags: f.json().default([]),
 	}))
 	.title(({ f }) => f.name)
 	.searchable({
@@ -48,9 +48,9 @@ const products = collection("products")
 
 const articles = collection("articles")
 	.fields(({ f }) => ({
-		title: f.text({ required: true, maxLength: 255 }),
+		title: f.text(255).required(),
 		content: f.textarea(),
-		categoryPath: f.text({ maxLength: 255 }),
+		categoryPath: f.text(255),
 	}))
 	.title(({ f }) => f.title)
 	.searchable({

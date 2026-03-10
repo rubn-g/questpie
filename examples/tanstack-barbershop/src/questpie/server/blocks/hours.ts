@@ -9,11 +9,11 @@ export const hoursBlock = block("hours")
 		order: 3,
 	}))
 	.fields(({ f }) => ({
-		title: f.text({ label: { en: "Title", sk: "Nadpis" }, localized: true }),
-		showClosed: f.boolean({
-			label: { en: "Show Closed Days", sk: "Zobraziť zatvorené dni" },
-			defaultValue: true,
-		}),
+		title: f.text().label({ en: "Title", sk: "Nadpis" }).localized(),
+		showClosed: f
+			.boolean()
+			.label({ en: "Show Closed Days", sk: "Zobraziť zatvorené dni" })
+			.default(true),
 	}))
 	.prefetch(async ({ ctx }) => {
 		const settings = await ctx.globals.siteSettings.get({});

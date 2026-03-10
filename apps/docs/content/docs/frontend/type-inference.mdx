@@ -11,9 +11,9 @@ QuestPie provides end-to-end TypeScript type safety. Types flow from your field 
 
 ```text
 Field Definition                    Codegen                        Client SDK
-f.text({ required: true })    →    AppCollections type    →    client.collections.posts.find()
+f.text().required()    →    AppCollections type    →    client.collections.posts.find()
 f.number()                    →    with field types        →    where: { price: { gte: 1000 } }
-f.select({ options: [...] })  →    and operators           →    data.status === "published"
+f.select([...])  →    and operators           →    data.status === "published"
 ```
 
 ## Generated Types

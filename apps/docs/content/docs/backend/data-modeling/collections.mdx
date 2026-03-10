@@ -14,11 +14,11 @@ import { collection } from "#questpie";
 
 export const services = collection("services")
   .fields(({ f }) => ({
-    name: f.text({ required: true, maxLength: 255, localized: true }),
-    description: f.textarea({ localized: true }),
-    duration: f.number({ required: true }),
-    price: f.number({ required: true }),
-    isActive: f.boolean({ default: true, required: true }),
+    name: f.text(255).required().localized(),
+    description: f.textarea().localized(),
+    duration: f.number().required(),
+    price: f.number().required(),
+    isActive: f.boolean().default(true).required(),
   }))
   .title(({ f }) => f.name)
   .admin(({ c }) => ({
@@ -161,39 +161,30 @@ import { slugify } from "@/questpie/server/utils";
 
 export const barbers = collection("barbers")
   .fields(({ f }) => {
-    const daySchedule = () => ({
-      isOpen: f.boolean({ default: true }),
+    const daySchedule = {
+      isOpen: f.boolean().default(true),
       start: f.time(),
       end: f.time(),
-    });
+    };
 
     return {
-      name: f.text({ required: true, maxLength: 255 }),
-      slug: f.text({ required: true, maxLength: 255, input: "optional" }),
-      email: f.email({ required: true }),
-      phone: f.text({ maxLength: 50 }),
-      bio: f.richText({ localized: true }),
+      name: f.text(255).required(),
+      slug: f.text(255).required().inputOptional(),
+      email: f.email().required(),
+      phone: f.text(50),
+      bio: f.textarea().localized(),
       avatar: f.upload({ to: "assets", mimeTypes: ["image/*"], maxSize: 5_000_000 }),
-      isActive: f.boolean({ default: true, required: true }),
+      isActive: f.boolean().default(true).required(),
       workingHours: f.object({
-        fields: () => ({
-          monday: f.object({ fields: daySchedule }),
-          tuesday: f.object({ fields: daySchedule }),
-          // ... other days
-        }),
+        monday: f.object(daySchedule),
+        tuesday: f.object(daySchedule),
+        // ... other days
       }),
-      socialLinks: f.array({
-        of: f.object({
-          fields: () => ({
-            platform: f.select({ options: ["instagram", "facebook", "twitter"] }),
-            url: f.url(),
-          }),
-        }),
-        maxItems: 5,
-      }),
-      services: f.relation({
-        to: "services",
-        hasMany: true,
+      socialLinks: f.object({
+        platform: f.select(["instagram", "facebook", "twitter"]),
+        url: f.url(),
+      }).array().maxItems(5),
+      services: f.relation("services").manyToMany({
         through: "barberServices",
         sourceField: "barber",
         targetField: "service",

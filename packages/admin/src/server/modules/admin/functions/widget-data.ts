@@ -80,13 +80,10 @@ export const fetchWidgetData = fn({
 			throw ApiError.badRequest(`Widget "${ctx.input.widgetId}" has no loader`);
 		}
 
-		const widgetCtx = {
-			collections: (ctx as any).collections,
-			globals: (ctx as any).globals,
-			db: (ctx as any).db,
-			session: (ctx as any).session,
-			locale: (ctx as any).locale,
-		};
+		// ctx (FunctionHandlerArgs) extends AppContext which is the same
+		// base that WidgetFetchContext extends — pass it directly.
+		const widgetCtx =
+			ctx as unknown as import("../../../augmentation.js").WidgetFetchContext;
 
 		// Evaluate per-widget access (if defined)
 		if (widget.access !== undefined) {
@@ -95,7 +92,11 @@ export const fetchWidgetData = fn({
 					? await widget.access(widgetCtx)
 					: widget.access;
 			if (accessResult === false) {
-				throw ApiError.forbidden({ operation: "read", resource: "widget", reason: "Access denied" });
+				throw ApiError.forbidden({
+					operation: "read",
+					resource: "widget",
+					reason: "Access denied",
+				});
 			}
 		}
 

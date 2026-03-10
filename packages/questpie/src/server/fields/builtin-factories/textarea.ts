@@ -2,7 +2,7 @@
  * Textarea Field Factory (V2)
  */
 
-import { text as pgText } from "drizzle-orm/pg-core";
+import { text as pgText, type PgTextBuilder } from "drizzle-orm/pg-core";
 import { z } from "zod";
 import { stringOps } from "../operators/builtin.js";
 import { createField } from "../field-class.js";
@@ -11,6 +11,8 @@ import type { DefaultFieldState } from "../field-class-types.js";
 export type TextareaFieldState = DefaultFieldState & {
 	type: "textarea";
 	data: string;
+	column: PgTextBuilder;
+	operators: typeof stringOps;
 };
 
 /**

@@ -27,7 +27,7 @@ import type { Override, Prettify } from "#questpie/shared/type-utils.js";
  * Extract Drizzle column types from field definitions.
  */
 type ExtractColumnsFromFieldDefinitions<
-	TFields extends Record<string, FieldDefinition<FieldDefinitionState>>,
+	TFields extends Record<string, any>,
 > = {
 	[K in keyof TFields]: TFields[K]["$types"]["column"] extends null
 		? never
@@ -81,10 +81,7 @@ export class GlobalBuilder<TState extends GlobalBuilderState> {
 	 * ```
 	 */
 	fields<
-		const TNewFields extends Record<
-			string,
-			FieldDefinition<FieldDefinitionState>
-		>,
+		const TNewFields extends Record<string, any>,
 	>(
 		factory: (
 			ctx: FieldsCallbackContext<ExtractFieldTypes<TState>>,

@@ -2,8 +2,10 @@
  * Dashboard — project-level dashboard contribution.
  * Merged with module contributions (audit adds timeline widget automatically).
  */
+
+import type { WidgetFetchContext } from "@questpie/admin/server";
+import { dashboard } from "#questpie/factories";
 import getRevenueStats from "@/questpie/server/functions/get-revenue-stats";
-import { dashboard } from "#questpie";
 
 export default dashboard({
 	title: { en: "Barbershop Control", sk: "Riadenie barbershopu" },
@@ -109,7 +111,7 @@ export default dashboard({
 			type: "value",
 			span: 2,
 			refreshInterval: 1000 * 60 * 5,
-			loader: async (ctx: any) => {
+			loader: async (ctx: WidgetFetchContext) => {
 				const now = new Date();
 				const currentStart = new Date(
 					now.getFullYear(),
@@ -134,21 +136,21 @@ export default dashboard({
 
 				const [currentStats, previousStats] = await Promise.all([
 					getRevenueStats.handler({
+						...ctx,
 						input: {
 							startDate: currentStart,
 							endDate: currentEnd,
 							completedOnly: true,
 						},
-						collections: ctx.collections,
-					} as any),
+					}),
 					getRevenueStats.handler({
+						...ctx,
 						input: {
 							startDate: previousStart,
 							endDate: previousEnd,
 							completedOnly: true,
 						},
-						collections: ctx.collections,
-					} as any),
+					}),
 				]);
 
 				const change =
@@ -185,7 +187,7 @@ export default dashboard({
 			span: 1,
 			showPercentage: true,
 			label: { en: "Monthly Goal", sk: "Mesačný cieľ" },
-			loader: async (ctx: any) => {
+			loader: async (ctx: WidgetFetchContext) => {
 				const now = new Date();
 				const currentStart = new Date(
 					now.getFullYear(),
@@ -193,13 +195,13 @@ export default dashboard({
 					1,
 				).toISOString();
 				const stats = await getRevenueStats.handler({
+					...ctx,
 					input: {
 						startDate: currentStart,
 						endDate: now.toISOString(),
 						completedOnly: true,
 					},
-					collections: ctx.collections,
-				} as any);
+				});
 				const target = 500000;
 
 				return {
@@ -245,7 +247,7 @@ export default dashboard({
 			maxItems: 8,
 			showTimestamps: true,
 			timestampFormat: "relative",
-			loader: async ({ collections }: any) => {
+			loader: async ({ collections }: WidgetFetchContext) => {
 				const res = await collections.appointments.find({
 					limit: 8,
 					orderBy: { updatedAt: "desc" },

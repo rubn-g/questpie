@@ -15,7 +15,8 @@ export default seed({
 		});
 
 		log("Updating site settings (EN)...");
-		await (globals.siteSettings as any).update(
+		// GlobalUpdateInput currently omits localized fields — core type bug
+		await globals.siteSettings.update(
 			{
 				shopName: "Sharp Cuts",
 				tagline: "Precision grooming for the modern gentleman",
@@ -63,12 +64,13 @@ export default seed({
 					{ platform: "facebook", url: "https://facebook.com/sharpcuts" },
 					{ platform: "tiktok", url: "https://tiktok.com/@sharpcuts" },
 				],
-			},
+			} as Record<string, unknown>,
 			ctxEn,
 		);
 
 		log("Updating site settings (SK)...");
-		await (globals.siteSettings as any).update(
+		// GlobalUpdateInput currently omits localized fields — core type bug
+		await globals.siteSettings.update(
 			{
 				tagline: "Precízna starostlivosť pre moderného gentlemana",
 				navigation: [
@@ -91,7 +93,7 @@ export default seed({
 				metaTitle: "Sharp Cuts - Prémiový barbershop v Bratislave",
 				metaDescription:
 					"Moderný barbershop v srdci Bratislavy. Strihanie, úprava brady, holenie s horúcim uterákom a viac.",
-			},
+			} as Record<string, unknown>,
 			ctxSk,
 		);
 

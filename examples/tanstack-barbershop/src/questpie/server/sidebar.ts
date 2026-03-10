@@ -3,7 +3,7 @@
  * Merged with module contributions (admin adds "administration" section,
  * audit adds audit log item to "administration").
  */
-import { sidebar } from "#questpie";
+import { sidebar } from "#questpie/factories";
 
 export default sidebar({
 	sections: [

@@ -116,6 +116,3 @@ export async function createContext(options?: {
 	return { ...services, locale: reqCtx.locale } as AppContext;
 }
 
-// ── Re-export factories for user code ──────────────────────
-// Import from #questpie: import { collection, global } from '#questpie';
-export { collection, global } from "./factories.js";

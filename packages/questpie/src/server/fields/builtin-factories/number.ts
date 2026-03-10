@@ -9,6 +9,7 @@ import {
 	numeric,
 	real,
 	smallint,
+	type PgIntegerBuilder,
 } from "drizzle-orm/pg-core";
 import { z } from "zod";
 import { numberOps } from "../operators/builtin.js";
@@ -18,6 +19,8 @@ import type { DefaultFieldState } from "../field-class-types.js";
 export type NumberFieldState = DefaultFieldState & {
 	type: "number";
 	data: number;
+	column: PgIntegerBuilder;
+	operators: typeof numberOps;
 };
 
 type NumberMode = "integer" | "smallint" | "bigint" | "real" | "double" | "decimal";
@@ -91,24 +94,6 @@ export function number(arg?: NumberMode | DecimalConfig): Field<NumberFieldState
 		isArray: false,
 		int: isInt,
 	});
-}
-
-/**
- * Add number-specific chain methods to Field.
- */
-declare module "../field-class.js" {
-	interface Field<TState> {
-		/** Set minimum value (number fields). */
-		min(n: number): Field<TState>;
-		/** Set maximum value (number fields). */
-		max(n: number): Field<TState>;
-		/** Require positive value (number fields). */
-		positive(): Field<TState>;
-		/** Require integer value (number fields). */
-		int(): Field<TState>;
-		/** Set step increment (number fields). */
-		step(n: number): Field<TState>;
-	}
 }
 
 // NOTE: .min() and .max() are also declared in text.ts for string fields.

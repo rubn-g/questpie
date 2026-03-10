@@ -7,8 +7,8 @@ import { runTestDbMigrations } from "../utils/test-db";
 
 const errorTest = collection("error_test")
 	.fields(({ f }) => ({
-		title: f.textarea({ required: true }),
-		status: f.text({ required: true, maxLength: 50 }),
+		title: f.textarea().required(),
+		status: f.text(50).required(),
 	}))
 	.title(({ f }) => f.title)
 	.access({

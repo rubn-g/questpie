@@ -29,16 +29,14 @@ type TipTapContent = {
 
 const products = collection("products")
 	.fields(({ f }) => ({
-		name: f.text({ required: true, maxLength: 255, localized: true }), // flat localized
-		description: f.json({ localized: true }), // whole-mode JSONB
+		name: f.text(255).required().localized(), // flat localized
+		description: f.json().localized(), // whole-mode JSONB
 		// nested-mode JSONB - uses object field with localized nested fields
 		metadata: f.object({
-			fields: {
-				sku: f.text(), // static
-				category: f.text({ localized: true }), // localized
-				slogan: f.text({ localized: true }), // localized
-				brand: f.text(), // static
-			},
+			sku: f.text(), // static
+			category: f.text().localized(), // localized
+			slogan: f.text().localized(), // localized
+			brand: f.text(), // static
 		}),
 	}))
 	.options({

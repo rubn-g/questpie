@@ -1,77 +1,120 @@
-// Re-export everything from server
-export * from "#questpie/server/index.js";
+/**
+ * questpie — Public Server API
+ *
+ * This is the ONLY barrel for server exports. It exists solely as the
+ * package entry point for external consumers (`questpie`).
+ *
+ * Internal code within this package MUST NOT import from this file.
+ * Use direct module paths instead (e.g. `#questpie/server/collection/builder/index.js`).
+ */
 
-import { config as cliConfig } from "#questpie/cli/config.js";
-import { collection } from "#questpie/server/collection/builder/collection-builder.js";
-import {
-	createCallableBuilder,
-	questpie,
-} from "#questpie/server/config/builder.js";
-import {
+// Re-export commonly used drizzle-orm utilities for use by dependent packages
+// This ensures all packages use the same drizzle-orm instance (type compatibility)
+export { isNotNull, isNull, type SQL, sql } from "drizzle-orm";
+export { json, jsonb } from "drizzle-orm/pg-core";
+export * from "#questpie/server/adapters/http.js";
+// Re-export standalone factory functions
+export { collection } from "#questpie/server/collection/builder/collection-builder.js";
+export * from "#questpie/server/collection/builder/index.js";
+// Access control utilities
+export {
+	type AccessRuleEvaluationContext,
+	executeAccessRule,
+} from "#questpie/server/collection/crud/shared/access-control.js";
+// Transaction utilities with afterCommit support
+export {
+	getCurrentTransaction,
+	getTransactionContext,
+	isInTransaction,
+	onAfterCommit,
+	type TransactionContext,
+	withTransaction,
+} from "#questpie/server/collection/crud/shared/transaction.js";
+export {
+	type AppContext,
+	extractAppServices,
+	type KnownBlockNames,
+	type KnownCollectionNames,
+	type KnownComponentNames,
+	type KnownEmailNames,
+	type KnownFormViewNames,
+	type KnownFunctionNames,
+	type KnownGlobalNames,
+	type KnownJobNames,
+	type KnownListViewNames,
+	type KnownRouteNames,
+	type KnownServiceNames,
+	type Registry,
+	type RegistryNames,
+} from "#questpie/server/config/app-context.js";
+export * from "#questpie/server/config/builder.js";
+export * from "#questpie/server/config/builder-types.js";
+// Re-export type safety helpers (getContext, etc. exported via context.js)
+export type {
+	InferAppFromApp,
+	InferDbFromApp,
+	InferSessionFromApp,
+} from "#questpie/server/config/context.js";
+export * from "#questpie/server/config/context.js";
+export * from "#questpie/server/config/create-app.js";
+export {
 	config,
 	createApp,
 	module,
 	runtimeConfig,
 } from "#questpie/server/config/create-app.js";
-import { defaultFields } from "#questpie/server/fields/builtin/defaults.js";
-import { fn } from "#questpie/server/functions/define-function.js";
-import { global } from "#questpie/server/global/builder/global-builder.js";
-import { auth } from "#questpie/server/integrated/auth/config.js";
-import { email } from "#questpie/server/integrated/mailer/template.js";
-import { job } from "#questpie/server/integrated/queue/job.js";
-import { migration } from "#questpie/server/migration/define-migration.js";
-import { route } from "#questpie/server/routes/define-route.js";
-import { seed } from "#questpie/server/seed/define-seed.js";
-
-// Create the base builder with default fields
-const baseBuilder = questpie({ name: "questpie" }).fields(defaultFields);
-
-// Create callable builder that can be used as both function and object
-const callableQ = createCallableBuilder(baseBuilder);
-
-/**
- * QUESTPIE - Internal builder namespace.
- *
- * `q` is a pre-configured callable QuestpieBuilder with all default fields registered.
- * It is used internally by admin module and module construction code.
- *
- * For new projects, use the standalone factories:
- * - `collection("name")` — define a collection
- * - `global("name")` — define a global
- * - `fn({...})` — define a function
- * - `job({...})` — define a job
- * - `config({...})` — define app config
- * - `module({...})` — define a module
- * - `createApp(config)` — build the app
- *
- * @internal Used by `@questpie/admin` module construction
- */
-const q = Object.assign(callableQ, {
-	/**
-	 * Define CLI configuration (questpie.config.ts)
-	 * @example export default q.config({ app: app, cli: { migrations: { directory: "./migrations" } } })
-	 */
-	config: cliConfig,
-});
-
-export { q };
-
-// Re-export standalone functions
-import { service } from "#questpie/server/services/define-service.js";
-
-export {
-	auth,
-	collection,
-	config,
-	createApp,
-	email,
-	fn,
-	global,
-	job,
-	migration,
-	module,
-	route,
-	runtimeConfig,
-	seed,
-	service,
-};
+// QuestpieBuilder state extraction utility (kept for backward compat)
+export type { QuestpieStateOf } from "#questpie/server/config/extensions.js";
+export * from "#questpie/server/config/global-hooks-types.js";
+export * from "#questpie/server/config/module-types.js";
+export * from "#questpie/server/config/questpie.js";
+export * from "#questpie/server/config/types.js";
+export * from "#questpie/server/errors/index.js";
+export * from "#questpie/server/fields/index.js";
+export { fn } from "#questpie/server/functions/define-function.js";
+export * from "#questpie/server/functions/index.js";
+export { global } from "#questpie/server/global/builder/global-builder.js";
+export * from "#questpie/server/global/builder/index.js";
+export * from "#questpie/server/global/crud/index.js";
+export * from "#questpie/server/i18n/types.js";
+export { auth } from "#questpie/server/integrated/auth/config.js";
+export * from "#questpie/server/integrated/auth/index.js";
+export * from "#questpie/server/integrated/mailer/adapters/index.js";
+export * from "#questpie/server/integrated/mailer/index.js";
+export { email } from "#questpie/server/integrated/mailer/template.js";
+export * from "#questpie/server/integrated/queue/index.js";
+export { job } from "#questpie/server/integrated/queue/job.js";
+export * from "#questpie/server/integrated/realtime/index.js";
+export * from "#questpie/server/integrated/search/index.js";
+export * from "#questpie/server/integrated/storage/signed-url.js";
+export { migration } from "#questpie/server/migration/define-migration.js";
+export * from "#questpie/server/migration/index.js";
+export * from "#questpie/server/modules/starter/index.js";
+export { route } from "#questpie/server/routes/define-route.js";
+export * from "#questpie/server/routes/index.js";
+export { seed } from "#questpie/server/seed/define-seed.js";
+export * from "#questpie/server/seed/index.js";
+export * from "#questpie/server/services/define-service.js";
+export { service } from "#questpie/server/services/define-service.js";
+export * from "#questpie/server/utils/drizzle-to-zod.js";
+export type {
+	CollectionInfer,
+	CollectionInsert,
+	CollectionRelations,
+	CollectionSelect,
+	CollectionUpdate,
+	ExtractRelationInsert,
+	ExtractRelationRelations,
+	ExtractRelationSelect,
+	GetCollection,
+	GetGlobal,
+	GlobalInfer,
+	GlobalInsert,
+	GlobalRelations,
+	GlobalSelect,
+	GlobalUpdate,
+	Prettify,
+	RelationShape,
+	ResolveRelations,
+	ResolveRelationsDeep,
+} from "#questpie/shared/type-utils.js";

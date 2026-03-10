@@ -58,9 +58,9 @@ The CLI resolves this file at the project root to find your config.
 import { collection } from "#questpie";
 
 export default collection("posts").fields(({ f }) => ({
-  title: f.text({ required: true }),
-  body: f.richText(),
-  status: f.select({ options: ["draft", "published"] }),
+  title: f.text().required(),
+  body: f.textarea(),
+  status: f.select(["draft", "published"]),
 }));
 ```
 

@@ -17,13 +17,15 @@ import { getBarber } from "@/lib/getBarbers.function";
 
 export const Route = createFileRoute("/_app/barbers/$slug")({
 	loader: async (ctx) => {
-		return (await getBarber({ data: { slug: ctx.params.slug } })) as any;
+		return await getBarber({
+			data: { slug: ctx.params.slug },
+		});
 	},
 	component: BarberProfilePage,
 });
 
 function BarberProfilePage() {
-	const loaderData = Route.useLoaderData() as any;
+	const loaderData = Route.useLoaderData();
 	const barber = loaderData?.barber;
 	const router = useRouter();
 
@@ -55,7 +57,10 @@ function BarberProfilePage() {
 						to="/barbers"
 						className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-12 transition-colors group"
 					>
-						<Icon icon="ph:arrow-left" className="size-4 transition-transform group-hover:-translate-x-1" />
+						<Icon
+							icon="ph:arrow-left"
+							className="size-4 transition-transform group-hover:-translate-x-1"
+						/>
 						Back to Team
 					</Link>
 
@@ -74,7 +79,10 @@ function BarberProfilePage() {
 									/>
 								) : (
 									<div className="w-full h-full flex items-center justify-center">
-										<Icon icon="ph:user" className="size-40 text-muted-foreground/20" />
+										<Icon
+											icon="ph:user"
+											className="size-40 text-muted-foreground/20"
+										/>
 									</div>
 								)}
 							</PreviewField>

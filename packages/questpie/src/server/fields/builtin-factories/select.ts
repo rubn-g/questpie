@@ -2,7 +2,7 @@
  * Select Field Factory (V2)
  */
 
-import { jsonb, pgEnum, varchar } from "drizzle-orm/pg-core";
+import { jsonb, pgEnum, varchar, type PgVarcharBuilder } from "drizzle-orm/pg-core";
 import { z } from "zod";
 import type { I18nText } from "#questpie/shared/i18n/types.js";
 import { selectMultiOps, selectSingleOps } from "../operators/builtin.js";
@@ -14,6 +14,8 @@ import type { SelectFieldMetadata } from "../types.js";
 export type SelectFieldState = DefaultFieldState & {
 	type: "select";
 	data: string;
+	column: PgVarcharBuilder<[string, ...string[]]>;
+	operators: typeof selectSingleOps;
 };
 
 /**
@@ -114,16 +116,6 @@ export function select(
 			} as SelectFieldMetadata;
 		},
 	});
-}
-
-/**
- * Add select-specific chain methods to Field.
- */
-declare module "../field-class.js" {
-	interface Field<TState> {
-		/** Use PostgreSQL enum type for storage. */
-		enum(enumName: string): Field<TState>;
-	}
 }
 
 Field.prototype.enum = function (enumName: string) {

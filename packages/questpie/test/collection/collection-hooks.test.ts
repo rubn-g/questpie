@@ -37,9 +37,9 @@ const createBeforeAfterModule = (hookCallOrder: string[]) => ({
 	collections: {
 		articles: collection("articles")
 			.fields(({ f }) => ({
-				title: f.textarea({ required: true }),
-				slug: f.text({ maxLength: 255 }),
-				status: f.text({ maxLength: 50 }),
+				title: f.textarea().required(),
+				slug: f.text(255),
+				status: f.text(50),
 			}))
 			.hooks({
 				beforeChange: async ({ data, operation }) => {
@@ -69,8 +69,8 @@ const testModuleUpdate = {
 	collections: {
 		articles: collection("articles")
 			.fields(({ f }) => ({
-				title: f.textarea({ required: true }),
-				status: f.text({ maxLength: 50 }),
+				title: f.textarea().required(),
+				status: f.text(50),
 				viewCount: f.text(),
 			}))
 			.hooks({
@@ -103,7 +103,7 @@ const testModuleDelete = {
 	collections: {
 		articles: collection("articles")
 			.fields(({ f }) => ({
-				title: f.textarea({ required: true }),
+				title: f.textarea().required(),
 			}))
 			.hooks({
 				beforeDelete: async ({ data, logger }) => {
@@ -127,8 +127,8 @@ const testModuleError = {
 	collections: {
 		articles: collection("articles")
 			.fields(({ f }) => ({
-				title: f.textarea({ required: true }),
-				status: f.text({ maxLength: 50 }),
+				title: f.textarea().required(),
+				status: f.text(50),
 			}))
 			.hooks({
 				beforeChange: async ({ data }) => {
@@ -144,7 +144,7 @@ const createEnrichmentModule = (enrichmentData: Map<string, any>) => ({
 	collections: {
 		articles: collection("articles")
 			.fields(({ f }) => ({
-				title: f.textarea({ required: true }),
+				title: f.textarea().required(),
 			}))
 			.hooks({
 				beforeChange: async ({ data }) => {

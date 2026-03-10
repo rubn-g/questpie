@@ -96,24 +96,24 @@ import type {
  * Maps each field to its input type from $types.input.
  */
 type ExtractInputTypes<
-	TFieldDefs extends Record<string, FieldDefinition<FieldDefinitionState>>,
+	TFieldDefs extends Record<string, any>,
 > = {
-	[K in keyof TFieldDefs]: TFieldDefs[K] extends FieldDefinition<infer TState>
-		? TState extends FieldDefinitionState
-			? TState["input"]
-			: never
-		: never;
+	[K in keyof TFieldDefs]: FieldInput<TFieldDefs[K]>;
 };
 
 type FieldInput<T> =
-	T extends FieldDefinition<infer TState>
-		? TState extends FieldDefinitionState
-			? TState["input"]
-			: never
-		: never;
+	// V2: Field<TState> — extract input from accumulated state
+	T extends { readonly _: infer TState extends import("#questpie/server/fields/field-class-types.js").FieldState }
+		? import("#questpie/server/fields/field-class-types.js").ExtractInputType<TState>
+		// V1: FieldDefinition<TState>
+		: T extends FieldDefinition<infer TState>
+			? TState extends FieldDefinitionState
+				? TState["input"]
+				: never
+			: never;
 
 type RequiredInputKeys<
-	TFieldDefs extends Record<string, FieldDefinition<FieldDefinitionState>>,
+	TFieldDefs extends Record<string, any>,
 > = {
 	[K in keyof TFieldDefs]: FieldInput<TFieldDefs[K]> extends never
 		? never
@@ -123,7 +123,7 @@ type RequiredInputKeys<
 }[keyof TFieldDefs];
 
 type OptionalInputKeys<
-	TFieldDefs extends Record<string, FieldDefinition<FieldDefinitionState>>,
+	TFieldDefs extends Record<string, any>,
 > = {
 	[K in keyof TFieldDefs]: FieldInput<TFieldDefs[K]> extends never
 		? never
@@ -137,7 +137,7 @@ type OptionalInputKeys<
  * when the field input type includes `undefined`.
  */
 type ExtractInputObject<
-	TFieldDefs extends Record<string, FieldDefinition<FieldDefinitionState>>,
+	TFieldDefs extends Record<string, any>,
 > = Prettify<
 	{
 		[K in RequiredInputKeys<TFieldDefs>]: FieldInput<TFieldDefs[K]>;
@@ -157,15 +157,9 @@ type ExtractInputObject<
  * but FieldSelect narrows based on actual config (belongsTo -> string, multiple -> string[], etc.)
  */
 type ExtractOutputTypes<
-	TFieldDefs extends Record<string, FieldDefinition<FieldDefinitionState>>,
+	TFieldDefs extends Record<string, any>,
 > = {
-	[K in keyof TFieldDefs]: TFieldDefs[K] extends FieldDefinition<infer TState>
-		? TState extends FieldDefinitionState
-			? TState["type"] extends "object" | "array" | "upload" | "relation"
-				? FieldSelect<TFieldDefs[K]>
-				: TState["output"]
-			: never
-		: never;
+	[K in keyof TFieldDefs]: FieldSelect<TFieldDefs[K]>;
 };
 
 /**
@@ -174,10 +168,10 @@ type ExtractOutputTypes<
  */
 type InferCollectionSelect<
 	TMainTable extends PgTable,
-	TFieldDefs extends Record<string, FieldDefinition<FieldDefinitionState>>,
+	TFieldDefs extends Record<string, any>,
 	TTitle extends TitleExpression | undefined,
 > = Prettify<
-	InferSelectModel<TMainTable> &
+	Omit<InferSelectModel<TMainTable>, keyof ExtractMainFields<TFieldDefs>> &
 		ExtractOutputTypes<ExtractMainFields<TFieldDefs>> &
 		ExtractOutputTypes<ExtractVirtualFields<TFieldDefs>> &
 		ExtractOutputTypes<ExtractI18nFields<TFieldDefs>> & {
@@ -191,7 +185,7 @@ type InferCollectionSelect<
  */
 type InferCollectionInsert<
 	TMainTable extends PgTable,
-	TFieldDefs extends Record<string, FieldDefinition<FieldDefinitionState>>,
+	TFieldDefs extends Record<string, any>,
 > = Prettify<
 	Omit<InferInsertModel<TMainTable>, keyof ExtractMainFields<TFieldDefs>> &
 		ExtractInputObject<ExtractMainFields<TFieldDefs>> &
@@ -204,7 +198,7 @@ type InferCollectionInsert<
  */
 type InferCollectionUpdate<
 	TMainTable extends PgTable,
-	TFieldDefs extends Record<string, FieldDefinition<FieldDefinitionState>>,
+	TFieldDefs extends Record<string, any>,
 > = Prettify<Partial<InferCollectionInsert<TMainTable, TFieldDefs>>>;
 
 /**
@@ -255,10 +249,7 @@ type OutputExtensions<TState extends CollectionBuilderState> =
 	TState["output"] extends Record<string, any> ? TState["output"] : {};
 
 export type CollectionSelect<TState extends CollectionBuilderState> =
-	TState["fieldDefinitions"] extends Record<
-		string,
-		FieldDefinition<FieldDefinitionState>
-	>
+	TState["fieldDefinitions"] extends Record<string, { $types: any; toColumn: any }>
 		? Prettify<
 				InferCollectionSelect<
 					InferMainTableWithColumns<
@@ -289,10 +280,7 @@ export type CollectionSelect<TState extends CollectionBuilderState> =
  * CollectionInsert - works with both field builder and raw Drizzle columns.
  */
 export type CollectionInsert<TState extends CollectionBuilderState> =
-	TState["fieldDefinitions"] extends Record<
-		string,
-		FieldDefinition<FieldDefinitionState>
-	>
+	TState["fieldDefinitions"] extends Record<string, { $types: any; toColumn: any }>
 		? InferCollectionInsert<
 				InferMainTableWithColumns<
 					TState["name"],
@@ -317,10 +305,7 @@ export type CollectionInsert<TState extends CollectionBuilderState> =
  * CollectionUpdate - works with both field builder and raw Drizzle columns.
  */
 export type CollectionUpdate<TState extends CollectionBuilderState> =
-	TState["fieldDefinitions"] extends Record<
-		string,
-		FieldDefinition<FieldDefinitionState>
-	>
+	TState["fieldDefinitions"] extends Record<string, { $types: any; toColumn: any }>
 		? InferCollectionUpdate<
 				InferMainTableWithColumns<
 					TState["name"],

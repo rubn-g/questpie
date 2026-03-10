@@ -140,6 +140,7 @@ export const app = createApp(
  * @example
  * ```ts
  * import { createContext } from "#questpie";
+ * import { collection } from "#questpie/factories";
  *
  * const ctx = await createContext();
  * const posts = await ctx.collections.posts.find({});
@@ -158,6 +159,3 @@ export async function createContext(options?: {
 	return { ...services, locale: reqCtx.locale } as AppContext;
 }
 
-// ── Re-export factories for user code ──────────────────────
-// Import from #questpie: import { collection, global } from '#questpie';
-export { collection, global } from "./factories.js";

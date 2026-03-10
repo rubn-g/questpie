@@ -32,8 +32,8 @@ export type MockApp<TApp = any> = TApp & {
  * import { collection } from "questpie";
  *
  * const products = collection("products").fields(({ f }) => ({
- *   name: f.text({ required: true }),
- *   price: f.number({ required: true }),
+ *   name: f.text().required(),
+ *   price: f.number().required(),
  * }));
  *
  * const { cleanup, app } = await buildMockApp({

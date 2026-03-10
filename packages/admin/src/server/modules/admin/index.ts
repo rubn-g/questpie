@@ -25,15 +25,7 @@ import adminModule from "./.generated/module.js";
 
 /**
  * Admin RPC functions — flat spread of all admin function definitions.
- * Registered in your HTTP adapter to expose the admin panel API.
- *
- * @example
- * ```ts
- * import { adminModule, adminRpc } from "@questpie/admin/server";
- * import { questpieHono } from "questpie";
- *
- * app.use("/api", questpieHono({ rpc: adminRpc }));
- * ```
+ * Automatically registered when adminModule is included in your app modules.
  */
 export const adminRpc = adminModule.functions;
 

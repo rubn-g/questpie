@@ -15,9 +15,9 @@ import { runTestDbMigrations } from "../utils/test-db";
 
 const posts = collection("posts")
 	.fields(({ f }) => ({
-		title: f.text({ required: true, maxLength: 255 }),
+		title: f.text(255).required(),
 		content: f.textarea(),
-		status: f.text({ maxLength: 50, default: "draft" }),
+		status: f.text(50).default("draft"),
 	}))
 	.title(({ f }) => f.title)
 	.searchable({
@@ -28,9 +28,9 @@ const posts = collection("posts")
 
 const products = collection("products")
 	.fields(({ f }) => ({
-		name: f.text({ required: true, maxLength: 255 }),
+		name: f.text(255).required(),
 		description: f.textarea(),
-		sku: f.text({ required: true, maxLength: 50 }),
+		sku: f.text(50).required(),
 	}))
 	.title(({ f }) => f.name)
 	.searchable({

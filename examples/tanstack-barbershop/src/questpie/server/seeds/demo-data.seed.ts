@@ -167,6 +167,7 @@ export default seed({
 		const barber1 = await collections.barbers.create(
 			{
 				name: "Lukáš Novák",
+
 				slug: "lukas-novak",
 				email: "lukas@sharpcuts.com",
 				phone: "+421 900 111 111",
@@ -192,6 +193,7 @@ export default seed({
 		const barber2 = await collections.barbers.create(
 			{
 				name: "David Horváth",
+
 				slug: "david-horvath",
 				email: "david@sharpcuts.com",
 				phone: "+421 900 222 222",
@@ -217,6 +219,7 @@ export default seed({
 		const barber3 = await collections.barbers.create(
 			{
 				name: "Martin Kráľ",
+
 				slug: "martin-kral",
 				email: "martin@sharpcuts.com",
 				phone: "+421 900 333 333",
@@ -242,6 +245,7 @@ export default seed({
 		const barber4 = await collections.barbers.create(
 			{
 				name: "Tomáš Sedlák",
+
 				slug: "tomas-sedlak",
 				email: "tomas@sharpcuts.com",
 				phone: "+421 900 444 444",
@@ -464,6 +468,7 @@ export default seed({
 		const homePage = await collections.pages.create(
 			{
 				title: "Home",
+
 				slug: "home",
 				description: "Premium barbershop experience in the heart of the city",
 				isPublished: true,
@@ -712,6 +717,7 @@ export default seed({
 		const servicesPage = await collections.pages.create(
 			{
 				title: "Services",
+
 				slug: "services",
 				description: "All our services and pricing",
 				isPublished: true,
@@ -880,6 +886,7 @@ export default seed({
 		const aboutPage = await collections.pages.create(
 			{
 				title: "About Us",
+
 				slug: "about",
 				description: "Our story and philosophy",
 				isPublished: true,
@@ -1113,6 +1120,7 @@ export default seed({
 		const galleryPage = await collections.pages.create(
 			{
 				title: "Gallery",
+
 				slug: "gallery",
 				description: "See our work",
 				isPublished: true,
@@ -1279,6 +1287,7 @@ export default seed({
 		const contactPage = await collections.pages.create(
 			{
 				title: "Contact",
+
 				slug: "contact",
 				description: "Get in touch with us",
 				isPublished: true,
@@ -1399,6 +1408,7 @@ export default seed({
 		const privacyPage = await collections.pages.create(
 			{
 				title: "Privacy Policy",
+
 				slug: "privacy",
 				description: "Our privacy policy and data handling practices",
 				isPublished: true,
@@ -1694,18 +1704,9 @@ export default seed({
 				"barberServices",
 				() => collections.barberServices.delete({ where: {} }, ctxEn),
 			],
-			[
-				"reviews",
-				() => collections.reviews.delete({ where: {} }, ctxEn),
-			],
-			[
-				"barbers",
-				() => collections.barbers.delete({ where: {} }, ctxEn),
-			],
-			[
-				"services",
-				() => collections.services.delete({ where: {} }, ctxEn),
-			],
+			["reviews", () => collections.reviews.delete({ where: {} }, ctxEn)],
+			["barbers", () => collections.barbers.delete({ where: {} }, ctxEn)],
+			["services", () => collections.services.delete({ where: {} }, ctxEn)],
 			["pages", () => collections.pages.delete({ where: {} }, ctxEn)],
 			["assets", () => collections.assets.delete({ where: {} }, ctxEn)],
 		];

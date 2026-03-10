@@ -25,6 +25,10 @@
 			"types": "./dist/client.d.mts",
 			"default": "./src/exports/client.ts"
 		},
+		"./client-module": {
+			"types": "./dist/client-module.d.mts",
+			"default": "./src/exports/client-module.ts"
+		},
 		"./server": {
 			"types": "./dist/server.d.mts",
 			"default": "./src/exports/server.ts"
@@ -130,6 +134,10 @@
 			"./client": {
 				"types": "./dist/client.d.mts",
 				"default": "./dist/client.mjs"
+			},
+			"./client-module": {
+				"types": "./dist/client-module.d.mts",
+				"default": "./dist/client-module.mjs"
 			},
 			"./server": {
 				"types": "./dist/server.d.mts",

@@ -6,13 +6,13 @@ import { runTestDbMigrations } from "../utils/test-db.js";
 
 // Collection WITHOUT explicit access - should inherit defaultAccess
 const publicPosts = collection("public_posts").fields(({ f }) => ({
-	title: f.textarea({ required: true }),
+	title: f.textarea().required(),
 }));
 
 // Collection WITH explicit access - should override defaultAccess
 const adminNotes = collection("admin_notes")
 	.fields(({ f }) => ({
-		content: f.textarea({ required: true }),
+		content: f.textarea().required(),
 	}))
 	.access({
 		read: ({ session }) => (session?.user as any)?.role === "admin",
@@ -22,7 +22,7 @@ const adminNotes = collection("admin_notes")
 // Collection with PARTIAL access - only read defined, others should fallback to defaultAccess
 const partialAccessPosts = collection("partial_access_posts")
 	.fields(({ f }) => ({
-		title: f.textarea({ required: true }),
+		title: f.textarea().required(),
 	}))
 	.access({
 		// Only read is defined - create/update/delete should use defaultAccess
@@ -31,13 +31,13 @@ const partialAccessPosts = collection("partial_access_posts")
 
 // Global WITHOUT explicit access - should inherit defaultAccess
 const siteSettings = global("site_settings").fields(({ f }) => ({
-	siteName: f.textarea({ required: true }),
+	siteName: f.textarea().required(),
 }));
 
 // Global WITH explicit access - should override defaultAccess
 const adminSettings = global("admin_settings")
 	.fields(({ f }) => ({
-		secretKey: f.textarea({ required: true }),
+		secretKey: f.textarea().required(),
 	}))
 	.access({
 		read: ({ session }) => (session?.user as any)?.role === "admin",

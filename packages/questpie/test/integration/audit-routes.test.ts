@@ -13,18 +13,18 @@ import { runTestDbMigrations } from "../utils/test-db";
  */
 
 const posts = collection("posts").fields(({ f }) => ({
-	title: f.text({ required: true }),
+	title: f.text().required(),
 }));
 
 const settings = global("settings").fields(({ f }) => ({
-	siteName: f.text({ required: true }),
+	siteName: f.text().required(),
 }));
 
 // Mock audit log collection matching the schema the audit route expects
 const adminAuditLog = collection("adminAuditLog").fields(({ f }) => ({
-	action: f.text({ required: true }),
-	resourceType: f.text({ required: true }),
-	resource: f.text({ required: true }),
+	action: f.text().required(),
+	resourceType: f.text().required(),
+	resource: f.text().required(),
 	resourceId: f.text(),
 	resourceLabel: f.text(),
 	userId: f.text(),
@@ -253,7 +253,7 @@ describe("audit routes", () => {
 		it("returns empty array when no audit log collection exists", async () => {
 			// Set up an app without adminAuditLog collection
 			const settingsNoAudit = global("settings").fields(({ f }) => ({
-				siteName: f.text({ required: true }),
+				siteName: f.text().required(),
 			}));
 
 			const noAuditSetup = await buildMockApp({

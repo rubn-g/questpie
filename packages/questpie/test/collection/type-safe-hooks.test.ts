@@ -5,8 +5,8 @@ describe("Type-Safe Hooks", () => {
 	test("hooks should have proper type inference", () => {
 		const users = collection("users")
 			.fields(({ f }) => ({
-				name: f.textarea({ required: true }),
-				email: f.text({ required: true, maxLength: 255 }),
+				name: f.textarea().required(),
+				email: f.text(255).required(),
 				bio: f.textarea(),
 			}))
 			.hooks({
@@ -81,8 +81,8 @@ describe("Type-Safe Hooks", () => {
 	test("original field availability across all hooks", () => {
 		const users = collection("users")
 			.fields(({ f }) => ({
-				name: f.textarea({ required: true }),
-				email: f.text({ required: true, maxLength: 255 }),
+				name: f.textarea().required(),
+				email: f.text(255).required(),
 				bio: f.textarea(),
 			}))
 			.hooks({
@@ -201,7 +201,7 @@ describe("Type-Safe Hooks", () => {
 	test("beforeOperation hook has correct types", () => {
 		const posts = collection("posts")
 			.fields(({ f }) => ({
-				title: f.textarea({ required: true }),
+				title: f.textarea().required(),
 			}))
 			.hooks({
 				beforeOperation: async ({ data, operation, original }) => {
@@ -240,9 +240,9 @@ describe("Type-Safe Hooks", () => {
 	test("hooks with localized fields", () => {
 		const posts = collection("posts")
 			.fields(({ f }) => ({
-				title: f.text({ required: true, localized: true }),
-				slug: f.text({ required: true }),
-				description: f.textarea({ localized: true }),
+				title: f.text().required().localized(),
+				slug: f.text().required(),
+				description: f.textarea().localized(),
 			}))
 			.hooks({
 				beforeChange: async ({ data, operation }) => {
@@ -280,9 +280,9 @@ describe("Type-Safe Hooks", () => {
 	test("hooks with localized fields maintain correct types across lifecycle", () => {
 		const articles = collection("articles")
 			.fields(({ f }) => ({
-				title: f.textarea({ required: true, localized: true }),
-				body: f.textarea({ localized: true }),
-				category: f.text({ required: true }),
+				title: f.textarea().required().localized(),
+				body: f.textarea().localized(),
+				category: f.text().required(),
 			}))
 			.hooks({
 				beforeValidate: async ({ data, operation }) => {
@@ -339,7 +339,7 @@ describe("Type-Safe Hooks", () => {
 	test("hooks should not allow return values", () => {
 		const articles = collection("articles")
 			.fields(({ f }) => ({
-				title: f.textarea({ required: true }),
+				title: f.textarea().required(),
 			}))
 			.hooks({
 				beforeChange: async ({ data }) => {

@@ -6,8 +6,7 @@
  */
 
 import { z } from "zod";
-import type { QuestpieBuilder } from "#questpie/server/config/builder.js";
-import { questpie } from "#questpie/server/config/builder.js";
+import { QuestpieBuilder } from "#questpie/server/config/builder.js";
 import type { Questpie } from "#questpie/server/config/questpie.js";
 import { builtinFields } from "#questpie/server/fields/builtin/defaults.js";
 import { job } from "#questpie/server/integrated/queue/job.js";
@@ -23,25 +22,21 @@ import type {
 // Test fixtures — use q.collection() for proper field type inference
 // ============================================================================
 
-const q = questpie({ name: "test" }).fields(builtinFields);
+const q = QuestpieBuilder.empty("test").fields(builtinFields);
 
 const usersCollection = q.collection("users").fields(({ f }) => ({
-	name: f.textarea({ required: true }),
-	email: f.email({ required: true, maxLength: 255 }),
+	name: f.textarea().required(),
+	email: f.email(255).required(),
 }));
 
 const postsCollection = q.collection("posts").fields(({ f }) => ({
-	title: f.text({ required: true, maxLength: 255 }),
+	title: f.text(255).required(),
 	content: f.textarea(),
-	author: f.relation({
-		to: "users",
-		required: true,
-		relationName: "author",
-	}),
+	author: f.relation("users").required().relationName("author"),
 }));
 
 const settingsGlobal = q.global("settings").fields(({ f }) => ({
-	siteName: f.text({ required: true, maxLength: 255 }),
+	siteName: f.text(255).required(),
 }));
 
 const sendEmailJob = job({
@@ -60,7 +55,7 @@ const sendEmailJob = job({
 // ============================================================================
 
 // questpie() should return QuestpieBuilder
-const builder = questpie({ name: "test-app" });
+const builder = QuestpieBuilder.empty("test-app");
 type _builderIsQuestpieBuilder = Expect<
 	Extends<typeof builder, QuestpieBuilder<any>>
 >;
@@ -74,7 +69,7 @@ type _cmsHasConfig = Expect<HasKey<InferredCms, "config">>;
 // ============================================================================
 
 // .collections() should accumulate collections
-const withCollections = questpie({ name: "app" }).collections({
+const withCollections = QuestpieBuilder.empty("app").collections({
 	users: usersCollection,
 	posts: postsCollection,
 });
@@ -95,7 +90,7 @@ type _hasPostsCollection = Expect<Equal<HasKey<Collections, "posts">, true>>;
 // ============================================================================
 
 // .globals() should accumulate globals
-const withGlobals = questpie({ name: "app" }).globals({
+const withGlobals = QuestpieBuilder.empty("app").globals({
 	settings: settingsGlobal,
 });
 
@@ -114,7 +109,7 @@ type _hasSettingsGlobal = Expect<Equal<HasKey<Globals, "settings">, true>>;
 // ============================================================================
 
 // .jobs() should accumulate jobs
-const withJobs = questpie({ name: "app" }).jobs({
+const withJobs = QuestpieBuilder.empty("app").jobs({
 	sendEmail: sendEmailJob,
 });
 
@@ -129,12 +124,12 @@ type _builderWithJobsHasJobs = Expect<
 // ============================================================================
 
 // Create a module
-const blogModule = questpie({ name: "blog" }).collections({
+const blogModule = QuestpieBuilder.empty("blog").collections({
 	posts: postsCollection,
 });
 
 // .use() should merge module into builder
-const withModule = questpie({ name: "app" })
+const withModule = QuestpieBuilder.empty("app")
 	.collections({ users: usersCollection })
 	.use(blogModule);
 
@@ -149,7 +144,7 @@ type _moduleHasPosts = Expect<Equal<HasKey<ModuleCollections, "posts">, true>>;
 // ============================================================================
 
 // Full builder chain should work
-const fullBuilder = questpie({ name: "full-app" })
+const fullBuilder = QuestpieBuilder.empty("full-app")
 	.collections({
 		users: usersCollection,
 		posts: postsCollection,
@@ -175,7 +170,7 @@ type _fullHasGlobals = Expect<
 // ============================================================================
 
 // Later .collections() should override earlier ones
-const overrideBuilder = questpie({ name: "app" })
+const overrideBuilder = QuestpieBuilder.empty("app")
 	.collections({ users: usersCollection })
 	.collections({ posts: postsCollection });
 
@@ -195,7 +190,7 @@ type _overrideHasPosts = Expect<
 // ============================================================================
 
 // Builder state should accumulate through chain
-const step1 = questpie({ name: "app" });
+const step1 = QuestpieBuilder.empty("app");
 const step2 = step1.collections({ users: usersCollection });
 const step3 = step2.globals({ settings: settingsGlobal });
 

@@ -2,7 +2,7 @@
  * Time Field Factory (V2)
  */
 
-import { time as pgTime } from "drizzle-orm/pg-core";
+import { time as pgTime, type PgTimeBuilder } from "drizzle-orm/pg-core";
 import { z } from "zod";
 import { dateOps } from "../operators/builtin.js";
 import { createField } from "../field-class.js";
@@ -11,6 +11,8 @@ import type { DefaultFieldState } from "../field-class-types.js";
 export type TimeFieldState = DefaultFieldState & {
 	type: "time";
 	data: string;
+	column: PgTimeBuilder;
+	operators: typeof dateOps;
 };
 
 interface TimeConfig {

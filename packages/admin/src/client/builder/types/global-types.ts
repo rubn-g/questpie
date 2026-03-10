@@ -2,7 +2,7 @@
  * Global Builder Types
  */
 
-import type { ComponentReference } from "#questpie/admin/server";
+import type { ComponentReference } from "#questpie/admin/server/augmentation.js";
 import type { I18nText } from "../../i18n/types.js";
 import type { Admin } from "../admin";
 import type { IconComponent } from "./common";

@@ -185,7 +185,7 @@ describe("scaffold template output", () => {
 			targetId: "server",
 		});
 
-		expect(output).toContain('import { collection } from "questpie"');
+		expect(output).toContain('import { collection } from "#questpie/factories"');
 		expect(output).toContain('collection("blog-posts")');
 		expect(output).toContain("blogPosts");
 	});

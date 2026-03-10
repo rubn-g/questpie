@@ -66,11 +66,11 @@ import { collection } from "questpie";
 
 export const posts = collection("posts")
   .fields(({ f }) => ({
-    title: f.text({ label: "Title", required: true }),
-    slug: f.slug({ label: "Slug", from: "title" }),
-    content: f.richText({ label: "Content" }),
-    isPublished: f.boolean({ label: "Published", default: false }),
-    publishedAt: f.dateTime({ label: "Published At" }),
+    title: f.text(255).required().label("Title"),
+    slug: f.slug({ from: "title" }).label("Slug"),
+    content: f.richText().label("Content"),
+    isPublished: f.boolean().default(false).label("Published"),
+    publishedAt: f.datetime().label("Published At"),
   }))
   .title(({ f }) => f.title);
 ```
@@ -226,8 +226,8 @@ import { collection } from "questpie";
 
 export const media = collection("media")
   .fields(({ f }) => ({
-    alt: f.text({ label: "Alt Text" }),
-    folder: f.text({ label: "Folder" }),
+    alt: f.text().label("Alt Text"),
+    folder: f.text().label("Folder"),
   }))
   .upload({
     visibility: "public",
@@ -303,10 +303,10 @@ export const blogModule = module({
   name: "blog",
   collections: {
     posts: collection("posts").fields(({ f }) => ({
-      title: f.text({ label: "Title", required: true }),
+      title: f.text(255).required().label("Title"),
     })),
     categories: collection("categories").fields(({ f }) => ({
-      name: f.text({ label: "Name", required: true }),
+      name: f.text(255).required().label("Name"),
     })),
   },
 });
@@ -323,43 +323,45 @@ export default config({
 
 ## Admin UI
 
-The `@questpie/admin` package provides a config-driven admin interface using the `qa()` client builder:
+The `@questpie/admin` package provides a config-driven admin interface. Admin metadata, list views, and form views are defined on the collection itself:
+
+```typescript
+// src/questpie/server/collections/posts.ts
+import { collection } from "questpie";
+
+export const posts = collection("posts")
+  .fields(({ f }) => ({
+    title: f.text(200).required().label("Title"),
+    content: f.richText().label("Content"),
+    status: f.select([
+      { value: "draft", label: "Draft" },
+      { value: "published", label: "Published" },
+    ]).label("Status"),
+  }))
+  .title(({ f }) => f.title)
+  .admin(({ c }) => ({
+    label: { en: "Blog Posts" },
+    icon: c.icon("ph:file-text"),
+  }))
+  .list(({ v, f }) => v.table({ columns: [f.title, f.status] }))
+  .form(({ v, f }) =>
+    v.form({
+      fields: [
+        { type: "section", label: "Content", fields: [f.title, f.content] },
+        { type: "section", label: "Publishing", fields: [f.status] },
+      ],
+    }),
+  );
+```
+
+The client creates a typed admin builder and mounts the admin UI in React:
 
 ```typescript
 // src/questpie/admin/builder.ts
 import { qa, adminModule } from "@questpie/admin/client";
 import type { App } from "../server/.generated";
 
-export const qab = qa<App>().use(adminModule).toNamespace();
-```
-
-```typescript
-// src/questpie/admin/collections/posts.ts
-import { qab } from "../builder";
-
-export const postsAdmin = qab
-  .collection("posts")
-  .meta({ label: "Blog Posts", icon: FileTextIcon })
-  .fields(({ r }) => ({
-    title: r.text({ label: "Title", maxLength: 200 }),
-    content: r.richText({ label: "Content" }),
-    status: r.select({
-      label: "Status",
-      options: [
-        { label: "Draft", value: "draft" },
-        { label: "Published", value: "published" },
-      ],
-    }),
-  }))
-  .list(({ v, f }) => v.table({ columns: [f.title, f.status] }))
-  .form(({ v, f }) =>
-    v.form({
-      sections: [
-        { title: "Content", fields: [f.title, f.content] },
-        { title: "Publishing", fields: [f.status] },
-      ],
-    }),
-  );
+export const admin = qa<App>().use(adminModule);
 ```
 
 ```tsx

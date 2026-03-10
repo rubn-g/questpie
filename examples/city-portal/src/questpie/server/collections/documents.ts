@@ -4,26 +4,15 @@
  * Official documents, policies, and publications.
  */
 
-import { collection } from "#questpie";
+import { collection } from "#questpie/factories";
 
 export default collection("documents")
 	.fields(({ f }) => ({
-		city: f.relation({
-			label: "City",
-			to: "cities",
-			required: true,
-		}),
-		title: f.text({
-			label: "Title",
-			required: true,
-			maxLength: 255,
-		}),
-		description: f.textarea({
-			label: "Description",
-		}),
-		category: f.select({
-			label: "Category",
-			options: [
+		city: f.relation("cities").label("City").required(),
+		title: f.text(255).label("Title").required(),
+		description: f.textarea().label("Description"),
+		category: f
+			.select([
 				{ value: "policy", label: "Policy" },
 				{ value: "minutes", label: "Meeting Minutes" },
 				{ value: "budget", label: "Budget & Finance" },
@@ -33,31 +22,26 @@ export default collection("documents")
 				{ value: "form", label: "Form" },
 				{ value: "guide", label: "Guide" },
 				{ value: "other", label: "Other" },
-			],
-			required: true,
-			default: "other",
-		}),
-		file: f.upload({
-			label: "File",
-			accept: [
-				"application/pdf",
-				"application/msword",
-				"application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-			],
-			required: true,
-		}),
-		publishedDate: f.date({
-			label: "Published Date",
-		}),
-		version: f.text({
-			label: "Version",
-			maxLength: 50,
-			description: "Document version (e.g., v1.0, 2024 Edition)",
-		}),
-		isPublished: f.boolean({
-			label: "Published",
-			default: true,
-		}),
+			])
+			.label("Category")
+			.required()
+			.default("other"),
+		file: f
+			.upload({
+				mimeTypes: [
+					"application/pdf",
+					"application/msword",
+					"application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+				],
+			})
+			.label("File")
+			.required(),
+		publishedDate: f.date().label("Published Date"),
+		version: f
+			.text(50)
+			.label("Version")
+			.description("Document version (e.g., v1.0, 2024 Edition)"),
+		isPublished: f.boolean().label("Published").default(true),
 	}))
 	.title(({ f }) => f.title)
 	.admin(({ c }) => ({

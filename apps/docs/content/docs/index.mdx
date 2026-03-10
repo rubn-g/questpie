@@ -1,5 +1,5 @@
 ---
-title: QuestPie Documentation
+title: Documentation
 description: One schema. Every output. Backend-first TypeScript framework with schema-driven codegen.
 ---
 
@@ -23,11 +23,11 @@ Define collections, functions, jobs, and hooks as plain files. Codegen wires the
 import { collection } from "#questpie";
 
 export default collection("posts").fields(({ f }) => ({
-  title: f.text({ required: true, maxLength: 255 }),
-  body: f.richText({ localized: true }),
+  title: f.text(255).required(),
+  body: f.textarea().localized(),
   cover: f.upload({ to: "assets", mimeTypes: ["image/*"] }),
-  author: f.relation({ to: "users" }),
-  status: f.select({ options: ["draft", "published"] }),
+  author: f.relation("users"),
+  status: f.select(["draft", "published"]),
   publishedAt: f.date(),
 }));
 ```

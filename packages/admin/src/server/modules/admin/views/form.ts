@@ -1,11 +1,11 @@
 /**
  * Form view — the default edit view for collections.
  */
-import {
-	type FormViewConfig,
-	type ViewDefinition,
-	view,
-} from "#questpie/admin/server/index.js";
+import type {
+	FormViewConfig,
+	ViewDefinition,
+} from "#questpie/admin/server/augmentation.js";
+import { view } from "#questpie/admin/server/registry-helpers.js";
 
 export default view<FormViewConfig>("collection-form", {
 	kind: "form",

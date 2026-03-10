@@ -187,8 +187,9 @@ describe("generateTemplate — minimal (modules.ts only)", () => {
 		expect(code).toContain("export type AppFunctions = _ModuleFunctions;");
 	});
 
-	it("emits declare module augmentation for AppContext", () => {
-		expect(code).toContain('declare module "questpie"');
+	it("emits declare global augmentation for AppContext", () => {
+		expect(code).toContain("declare global {");
+		expect(code).toContain("namespace Questpie {");
 		expect(code).toContain("interface AppContext");
 		expect(code).toContain("collections: _AppInternal['api']['collections']");
 	});
@@ -208,8 +209,8 @@ describe("generateTemplate — minimal (modules.ts only)", () => {
 		expect(code).toContain("export async function createContext(");
 	});
 
-	it("emits factory re-export", () => {
-		expect(code).toContain('from "./factories.js"');
+	it("emits factory comment", () => {
+		expect(code).toContain("Factories:");
 	});
 
 	it("does not emit migrations section when no migrations", () => {
@@ -931,7 +932,7 @@ describe("generateTemplate — spreads", () => {
 // ─────────────────────────────────────────────────────────────────────────────
 
 describe("generateTemplate — factory re-exports", () => {
-	it("includes collection and global in factory re-exports by default", () => {
+	it("includes factory comment in output", () => {
 		const code = generateTemplate({
 			configImportPath: "../questpie.config",
 			discovered: minimalResult(),
@@ -939,12 +940,13 @@ describe("generateTemplate — factory re-exports", () => {
 			singletonFactories: coreSingletonFactories(),
 		});
 
+		// Factory re-exports are now emitted as a comment
+		expect(code).toContain("Factories:");
 		expect(code).toContain("collection");
 		expect(code).toContain("global");
-		expect(code).toContain('from "./factories.js"');
 	});
 
-	it("adds plugin singleton factories to re-exports", () => {
+	it("generates valid code with plugin singleton factories", () => {
 		const adminPlugin: CodegenPlugin = {
 			name: "admin",
 			targets: {
@@ -971,7 +973,8 @@ describe("generateTemplate — factory re-exports", () => {
 			singletonFactories: target.registries.singletonFactories,
 		});
 
-		expect(code).toContain("branding");
+		// Template still generates valid output
+		expect(code).toContain("createApp");
 	});
 });
 

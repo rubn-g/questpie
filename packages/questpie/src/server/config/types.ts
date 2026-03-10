@@ -8,12 +8,10 @@ import type {
 	FieldDefinitionState,
 } from "#questpie/server/fields/types.js";
 import type { TranslationsConfig } from "#questpie/server/i18n/types.js";
-import type {
-	Collection,
-	CollectionBuilder,
-	Global,
-	GlobalBuilder,
-} from "#questpie/server/index.js";
+import type { Collection } from "#questpie/server/collection/builder/collection.js";
+import type { CollectionBuilder } from "#questpie/server/collection/builder/collection-builder.js";
+import type { Global } from "#questpie/server/global/builder/global.js";
+import type { GlobalBuilder } from "#questpie/server/global/builder/global-builder.js";
 import type {
 	AnyCollectionOrBuilder,
 	AnyGlobal,
@@ -28,14 +26,14 @@ import type {
 type NonLocalizedFields<
 	TFields extends Record<string, any>,
 	TLocalized extends ReadonlyArray<keyof TFields>,
-> = TFields extends Record<string, FieldDefinition<FieldDefinitionState>>
+> = TFields extends Record<string, { $types: any; toColumn: any }>
 	? ExtractFieldsByLocation<TFields, "main">
 	: Omit<TFields, TLocalized[number]>;
 
 type LocalizedFields<
 	TFields extends Record<string, any>,
 	TLocalized extends ReadonlyArray<keyof TFields>,
-> = TFields extends Record<string, FieldDefinition<FieldDefinitionState>>
+> = TFields extends Record<string, { $types: any; toColumn: any }>
 	? ExtractFieldsByLocation<TFields, "i18n">
 	: Pick<TFields, TLocalized[number]>;
 
@@ -67,7 +65,7 @@ type HasI18nFields<
 		: false
 	: [
 				keyof ExtractFieldsByLocation<
-					TState["fieldDefinitions"] & Record<string, FieldDefinition<FieldDefinitionState>>,
+					TState["fieldDefinitions"],
 					"i18n"
 				>,
 		  ] extends [never]

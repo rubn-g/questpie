@@ -1,7 +1,7 @@
 /**
  * Dashboard — admin panel dashboard configuration.
  */
-import { dashboard } from "#questpie";
+import { dashboard } from "#questpie/factories";
 
 export default dashboard(({ d }) =>
 	d.dashboard({

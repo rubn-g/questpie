@@ -25,8 +25,8 @@ type TipTapContent = {
 
 const barbers = collection("barbers")
 	.fields(({ f }) => ({
-		name: f.text({ required: true, maxLength: 255, localized: true }),
-		bio: f.json({ localized: true }),
+		name: f.text(255).required().localized(),
+		bio: f.json().localized(),
 	}))
 	.options({
 		timestamps: true,

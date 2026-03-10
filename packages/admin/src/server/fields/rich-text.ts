@@ -10,13 +10,17 @@
 import {
 	type BaseFieldConfig,
 	type ContextualOperators,
+	type DefaultFieldState,
 	type FieldMetadataBase,
+	Field,
+	createField,
 	field,
 	isNotNull,
 	isNull,
 	jsonb,
 	sql,
 } from "questpie";
+import type { PgJsonbBuilder } from "drizzle-orm/pg-core";
 import { z } from "zod";
 
 // ============================================================================
@@ -281,6 +285,74 @@ const DEFAULT_HEADING_LEVELS: (1 | 2 | 3 | 4 | 5 | 6)[] = [1, 2, 3];
  * });
  * ```
  */
+// ============================================================================
+// V2 Rich Text Field State & Factory
+// ============================================================================
+
+export type RichTextFieldState = DefaultFieldState & {
+	type: "richText";
+	data: TipTapDocument;
+	column: PgJsonbBuilder;
+};
+
+/**
+ * Create a rich text field (V2 factory).
+ *
+ * @example
+ * ```ts
+ * content: f.richText().required().localized()
+ * ```
+ */
+export function richText(): Field<RichTextFieldState> {
+	return createField<RichTextFieldState>({
+		type: "richText",
+		columnFactory: (name) => jsonb(name) as any,
+		schemaFactory: () => {
+			const nodeSchema: z.ZodType<TipTapNode> = z.lazy(() =>
+				z.object({
+					type: z.string(),
+					attrs: z.record(z.string(), z.any()).optional(),
+					content: z.array(nodeSchema).optional(),
+					marks: z.array(z.object({
+						type: z.string(),
+						attrs: z.record(z.string(), z.any()).optional(),
+					})).optional(),
+					text: z.string().optional(),
+				}),
+			);
+			return z.object({
+				type: z.literal("doc"),
+				content: z.array(nodeSchema).optional(),
+			});
+		},
+		operatorSet: {
+			jsonbCast: null,
+			column: getRichTextOperators().column,
+		} as any,
+		metadataFactory: (state) => ({
+			type: "richText" as const,
+			label: state.label,
+			description: state.description,
+			required: state.notNull ?? false,
+			localized: state.localized ?? false,
+			readOnly: state.input === false ? true : undefined,
+			writeOnly: state.output === false ? true : undefined,
+			meta: state.admin as any,
+		}),
+		notNull: false,
+		hasDefault: false,
+		localized: false,
+		virtual: false,
+		input: true,
+		output: true,
+		isArray: false,
+	});
+}
+
+// ============================================================================
+// V1 Rich Text Field Definition (backward compat)
+// ============================================================================
+
 export const richTextField = field<RichTextFieldConfig, TipTapDocument>()({
 	type: "richText" as const,
 	_value: undefined as unknown as TipTapDocument,

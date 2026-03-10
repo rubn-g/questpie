@@ -1,4 +1,3 @@
-import { Icon } from "@iconify/react";
 import type { BaseLayoutProps } from "fumadocs-ui/layouts/shared";
 import { Logo } from "@/components/Logo";
 
@@ -13,12 +12,6 @@ export function baseOptions(): BaseLayoutProps {
 			components: {},
 		},
 		links: [
-			{
-				text: "Documentation",
-				url: "/docs",
-				active: "nested-url",
-				icon: <Icon icon="ph:book" width={16} height={16} />,
-			},
 			{
 				text: "Examples",
 				url: "https://github.com/questpie/questpie/tree/main/examples",

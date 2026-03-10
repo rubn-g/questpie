@@ -2,7 +2,7 @@
  * JSON Field Factory (V2)
  */
 
-import { json as pgJson, jsonb } from "drizzle-orm/pg-core";
+import { json as pgJson, jsonb, type PgJsonbBuilder } from "drizzle-orm/pg-core";
 import { z } from "zod";
 import { basicOps } from "../operators/builtin.js";
 import { createField } from "../field-class.js";
@@ -19,6 +19,8 @@ export type JsonValue =
 export type JsonFieldState = DefaultFieldState & {
 	type: "json";
 	data: JsonValue;
+	column: PgJsonbBuilder;
+	operators: typeof basicOps;
 };
 
 /**

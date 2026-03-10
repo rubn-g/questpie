@@ -2,7 +2,7 @@
  * Datetime Field Factory (V2)
  */
 
-import { timestamp } from "drizzle-orm/pg-core";
+import { timestamp, type PgTimestampBuilder } from "drizzle-orm/pg-core";
 import { z } from "zod";
 import { dateOps } from "../operators/builtin.js";
 import { createField } from "../field-class.js";
@@ -11,6 +11,8 @@ import type { DefaultFieldState } from "../field-class-types.js";
 export type DatetimeFieldState = DefaultFieldState & {
 	type: "datetime";
 	data: Date;
+	column: PgTimestampBuilder;
+	operators: typeof dateOps;
 };
 
 interface DatetimeConfig {

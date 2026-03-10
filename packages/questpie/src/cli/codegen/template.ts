@@ -541,13 +541,8 @@ export function generateTemplate(options: TemplateOptions): string {
 	lines.push("}");
 	lines.push("");
 
-	// Re-export factories (collection, global, singletons) so users can import from #questpie
-	lines.push("// ── Re-export factories for user code ──────────────────────");
-	lines.push(
-		"// Import from #questpie: import { collection, global, branding, ... } from '#questpie';",
-	);
-	const factoryNames = getFactoryNames(singletonFactories);
-	lines.push(`export { ${factoryNames.join(", ")} } from "./factories.js";`);
+	// Factories are available via #questpie/factories (separate entry to avoid circular deps)
+	lines.push("// Factories: import { collection, global, ... } from '#questpie/factories';");
 	lines.push("");
 
 	// Extra runtime code from plugins

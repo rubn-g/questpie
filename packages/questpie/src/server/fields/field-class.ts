@@ -19,12 +19,19 @@
  */
 
 import type { SQL } from "drizzle-orm";
+import type { HasDefault, NotNull } from "drizzle-orm/column-builder";
 import { jsonb } from "drizzle-orm/pg-core";
-import { z, type ZodType } from "zod";
+import { type ZodType, z } from "zod";
 import type { I18nText } from "#questpie/shared/i18n/types.js";
-import type { OperatorSetDefinition } from "./operators/types.js";
-import { resolveContextualOperators } from "./operators/resolve.js";
+import { buildZodFromState } from "./derive-schema.js";
+import type {
+	ArrayFieldState,
+	FieldRuntimeState,
+	FieldState,
+} from "./field-class-types.js";
 import { selectMultiOps } from "./operators/builtin.js";
+import { resolveContextualOperators } from "./operators/resolve.js";
+import type { OperatorSetDefinition } from "./operators/types.js";
 import type {
 	ContextualOperators,
 	FieldDefinition,
@@ -34,9 +41,8 @@ import type {
 	FieldLocation,
 	FieldMetadata,
 	FieldMetadataBase,
+	ReferentialAction,
 } from "./types.js";
-import { buildZodFromState } from "./derive-schema.js";
-import type { ArrayFieldState, FieldRuntimeState, FieldState } from "./field-class-types.js";
 
 // ============================================================================
 // Field Class
@@ -76,8 +82,12 @@ export class Field<TState extends FieldState = FieldState> {
 	 * Create a new Field with merged state.
 	 * Each builder method calls this to produce an immutable copy.
 	 */
-	private _clone<TExtra>(extra: Partial<FieldRuntimeState>): Field<TState & TExtra> {
-		return new Field({ ...this._state, ...extra }) as unknown as Field<TState & TExtra>;
+	private _clone<TExtra>(
+		extra: Partial<FieldRuntimeState>,
+	): Field<TState & TExtra> {
+		return new Field({ ...this._state, ...extra }) as unknown as Field<
+			TState & TExtra
+		>;
 	}
 
 	// ========================================================================
@@ -85,16 +95,29 @@ export class Field<TState extends FieldState = FieldState> {
 	// ========================================================================
 
 	/** Mark field as NOT NULL (required). */
-	required(): Field<TState & { notNull: true }> {
-		return this._clone<{ notNull: true }>({ notNull: true });
+	required(): Field<
+		Omit<TState, "notNull" | "column"> & {
+			notNull: true;
+			column: NotNull<TState["column"]>;
+		}
+	> {
+		return new Field({ ...this._state, notNull: true }) as any;
 	}
 
 	/** Set a default value. Makes input optional. */
-	default<V>(value: V | (() => V)): Field<TState & { hasDefault: true }> {
-		return this._clone<{ hasDefault: true }>({
+	default<V>(
+		value: V | (() => V),
+	): Field<
+		Omit<TState, "hasDefault" | "column"> & {
+			hasDefault: true;
+			column: HasDefault<TState["column"]>;
+		}
+	> {
+		return new Field({
+			...this._state,
 			hasDefault: true,
 			defaultValue: value,
-		});
+		}) as any;
 	}
 
 	/** Set display label. */
@@ -108,22 +131,27 @@ export class Field<TState extends FieldState = FieldState> {
 	}
 
 	/** Mark field as localized (stored in i18n table). */
-	localized(): Field<TState & { localized: true }> {
-		return this._clone<{ localized: true }>({ localized: true });
+	localized(): Field<Omit<TState, "localized"> & { localized: true }> {
+		return new Field({ ...this._state, localized: true }) as any;
 	}
 
 	/** Exclude field from input (read-only). */
-	inputFalse(): Field<TState & { input: false }> {
+	inputFalse(): Field<Omit<TState, "input"> & { input: false }> {
 		return this._clone<{ input: false }>({ input: false });
 	}
 
 	/** Make input always optional (even if field is NOT NULL). */
-	inputOptional(): Field<TState & { input: "optional" }> {
+	inputOptional(): Field<Omit<TState, "input"> & { input: "optional" }> {
 		return this._clone<{ input: "optional" }>({ input: "optional" });
 	}
 
+	/** Force field into input (even if virtual). */
+	inputTrue(): Field<Omit<TState, "input"> & { input: true }> {
+		return this._clone<{ input: true }>({ input: true });
+	}
+
 	/** Exclude field from output (write-only). */
-	outputFalse(): Field<TState & { output: false }> {
+	outputFalse(): Field<Omit<TState, "output"> & { output: false }> {
 		return this._clone<{ output: false }>({ output: false });
 	}
 
@@ -131,10 +159,12 @@ export class Field<TState extends FieldState = FieldState> {
 	 * Mark field as virtual (no DB column).
 	 * Optionally provide a SQL expression for computed columns.
 	 */
-	virtual(expr?: SQL): Field<TState & { virtual: true; column: null }> {
-		return this._clone<{ virtual: true; column: null }>({
-			virtual: expr ?? true,
-		});
+	virtual(
+		expr?: SQL,
+	): Field<
+		Omit<TState, "virtual" | "column"> & { virtual: true; column: null }
+	> {
+		return new Field({ ...this._state, virtual: expr ?? true }) as any;
 	}
 
 	/** Set field-level hooks. */
@@ -143,7 +173,9 @@ export class Field<TState extends FieldState = FieldState> {
 	}
 
 	/** Set field-level access control. */
-	access(a: FieldDefinitionAccess): Field<TState & { access: FieldDefinitionAccess }> {
+	access(
+		a: FieldDefinitionAccess,
+	): Field<TState & { access: FieldDefinitionAccess }> {
 		return this._clone<{ access: FieldDefinitionAccess }>({ access: a });
 	}
 
@@ -176,7 +208,9 @@ export class Field<TState extends FieldState = FieldState> {
 	 * Escape hatch: modify the underlying Drizzle column builder.
 	 * The transform receives the column builder and returns a (possibly different) one.
 	 */
-	drizzle<TNewCol>(fn: (col: TState["column"]) => TNewCol): Field<TState & { column: TNewCol }> {
+	drizzle<TNewCol>(
+		fn: (col: TState["column"]) => TNewCol,
+	): Field<TState & { column: TNewCol }> {
 		return this._clone<{ column: TNewCol }>({ drizzleTransform: fn as any });
 	}
 
@@ -226,6 +260,96 @@ export class Field<TState extends FieldState = FieldState> {
 	}
 
 	// ========================================================================
+	// Builder Methods — Field-Specific Chain Methods
+	// ========================================================================
+	// These are implemented on the prototype by each builtin factory file.
+	// Declared here so the types survive tsdown's .mjs output (module
+	// augmentation with relative paths doesn't work across .js → .mjs).
+
+	// -- Text fields (text.ts) --
+	/** Set regex pattern (text fields). */
+	declare pattern: (re: RegExp) => Field<TState>;
+	/** Trim whitespace (text fields). */
+	declare trim: () => Field<TState>;
+	/** Convert to lowercase (text fields). */
+	declare lowercase: () => Field<TState>;
+	/** Convert to uppercase (text fields). */
+	declare uppercase: () => Field<TState>;
+
+	// -- Number fields (number.ts) --
+	/** Set minimum value (number fields). */
+	declare min: (n: number) => Field<TState>;
+	/** Set maximum value (number fields). */
+	declare max: (n: number) => Field<TState>;
+	/** Require positive value (number fields). */
+	declare positive: () => Field<TState>;
+	/** Require integer value (number fields). */
+	declare int: () => Field<TState>;
+	/** Set step increment (number fields). */
+	declare step: (n: number) => Field<TState>;
+
+	// -- Select fields (select.ts) --
+	/** Use PostgreSQL enum type for storage. */
+	declare enum: (enumName: string) => Field<TState>;
+
+	// -- Relation fields (relation.ts) --
+	/** Convert to hasMany relation (FK on target table). */
+	declare hasMany: (config: {
+		foreignKey: string;
+		onDelete?: ReferentialAction;
+		relationName?: string;
+	}) => Field<
+		Omit<TState, "virtual" | "column" | "operators" | "relationKind"> & {
+			virtual: true;
+			column: null;
+			operators: typeof import("./operators/builtin.js").toManyOps;
+			relationKind: "many";
+		}
+	>;
+	/** Convert to manyToMany relation (junction table). */
+	declare manyToMany: (config: {
+		through: string | (() => { name: string });
+		sourceField?: string;
+		targetField?: string;
+		relationName?: string;
+	}) => Field<
+		Omit<TState, "virtual" | "column" | "operators" | "relationKind"> & {
+			virtual: true;
+			column: null;
+			operators: typeof import("./operators/builtin.js").toManyOps;
+			relationKind: "many";
+		}
+	>;
+	/** Convert to multiple relation (jsonb array of FKs). */
+	declare multiple: () => Field<
+		Omit<TState, "operators" | "data"> & {
+			operators: typeof import("./operators/builtin.js").multipleOps;
+			data: string[];
+		}
+	>;
+	/** Set onDelete action. */
+	declare onDelete: (action: ReferentialAction) => Field<TState>;
+	/** Set onUpdate action. */
+	declare onUpdate: (action: ReferentialAction) => Field<TState>;
+	/** Set relation name (for disambiguation). */
+	declare relationName: (name: string) => Field<TState>;
+
+	// -- Date fields (date.ts) --
+	/** Auto-set to current date/time on create. */
+	declare autoNow: () => Field<
+		Omit<TState, "hasDefault" | "column"> & {
+			hasDefault: true;
+			column: HasDefault<TState["column"]>;
+		}
+	>;
+	/** Auto-update to current date/time on every update. */
+	declare autoNowUpdate: () => Field<TState>;
+
+	// -- Custom fields (from.ts) --
+	/** Set the field type string (for admin UI mapping). */
+	declare type: (typeName: string) => Field<TState>;
+
+	// ========================================================================
 	// FieldDefinition Interface — Backward Compatibility
 	// ========================================================================
 
@@ -241,7 +365,9 @@ export class Field<TState extends FieldState = FieldState> {
 		column: TState["column"];
 	} {
 		return {
-			type: this._state.customType ?? this._state.type,
+			type: this._state.isArray
+				? "array"
+				: (this._state.customType ?? this._state.type),
 			config: this._buildLegacyConfig(),
 			value: undefined as any,
 			input: undefined as any,
@@ -271,7 +397,10 @@ export class Field<TState extends FieldState = FieldState> {
 		const s = this._state;
 
 		// Virtual fields have no column
-		if (s.virtual === true || (typeof s.virtual === "object" && s.virtual !== null)) {
+		if (
+			s.virtual === true ||
+			(typeof s.virtual === "object" && s.virtual !== null)
+		) {
 			return null;
 		}
 
@@ -288,10 +417,15 @@ export class Field<TState extends FieldState = FieldState> {
 		}
 
 		// Apply default
-		if (s.hasDefault && s.defaultValue !== undefined && typeof (column as any)?.default === "function") {
-			const defaultVal = typeof s.defaultValue === "function"
-				? (s.defaultValue as () => unknown)()
-				: s.defaultValue;
+		if (
+			s.hasDefault &&
+			s.defaultValue !== undefined &&
+			typeof (column as any)?.default === "function"
+		) {
+			const defaultVal =
+				typeof s.defaultValue === "function"
+					? (s.defaultValue as () => unknown)()
+					: s.defaultValue;
 			column = (column as any).default(defaultVal);
 		}
 
@@ -347,7 +481,9 @@ export class Field<TState extends FieldState = FieldState> {
 	/**
 	 * Get nested field definitions (for object fields).
 	 */
-	getNestedFields(): Record<string, FieldDefinition<FieldDefinitionState>> | undefined {
+	getNestedFields():
+		| Record<string, FieldDefinition<FieldDefinitionState>>
+		| undefined {
 		return this._state.nestedFields as any;
 	}
 
@@ -368,7 +504,10 @@ export class Field<TState extends FieldState = FieldState> {
 	/** Infer field location from state. */
 	private _inferLocation(): FieldLocation {
 		const s = this._state;
-		if (s.virtual === true || (typeof s.virtual === "object" && s.virtual !== null)) {
+		if (
+			s.virtual === true ||
+			(typeof s.virtual === "object" && s.virtual !== null)
+		) {
 			return "virtual";
 		}
 		if (s.localized) {
@@ -433,6 +572,9 @@ export class Field<TState extends FieldState = FieldState> {
 			onDelete: s.onDelete,
 			onUpdate: s.onUpdate,
 			relationName: s.relationName,
+			// Nested fields (object/array)
+			fields: s.nestedFields,
+			of: s.innerField,
 		};
 	}
 }

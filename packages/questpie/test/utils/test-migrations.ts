@@ -1,7 +1,7 @@
 import { sql } from "drizzle-orm";
 import type { Collection } from "../../src/server/collection/builder/collection.js";
 import type { AnyCollectionState } from "../../src/server/collection/builder/types.js";
-import { questpie } from "../../src/server/index.js";
+import { QuestpieBuilder } from "#questpie/server/config/builder.js";
 import type { Migration } from "../../src/server/migration/types.js";
 import { buildMockApp } from "./mocks/mock-app-builder";
 
@@ -104,7 +104,7 @@ export async function setupTestMigrations(
 	const collectionsMap = Object.fromEntries(
 		collections.map((collection) => [collection.name, collection]),
 	);
-	const testModule = questpie({ name: "test-migrations" }).collections(
+	const testModule = QuestpieBuilder.empty("test-migrations").collections(
 		collectionsMap,
 	);
 	const dbConfig = db && ("bun" in db || "pglite" in db) ? db : { pglite: db };

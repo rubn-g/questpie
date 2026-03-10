@@ -2,7 +2,7 @@
  * Text Field Factory (V2)
  */
 
-import { text as pgText, varchar } from "drizzle-orm/pg-core";
+import { text as pgText, varchar, type PgVarcharBuilder } from "drizzle-orm/pg-core";
 import { z } from "zod";
 import { stringOps } from "../operators/builtin.js";
 import { createField, Field } from "../field-class.js";
@@ -11,6 +11,8 @@ import type { DefaultFieldState } from "../field-class-types.js";
 export type TextFieldState = DefaultFieldState & {
 	type: "text";
 	data: string;
+	column: PgVarcharBuilder<[string, ...string[]]>;
+	operators: typeof stringOps;
 };
 
 /**
@@ -49,25 +51,6 @@ export function text(arg?: number | { mode: "text" }): Field<TextFieldState> {
 		isArray: false,
 		maxLength: maxLen,
 	});
-}
-
-/**
- * Add text-specific chain methods to Field.
- * These are on the prototype so they're available after text() is called.
- *
- * NOTE: min/max are declared in number.ts which handles both text and number fields.
- */
-declare module "../field-class.js" {
-	interface Field<TState> {
-		/** Set regex pattern (text fields). */
-		pattern(re: RegExp): Field<TState>;
-		/** Trim whitespace (text fields). */
-		trim(): Field<TState>;
-		/** Convert to lowercase (text fields). */
-		lowercase(): Field<TState>;
-		/** Convert to uppercase (text fields). */
-		uppercase(): Field<TState>;
-	}
 }
 
 // Patch prototype with text-specific methods

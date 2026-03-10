@@ -1,26 +1,17 @@
 /**
- * Field Builder Proxy
+ * Field Builder
  *
- * Creates a type-safe proxy object that provides field factory methods.
- * Usage: f.text({ required: true }), f.number({ min: 0 }), etc.
+ * Creates a type-safe context object providing field factory methods.
+ * V2 factories return Field<TState> with chain methods.
  *
- * Fields are plain objects (via field). The proxy wraps each field
- * into a callable factory: f.text(config) → FieldDefinition<...>.
+ * Usage: f.text(255).required(), f.number().min(0), etc.
  */
-
 
 import type { BuiltinFields } from "./builtin/defaults.js";
 export type { BuiltinFields } from "./builtin/defaults.js";
 
-import {
-	type BuildFieldState,
-	createFieldDefinition,
-	type ExtractColumnFromFieldDef,
-	type ExtractConfigFromFieldDef,
-	type ExtractOpsFromFieldDef,
-	type ExtractTypeFromFieldDef,
-	type ExtractValueFromFieldDef,
-} from "./field.js";
+import type { Field } from "./field-class.js";
+import type { FieldState } from "./field-class-types.js";
 import type { FieldDefinition, FieldDefinitionState } from "./types.js";
 
 // ============================================================================
@@ -29,10 +20,7 @@ import type { FieldDefinition, FieldDefinitionState } from "./types.js";
 
 /**
  * Field builder proxy type.
- * Maps plain field def objects to callable factories that produce FieldDefinition.
- *
- * Each property becomes a function: (config?) => FieldDefinition<BuildFieldState<...>>
- * The concrete operator types from getOperators are preserved through ExtractOpsFromFieldDef.
+ * For V2 factories, this is a direct passthrough — each property IS the factory function.
  *
  * @template TMap - The field type map to use (defaults to BuiltinFields)
  *
@@ -40,34 +28,13 @@ import type { FieldDefinition, FieldDefinitionState } from "./types.js";
  * ```ts
  * // Using the proxy:
  * const fields = {
- *   title: f.text({ required: true, maxLength: 255 }),
- *   count: f.number({ min: 0 }),
- *   isActive: f.boolean({ default: true }),
+ *   title: f.text(255).required(),
+ *   count: f.number().min(0),
+ *   isActive: f.boolean().default(true),
  * };
  * ```
  */
-export type FieldBuilderProxy<TMap = BuiltinFields> = {
-	[K in keyof TMap]: <
-		const TUserConfig extends ExtractConfigFromFieldDef<TMap[K]>,
-	>(
-		config?: TUserConfig,
-	) => FieldDefinition<
-		BuildFieldState<
-			ExtractTypeFromFieldDef<TMap[K]>,
-			TUserConfig extends undefined
-				? ExtractConfigFromFieldDef<TMap[K]>
-				: TUserConfig,
-			ExtractValueFromFieldDef<TMap[K]>,
-			ExtractColumnFromFieldDef<
-				TMap[K],
-				TUserConfig extends undefined
-					? ExtractConfigFromFieldDef<TMap[K]>
-					: TUserConfig
-			>,
-			ExtractOpsFromFieldDef<TMap[K]>
-		>
-	>;
-};
+export type FieldBuilderProxy<TMap = BuiltinFields> = TMap;
 
 // ============================================================================
 // Fields Callback Context
@@ -80,7 +47,7 @@ export type FieldBuilderProxy<TMap = BuiltinFields> = {
  * @example
  * ```ts
  * collection("posts").fields(({ f }) => ({
- *   title: f.text({ required: true }),
+ *   title: f.text(255).required(),
  *   content: f.textarea(),
  * }))
  * ```
@@ -103,10 +70,10 @@ export function createFieldsCallbackContext<
 // ============================================================================
 
 /**
- * Create a field builder proxy from a plain field defs map.
- * Wraps each plain field def object into a callable factory using createFieldDefinition.
+ * Create a field builder from a field factories map.
+ * Wraps the map in a Proxy for nice error messages on unknown field types.
  *
- * @param fieldDefs - Map of field type names to plain field def objects (defaults to builtinFields)
+ * @param fieldDefs - Map of field type names to V2 factory functions
  * @returns A proxy object with field factory methods
  *
  * @example
@@ -116,7 +83,7 @@ export function createFieldsCallbackContext<
  * const f = createFieldBuilder(builtinFields);
  *
  * const fields = {
- *   title: f.text({ required: true }),
+ *   title: f.text(255).required(),
  *   count: f.number(),
  * };
  * ```
@@ -124,34 +91,15 @@ export function createFieldsCallbackContext<
 export function createFieldBuilder<TFields extends Record<string, any>>(
 	fieldDefs: TFields,
 ): FieldBuilderProxy<TFields> {
-	return new Proxy({} as FieldBuilderProxy<TFields>, {
-		get(_target, prop: string) {
-			const fieldDef = fieldDefs[prop];
-			if (!fieldDef) {
-				throw new Error(
-					`Unknown field type: "${prop}". ` +
-						`Available types: ${Object.keys(fieldDefs).join(", ")}`,
-				);
+	return new Proxy(fieldDefs as FieldBuilderProxy<TFields>, {
+		get(target: any, prop: string) {
+			if (prop in target) {
+				return target[prop];
 			}
-			// Return a factory function that wraps the plain field def
-			return (config?: any) => createFieldDefinition(fieldDef, config);
-		},
-		has(_target, prop: string) {
-			return prop in fieldDefs;
-		},
-		ownKeys() {
-			return Object.keys(fieldDefs);
-		},
-		getOwnPropertyDescriptor(_target, prop: string) {
-			if (prop in fieldDefs) {
-				return {
-					configurable: true,
-					enumerable: true,
-					value: (config?: any) =>
-						createFieldDefinition(fieldDefs[prop], config),
-				};
-			}
-			return undefined;
+			throw new Error(
+				`Unknown field type: "${prop}". ` +
+					`Available types: ${Object.keys(target).join(", ")}`,
+			);
 		},
 	});
 }
@@ -162,6 +110,11 @@ export function createFieldBuilder<TFields extends Record<string, any>>(
 // ============================================================================
 
 /**
+ * A field produced by V2 factories — either a Field<TState> or a FieldDefinition.
+ */
+type AnyField = Field<FieldState> | FieldDefinition<FieldDefinitionState>;
+
+/**
  * Extract field definitions from a fields function result.
  * Separates field definitions from the Drizzle columns they generate.
  *
@@ -169,7 +122,7 @@ export function createFieldBuilder<TFields extends Record<string, any>>(
  * @returns Object with both field definitions and extracted columns
  */
 export function extractFieldDefinitions<
-	TFields extends Record<string, FieldDefinition<FieldDefinitionState>>,
+	TFields extends Record<string, AnyField>,
 >(
 	fields: TFields,
 ): {
@@ -205,14 +158,14 @@ export function extractFieldDefinitions<
 export type InferFieldsFromFactory<
 	TFactory extends (
 		f: FieldBuilderProxy,
-	) => Record<string, FieldDefinition<FieldDefinitionState>>,
+	) => Record<string, AnyField>,
 > = ReturnType<TFactory>;
 
 /**
  * Type helper to extract value types from field definitions.
  */
 export type FieldValues<
-	TFields extends Record<string, FieldDefinition<FieldDefinitionState>>,
+	TFields extends Record<string, AnyField>,
 > = {
 	[K in keyof TFields]: TFields[K]["$types"]["value"];
 };
@@ -221,7 +174,7 @@ export type FieldValues<
  * Type helper to extract input types from field definitions.
  */
 export type FieldInputs<
-	TFields extends Record<string, FieldDefinition<FieldDefinitionState>>,
+	TFields extends Record<string, AnyField>,
 > = {
 	[K in keyof TFields as TFields[K]["$types"]["input"] extends never
 		? never
@@ -232,7 +185,7 @@ export type FieldInputs<
  * Type helper to extract output types from field definitions.
  */
 export type FieldOutputs<
-	TFields extends Record<string, FieldDefinition<FieldDefinitionState>>,
+	TFields extends Record<string, AnyField>,
 > = {
 	[K in keyof TFields as TFields[K]["$types"]["output"] extends never
 		? never

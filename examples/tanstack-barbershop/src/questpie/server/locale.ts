@@ -1,7 +1,7 @@
 /**
  * Locale — content locale configuration.
  */
-import { locale } from "#questpie";
+import { locale } from "#questpie/factories";
 
 export default locale({
 	locales: [
