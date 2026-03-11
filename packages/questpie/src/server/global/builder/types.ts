@@ -255,37 +255,21 @@ export interface GlobalBuilderState {
 	 */
 	fieldDefinitions: Record<string, any> | undefined;
 	/**
-	 * Phantom type for QuestpieBuilder reference.
-	 * Used to access field types registered via the fields config.
-	 */
-	"~questpieApp"?: any;
-	/**
 	 * Phantom type for field types available in .fields(({ f }) => ...).
-	 * Extracted from ~questpieApp at compile time for type inference.
+	 * Set directly via EmptyGlobalState generic parameter.
 	 */
 	"~fieldTypes"?: Record<string, any>;
 }
 
 /**
- * Extract field types from QuestpieBuilder.
- * QuestpieBuilder<TState> has `$state: TState` declared property for type extraction.
- */
-type ExtractFieldTypesFromApp<TQuestpieApp> = TQuestpieApp extends {
-	$state: { fields: infer TFields };
-}
-	? TFields
-	: undefined;
-
-/**
  * Default empty state for a new global
  *
  * @param TName - Global name
- * @param TQuestpieApp - Reference to QuestpieBuilder instance
  * @param TFieldTypes - Field types available in .fields(({ f }) => ...)
  */
 export type EmptyGlobalState<
 	TName extends string,
-	TQuestpieApp = undefined,
+	_TDeprecated = undefined,
 	TFieldTypes extends Record<string, any> | undefined = undefined,
 > = GlobalBuilderState & {
 	name: TName;
@@ -297,7 +281,6 @@ export type EmptyGlobalState<
 	hooks: {};
 	access: {};
 	fieldDefinitions: undefined;
-	"~questpieApp": TQuestpieApp;
 	"~fieldTypes": TFieldTypes;
 };
 

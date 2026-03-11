@@ -36,8 +36,7 @@ import type {
 /**
  * Resolve registry source state.
  *
- * - Collection/Global builders: registry lives on `state["~questpieApp"].state`
- * - QuestpieBuilder: registry lives on `state`
+ * Collection/Global builders: registry lives on `state["~questpieApp"].state`.
  */
 function getRegistrySourceState(
 	builderState: Record<string, unknown>,
@@ -99,9 +98,7 @@ function normalizeComponentProps(
  * Create a component proxy for registered component references.
  * Used in admin config functions (`.admin()`, `.actions()`, `.dashboard()`, `.sidebar()`).
  */
-export function createComponentProxy(
-	builderState: Record<string, unknown>,
-) {
+export function createComponentProxy(builderState: Record<string, unknown>) {
 	const componentNames = getRegisteredComponentNames(builderState);
 	const registeredComponentSet = new Set(componentNames);
 
@@ -202,8 +199,7 @@ export function createViewProxy(
 				}
 
 				if (hasRegistry && !registeredViewSet.has(prop)) {
-					const registerMethod =
-						kind === "list" ? "listViews" : "formViews";
+					const registerMethod = kind === "list" ? "listViews" : "formViews";
 					const available = [...registeredViewSet].sort().join(", ");
 					throw new Error(
 						`Unknown ${kind} view "${prop}". Register it via .${registerMethod}(). ` +

@@ -113,9 +113,6 @@ export type {
 	ViewKindRegistry,
 	WidgetAccessRule,
 	WidgetFetchContext,
-	WithAdminMethods,
-	WithCollectionAdminMethods,
-	WithGlobalAdminMethods,
 } from "../server/augmentation.js";
 // Auth helpers for SSR
 export {

@@ -51,8 +51,7 @@ type ExtractColumnsFromFieldDefinitions<TFields extends Record<string, any>> = {
  * Extract field types from CollectionBuilderState.
  * Falls back to BuiltinFields if not available.
  *
- * Uses ~fieldTypes phantom property which is set by EmptyCollectionState
- * based on the QuestpieBuilder's state.fields.
+ * Uses ~fieldTypes phantom property which is set by EmptyCollectionState.
  */
 type ExtractFieldTypes<TState extends CollectionBuilderState> =
 	TState["~fieldTypes"] extends infer TFields
@@ -60,15 +59,6 @@ type ExtractFieldTypes<TState extends CollectionBuilderState> =
 			? TFields
 			: {} // No fields registered — f will be empty
 		: {};
-
-type InferAppFromBuilder<TBuilder> = TBuilder extends {
-	build: (...args: any[]) => infer TApp;
-}
-	? TApp
-	: any;
-
-type CollectionAppOf<TState extends CollectionBuilderState> =
-	InferAppFromBuilder<TState["~questpieApp"]>;
 
 /**
  * Main collection builder class.
@@ -148,10 +138,9 @@ export class CollectionBuilder<TState extends CollectionBuilderState> {
 				ctx: FieldsCallbackContext<ExtractFieldTypes<TState>>,
 			) => Record<string, any>;
 
-			// Use field defs from ~questpieApp, or fall back to builtinFields for standalone collection()
-			const questpieFields =
-				this.state["~questpieApp"]?.state?.fields ?? builtinFields;
-			const contextProxy = createFieldsCallbackContext(questpieFields);
+			const contextProxy = createFieldsCallbackContext(
+				builtinFields,
+			) as unknown as FieldsCallbackContext<ExtractFieldTypes<TState>>;
 
 			const fieldDefs = factory(contextProxy);
 
@@ -1006,6 +995,5 @@ export function collection<TName extends string>(
 		output: undefined,
 		upload: undefined,
 		fieldDefinitions: {},
-		"~questpieApp": undefined,
 	}) as any;
 }

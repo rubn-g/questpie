@@ -175,7 +175,8 @@ export function generateFactoryTemplate(
 
 		// Generate type aliases for each category that has placeholder/recordPlaceholder
 		for (const [key, decl] of registryCategories) {
-			const registryKey = typeof decl.registryKey === "string" ? decl.registryKey : key;
+			const registryKey =
+				typeof decl.registryKey === "string" ? decl.registryKey : key;
 			if (decl.placeholder) {
 				const typeName = `_${key.charAt(0).toUpperCase() + key.slice(1)}Names`;
 				lines.push(
@@ -189,9 +190,7 @@ export function generateFactoryTemplate(
 			}
 			if (decl.recordPlaceholder) {
 				const recordTypeName = `_${key.charAt(0).toUpperCase() + key.slice(1)}Record`;
-				lines.push(
-					`type ${recordTypeName} = _RegistryProp<"${registryKey}">;`,
-				);
+				lines.push(`type ${recordTypeName} = _RegistryProp<"${registryKey}">;`);
 			}
 		}
 		lines.push("");
@@ -405,13 +404,6 @@ export function generateFactoryTemplate(
 		lines.push("\t\toutput: undefined,");
 		lines.push("\t\tupload: undefined,");
 		lines.push("\t\tfieldDefinitions: {},");
-		if (hasModules) {
-			lines.push(
-				'\t\t"~questpieApp": { state: { fields: _allRuntimeFields } },',
-			);
-		} else {
-			lines.push('\t\t"~questpieApp": undefined,');
-		}
 		lines.push("\t})) as any;");
 		lines.push("}");
 		lines.push("");
@@ -435,13 +427,6 @@ export function generateFactoryTemplate(
 		lines.push("\t\thooks: {},");
 		lines.push("\t\taccess: {},");
 		lines.push("\t\tfieldDefinitions: {},");
-		if (hasModules) {
-			lines.push(
-				'\t\t"~questpieApp": { state: { fields: _allRuntimeFields } },',
-			);
-		} else {
-			lines.push('\t\t"~questpieApp": undefined,');
-		}
 		lines.push("\t})) as any;");
 		lines.push("}");
 		lines.push("");
@@ -582,9 +567,7 @@ function emitExtensionRegistry(
 				lines.push(
 					`\t\t\tconst resolved = typeof configOrFn === 'function' ? configOrFn(${emitCallbackContext(ext, callbackParams)}) : configOrFn;`,
 				);
-				lines.push(
-					`\t\t\treturn { ...${defaultsJson}, ...resolved };`,
-				);
+				lines.push(`\t\t\treturn { ...${defaultsJson}, ...resolved };`);
 			} else {
 				lines.push(
 					`\t\t\tif (typeof configOrFn === 'function') return configOrFn(${emitCallbackContext(ext, callbackParams)});`,

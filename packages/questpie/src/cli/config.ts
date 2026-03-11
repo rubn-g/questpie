@@ -56,8 +56,8 @@ export interface QuestpieCliConfig {
  * 2. Import migration in your app:
  *    ```ts
  *    import { migrations } from "./src/migrations.js"
- *    const app = questpie({ name: 'app' })
- *      .build({ ..., migrations })
+ *    // in questpie.config.ts
+ *    export default config({ db: { url }, app: { url }, migrations })
  *    ```
  *
  * 3. Run migrations: `bun questpie migrate:up`

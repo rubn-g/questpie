@@ -26,7 +26,7 @@
  * ```
  */
 
-import type { AppContext, QuestpieStateOf } from "questpie";
+import type { AppContext } from "questpie";
 import type { I18nText } from "questpie/shared";
 import type { AnyBlockBuilder } from "./block/index.js";
 
@@ -1778,34 +1778,6 @@ export interface AdminConfigContext<
 }
 
 /**
- * Extract state from a builder-like object.
- */
-type BuilderStateOf<TBuilder> = TBuilder extends { state: infer TState }
-	? TState
-	: never;
-
-/**
- * Resolve source state for registry lookups.
- *
- * - Collection/Global builders: use `state["~questpieApp"].state`
- * - QuestpieBuilder: use `state`
- */
-type RegistrySourceStateOf<TBuilder> =
-	QuestpieStateOf<
-		BuilderStateOf<TBuilder> extends { "~questpieApp"?: infer TQuestpieApp }
-			? NonNullable<TQuestpieApp>
-			: never
-	> extends never
-		? BuilderStateOf<TBuilder>
-		: QuestpieStateOf<
-				BuilderStateOf<TBuilder> extends {
-					"~questpieApp"?: infer TQuestpieApp;
-				}
-					? NonNullable<TQuestpieApp>
-					: never
-			>;
-
-/**
  * Extract the config type from a ViewDefinition.
  * Falls back to `TFallback` when the view has `unknown` config
  * (i.e. was defined without a config type parameter).
@@ -1920,125 +1892,6 @@ export interface FormViewConfigContext<
 	f: { [K in keyof TFields]: K };
 }
 
-// ============================================================================
-// Admin Builder Methods Type (for type-safe usage)
-// ============================================================================
-
-/**
- * Admin methods added to QuestpieBuilder via codegen-generated factories.
- * These are internal types used by the codegen system.
- */
-interface QuestpieBuilderAdminMethods<
-	TComponents extends Record<string, any> | string = string,
-> {
-	/** Create a list view definition */
-	listView<TName extends string>(
-		name: TName,
-		config?: Record<string, unknown>,
-	): ListViewDefinition<TName>;
-
-	/** Create an edit view definition */
-	editView<TName extends string>(
-		name: TName,
-		config?: Record<string, unknown>,
-	): EditViewDefinition<TName>;
-
-	/** Create a component definition */
-	component<TName extends string>(
-		name: TName,
-		config?: Record<string, unknown>,
-	): ComponentDefinition<TName>;
-
-	/** Register list views */
-	listViews<TViews extends Record<string, ListViewDefinition>>(
-		views: TViews,
-	): this;
-
-	/** Register edit views */
-	editViews<TViews extends Record<string, EditViewDefinition>>(
-		views: TViews,
-	): this;
-
-	/** Register components */
-	components<TComponents extends Record<string, ComponentDefinition>>(
-		components: TComponents,
-	): this;
-
-	/** Register block definitions */
-	blocks<TBlocks extends Record<string, AnyBlockBuilder>>(
-		blocks: TBlocks,
-	): this;
-
-	/**
-	 * Configure the admin dashboard.
-	 *
-	 * @example
-	 * ```ts
-	 * .dashboard(({ d, c, a }) => d.dashboard({
-	 *   title: { en: "Dashboard" },
-	 *   actions: [
-	 *     a.create({
-	 *       id: "new-user",
-	 *       collection: "users",
-	 *       label: { en: "New User" },
-	 *       icon: c.icon("ph:user-plus"),
-	 *     }),
-	 *   ],
-	 *   items: [
-	 *     d.section({
-	 *       label: { en: "Overview" },
-	 *       items: [
-	 *         d.stats({ collection: "users", label: { en: "Total Users" } }),
-	 *         d.chart({ collection: "posts", chartType: "line", dateField: "createdAt" }),
-	 *       ],
-	 *     }),
-	 *   ],
-	 * }))
-	 * ```
-	 */
-	dashboard(
-		configFn: (
-			ctx: DashboardConfigContext<TComponents>,
-		) => ServerDashboardConfig,
-	): this;
-
-	/**
-	 * Configure the admin sidebar.
-	 *
-	 * @example
-	 * ```ts
-	 * .sidebar(({ s, c }) => s.sidebar({
-	 *   sections: [
-	 *     s.section({
-	 *       id: "content",
-	 *       title: { en: "Content" },
-	 *       icon: c.icon("ph:files"),
-	 *       items: [
-	 *         { type: "collection", collection: "posts" },
-	 *         { type: "collection", collection: "pages" },
-	 *       ],
-	 *     }),
-	 *   ],
-	 * }))
-	 * ```
-	 */
-	sidebar(
-		configFn: (ctx: SidebarConfigContext<TComponents>) => ServerSidebarConfig,
-	): this;
-
-	/**
-	 * Configure admin branding (name, logo).
-	 *
-	 * @example
-	 * ```ts
-	 * .branding({
-	 *   name: { en: "My App", sk: "Moja Appka" },
-	 * })
-	 * ```
-	 */
-	branding(config: ServerBrandingConfig): this;
-}
-
 /**
  * Admin methods added to CollectionBuilder via monkey patching.
  */
@@ -2134,42 +1987,3 @@ interface GlobalBuilderAdminMethods<
 		) => FormViewConfig,
 	): this;
 }
-
-/**
- * @deprecated No longer needed — admin methods are added via codegen factories.
- */
-export type WithAdminMethods<T> = T & QuestpieBuilderAdminMethods;
-
-/**
- * Type helper to add admin methods to a CollectionBuilder type.
- */
-export type WithCollectionAdminMethods<
-	T,
-	TFields extends Record<string, any> = Record<string, any>,
-	TListViewNames extends string = string,
-	TEditViewNames extends string = string,
-	TComponents extends Record<string, any> | string = string,
-> = T &
-	CollectionBuilderAdminMethods<
-		TFields,
-		TListViewNames,
-		TEditViewNames,
-		TComponents
-	>;
-
-/**
- * Type helper to add admin methods to a GlobalBuilder type.
- */
-export type WithGlobalAdminMethods<
-	T,
-	TFields extends Record<string, any> = Record<string, any>,
-	TEditViewNames extends string = string,
-	TComponents extends Record<string, any> | string = string,
-> = T & GlobalBuilderAdminMethods<TFields, TEditViewNames, TComponents>;
-
-// ============================================================================
-// NOTE: `declare module "questpie"` augmentation block has been REMOVED.
-// Builder extension methods (.admin(), .list(), .form(), etc.) are now
-// provided by codegen-generated factories in .generated/factories.ts.
-// State keys (admin, adminList, adminForm, etc.) are stored via .set().
-// ============================================================================

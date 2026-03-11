@@ -66,8 +66,7 @@ import { AdminLayout, type AdminLayoutSharedProps } from "./admin-layout";
 // Types
 // ============================================================================
 
-interface AdminLayoutProviderProps
-	extends AdminLayoutSharedProps {
+interface AdminLayoutProviderProps extends AdminLayoutSharedProps {
 	/**
 	 * Admin configuration - pass plain AdminState or Admin instance.
 	 *
@@ -138,7 +137,7 @@ interface AdminLayoutProviderProps
 	/**
 	 * Use server-side translations (fetched via getAdminTranslations RPC).
 	 * When true, translations are fetched from the server configured via
-	 * .adminLocale() and .messages() on QuestpieBuilder.
+	 * .adminLocale() and config translations.
 	 *
 	 * @default false (for backwards compatibility)
 	 *

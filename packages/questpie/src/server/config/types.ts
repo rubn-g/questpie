@@ -425,8 +425,10 @@ export interface QuestpieConfig {
 	 * ```ts
 	 * import { createPostgresSearchAdapter } from "questpie/server";
 	 *
-	 * questpie({
+	 * config({
 	 *   search: createPostgresSearchAdapter(),
+	 *   db: { url: process.env.DATABASE_URL! },
+	 *   app: { url: process.env.APP_URL! },
 	 * })
 	 * ```
 	 */

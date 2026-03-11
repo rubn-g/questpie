@@ -241,7 +241,7 @@ export interface AdminProviderProps {
 	/**
 	 * Use server-side translations (fetched via getAdminTranslations RPC).
 	 * When true, translations are fetched from the server configured via
-	 * .adminLocale() and .messages() on QuestpieBuilder.
+	 * .adminLocale() and config translations.
 	 *
 	 * @default false (for backwards compatibility)
 	 *

@@ -5,8 +5,8 @@
  * These are compile-time only tests - run with: tsc --noEmit
  */
 
-import { QuestpieBuilder } from "#questpie/server/config/builder.js";
-import { builtinFields } from "#questpie/server/fields/builtin/defaults.js";
+import { collection } from "#questpie/server/collection/builder/collection-builder.js";
+import { global } from "#questpie/server/global/builder/global-builder.js";
 import type {
 	CollectionInsert,
 	CollectionRelations,
@@ -36,26 +36,26 @@ import type {
 // Test fixtures
 // ============================================================================
 
-const q = QuestpieBuilder.empty("test").fields(builtinFields);
-
-const usersCollection = q.collection("users").fields(({ f }) => ({
+const usersCollection = collection("users").fields(({ f }) => ({
 	name: f.textarea().required(),
 	email: f.email(255).required(),
 }));
 
-const postsCollection = q.collection("posts").fields(({ f }) => ({
+const postsCollection = collection("posts").fields(({ f }) => ({
 	title: f.text(255).required(),
 	content: f.textarea(),
 	author: f.relation("users").required().relationName("author"),
-	comments: f.relation("comments").hasMany({ foreignKey: "postId", relationName: "post" }),
+	comments: f
+		.relation("comments")
+		.hasMany({ foreignKey: "postId", relationName: "post" }),
 }));
 
-const commentsCollection = q.collection("comments").fields(({ f }) => ({
+const commentsCollection = collection("comments").fields(({ f }) => ({
 	text: f.textarea().required(),
 	post: f.relation("posts").required().relationName("post"),
 }));
 
-const settingsGlobal = q.global("settings").fields(({ f }) => ({
+const settingsGlobal = global("settings").fields(({ f }) => ({
 	siteName: f.text(255).required(),
 	maintenanceMode: f.textarea(),
 }));

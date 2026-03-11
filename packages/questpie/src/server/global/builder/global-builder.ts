@@ -32,8 +32,7 @@ type ExtractColumnsFromFieldDefinitions<TFields extends Record<string, any>> = {
  * Extract field types from GlobalBuilderState.
  * Falls back to BuiltinFields if not available.
  *
- * Uses ~fieldTypes phantom property which is set by EmptyGlobalState
- * based on the QuestpieBuilder's state.fields.
+ * Uses ~fieldTypes phantom property which is set by EmptyGlobalState.
  */
 type ExtractFieldTypes<TState extends GlobalBuilderState> =
 	TState["~fieldTypes"] extends infer TFields
@@ -41,16 +40,6 @@ type ExtractFieldTypes<TState extends GlobalBuilderState> =
 			? TFields
 			: {} // No fields registered — f will be empty
 		: {};
-
-type InferAppFromBuilder<TBuilder> = TBuilder extends {
-	build: (...args: any[]) => infer TApp;
-}
-	? TApp
-	: any;
-
-type GlobalAppOf<TState extends GlobalBuilderState> = InferAppFromBuilder<
-	TState["~questpieApp"]
->;
 
 /**
  * Main global builder class
@@ -122,10 +111,9 @@ export class GlobalBuilder<TState extends GlobalBuilderState> {
 		const localizedFields: string[] = [];
 
 		if (typeof fieldsOrFactory === "function") {
-			// Field Builder pattern - use field defs from ~questpieApp, or fall back to builtinFields
-			const questpieFields =
-				(this.state as any)["~questpieApp"]?.state?.fields ?? builtinFields;
-			const contextProxy = createFieldsCallbackContext(questpieFields);
+			const contextProxy = createFieldsCallbackContext(
+				builtinFields,
+			) as unknown as FieldsCallbackContext<ExtractFieldTypes<TState>>;
 
 			const fieldDefs = fieldsOrFactory(contextProxy);
 			fieldDefinitions = fieldDefs;
@@ -431,6 +419,5 @@ export function global<TName extends string>(
 		hooks: {},
 		access: {},
 		fieldDefinitions: {},
-		"~questpieApp": undefined,
 	}) as any;
 }

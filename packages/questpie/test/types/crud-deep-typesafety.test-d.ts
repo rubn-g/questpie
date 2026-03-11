@@ -19,6 +19,7 @@
  * Run with: bunx tsc --noEmit
  */
 
+import { collection } from "#questpie/server/collection/builder/collection-builder.js";
 import type {
 	ApplyQuery,
 	CollectionRelationsFromApp,
@@ -29,8 +30,8 @@ import type {
 	UpdateInput,
 	Where as WhereType,
 } from "#questpie/server/collection/crud/types.js";
-import { QuestpieBuilder } from "#questpie/server/config/builder.js";
-import { builtinFields } from "#questpie/server/fields/builtin/defaults.js";
+import type { Questpie } from "#questpie/server/config/questpie.js";
+import type { QuestpieConfig } from "#questpie/server/config/types.js";
 import type {
 	ExtractRelationRelations,
 	ExtractRelationSelect,
@@ -50,10 +51,7 @@ import type {
 // Test Fixtures — rich collection graph with diverse field types
 // ============================================================================
 
-const q = QuestpieBuilder.empty("deep-test").fields(builtinFields);
-
-const authors = q
-	.collection("authors")
+const authors = collection("authors")
 	.fields(({ f }) => ({
 		name: f.text(100).required(),
 		email: f.text().required(),
@@ -62,14 +60,13 @@ const authors = q
 	}))
 	.options({ timestamps: true });
 
-const categories = q.collection("categories").fields(({ f }) => ({
+const categories = collection("categories").fields(({ f }) => ({
 	name: f.text(100).required(),
 	slug: f.text().required(),
 	description: f.textarea(),
 }));
 
-const articles = q
-	.collection("articles")
+const articles = collection("articles")
 	.fields(({ f }) => ({
 		title: f.text(255).required(),
 		content: f.textarea().localized(),
@@ -101,45 +98,42 @@ const articles = q
 	}))
 	.options({ softDelete: true, versioning: true });
 
-const articleComments = q.collection("article_comments").fields(({ f }) => ({
+const articleComments = collection("article_comments").fields(({ f }) => ({
 	content: f.textarea().required(),
 	article: f.relation("articles").required().relationName("article"),
 	author: f.relation("authors").required().relationName("commentAuthor"),
 }));
 
-const articleCategories = q
-	.collection("article_categories")
-	.fields(({ f }) => ({
-		article: f.relation("articles").required().onDelete("cascade"),
-		category: f.relation("categories").required().onDelete("cascade"),
-	}));
+const articleCategories = collection("article_categories").fields(({ f }) => ({
+	article: f.relation("articles").required().onDelete("cascade"),
+	category: f.relation("categories").required().onDelete("cascade"),
+}));
 
-const media = q
-	.collection("media")
+const media = collection("media")
 	.fields(({ f }) => ({
 		alt: f.text(255),
 		caption: f.textarea().localized(),
 	}))
 	.upload({ visibility: "public" });
 
-const testModule = q.collections({
-	authors,
-	categories,
-	articles,
-	article_comments: articleComments,
-	article_categories: articleCategories,
-	media,
-});
-
 // ============================================================================
-// TApp: test BOTH approaches to surface real bugs
+// TApp: Manually construct app type (matches codegen pattern)
 // ============================================================================
 
-// Approach A: $inferApp — the real public API type users get
-type TAppFromInfer = typeof testModule.$inferApp;
+// Collections map — same as what codegen generates
+type TCollections = {
+	authors: typeof authors;
+	categories: typeof categories;
+	articles: typeof articles;
+	article_comments: typeof articleComments;
+	article_categories: typeof articleCategories;
+	media: typeof media;
+};
+
+// Approach A: Questpie<QuestpieConfig & { collections }> — the real public API type users get
+type TAppFromInfer = Questpie<QuestpieConfig & { collections: TCollections }>;
 
 // Approach B: { collections: TCollections } — the manual workaround
-type TCollections = typeof testModule.state.collections;
 type TAppManual = { collections: TCollections };
 
 // ============================================================================
@@ -758,7 +752,7 @@ const _inferFullQuery: ArticleFindOpts_Infer = {
 // BUG TEST: CRUD via $inferApp — the real API surface
 // ============================================================================
 
-type CmsApp = typeof testModule.$inferApp;
+type CmsApp = Questpie<QuestpieConfig & { collections: TCollections }>;
 type ArticleCRUD = CmsApp["api"]["collections"]["articles"];
 
 // --- find() returns PaginatedResult ---

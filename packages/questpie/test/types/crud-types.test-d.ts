@@ -7,6 +7,7 @@
  * Run with: tsc --noEmit
  */
 
+import { collection } from "#questpie/server/collection/builder/collection-builder.js";
 import type {
 	Columns,
 	FindManyOptions,
@@ -16,24 +17,22 @@ import type {
 	Where,
 	WhereOperators,
 } from "#questpie/server/collection/crud/types.js";
-import { QuestpieBuilder } from "#questpie/server/config/builder.js";
-import { builtinFields } from "#questpie/server/fields/builtin/defaults.js";
 import type { Equal, Expect, Extends, HasKey } from "./type-test-utils.js";
 
 // ============================================================================
 // Test fixtures
 // ============================================================================
 
-const q = QuestpieBuilder.empty("test").fields(builtinFields);
-
 // Simple collection for basic tests
-const postsCollection = q.collection("posts").fields(({ f }) => ({
+const postsCollection = collection("posts").fields(({ f }) => ({
 	title: f.text(255).required(),
 	content: f.textarea(),
 	views: f.number().default(0),
 	author: f.relation("users").required().relationName("author"),
 	publishedAt: f.datetime(),
-	comments: f.relation("comments").hasMany({ foreignKey: "postId", relationName: "post" }),
+	comments: f
+		.relation("comments")
+		.hasMany({ foreignKey: "postId", relationName: "post" }),
 }));
 
 type PostSelect = typeof postsCollection.$infer.select;

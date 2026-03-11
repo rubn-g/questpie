@@ -7,8 +7,10 @@
  * Run with: bunx tsc --noEmit
  */
 
-import { QuestpieBuilder } from "#questpie/server/config/builder.js";
-import { builtinFields } from "#questpie/server/fields/builtin/defaults.js";
+import { collection } from "#questpie/server/collection/builder/collection-builder.js";
+import type { Questpie } from "#questpie/server/config/questpie.js";
+import type { QuestpieConfig } from "#questpie/server/config/types.js";
+import { global as globalBuilder } from "#questpie/server/global/builder/global-builder.js";
 import type {
 	Equal,
 	Expect,
@@ -25,18 +27,15 @@ import type {
 // Test Setup - Define test module with unified API
 // ============================================================================
 
-const q = QuestpieBuilder.empty("type-test").fields(builtinFields);
-
 // Users collection
-const users = q.collection("users").fields(({ f }) => ({
+const users = collection("users").fields(({ f }) => ({
 	name: f.text(100).required(),
 	email: f.text().required(),
 	bio: f.textarea().localized(),
 }));
 
 // Posts collection with relations
-const posts = q
-	.collection("posts")
+const posts = collection("posts")
 	.fields(({ f }) => ({
 		title: f.text(255).required(),
 		content: f.textarea().localized(),
@@ -51,21 +50,20 @@ const posts = q
 	.options({ softDelete: true, versioning: true });
 
 // Comments collection
-const comments = q.collection("comments").fields(({ f }) => ({
+const comments = collection("comments").fields(({ f }) => ({
 	content: f.textarea().required(),
 	post: f.relation("posts").required().relationName("post"),
 	author: f.relation("users").required().relationName("commentAuthor"),
 }));
 
 // Tags collection for many-to-many
-const tags = q.collection("tags").fields(({ f }) => ({
+const tags = collection("tags").fields(({ f }) => ({
 	name: f.text(50).required(),
 	slug: f.text().required(),
 }));
 
 // Media collection with upload
-const media = q
-	.collection("media")
+const media = collection("media")
 	.fields(({ f }) => ({
 		alt: f.text(255),
 		caption: f.textarea().localized(),
@@ -73,8 +71,7 @@ const media = q
 	.upload({ visibility: "public" });
 
 // Site settings global
-const siteSettings = q
-	.global("site_settings")
+const siteSettings = globalBuilder("site_settings")
 	.fields(({ f }) => ({
 		siteName: f.text(100).required(),
 		tagline: f.textarea().localized(),
@@ -82,12 +79,24 @@ const siteSettings = q
 	}))
 	.options({ versioning: { enabled: true } });
 
-// Build the module
-const testModule = q
-	.collections({ users, posts, comments, tags, media })
-	.globals({ site_settings: siteSettings });
+// Manually construct the app type (matches codegen _AppInternal pattern)
+type TCollectionsMap = {
+	users: typeof users;
+	posts: typeof posts;
+	comments: typeof comments;
+	tags: typeof tags;
+	media: typeof media;
+};
+type TGlobalsMap = {
+	site_settings: typeof siteSettings;
+};
 
-type CmsFromBuilder = typeof testModule.$inferApp;
+type CmsFromBuilder = Questpie<
+	QuestpieConfig & {
+		collections: TCollectionsMap;
+		globals: TGlobalsMap;
+	}
+>;
 
 // ============================================================================
 // Table Shape Inference Tests
@@ -285,8 +294,8 @@ type _postsOptionsVersioning = Expect<Equal<PostsOptions["versioning"], true>>;
 // Module Type Tests - Collections and Globals
 // ============================================================================
 
-type ModuleCollections = typeof testModule.state.collections;
-type ModuleGlobals = typeof testModule.state.globals;
+type ModuleCollections = TCollectionsMap;
+type ModuleGlobals = TGlobalsMap;
 
 // Collections should be present
 type _moduleHasUsers = Expect<Equal<HasKey<ModuleCollections, "users">, true>>;
@@ -482,7 +491,7 @@ import type {
 	ExtractRelationSelect,
 } from "#questpie/shared/type-utils.js";
 
-type TCollections = typeof testModule.state.collections;
+type TCollections = TCollectionsMap;
 type TApp = { collections: TCollections };
 
 // ============================================================================

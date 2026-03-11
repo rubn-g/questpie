@@ -153,7 +153,10 @@ export type RelationType = "one" | "many" | "manyToMany";
 export interface RelationConfig {
 	type: RelationType;
 	collection: string;
+	/** Array of PgColumn references (new pattern) */
 	fields?: PgColumn[];
+	/** Singular string field name for FK lookup (legacy / f.relation pattern) */
+	field?: string;
 	references: string[];
 	relationName?: string; // For linking corresponding relations
 	onDelete?: "cascade" | "set null" | "restrict" | "no action";
@@ -1008,14 +1011,8 @@ export interface CollectionBuilderState {
 		>
 	>;
 	/**
-	 * Phantom type for QuestpieBuilder reference.
-	 * Used to access field types registered via the fields config.
-	 */
-	"~questpieApp"?: any;
-	/**
 	 * Phantom type for field types available in .fields(({ f }) => ...).
-	 * Extracted from ~questpieApp at compile time for type inference.
-	 * This is set directly rather than computed to avoid complex type inference.
+	 * Set directly via EmptyCollectionState generic parameter.
 	 */
 	"~fieldTypes"?: Record<string, any>;
 }
@@ -1047,12 +1044,11 @@ export type ExtractAccess<TState extends CollectionBuilderState> =
  * Default empty state for a new collection
  *
  * @param TName - Collection name
- * @param TQuestpieApp - Reference to QuestpieBuilder instance (for accessing app config)
- * @param TFieldTypes - Field types available in .fields(({ f }) => ...), passed directly to avoid type extraction issues
+ * @param TFieldTypes - Field types available in .fields(({ f }) => ...)
  */
 export type EmptyCollectionState<
 	TName extends string,
-	TQuestpieApp = undefined,
+	_TDeprecated = undefined,
 	TFieldTypes extends Record<string, any> = Record<string, any>,
 > = CollectionBuilderState & {
 	name: TName;
@@ -1070,7 +1066,6 @@ export type EmptyCollectionState<
 	output: undefined;
 	upload: undefined;
 	fieldDefinitions: {};
-	"~questpieApp": TQuestpieApp;
 	"~fieldTypes": TFieldTypes;
 };
 
