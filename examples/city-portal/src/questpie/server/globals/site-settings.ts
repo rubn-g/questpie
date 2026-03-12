@@ -45,10 +45,7 @@ export default global("site_settings")
 			.label("Primary Colour")
 			.default("#1e40af")
 			.description("Hex colour code for primary brand colour"),
-		secondaryColour: f
-			.text()
-			.label("Secondary Colour")
-			.default("#64748b"),
+		secondaryColour: f.text().label("Secondary Colour").default("#64748b"),
 
 		// Navigation
 		navigation: f
@@ -113,10 +110,7 @@ export default global("site_settings")
 			.email()
 			.label("Contact Email")
 			.default("enquiries@council.gov.uk"),
-		contactPhone: f
-			.text()
-			.label("Contact Phone")
-			.default("+44 20 7123 4567"),
+		contactPhone: f.text().label("Contact Phone").default("+44 20 7123 4567"),
 		address: f
 			.textarea()
 			.label("Address")
@@ -248,5 +242,5 @@ export default global("site_settings")
 	.options({
 		timestamps: true,
 		versioning: true,
-		scoped: (ctx) => ctx.cityId,
+		scoped: (ctx) => (ctx as typeof ctx & { cityId: string | null }).cityId,
 	});

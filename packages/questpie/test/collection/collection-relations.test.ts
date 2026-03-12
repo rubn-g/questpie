@@ -43,7 +43,7 @@ const services = collection("services").fields(({ f }) => ({
 
 // Profiles collection (one-to-one with users via belongsTo)
 const profiles = collection("profiles").fields(({ f }) => ({
-	user: f.relation("users").required().unique().onDelete("cascade"),
+	user: f.relation("users").required().onDelete("cascade"),
 	bio: f.text().required(),
 	avatar: f.text(),
 }));
@@ -52,8 +52,20 @@ const profiles = collection("profiles").fields(({ f }) => ({
 const authors = collection("authors").fields(({ f }) => ({
 	name: f.text().required(),
 	// HasMany relations - using string literals for circular refs
-	posts: f.relation("posts").hasMany({ foreignKey: "author", onDelete: "cascade", relationName: "author" }),
-	editedPosts: f.relation("posts").hasMany({ foreignKey: "editor", onDelete: "set null", relationName: "editor" }),
+	posts: f
+		.relation("posts")
+		.hasMany({
+			foreignKey: "author",
+			onDelete: "cascade",
+			relationName: "author",
+		}),
+	editedPosts: f
+		.relation("posts")
+		.hasMany({
+			foreignKey: "editor",
+			onDelete: "set null",
+			relationName: "editor",
+		}),
 }));
 
 // Posts with cascade/set null scenarios
@@ -61,10 +73,16 @@ const posts = collection("posts").fields(({ f }) => ({
 	title: f.text().required(),
 	views: f.number().default(0),
 	// BelongsTo relations
-	author: f.relation("authors").required().onDelete("cascade").relationName("author"),
+	author: f
+		.relation("authors")
+		.required()
+		.onDelete("cascade")
+		.relationName("author"),
 	editor: f.relation("authors").onDelete("set null").relationName("editor"),
 	// HasMany
-	comments: f.relation("comments").hasMany({ foreignKey: "post", onDelete: "cascade", relationName: "post" }),
+	comments: f
+		.relation("comments")
+		.hasMany({ foreignKey: "post", onDelete: "cascade", relationName: "post" }),
 }));
 
 // Comments for deep nesting tests (posts -> comments -> replies)
@@ -75,7 +93,9 @@ const comments = collection("comments").fields(({ f }) => ({
 	// Self-referential BelongsTo (parent comment)
 	parent: f.relation("comments").onDelete("cascade").relationName("parent"),
 	// HasMany (replies)
-	replies: f.relation("comments").hasMany({ foreignKey: "parent", relationName: "parent" }),
+	replies: f
+		.relation("comments")
+		.hasMany({ foreignKey: "parent", relationName: "parent" }),
 }));
 
 // Products with restricted delete
@@ -84,27 +104,49 @@ const restrictedCategories = collection("restrictedCategories").fields(
 	({ f }) => ({
 		name: f.text().required(),
 		// HasMany - RESTRICT delete when products exist
-		products: f.relation("restrictedProducts").hasMany({ foreignKey: "category", onDelete: "restrict", relationName: "category" }),
+		products: f
+			.relation("restrictedProducts")
+			.hasMany({
+				foreignKey: "category",
+				onDelete: "restrict",
+				relationName: "category",
+			}),
 	}),
 );
 
 const restrictedProducts = collection("restrictedProducts").fields(({ f }) => ({
 	name: f.text().required(),
 	// BelongsTo with restrict
-	category: f.relation("restrictedCategories").required().onDelete("restrict").relationName("category"),
+	category: f
+		.relation("restrictedCategories")
+		.required()
+		.onDelete("restrict")
+		.relationName("category"),
 }));
 
 // Many-to-many with extra fields in junction table
 const articles = collection("articles").fields(({ f }) => ({
 	title: f.text().required(),
 	// ManyToMany
-	tags: f.relation("articleTags").manyToMany({ through: "articleTagJunction", sourceField: "article", targetField: "tag" }),
+	tags: f
+		.relation("articleTags")
+		.manyToMany({
+			through: "articleTagJunction",
+			sourceField: "article",
+			targetField: "tag",
+		}),
 }));
 
 const articleTags = collection("articleTags").fields(({ f }) => ({
 	name: f.text().required(),
 	// ManyToMany reverse
-	articles: f.relation("articles").manyToMany({ through: "articleTagJunction", sourceField: "tag", targetField: "article" }),
+	articles: f
+		.relation("articles")
+		.manyToMany({
+			through: "articleTagJunction",
+			sourceField: "tag",
+			targetField: "article",
+		}),
 }));
 
 // Junction table - still uses belongsTo for FK columns
@@ -119,9 +161,17 @@ const articleTagJunction = collection("articleTagJunction").fields(({ f }) => ({
 const categories = collection("categories").fields(({ f }) => ({
 	name: f.text().required(),
 	// HasMany
-	products: f.relation("products").hasMany({ foreignKey: "category", relationName: "category" }),
+	products: f
+		.relation("products")
+		.hasMany({ foreignKey: "category", relationName: "category" }),
 	// ManyToMany
-	tags: f.relation("tags").manyToMany({ through: "categoryTags", sourceField: "category", targetField: "tag" }),
+	tags: f
+		.relation("tags")
+		.manyToMany({
+			through: "categoryTags",
+			sourceField: "category",
+			targetField: "tag",
+		}),
 }));
 
 const products = collection("products").fields(({ f }) => ({
@@ -129,14 +179,32 @@ const products = collection("products").fields(({ f }) => ({
 	// BelongsTo
 	category: f.relation("categories").required().relationName("category"),
 	// ManyToMany
-	tags: f.relation("tags").manyToMany({ through: "productTags", sourceField: "product", targetField: "tag" }),
+	tags: f
+		.relation("tags")
+		.manyToMany({
+			through: "productTags",
+			sourceField: "product",
+			targetField: "tag",
+		}),
 }));
 
 const tags = collection("tags").fields(({ f }) => ({
 	name: f.text().required(),
 	// ManyToMany relations
-	products: f.relation("products").manyToMany({ through: "productTags", sourceField: "tag", targetField: "product" }),
-	categories: f.relation("categories").manyToMany({ through: "categoryTags", sourceField: "tag", targetField: "category" }),
+	products: f
+		.relation("products")
+		.manyToMany({
+			through: "productTags",
+			sourceField: "tag",
+			targetField: "product",
+		}),
+	categories: f
+		.relation("categories")
+		.manyToMany({
+			through: "categoryTags",
+			sourceField: "tag",
+			targetField: "category",
+		}),
 }));
 
 // Junction tables

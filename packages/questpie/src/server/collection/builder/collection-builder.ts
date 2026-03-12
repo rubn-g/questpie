@@ -53,6 +53,22 @@ type ExtractColumnsFromFieldDefinitions<TFields extends Record<string, any>> = {
  *
  * Uses ~fieldTypes phantom property which is set by EmptyCollectionState.
  */
+
+/**
+ * Merge field definitions from two collection states without introducing
+ * a string index signature. When one side has no fields (keyof resolves to
+ * string from the CollectionBuilderState base), use the other side only.
+ */
+type MergeFieldDefinitions<A, B> = keyof A extends never
+	? B
+	: keyof B extends never
+		? A
+		: string extends keyof A
+			? B
+			: string extends keyof B
+				? A
+				: A & B;
+
 type ExtractFieldTypes<TState extends CollectionBuilderState> =
 	TState["~fieldTypes"] extends infer TFields
 		? TFields extends Record<string, any>
@@ -859,8 +875,10 @@ export class CollectionBuilder<TState extends CollectionBuilderState> {
 				hooks: CollectionHooks;
 				access: CollectionAccess;
 				searchable: TState["searchable"] | TOtherState["searchable"];
-				fieldDefinitions: TState["fieldDefinitions"] &
-					TOtherState["fieldDefinitions"];
+				fieldDefinitions: MergeFieldDefinitions<
+					TState["fieldDefinitions"],
+					TOtherState["fieldDefinitions"]
+				>;
 				upload: TOtherState["upload"] extends UploadOptions
 					? TOtherState["upload"]
 					: TState["upload"];

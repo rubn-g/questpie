@@ -33,6 +33,8 @@ declare global {
 		interface AppContext {}
 		// biome-ignore lint/suspicious/noEmptyInterface: Designed to be augmented
 		interface Registry {}
+		// biome-ignore lint/suspicious/noEmptyInterface: Designed to be augmented
+		interface QuestpieContextExtension {}
 	}
 }
 
@@ -50,18 +52,15 @@ export interface AppContext extends Questpie.AppContext {}
 // biome-ignore lint/suspicious/noEmptyInterface: Extends global augmentable interface
 export interface Registry extends Questpie.Registry {}
 
-
 /**
  * Extract known names from a Registry key.
  * When the key exists → union of its keys + (string & {}) for autocomplete.
  * When it doesn't (no codegen) → plain string.
  */
-export type RegistryNames<K extends string> = Registry extends Record<
-	K,
-	infer R
->
-	? (keyof R & string) | (string & {})
-	: string;
+export type RegistryNames<K extends string> =
+	Registry extends Record<K, infer R>
+		? (keyof R & string) | (string & {})
+		: string;
 
 /** Known collection names (includes module collections). @see Registry['collections'] */
 export type KnownCollectionNames = RegistryNames<"collections">;
@@ -110,6 +109,7 @@ export function extractAppServices(
 ): Record<string, unknown> {
 	if (!app) return { db: overrides?.db };
 	const result: Record<string, unknown> = {
+		app,
 		db: overrides?.db ?? app.db,
 		session: overrides?.session ?? null,
 		queue: app.queue,

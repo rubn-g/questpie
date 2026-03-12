@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as ApiPreviewRouteImport } from './routes/api/preview'
@@ -23,15 +24,20 @@ import { Route as AppCitySlugNewsIndexRouteImport } from './routes/_app/$citySlu
 import { Route as AppCitySlugPagesSlugRouteImport } from './routes/_app/$citySlug.pages.$slug'
 import { Route as AppCitySlugNewsSlugRouteImport } from './routes/_app/$citySlug.news.$slug'
 
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
-  id: '/admin/',
-  path: '/admin/',
-  getParentRoute: () => rootRouteImport,
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminRoute,
 } as any)
 const ApiPreviewRoute = ApiPreviewRouteImport.update({
   id: '/api/preview',
@@ -44,9 +50,9 @@ const ApiSplatRoute = ApiSplatRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminSplatRoute = AdminSplatRouteImport.update({
-  id: '/admin/$',
-  path: '/admin/$',
-  getParentRoute: () => rootRouteImport,
+  id: '/$',
+  path: '/$',
+  getParentRoute: () => AdminRoute,
 } as any)
 const AppCitySlugRoute = AppCitySlugRouteImport.update({
   id: '/_app/$citySlug',
@@ -92,11 +98,12 @@ const AppCitySlugNewsSlugRoute = AppCitySlugNewsSlugRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteWithChildren
   '/$citySlug': typeof AppCitySlugRouteWithChildren
   '/admin/$': typeof AdminSplatRoute
   '/api/$': typeof ApiSplatRoute
   '/api/preview': typeof ApiPreviewRoute
-  '/admin': typeof AdminIndexRoute
+  '/admin/': typeof AdminIndexRoute
   '/$citySlug/announcements': typeof AppCitySlugAnnouncementsRoute
   '/$citySlug/contact': typeof AppCitySlugContactRoute
   '/$citySlug/documents': typeof AppCitySlugDocumentsRoute
@@ -122,6 +129,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteWithChildren
   '/_app/$citySlug': typeof AppCitySlugRouteWithChildren
   '/admin/$': typeof AdminSplatRoute
   '/api/$': typeof ApiSplatRoute
@@ -139,11 +147,12 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/admin'
     | '/$citySlug'
     | '/admin/$'
     | '/api/$'
     | '/api/preview'
-    | '/admin'
+    | '/admin/'
     | '/$citySlug/announcements'
     | '/$citySlug/contact'
     | '/$citySlug/documents'
@@ -168,6 +177,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/admin'
     | '/_app/$citySlug'
     | '/admin/$'
     | '/api/$'
@@ -184,15 +194,21 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRoute: typeof AdminRouteWithChildren
   AppCitySlugRoute: typeof AppCitySlugRouteWithChildren
-  AdminSplatRoute: typeof AdminSplatRoute
   ApiSplatRoute: typeof ApiSplatRoute
   ApiPreviewRoute: typeof ApiPreviewRoute
-  AdminIndexRoute: typeof AdminIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -202,10 +218,10 @@ declare module '@tanstack/react-router' {
     }
     '/admin/': {
       id: '/admin/'
-      path: '/admin'
-      fullPath: '/admin'
+      path: '/'
+      fullPath: '/admin/'
       preLoaderRoute: typeof AdminIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AdminRoute
     }
     '/api/preview': {
       id: '/api/preview'
@@ -223,10 +239,10 @@ declare module '@tanstack/react-router' {
     }
     '/admin/$': {
       id: '/admin/$'
-      path: '/admin/$'
+      path: '/$'
       fullPath: '/admin/$'
       preLoaderRoute: typeof AdminSplatRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AdminRoute
     }
     '/_app/$citySlug': {
       id: '/_app/$citySlug'
@@ -287,6 +303,18 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AdminRouteChildren {
+  AdminSplatRoute: typeof AdminSplatRoute
+  AdminIndexRoute: typeof AdminIndexRoute
+}
+
+const AdminRouteChildren: AdminRouteChildren = {
+  AdminSplatRoute: AdminSplatRoute,
+  AdminIndexRoute: AdminIndexRoute,
+}
+
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
+
 interface AppCitySlugRouteChildren {
   AppCitySlugAnnouncementsRoute: typeof AppCitySlugAnnouncementsRoute
   AppCitySlugContactRoute: typeof AppCitySlugContactRoute
@@ -313,11 +341,10 @@ const AppCitySlugRouteWithChildren = AppCitySlugRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRoute: AdminRouteWithChildren,
   AppCitySlugRoute: AppCitySlugRouteWithChildren,
-  AdminSplatRoute: AdminSplatRoute,
   ApiSplatRoute: ApiSplatRoute,
   ApiPreviewRoute: ApiPreviewRoute,
-  AdminIndexRoute: AdminIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -69,6 +69,14 @@ type AdminBlockFields = BuiltinFields & typeof adminFields;
  * ```
  */
 export interface BlockPrefetchContext extends AppContext {
+	/** App instance — populated at runtime by extractAppServices */
+	app: unknown;
+	/** Database handle — populated at runtime by extractAppServices */
+	db: unknown;
+	/** Collection APIs — populated at runtime by extractAppServices */
+	collections: Record<string, any>;
+	/** Global APIs — populated at runtime by extractAppServices */
+	globals: Record<string, any>;
 	/** Block instance ID */
 	blockId: string;
 	/** Block type name */

@@ -592,16 +592,19 @@ export interface ContextExtensions {
  *
  * @example
  * ```ts
- * // In your app's types file
- * declare module 'questpie' {
- *   interface QuestpieContextExtension {
- *     tenantId: string | null
- *     propertyId: string | null
+ * declare global {
+ *   namespace Questpie {
+ *     interface QuestpieContextExtension {
+ *       tenantId: string | null
+ *       propertyId: string | null
+ *     }
  *   }
  * }
  * ```
  */
-export type QuestpieContextExtension = {};
+// biome-ignore lint/suspicious/noEmptyInterface: Designed to be augmented
+export interface QuestpieContextExtension
+	extends Questpie.QuestpieContextExtension {}
 
 /**
  * Parameters passed to the context resolver function.

@@ -73,7 +73,7 @@ export default collection("news")
 							handler: ({ data, prev }) => {
 								const title = data.title;
 								const currentSlug = data.slug;
-								const prevTitle = prev.data.title;
+								const prevTitle = prev?.data?.title;
 
 								if (currentSlug && prevTitle === title) {
 									return undefined;

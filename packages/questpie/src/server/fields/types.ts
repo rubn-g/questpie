@@ -532,14 +532,18 @@ export type ExtractFieldsByLocation<
 	TFields extends Record<string, any>,
 	TLocation extends FieldLocation,
 > = {
-	[K in keyof TFields as TFields[K] extends {
-		readonly _: infer TState extends
-			import("./field-class-types.js").FieldState;
-	}
-		? InferLocationFromFieldState<TState> extends TLocation
-			? K
-			: never
-		: never]: TFields[K];
+	[K in keyof TFields as string extends K
+		? never
+		: number extends K
+			? never
+			: TFields[K] extends {
+						readonly _: infer TState extends
+							import("./field-class-types.js").FieldState;
+					}
+				? InferLocationFromFieldState<TState> extends TLocation
+					? K
+					: never
+				: never]: TFields[K];
 };
 
 /**

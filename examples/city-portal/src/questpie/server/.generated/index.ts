@@ -23,6 +23,24 @@ import _coll_submissions from "../collections/submissions";
 // ── Globals ────────────────────────────────────────────────
 import _glob_siteSettings from "../globals/site-settings";
 
+// ── Blocks ─────────────────────────────────────────────────
+import { accordionBlock as _bloc_accordion } from "../blocks/accordion";
+import { announcementBannerBlock as _bloc_announcementBanner } from "../blocks/announcement-banner";
+import { columnsBlock as _bloc_columns } from "../blocks/columns";
+import { contactsListBlock as _bloc_contactsList } from "../blocks/contacts-list";
+import { ctaBlock as _bloc_cta } from "../blocks/cta";
+import { dividerBlock as _bloc_divider } from "../blocks/divider";
+import { documentsListBlock as _bloc_documentsList } from "../blocks/documents-list";
+import { galleryBlock as _bloc_gallery } from "../blocks/gallery";
+import { headingBlock as _bloc_heading } from "../blocks/heading";
+import { heroBlock as _bloc_hero } from "../blocks/hero";
+import { imageBlock as _bloc_image } from "../blocks/image";
+import { imageTextBlock as _bloc_imageText } from "../blocks/image-text";
+import { latestNewsBlock as _bloc_latestNews } from "../blocks/latest-news";
+import { spacerBlock as _bloc_spacer } from "../blocks/spacer";
+import { textBlock as _bloc_text } from "../blocks/text";
+import { videoBlock as _bloc_video } from "../blocks/video";
+
 // ── Core Singles ───────────────────────────────────────────
 import _auth from "../auth";
 import _contextResolver from "../context";
@@ -97,7 +115,24 @@ export type AppViews = _ModuleViews;
 export type AppComponents = _ModuleComponents;
 
 /** All blocks in the app (modules + user, user overrides) */
-export type AppBlocks = _ModuleBlocks;
+export type AppBlocks = _ModuleBlocks & {
+	accordion: typeof _bloc_accordion;
+	announcementBanner: typeof _bloc_announcementBanner;
+	columns: typeof _bloc_columns;
+	contactsList: typeof _bloc_contactsList;
+	cta: typeof _bloc_cta;
+	divider: typeof _bloc_divider;
+	documentsList: typeof _bloc_documentsList;
+	gallery: typeof _bloc_gallery;
+	heading: typeof _bloc_heading;
+	hero: typeof _bloc_hero;
+	image: typeof _bloc_image;
+	imageText: typeof _bloc_imageText;
+	latestNews: typeof _bloc_latestNews;
+	spacer: typeof _bloc_spacer;
+	text: typeof _bloc_text;
+	video: typeof _bloc_video;
+};
 
 /** @internal — used only for type derivation, not exported */
 type _AppInternal = Questpie<QuestpieConfig & {
@@ -113,29 +148,32 @@ type _AppInternal = Questpie<QuestpieConfig & {
 }>;
 
 // ── AppContext augmentation — auto-types ALL handlers ──────
-declare module "questpie" {
-	interface AppContext {
-		// Infrastructure
-		db: _AppInternal['db'];
-		email: _AppInternal['email'];
-		queue: QueueClient<AppJobs>;
-		storage: _AppInternal['storage'];
-		kv: _AppInternal['kv'];
-		logger: _AppInternal['logger'];
-		search: _AppInternal['search'];
-		realtime: _AppInternal['realtime'];
+declare global {
+	namespace Questpie {
+		interface AppContext {
+			// Infrastructure
+			db: _AppInternal['db'];
+			email: _AppInternal['email'];
+			queue: QueueClient<AppJobs>;
+			storage: _AppInternal['storage'];
+			kv: _AppInternal['kv'];
+			logger: _AppInternal['logger'];
+			search: _AppInternal['search'];
+			realtime: _AppInternal['realtime'];
 
-		// Entity APIs
-		collections: _AppInternal['api']['collections'];
-		globals: _AppInternal['api']['globals'];
+			// Entity APIs
+			collections: _AppInternal['api']['collections'];
+			globals: _AppInternal['api']['globals'];
+			tables: _AppInternal['tables'];
 
-		// Request-scoped
-		session: _AppInternal['auth'] extends { api: { getSession: (...args: any[]) => Promise<infer TSession> } } ? NonNullable<TSession> | null : null;
-		t: (key: string, params?: Record<string, unknown>, locale?: string) => string;
-	}
+			// Request-scoped
+			session: _AppInternal['auth'] extends { api: { getSession: (...args: any[]) => Promise<infer TSession> } } ? NonNullable<TSession> | null : null;
+			t: (key: string, params?: Record<string, unknown>, locale?: string) => string;
+		}
 
-	interface Registry {
-		"~fieldTypes": _AllModuleFields;
+		interface Registry {
+			"~fieldTypes": _AllModuleFields;
+		}
 	}
 }
 
@@ -171,6 +209,24 @@ export const app = createApp(
 		},
 		globals: {
 			siteSettings: _glob_siteSettings,
+		},
+		blocks: {
+			accordion: _bloc_accordion,
+			announcementBanner: _bloc_announcementBanner,
+			columns: _bloc_columns,
+			contactsList: _bloc_contactsList,
+			cta: _bloc_cta,
+			divider: _bloc_divider,
+			documentsList: _bloc_documentsList,
+			gallery: _bloc_gallery,
+			heading: _bloc_heading,
+			hero: _bloc_hero,
+			image: _bloc_image,
+			imageText: _bloc_imageText,
+			latestNews: _bloc_latestNews,
+			spacer: _bloc_spacer,
+			text: _bloc_text,
+			video: _bloc_video,
 		},
 		auth: _auth as any,
 		contextResolver: _contextResolver as any,
@@ -209,3 +265,4 @@ export async function createContext(options?: {
 	return { ...services, locale: reqCtx.locale } as unknown as AppContext;
 }
 
+// Factories: import { collection, global, ... } from '#questpie/factories';

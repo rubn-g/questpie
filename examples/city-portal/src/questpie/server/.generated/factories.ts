@@ -27,8 +27,10 @@ type _ComponentsNames = (keyof _RegistryProp<"components"> & string) | (string &
 type _ComponentsNames_Strict = keyof _RegistryProp<"components"> & string;
 type _ComponentsRecord = _RegistryProp<"components">;
 
-// Field types — extracted from Registry
-type _AllFieldTypes = Registry extends { "~fieldTypes": infer F } ? F : Record<string, never>;
+// Field types — extracted from modules
+type _ExtractProp<M, K extends string> = (M extends { modules: infer Sub extends readonly any[] } ? _ExtractPropArr<Sub, K> : {}) & (K extends keyof M ? M[K] extends Record<string, any> ? M[K] : {} : {});
+type _ExtractPropArr<A extends readonly any[], K extends string> = A extends readonly [infer H, ...infer T extends readonly any[]] ? _ExtractProp<H, K> & _ExtractPropArr<T, K> : {};
+type _AllFieldTypes = _ExtractProp<{ modules: typeof _modulesArr }, "fields">;
 
 // ── Runtime: extract fields from modules ────────────────────
 function _extractModuleFields(modules: readonly any[]): Record<string, any> {
@@ -57,7 +59,12 @@ declare module "questpie" {
 		admin(configFn: AdminGlobalConfig | ((ctx: AdminConfigContext<_ComponentsRecord>) => AdminGlobalConfig)): GlobalBuilder<TState>;
 		form(configFn: (ctx: FormViewConfigContext<TState extends { fieldDefinitions: infer F extends Record<string, any> } ? F : Record<string, any>, _FormViewsRecord>) => FormViewConfig): GlobalBuilder<TState>;
 	}
-	interface FieldTypeRegistry extends Record<keyof _AllFieldTypes, {}> {}
+}
+
+declare global {
+	namespace Questpie {
+		interface FieldTypeRegistry extends Record<keyof _AllFieldTypes, {}> {}
+	}
 }
 
 declare module "@questpie/admin/server" {
@@ -164,7 +171,7 @@ function _wrapGlob(builder: any): any {
  *
  * @example
  * ```ts
- * import { collection } from "#questpie";
+ * import { collection } from "#questpie/factories";
  *
  * export default collection("posts")
  *   .fields(({ f }) => ({ title: f.text({ required: true }) }))
