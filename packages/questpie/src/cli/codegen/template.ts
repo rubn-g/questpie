@@ -17,8 +17,8 @@
 
 import type {
 	CategoryDeclaration,
-	DiscoverPattern,
 	DiscoveredFile,
+	DiscoverPattern,
 	DiscoveryResult,
 	SingletonFactory,
 } from "./types.js";
@@ -203,7 +203,7 @@ export function generateTemplate(options: TemplateOptions): string {
 	lines.push("");
 
 	lines.push(
-		'import type { UnionToIntersection } from "questpie";',
+		'import type { ServiceCustomNamespaceInstances, ServiceInstanceOf, ServiceInstancesInNamespace, ServiceTopLevelInstances, UnionToIntersection } from "questpie";',
 	);
 	lines.push(`type _Module = (typeof ${modulesFile.varName})[number];`);
 	lines.push(
@@ -237,7 +237,8 @@ export function generateTemplate(options: TemplateOptions): string {
 		const registryCatNames: Array<{ catName: string; regKey: string }> = [];
 		for (const [catName, decl] of allDecls) {
 			if (!decl.registryKey) continue;
-			const regKey = typeof decl.registryKey === "string" ? decl.registryKey : catName;
+			const regKey =
+				typeof decl.registryKey === "string" ? decl.registryKey : catName;
 			registryCatNames.push({ catName, regKey });
 		}
 
@@ -256,14 +257,15 @@ export function generateTemplate(options: TemplateOptions): string {
 	// Unlike _MP<> (top-level only), this recurses into sub-modules because
 	// each module contributes its own field types (not merged into parent).
 	{
-		const tildeKeys = collectTildeRegistryKeys(discoverPatterns, discovered.singles);
+		const tildeKeys = collectTildeRegistryKeys(
+			discoverPatterns,
+			discovered.singles,
+		);
 		if (tildeKeys.length > 0) {
 			lines.push(
 				"// Recursive module property extraction (for fields contributed at each level)",
 			);
-			lines.push(
-				'import type { ExtractModuleProp } from "questpie";',
-			);
+			lines.push('import type { ExtractModuleProp } from "questpie";');
 			lines.push("");
 
 			for (const { singleName, registryKey } of tildeKeys) {
@@ -298,19 +300,35 @@ export function generateTemplate(options: TemplateOptions): string {
 				case "services": {
 				const hasUser = fileMap.size > 0;
 				lines.push(
-					"/** All services in the app (modules + user, user overrides). Values are service instances. */",
+					"/** All service definitions in the app (modules + user, user overrides). */",
 				);
 				if (hasUser) {
-					lines.push(`export type ${appTypeName} = ${moduleTypeName} & {`);
+					lines.push(`type _AppServiceDefinitions = ${moduleTypeName} & {`);
 					for (const file of sortedValues(fileMap)) {
-						lines.push(
-							`\t${safeKey(file.key)}: ServiceInstanceOf<typeof ${file.varName}>;`,
-						);
+						lines.push(`\t${safeKey(file.key)}: typeof ${file.varName};`);
 					}
 					lines.push("};");
 				} else {
-					lines.push(`export type ${appTypeName} = ${moduleTypeName};`);
+					lines.push(`type _AppServiceDefinitions = ${moduleTypeName};`);
 				}
+				lines.push("");
+				lines.push(
+					"/** All services in the app as resolved service instances. */",
+				);
+				lines.push(`export type ${appTypeName} = {`);
+				lines.push(
+					"\t[K in keyof _AppServiceDefinitions]: ServiceInstanceOf<_AppServiceDefinitions[K]>;",
+				);
+				lines.push("};");
+				lines.push(
+					'type _AppDefaultServices = ServiceInstancesInNamespace<_AppServiceDefinitions, "services">;',
+				);
+				lines.push(
+					"type _AppTopLevelServices = ServiceTopLevelInstances<_AppServiceDefinitions>;",
+				);
+				lines.push(
+					"type _AppCustomServiceNamespaces = ServiceCustomNamespaceInstances<_AppServiceDefinitions>;",
+				);
 				lines.push("");
 				break;
 			}
@@ -398,14 +416,20 @@ export function generateTemplate(options: TemplateOptions): string {
 		const hasMessages = messagesCat && messagesCat.size > 0;
 
 		const servicesCat = discovered.categories.get("services");
-		const hasServices = servicesCat && servicesCat.size > 0;
+		const hasServices = !!servicesCat;
 
 		lines.push(
 			"// ── AppContext augmentation — auto-types ALL handlers ──────",
 		);
 		lines.push("declare global {");
 		lines.push("\tnamespace Questpie {");
-		lines.push("\t\tinterface AppContext {");
+		if (hasServices) {
+			lines.push(
+				"\t\tinterface AppContext extends _AppTopLevelServices, _AppCustomServiceNamespaces {",
+			);
+		} else {
+			lines.push("\t\tinterface AppContext {");
+		}
 		lines.push("\t\t\t// Infrastructure");
 		lines.push("\t\t\tdb: _AppInternal['db'];");
 		if (hasEmails) {
@@ -439,14 +463,16 @@ export function generateTemplate(options: TemplateOptions): string {
 			);
 		}
 
-		// Services — namespaced under `services` (matches extractAppServices runtime)
+		// Services — default namespace under `services`
 		if (hasServices) {
 			lines.push("");
 			lines.push("\t\t\t// User services");
-			lines.push("\t\t\tservices: AppServices;");
+			lines.push("\t\t\tservices: _AppDefaultServices;");
 		}
 
 		lines.push("\t\t}");
+		lines.push("");
+		lines.push("\t\tinterface ServiceCreateContext extends AppContext {}");
 
 		// Registry — ALL registryKey categories + ~-prefixed singles augmented centrally.
 		// This is the SINGLE place that augments Registry. Modules never augment it.
@@ -456,13 +482,17 @@ export function generateTemplate(options: TemplateOptions): string {
 			// Category registryKeys (views, components, blocks, listViews, etc.)
 			for (const [catName, decl] of allDecls) {
 				if (!decl.registryKey) continue;
-				const regKey = typeof decl.registryKey === "string" ? decl.registryKey : catName;
+				const regKey =
+					typeof decl.registryKey === "string" ? decl.registryKey : catName;
 				const typeName = `_Registry_${capitalize(catName)}`;
 				registryEntries.push(`\t\t\t${safeKey(regKey)}: ${typeName};`);
 			}
 
 			// ~-prefixed registryKeys from singles (e.g. ~fieldTypes)
-			const tildeKeys = collectTildeRegistryKeys(discoverPatterns, discovered.singles);
+			const tildeKeys = collectTildeRegistryKeys(
+				discoverPatterns,
+				discovered.singles,
+			);
 			for (const { singleName, registryKey } of tildeKeys) {
 				const typeName = `_AllModule${capitalize(singleName)}`;
 				registryEntries.push(`\t\t\t${safeKey(registryKey)}: ${typeName};`);
@@ -537,7 +567,9 @@ export function generateTemplate(options: TemplateOptions): string {
 	lines.push("");
 
 	// Factories are available via #questpie/factories (separate entry to avoid circular deps)
-	lines.push("// Factories: import { collection, global, ... } from '#questpie/factories';");
+	lines.push(
+		"// Factories: import { collection, global, ... } from '#questpie/factories';",
+	);
 	lines.push("");
 
 	// Extra runtime code from plugins
@@ -574,7 +606,7 @@ function emitNewArchitectureRuntime(
 	}
 	const coreSingles = getCategorizedSingles(discovered.singles, allDecls);
 
-	lines.push("export const app = createApp(");
+	lines.push("export const app = await createApp(");
 	lines.push("\t{");
 
 	// Modules
@@ -593,7 +625,9 @@ function emitNewArchitectureRuntime(
 				lines.push(`\t\t${safeKey(createAppKey)}: {`);
 				for (const file of sortedValues(fileMap)) {
 					if (decl?.keyFromProperty) {
-						lines.push(`\t\t\t[${file.varName}.${decl.keyFromProperty}]: ${file.varName},`);
+						lines.push(
+							`\t\t\t[${file.varName}.${decl.keyFromProperty}]: ${file.varName},`,
+						);
 					} else {
 						lines.push(`\t\t\t${safeKey(file.key)}: ${file.varName},`);
 					}
