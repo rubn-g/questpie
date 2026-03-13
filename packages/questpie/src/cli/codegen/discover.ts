@@ -185,74 +185,6 @@ async function discoverFeatures(
 	return results;
 }
 
-async function discoverLegacyFunctionFiles(rootDir: string): Promise<string[]> {
-	const files: string[] = [];
-
-	const rootFunctionsDir = join(rootDir, "functions");
-	const rootFunctionFiles = await scanDir(
-		rootFunctionsDir,
-		rootFunctionsDir,
-		true,
-	);
-	for (const relPath of rootFunctionFiles) {
-		files.push(join("functions", relPath));
-	}
-
-	const featuresDir = join(rootDir, "features");
-	let featureDirs: Dirent[];
-	try {
-		featureDirs = (await readdir(featuresDir, {
-			withFileTypes: true,
-		})) as Dirent[];
-	} catch {
-		featureDirs = [];
-	}
-
-	for (const fDir of featureDirs) {
-		if (!fDir.isDirectory()) continue;
-		const featureName = String(fDir.name);
-		const featureFunctionsDir = join(featuresDir, featureName, "functions");
-		const featureFunctionFiles = await scanDir(
-			featureFunctionsDir,
-			featureFunctionsDir,
-			true,
-		);
-		for (const relPath of featureFunctionFiles) {
-			files.push(join("features", featureName, "functions", relPath));
-		}
-	}
-
-	return files.sort((a, b) => a.localeCompare(b));
-}
-
-function mapLegacyFunctionPathToRoutePath(path: string): string {
-	if (path.startsWith("functions/")) {
-		return path.replace(/^functions\//, "routes/");
-	}
-	if (path.includes("/functions/")) {
-		return path.replace("/functions/", "/routes/");
-	}
-	return path;
-}
-
-function buildLegacyFunctionsError(paths: string[]): string {
-	const shown = paths.slice(0, 10);
-	const extra = paths.length - shown.length;
-
-	const mappings = shown
-		.map((path) => `  - ${path} -> ${mapLegacyFunctionPathToRoutePath(path)}`)
-		.join("\n");
-
-	const suffix = extra > 0 ? `\n  ... and ${extra} more file(s).` : "";
-
-	return (
-		"[codegen] Legacy functions/ convention detected.\n" +
-		"Route files must live in routes/ (functions/ is no longer supported).\n" +
-		"Move these files and run codegen again:\n" +
-		`${mappings}${suffix}`
-	);
-}
-
 // ============================================================================
 // Main discovery function
 // ============================================================================
@@ -288,14 +220,6 @@ export async function discoverFiles(
 		singles: new Map(),
 		spreads: new Map(),
 	};
-
-	const routesDecl = options?.categories?.routes;
-	if (routesDecl && !routesDecl.dirs.includes("functions")) {
-		const legacyFunctionFiles = await discoverLegacyFunctionFiles(rootDir);
-		if (legacyFunctionFiles.length > 0) {
-			throw new Error(buildLegacyFunctionsError(legacyFunctionFiles));
-		}
-	}
 
 	// ── Phase 1: Discover all category-declared directories ──────
 	// Categories are directory-pattern categories like collections, globals, blocks, etc.
@@ -1052,6 +976,13 @@ function checkConflict(
 ): void {
 	const existing = map.get(file.key);
 	if (existing) {
+		if (category === "routes") {
+			const message = buildRouteCollisionMessage(existing.source, file.source);
+			if (message) {
+				throw new Error(message);
+			}
+		}
+
 		throw new Error(
 			`Codegen conflict: duplicate ${category} key "${file.key}" found in:\n` +
 				`  - ${existing.source}\n` +
@@ -1059,4 +990,52 @@ function checkConflict(
 				`Each key must be unique across by-type and by-feature layouts.`,
 		);
 	}
+}
+
+function routeSourceDir(source: string): "functions" | "routes" | null {
+	for (const segment of source.split("/")) {
+		if (segment === "functions" || segment === "routes") {
+			return segment;
+		}
+	}
+
+	return null;
+}
+
+function routeNameFromSource(source: string): string | null {
+	const segments = source.split("/");
+	const dirIndex = segments.findIndex(
+		(segment) => segment === "functions" || segment === "routes",
+	);
+
+	if (dirIndex === -1) return null;
+
+	const routePath = segments.slice(dirIndex + 1).join("/");
+	if (!routePath) return null;
+
+	return routePath.replace(/\.(ts|tsx|mts|mjs|js|jsx)$/, "");
+}
+
+function buildRouteCollisionMessage(
+	existingSource: string,
+	incomingSource: string,
+): string | null {
+	const existingDir = routeSourceDir(existingSource);
+	const incomingDir = routeSourceDir(incomingSource);
+
+	if (!existingDir || !incomingDir || existingDir === incomingDir) {
+		return null;
+	}
+
+	const routeName =
+		routeNameFromSource(incomingSource) ??
+		routeNameFromSource(existingSource) ??
+		"(unknown)";
+
+	return (
+		`[codegen] Route name collision: '${routeName}' found in both functions/ and routes/.\n` +
+		`  - ${existingSource}\n` +
+		`  - ${incomingSource}\n` +
+		"Route names must be unique across functions/ and routes/."
+	);
 }

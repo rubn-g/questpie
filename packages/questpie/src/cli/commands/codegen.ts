@@ -713,6 +713,7 @@ async function watchSingleTarget(
 		"collections",
 		"globals",
 		"jobs",
+		"functions",
 		"routes",
 		"messages",
 		"migrations",

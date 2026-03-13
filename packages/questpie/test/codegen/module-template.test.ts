@@ -5,7 +5,7 @@
  * 1. `generateModuleTemplate` — minimal module (empty)
  * 2. Collections — record emission with type interfaces
  * 3. Jobs — record emission
- * 4. Functions — nested emission with bundles
+ * 4. Routes — flat emission with bundles
  * 5. Migrations, seeds — array emission
  * 6. Singles — auth, fields, sidebar (moduleEmit: "array")
  * 7. Sub-modules via modules.ts
@@ -96,7 +96,7 @@ function baseCategoryMeta(): Map<string, CategoryDeclaration> {
 		[
 			"routes",
 			{
-				dirs: ["routes"],
+				dirs: ["routes", "functions"],
 				prefix: "route",
 				emit: "record",
 				recursive: true,

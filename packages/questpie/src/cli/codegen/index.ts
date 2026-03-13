@@ -74,7 +74,7 @@ export function coreCodegenPlugin(): CodegenPlugin {
 						extractFromModules: true,
 					},
 					routes: {
-						dirs: ["routes"],
+						dirs: ["routes", "functions"],
 						recursive: true,
 						prefix: "route",
 						keySeparator: "/",

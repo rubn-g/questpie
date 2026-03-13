@@ -318,6 +318,23 @@ describe("discoverFiles", () => {
 		expect(cat(result, "routes").has("getUsers")).toBe(true);
 	});
 
+	it("discovers functions dir files under routes category", async () => {
+		await write("functions/get-stats.ts");
+
+		const result = await discoverFiles(rootDir, outDir, coreDiscoverOptions());
+		expect(cat(result, "routes").has("getStats")).toBe(true);
+	});
+
+	it("merges routes and functions into a single routes category", async () => {
+		await write("routes/webhook.ts");
+		await write("functions/get-stats.ts");
+
+		const result = await discoverFiles(rootDir, outDir, coreDiscoverOptions());
+		const routes = cat(result, "routes");
+		expect(routes.has("webhook")).toBe(true);
+		expect(routes.has("getStats")).toBe(true);
+	});
+
 	it("discovers nested routes with slash-separated camelCase keys", async () => {
 		await write("routes/admin/get-stats.ts");
 
@@ -465,20 +482,15 @@ describe("discoverFiles", () => {
 		).rejects.toThrow(/duplicate collections key "posts"/);
 	});
 
-	it("throws clear error when legacy functions directory is present", async () => {
+	it("throws clear error for route name collision between routes and functions", async () => {
+		await write("routes/get-stats.ts");
 		await write("functions/get-stats.ts");
 
 		await expect(
 			discoverFiles(rootDir, outDir, coreDiscoverOptions()),
-		).rejects.toThrow(/Legacy functions\/ convention detected/);
-	});
-
-	it("throws clear error when legacy feature functions directory is present", async () => {
-		await write("features/admin/functions/get-stats.ts");
-
-		await expect(
-			discoverFiles(rootDir, outDir, coreDiscoverOptions()),
-		).rejects.toThrow(/features\/admin\/functions\/get-stats.ts/);
+		).rejects.toThrow(
+			/Route name collision: 'get-stats' found in both functions\/ and routes\//,
+		);
 	});
 
 	// ── Plugin discovery ──────────────────────────────────────────────────────
