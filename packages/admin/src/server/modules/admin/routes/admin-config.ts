@@ -922,9 +922,21 @@ const getAdminConfig = route()
 				unlistedGlobalsMeta,
 			);
 
-			response.sidebar = {
-				sections: [...filteredSidebar.sections, ...unlistedSidebar.sections],
-			};
+			const mergedSections = [...filteredSidebar.sections];
+			for (const unlistedSection of unlistedSidebar.sections) {
+				const existing = mergedSections.find(
+					(s) => s.id === unlistedSection.id,
+				);
+				if (existing) {
+					existing.items = [
+						...(existing.items ?? []),
+						...(unlistedSection.items ?? []),
+					];
+				} else {
+					mergedSections.push(unlistedSection);
+				}
+			}
+			response.sidebar = { sections: mergedSections };
 		} else {
 			response.sidebar = buildAutoSidebar(
 				filteredCollectionsMeta,

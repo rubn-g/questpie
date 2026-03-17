@@ -56,6 +56,10 @@ import {
 } from "#questpie/server/collection/crud/shared/field-extraction.js";
 import { getColumn } from "#questpie/server/collection/crud/shared/field-resolver.js";
 import {
+	executeGlobalCollectionHooks,
+	executeGlobalCollectionTransitionHooks,
+} from "#questpie/server/collection/crud/shared/global-hooks.js";
+import {
 	appendRealtimeChange,
 	createHookContext,
 	executeHooks,
@@ -90,7 +94,7 @@ import type {
 } from "#questpie/server/collection/crud/types.js";
 import { createVersionRecord } from "#questpie/server/collection/crud/versioning/index.js";
 import { extractAppServices } from "#questpie/server/config/app-context.js";
-import { runWithContext } from "#questpie/server/config/context.js";
+import { guardHookRecursion, runWithContext } from "#questpie/server/config/context.js";
 import type { Questpie } from "#questpie/server/config/questpie.js";
 import type { StorageVisibility } from "#questpie/server/config/types.js";
 import { ApiError, parseDatabaseError } from "#questpie/server/errors/index.js";
@@ -398,6 +402,7 @@ export class CRUDGenerator<TState extends CollectionBuilderState> {
 
 		// Run entire read operation within request-scoped context
 		// This enables implicit getContext<TApp>() calls in hooks (e.g., afterRead prefetch)
+		const _hookDepth = guardHookRecursion();
 		return runWithContext(
 			{
 				app: this.app,
@@ -406,6 +411,7 @@ export class CRUDGenerator<TState extends CollectionBuilderState> {
 				locale: normalized.locale,
 				accessMode: normalized.accessMode,
 				stage: normalized.stage,
+				_hookDepth,
 			},
 			async () => {
 				// Execute beforeOperation hook
@@ -796,25 +802,29 @@ export class CRUDGenerator<TState extends CollectionBuilderState> {
 					await this.resolveRelations(rows, options.with, normalized);
 				}
 
-				// Filter fields based on field-level read access
-				for (const row of rows) {
-					await this.filterFieldsForRead(row, normalized);
-					await this.runFieldOutputHooks(row, "read", normalized, db);
-				}
+				// Filter fields and run output hooks in parallel per row
+				await Promise.all(
+					rows.map(async (row: any) => {
+						await this.filterFieldsForRead(row, normalized);
+						await this.runFieldOutputHooks(row, "read", normalized, db);
+					}),
+				);
 
-				// Execute afterRead hooks
+				// Execute afterRead hooks in parallel per row
 				if (this.state.hooks?.afterRead) {
-					for (const row of rows) {
-						await this.executeHooks(
-							this.state.hooks.afterRead,
-							this.createHookContext({
-								data: row,
-								operation: "read",
-								context: normalized,
-								db,
-							}),
-						);
-					}
+					await Promise.all(
+						rows.map((row: any) =>
+							this.executeHooks(
+								this.state.hooks.afterRead,
+								this.createHookContext({
+									data: row,
+									operation: "read",
+									context: normalized,
+									db,
+								}),
+							),
+						),
+					);
 				}
 
 				// Return based on mode
@@ -1172,6 +1182,7 @@ export class CRUDGenerator<TState extends CollectionBuilderState> {
 
 			// Run entire operation within request-scoped context
 			// This enables implicit getContext<TApp>() calls in hooks/access control
+			const _hookDepth = guardHookRecursion();
 			return runWithContext(
 				{
 					app: this.app,
@@ -1180,6 +1191,7 @@ export class CRUDGenerator<TState extends CollectionBuilderState> {
 					locale: normalized.locale,
 					accessMode: normalized.accessMode,
 					stage: normalized.stage,
+					_hookDepth,
 				},
 				async () => {
 					// Execute beforeOperation hook
@@ -1257,7 +1269,7 @@ export class CRUDGenerator<TState extends CollectionBuilderState> {
 					);
 
 					// Execute beforeChange hooks (after validation)
-					await this.executeHooks(
+					await this.executeCollectionHooksWithGlobal("beforeChange",
 						this.state.hooks?.beforeChange,
 						this.createHookContext({
 							data: regularFields,
@@ -1382,7 +1394,7 @@ export class CRUDGenerator<TState extends CollectionBuilderState> {
 							}
 
 							// Execute afterChange hooks
-							await this.executeHooks(
+							await this.executeCollectionHooksWithGlobal("afterChange",
 								this.state.hooks?.afterChange,
 								this.createHookContext({
 									data: createdRecord,
@@ -1576,7 +1588,7 @@ export class CRUDGenerator<TState extends CollectionBuilderState> {
 				existing,
 			);
 
-			await this.executeHooks(
+			await this.executeCollectionHooksWithGlobal("beforeChange",
 				this.state.hooks?.beforeChange,
 				this.createHookContext({
 					data: regularFields,
@@ -1634,14 +1646,16 @@ export class CRUDGenerator<TState extends CollectionBuilderState> {
 						...(nestedLocalized != null ? { _localized: nestedLocalized } : {}),
 					};
 
-					for (const recordId of recordIds) {
+					// Batch upsert: single multi-row INSERT...ON CONFLICT
+					const allRows = recordIds.map((recordId) => ({
+						parentId: recordId,
+						locale: normalized.locale,
+						...i18nValues,
+					}));
+					if (allRows.length > 0) {
 						await tx
 							.insert(this.i18nTable)
-							.values({
-								parentId: recordId,
-								locale: normalized.locale,
-								...i18nValues,
-							})
+							.values(allRows)
 							.onConflictDoUpdate({
 								target: [
 									getColumn(this.i18nTable, "parentId")!,
@@ -1676,22 +1690,30 @@ export class CRUDGenerator<TState extends CollectionBuilderState> {
 				const refetchedRecords = reFetchResult.docs;
 
 				// Create versions and run afterChange hooks
+				const afterChangePromises: Promise<void>[] = [];
 				for (const updated of refetchedRecords) {
 					const original = records.find((r) => r.id === updated.id);
 
 					await this.createVersion(tx, updated, "update", txContext);
 
-					await this.executeHooks(
-						this.state.hooks?.afterChange,
-						this.createHookContext({
-							data: updated,
-							original,
-							operation: "update",
-							context: txContext,
-							db: tx,
+					// Collect afterChange hooks for parallel execution in bulk
+					afterChangePromises.push(
+						this.executeCollectionHooksWithGlobal("afterChange",
+							this.state.hooks?.afterChange,
+							this.createHookContext({
+								data: updated,
+								original,
+								operation: "update",
+								context: txContext,
+								db: tx,
+							}),
+						).catch((err) => {
+							console.error(`[QuestPie] afterChange hook error in bulk update:`, err);
 						}),
 					);
 				}
+				// Execute all afterChange hooks in parallel (non-fatal)
+				await Promise.allSettled(afterChangePromises);
 
 				// Realtime change
 				changeEvent = await this.appendRealtimeChange(
@@ -1827,7 +1849,7 @@ export class CRUDGenerator<TState extends CollectionBuilderState> {
 			}
 
 			// Execute beforeDelete hooks
-			await this.executeHooks(
+			await this.executeCollectionHooksWithGlobal("beforeDelete",
 				this.state.hooks?.beforeDelete,
 				this.createHookContext({
 					data: existing,
@@ -1872,19 +1894,24 @@ export class CRUDGenerator<TState extends CollectionBuilderState> {
 				onAfterCommit(async () => {
 					await this.removeFromSearch(id, context);
 				});
-			});
 
-			// Execute afterDelete hooks
-			await this.executeHooks(
-				this.state.hooks?.afterDelete,
-				this.createHookContext({
-					data: existing,
-					original: existing,
-					operation: "delete",
-					context,
-					db,
-				}),
-			);
+				// Execute afterDelete hooks inside transaction (non-fatal)
+				try {
+					await this.executeCollectionHooksWithGlobal("afterDelete",
+						this.state.hooks?.afterDelete,
+						this.createHookContext({
+							data: existing,
+							original: existing,
+							operation: "delete",
+							context,
+							db: tx,
+						}),
+					);
+				} catch (err) {
+					// afterDelete hook errors are non-fatal — log and continue
+					console.error(`[QuestPie] afterDelete hook error for "${this.state.name}":`, err);
+				}
+			});
 
 			await this.notifyRealtimeChange(changeEvent);
 
@@ -2033,7 +2060,7 @@ export class CRUDGenerator<TState extends CollectionBuilderState> {
 				}
 
 				// Execute beforeDelete hooks
-				await this.executeHooks(
+				await this.executeCollectionHooksWithGlobal("beforeDelete",
 					this.state.hooks?.beforeDelete,
 					this.createHookContext({
 						data: record,
@@ -2090,7 +2117,7 @@ export class CRUDGenerator<TState extends CollectionBuilderState> {
 			// 4. Loop through afterDelete hooks
 			for (const record of records) {
 				// Execute afterDelete hooks
-				await this.executeHooks(
+				await this.executeCollectionHooksWithGlobal("afterDelete",
 					this.state.hooks?.afterDelete,
 					this.createHookContext({
 						data: record,
@@ -2358,7 +2385,7 @@ export class CRUDGenerator<TState extends CollectionBuilderState> {
 				}
 			}
 
-			await this.executeHooks(
+			await this.executeCollectionHooksWithGlobal("beforeChange",
 				this.state.hooks?.beforeChange,
 				this.createHookContext({
 					data: restoreData,
@@ -2435,7 +2462,7 @@ export class CRUDGenerator<TState extends CollectionBuilderState> {
 					version.versionStage,
 				);
 
-				await this.executeHooks(
+				await this.executeCollectionHooksWithGlobal("afterChange",
 					this.state.hooks?.afterChange,
 					this.createHookContext({
 						data: result,
@@ -2586,7 +2613,7 @@ export class CRUDGenerator<TState extends CollectionBuilderState> {
 			} as TransitionHookContext;
 
 			// Execute beforeTransition hooks (throw to abort)
-			await this.executeTransitionHooks(
+			await this.executeTransitionHooksWithGlobal("beforeTransition",
 				this.state.hooks?.beforeTransition,
 				transitionCtx,
 			);
@@ -2618,13 +2645,17 @@ export class CRUDGenerator<TState extends CollectionBuilderState> {
 					normalized,
 					tx,
 				);
-			});
 
-			// Execute afterTransition hooks
-			await this.executeTransitionHooks(
-				this.state.hooks?.afterTransition,
-				transitionCtx,
-			);
+				// Execute afterTransition hooks inside transaction (non-fatal)
+				try {
+					await this.executeTransitionHooksWithGlobal("afterTransition",
+						this.state.hooks?.afterTransition,
+						transitionCtx,
+					);
+				} catch (err) {
+					console.error(`[QuestPie] afterTransition hook error for "${this.state.name}":`, err);
+				}
+			});
 
 			await this.notifyRealtimeChange(changeEvent);
 
@@ -2691,6 +2722,29 @@ export class CRUDGenerator<TState extends CollectionBuilderState> {
 	}
 
 	/**
+	 * Execute collection-specific hooks AND global collection hooks for a lifecycle event.
+	 * Global before* hooks run first; global after* hooks run last.
+	 */
+	private async executeCollectionHooksWithGlobal(
+		hookName: "beforeChange" | "afterChange" | "beforeDelete" | "afterDelete",
+		collectionHooks: any | any[] | undefined,
+		ctx: HookContext<any, any, any>,
+	) {
+		const globalEntries = this.app?.globalHooks?.collections;
+		const isBefore = hookName.startsWith("before");
+
+		if (isBefore) {
+			// Global before* first, then collection-specific
+			await executeGlobalCollectionHooks(globalEntries, hookName, this.state.name, ctx as any);
+			await this.executeHooks(collectionHooks, ctx);
+		} else {
+			// Collection-specific first, then global after*
+			await this.executeHooks(collectionHooks, ctx);
+			await executeGlobalCollectionHooks(globalEntries, hookName, this.state.name, ctx as any);
+		}
+	}
+
+	/**
 	 * Execute transition hooks (supports arrays).
 	 * Uses TransitionHookContext instead of HookContext.
 	 */
@@ -2702,6 +2756,26 @@ export class CRUDGenerator<TState extends CollectionBuilderState> {
 		const hookArray = Array.isArray(hooks) ? hooks : [hooks];
 		for (const hook of hookArray) {
 			await hook(ctx);
+		}
+	}
+
+	/**
+	 * Execute transition hooks AND global transition hooks.
+	 */
+	private async executeTransitionHooksWithGlobal(
+		hookName: "beforeTransition" | "afterTransition",
+		collectionHooks: any | any[] | undefined,
+		ctx: TransitionHookContext,
+	) {
+		const globalEntries = this.app?.globalHooks?.collections;
+		const isBefore = hookName === "beforeTransition";
+
+		if (isBefore) {
+			await executeGlobalCollectionTransitionHooks(globalEntries, hookName, this.state.name, ctx as any);
+			await this.executeTransitionHooks(collectionHooks, ctx);
+		} else {
+			await this.executeTransitionHooks(collectionHooks, ctx);
+			await executeGlobalCollectionTransitionHooks(globalEntries, hookName, this.state.name, ctx as any);
 		}
 	}
 
@@ -3082,6 +3156,21 @@ export class CRUDGenerator<TState extends CollectionBuilderState> {
 			if (uploadOptions.maxSize && file.size > uploadOptions.maxSize) {
 				throw ApiError.badRequest(
 					`File size ${file.size} exceeds maximum allowed size ${uploadOptions.maxSize}`,
+				);
+			}
+
+			// Block dangerous file extensions
+			const BLOCKED_EXTENSIONS = [
+				".php", ".exe", ".bat", ".sh", ".jsp", ".asp", ".aspx",
+				".cgi", ".pl", ".py", ".rb", ".cmd", ".com", ".scr",
+				".pif", ".vbs", ".wsf", ".msi", ".dll",
+			];
+			const fileExt = file.name
+				? `.${file.name.split(".").pop()?.toLowerCase()}`
+				: "";
+			if (BLOCKED_EXTENSIONS.includes(fileExt)) {
+				throw ApiError.badRequest(
+					`File extension "${fileExt}" is not allowed`,
 				);
 			}
 

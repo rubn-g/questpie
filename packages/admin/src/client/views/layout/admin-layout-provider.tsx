@@ -188,6 +188,30 @@ interface AdminLayoutProviderProps extends AdminLayoutSharedProps {
 
 import { QueryClient as QueryClientClass } from "@tanstack/react-query";
 
+/** Debounced 401 redirect - prevents multiple redirects from concurrent failures */
+let sessionExpiredRedirectPending = false;
+
+function handleSessionExpiredError(error: unknown) {
+	if (sessionExpiredRedirectPending) return;
+
+	const status =
+		error != null && typeof error === "object" && "status" in error
+			? (error as { status: number }).status
+			: undefined;
+
+	if (status !== 401) return;
+
+	// Don't redirect if already on a public/login page
+	if (typeof window !== "undefined") {
+		const path = window.location.pathname;
+		if (DEFAULT_PUBLIC_PATHS.some((p) => path.endsWith(p))) return;
+
+		sessionExpiredRedirectPending = true;
+		const returnUrl = encodeURIComponent(window.location.pathname + window.location.search);
+		window.location.href = `${path.replace(/\/[^/]*$/, "")}/login?returnUrl=${returnUrl}`;
+	}
+}
+
 let cachedQueryClient: QueryClient | undefined;
 
 function getDefaultQueryClient(): QueryClient {
@@ -196,9 +220,24 @@ function getDefaultQueryClient(): QueryClient {
 			defaultOptions: {
 				queries: {
 					staleTime: 60 * 1000, // 1 minute
+					retry: (failureCount, error) => {
+						// Don't retry on 401 (session expired)
+						const status =
+							error != null && typeof error === "object" && "status" in error
+								? (error as { status: number }).status
+								: undefined;
+						if (status === 401) return false;
+						return failureCount < 3;
+					},
+				},
+				mutations: {
+					onError: handleSessionExpiredError,
 				},
 			},
 		});
+
+		// Use global query cache error handler for queries
+		cachedQueryClient.getQueryCache().config.onError = handleSessionExpiredError;
 	}
 	return cachedQueryClient;
 }

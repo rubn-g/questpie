@@ -105,7 +105,9 @@ export function RichTextEditor({
 		[resolvedFeatures, placeholder, maxCharacters, extensions],
 	);
 
-	// Initialize editor
+	// Initialize editor — no dependency array and no immediatelyRender:false
+	// to avoid known tiptap race conditions (issues #5432, #5333).
+	// Content sync and locale changes are handled via the effect below.
 	const editor = useEditor({
 		extensions: resolvedExtensions,
 		content: value ?? "",
@@ -133,8 +135,19 @@ export function RichTextEditor({
 		editor.setEditable(isEditable);
 	}, [editor, isEditable]);
 
-	// Sync external value changes with pending value handling
-	// This fixes race condition where value arrives before editor is ready
+	// Sync external value changes (including locale switches) to editor.
+	// When locale changes, react-hook-form resets the field value which triggers
+	// this effect. We force-apply the new value by clearing lastEmittedValueRef
+	// when locale changes so the isSameValue guard doesn't block the update.
+	const prevLocaleRef = React.useRef(locale);
+	React.useEffect(() => {
+		if (prevLocaleRef.current !== locale) {
+			prevLocaleRef.current = locale;
+			lastEmittedValueRef.current = undefined;
+			pendingValueRef.current = undefined;
+		}
+	}, [locale]);
+
 	React.useEffect(() => {
 		// If value changed but editor not ready, store as pending
 		if (!editor) {

@@ -552,6 +552,15 @@ function MultipleUploadInner({
 							for (const asset of response.docs) {
 								next.set(asset.id, asset as Asset);
 							}
+							// LRU eviction: keep max 200 cached assets
+							if (next.size > 200) {
+								const excess = next.size - 200;
+								const iter = next.keys();
+								for (let i = 0; i < excess; i++) {
+									const key = iter.next().value;
+									if (key !== undefined) next.delete(key);
+								}
+							}
 							return next;
 						});
 					}

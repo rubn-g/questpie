@@ -294,6 +294,10 @@ export interface AdminPreviewSchema {
 	position?: "left" | "right" | "bottom";
 	/** Default panel width (percentage) */
 	defaultWidth?: number;
+	/** Default preview pane size (percentage, 0-100) */
+	defaultSize?: number;
+	/** Minimum preview pane size (percentage, 0-100) */
+	minSize?: number;
 	/** URL template or pattern (actual URL generation happens server-side) */
 	hasUrlBuilder?: boolean;
 }
@@ -641,11 +645,17 @@ export async function introspectCollection(
 	// Evaluate collection-level access
 	const access = await evaluateCollectionAccess(state, context, app);
 
-	// Build field schemas
+	// Build field schemas — evaluate field access in parallel
+	const fieldEntries = Object.entries(fieldDefinitions);
+	const fieldAccessResults = await Promise.all(
+		fieldEntries.map(([, fieldDef]) => evaluateFieldAccess(fieldDef, context, app)),
+	);
+
 	const fields: Record<string, FieldSchema> = {};
-	for (const [name, fieldDef] of Object.entries(fieldDefinitions)) {
+	for (let i = 0; i < fieldEntries.length; i++) {
+		const [name, fieldDef] = fieldEntries[i];
 		const metadata = fieldDef.getMetadata();
-		const fieldAccess = await evaluateFieldAccess(fieldDef, context, app);
+		const fieldAccess = fieldAccessResults[i];
 
 		// Generate field-level JSON Schema if possible
 		let validation: unknown;
@@ -903,6 +913,8 @@ function extractAdminConfig(
 			enabled: stateAny.adminPreview.enabled,
 			position: stateAny.adminPreview.position,
 			defaultWidth: stateAny.adminPreview.defaultWidth,
+			defaultSize: stateAny.adminPreview.defaultSize,
+			minSize: stateAny.adminPreview.minSize,
 			// Don't include the url function - just indicate it exists
 			hasUrlBuilder: typeof stateAny.adminPreview.url === "function",
 		};

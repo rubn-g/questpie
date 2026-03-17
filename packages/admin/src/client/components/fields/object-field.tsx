@@ -110,7 +110,7 @@ export function ObjectField({
 	locale,
 	className,
 	fields: fieldsProp,
-	wrapper = "flat",
+	wrapper = "collapsible",
 	layout = "stack",
 	columns = 2,
 	defaultCollapsed = true,

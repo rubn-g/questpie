@@ -323,7 +323,9 @@ export const createGlobalRoutes = <
 						? Number(offsetRaw)
 						: undefined;
 
-				const auditCrud = app.api.collections["adminAuditLog" as any] as any;
+				// Audit collection name is configurable; defaults to admin_audit_log for backwards compat
+				const auditCollectionName = (app.config as any).auditCollection ?? "admin_audit_log";
+				const auditCrud = app.api.collections[auditCollectionName as any] as any;
 				if (!auditCrud) {
 					return smartResponse([], request);
 				}

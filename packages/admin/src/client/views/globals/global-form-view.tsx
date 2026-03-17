@@ -167,7 +167,11 @@ export default function GlobalFormView({
 	const { t } = useTranslation();
 	const resolveText = useResolveText();
 
-	const { data: globalData, isLoading: dataLoading } = useGlobal(globalName);
+	const {
+		data: globalData,
+		isLoading: dataLoading,
+		error: dataError,
+	} = useGlobal(globalName);
 	const { fields: schemaFields, schema: globalSchema } =
 		useGlobalFields(globalName);
 
@@ -351,8 +355,56 @@ export default function GlobalFormView({
 		t,
 	]);
 
+	// Locale change dirty guard
+	const prevLocaleRef = React.useRef(contentLocale);
+	const skipResetRef = React.useRef(false);
+	const localeSnapshotRef = React.useRef<Record<string, any> | null>(null);
+	const [localeChangeDialog, setLocaleChangeDialog] = React.useState<{
+		open: boolean;
+		pendingLocale: string | null;
+	}>({ open: false, pendingLocale: null });
+
+	React.useEffect(() => {
+		if (prevLocaleRef.current !== contentLocale) {
+			if (form.formState.isDirty && !localeChangeDialog.open) {
+				skipResetRef.current = true;
+				localeSnapshotRef.current = form.getValues();
+				setLocaleChangeDialog({ open: true, pendingLocale: contentLocale });
+				setContentLocale(prevLocaleRef.current);
+			} else {
+				prevLocaleRef.current = contentLocale;
+				skipResetRef.current = false;
+			}
+		}
+	}, [contentLocale, form.formState.isDirty, localeChangeDialog.open, setContentLocale, form]);
+
+	const handleLocaleChangeConfirm = React.useCallback(() => {
+		skipResetRef.current = false;
+		localeSnapshotRef.current = null;
+		if (localeChangeDialog.pendingLocale) {
+			prevLocaleRef.current = localeChangeDialog.pendingLocale;
+			setContentLocale(localeChangeDialog.pendingLocale);
+		}
+		setLocaleChangeDialog({ open: false, pendingLocale: null });
+	}, [localeChangeDialog.pendingLocale, setContentLocale]);
+
+	const handleLocaleChangeCancel = React.useCallback(() => {
+		skipResetRef.current = false;
+		if (localeSnapshotRef.current) {
+			form.reset(localeSnapshotRef.current, {
+				keepDirty: true,
+				keepDirtyValues: true,
+				keepErrors: true,
+				keepTouched: true,
+			});
+		}
+		localeSnapshotRef.current = null;
+		setLocaleChangeDialog({ open: false, pendingLocale: null });
+	}, [form]);
+
 	// Reset form when data loads
 	React.useEffect(() => {
+		if (skipResetRef.current) return;
 		if (globalData) {
 			form.reset(globalData as any);
 		}
@@ -371,6 +423,7 @@ export default function GlobalFormView({
 		reactiveConfigs,
 		enabled: !dataLoading && Object.keys(reactiveConfigs).length > 0,
 		debounce: 300,
+		form,
 	});
 
 	const resolvedConfig = React.useMemo(() => {
@@ -467,6 +520,24 @@ export default function GlobalFormView({
 			minute: "2-digit",
 		});
 	};
+
+	if (dataError) {
+		return (
+			<div className="flex h-64 flex-col items-center justify-center gap-3 text-muted-foreground">
+				<Icon icon="ph:warning-circle" className="size-8 text-destructive" />
+				<p className="text-sm">
+					{dataError instanceof Error ? dataError.message : t("errors.failedToLoad")}
+				</p>
+				<button
+					type="button"
+					className="text-sm underline hover:text-foreground"
+					onClick={() => window.location.reload()}
+				>
+					{t("common.retry")}
+				</button>
+			</div>
+		);
+	}
 
 	if (dataLoading) {
 		return (
@@ -711,6 +782,28 @@ export default function GlobalFormView({
 							{transitionSchedule
 								? t("workflow.scheduleLabel")
 								: t("workflow.transition")}
+						</Button>
+					</DialogFooter>
+				</DialogContent>
+			</Dialog>
+		{/* Locale change confirmation dialog */}
+			<Dialog
+				open={localeChangeDialog.open}
+				onOpenChange={(open) => !open && handleLocaleChangeCancel()}
+			>
+				<DialogContent>
+					<DialogHeader>
+						<DialogTitle>{t("locale.unsavedChanges")}</DialogTitle>
+						<DialogDescription>
+							{t("locale.unsavedChangesDescription")}
+						</DialogDescription>
+					</DialogHeader>
+					<DialogFooter>
+						<Button variant="outline" onClick={handleLocaleChangeCancel}>
+							{t("common.cancel")}
+						</Button>
+						<Button variant="default" onClick={handleLocaleChangeConfirm}>
+							{t("locale.discardChanges")}
 						</Button>
 					</DialogFooter>
 				</DialogContent>

@@ -200,17 +200,62 @@ export const createStorageRoutes = <
 					? rawFilename.replace(/[\r\n"\\]/g, "_")
 					: null;
 
+				// Security headers for SVG files — prevent embedded script execution
+				const isSvg = contentType.includes("svg");
+				const totalSize = fileBuffer.byteLength;
+
+				// HTTP Range request support (for video/audio seeking)
+				const rangeHeader = request.headers.get("range");
+				if (rangeHeader) {
+					const match = rangeHeader.match(/bytes=(\d+)-(\d*)/);
+					if (match) {
+						const start = Number.parseInt(match[1], 10);
+						const end = match[2] ? Number.parseInt(match[2], 10) : totalSize - 1;
+
+						if (start >= totalSize || end >= totalSize || start > end) {
+							return new Response(null, {
+								status: 416,
+								headers: {
+									"Content-Range": `bytes */${totalSize}`,
+								},
+							});
+						}
+
+						const slice = fileBuffer.slice(start, end + 1);
+						return new Response(slice.buffer as ArrayBuffer, {
+							status: 206,
+							headers: {
+								"Content-Type": contentType,
+								"Content-Range": `bytes ${start}-${end}/${totalSize}`,
+								"Content-Length": String(slice.byteLength),
+								"Accept-Ranges": "bytes",
+								"Cache-Control":
+									visibility === "public"
+										? "public, max-age=31536000, immutable"
+										: "private, no-cache",
+								...(isSvg && {
+									"Content-Security-Policy": "script-src 'none'",
+								}),
+							},
+						});
+					}
+				}
+
 				return new Response(fileBuffer.buffer as ArrayBuffer, {
 					status: 200,
 					headers: {
 						"Content-Type": contentType,
-						"Content-Length": String(fileBuffer.byteLength),
+						"Content-Length": String(totalSize),
+						"Accept-Ranges": "bytes",
 						"Cache-Control":
 							visibility === "public"
 								? "public, max-age=31536000, immutable"
 								: "private, no-cache",
 						...(sanitizedFilename && {
 							"Content-Disposition": `inline; filename="${sanitizedFilename}"`,
+						}),
+						...(isSvg && {
+							"Content-Security-Policy": "script-src 'none'",
 						}),
 					},
 				});

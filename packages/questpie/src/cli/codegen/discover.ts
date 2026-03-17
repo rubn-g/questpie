@@ -658,12 +658,12 @@ async function processFile(
 		const results: DiscoveredFile[] = [];
 		const namedMatches = matches.filter((m) => !m.isDefault);
 		const defaultMatch = matches.find((m) => m.isDefault);
+		// Key is ALWAYS derived from the filename — never from factory string argument.
+		const fileKey = deriveFileKey(relPath, category);
 		if (namedMatches.length > 0) {
 			// Named factory exports found — each becomes a separate entity
 			for (const m of namedMatches) {
-				const key = m.entityKey
-					? kebabToCamelCase(`${m.entityKey}.ts`)
-					: m.exportName;
+				const key = namedMatches.length === 1 ? fileKey : m.exportName;
 				results.push({
 					absolutePath,
 					key,
@@ -676,14 +676,11 @@ async function processFile(
 			}
 		} else if (defaultMatch) {
 			// Only a default factory export — single entity
-			const key = defaultMatch.entityKey
-				? kebabToCamelCase(`${defaultMatch.entityKey}.ts`)
-				: deriveFileKey(relPath, category);
 			results.push({
 				absolutePath,
-				key,
+				key: fileKey,
 				importPath,
-				varName: toVarName(category.prefix, key),
+				varName: toVarName(category.prefix, fileKey),
 				source: relPath,
 				exportType: "default",
 			});

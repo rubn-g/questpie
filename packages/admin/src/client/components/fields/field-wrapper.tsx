@@ -17,6 +17,7 @@ type FieldWrapperProps = {
 	description?: I18nText;
 	required?: boolean;
 	disabled?: boolean;
+	readOnly?: boolean;
 	error?: string;
 	localized?: boolean;
 	locale?: string;
@@ -31,6 +32,7 @@ export function FieldWrapper({
 	description,
 	required,
 	disabled,
+	readOnly,
 	error,
 	localized,
 	locale,
@@ -55,6 +57,7 @@ export function FieldWrapper({
 	return (
 		<Field
 			data-disabled={disabled}
+			data-readonly={!disabled && readOnly}
 			data-invalid={!!error}
 			data-field-path={fieldPath ?? name}
 		>

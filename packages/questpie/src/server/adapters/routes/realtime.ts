@@ -304,10 +304,10 @@ export const createRealtimeRoutes = <
 						sendTopicError(error.id, error.message);
 					}
 
-					// Ping timer to keep connection alive
+					// Ping timer to keep connection alive (15s < most proxy timeouts of 30-60s)
 					const pingTimer = setInterval(() => {
 						send("ping", { ts: Date.now() });
-					}, 25000);
+					}, 15000);
 
 					// Cleanup function
 					const close = () => {

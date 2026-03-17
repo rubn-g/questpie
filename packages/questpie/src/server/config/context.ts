@@ -58,7 +58,11 @@ const appContextStorage = new AsyncLocalStorage<{
 	locale?: string;
 	accessMode?: string;
 	stage?: string;
+	_hookDepth?: number;
 }>();
+
+/** Maximum recursion depth for hook-triggered CRUD operations */
+const MAX_HOOK_RECURSION = 5;
 
 /**
  * Stored context shape returned by tryGetContext.
@@ -70,6 +74,27 @@ export interface StoredContext {
 	locale?: string;
 	accessMode?: string;
 	stage?: string;
+	_hookDepth?: number;
+}
+
+/**
+ * Increment hook recursion depth and throw if limit exceeded.
+ * Call this at the start of each CRUD operation to prevent infinite loops
+ * caused by hooks triggering more CRUD operations.
+ */
+export function guardHookRecursion(): number {
+	const ctx = appContextStorage.getStore();
+	const depth = (ctx?._hookDepth ?? 0) + 1;
+	if (depth > MAX_HOOK_RECURSION) {
+		throw new Error(
+			`[QuestPie] Maximum hook recursion depth (${MAX_HOOK_RECURSION}) exceeded. ` +
+			"A lifecycle hook is likely triggering CRUD operations that re-trigger the same hook.",
+		);
+	}
+	if (depth >= 3) {
+		console.warn(`[QuestPie] Hook recursion depth at ${depth} — review hooks for potential infinite loops`);
+	}
+	return depth;
 }
 
 /**
@@ -116,9 +141,17 @@ export function runWithContext<T>(
 		locale?: string;
 		accessMode?: string;
 		stage?: string;
+		_hookDepth?: number;
 	},
 	fn: () => T | Promise<T>,
 ): Promise<T> {
+	// Inherit hook depth from parent context if not explicitly set
+	if (ctx._hookDepth === undefined) {
+		const parent = appContextStorage.getStore();
+		if (parent?._hookDepth !== undefined) {
+			ctx._hookDepth = parent._hookDepth;
+		}
+	}
 	return appContextStorage.run(ctx, fn) as Promise<T>;
 }
 

@@ -7,7 +7,7 @@
 
 import type { FieldReactiveSchema } from "questpie/client";
 import * as React from "react";
-import { useFormContext, useWatch } from "react-hook-form";
+import { type UseFormReturn, useFormContext, useWatch } from "react-hook-form";
 import { useAdminStore } from "../runtime/provider.js";
 
 // ============================================================================
@@ -51,6 +51,9 @@ export interface UseReactiveFieldsOptions {
 
 	/** Whether to enable reactive updates */
 	enabled?: boolean;
+
+	/** Form instance - pass directly when calling outside FormProvider */
+	form?: UseFormReturn<any>;
 }
 
 /**
@@ -213,9 +216,11 @@ export function useReactiveFields({
 	reactiveConfigs,
 	debounce = 100,
 	enabled = true,
+	form: formProp,
 }: UseReactiveFieldsOptions): UseReactiveFieldsResult {
 	const client = useAdminStore((s) => s.client);
-	const form = useFormContext();
+	const formContext = useFormContext();
+	const form = formProp ?? formContext;
 
 	// State
 	const [fieldStates, setFieldStates] = React.useState<
@@ -314,7 +319,7 @@ export function useReactiveFields({
 								form.setValue(result.field, result.value, {
 									shouldDirty: true,
 									shouldTouch: false,
-									shouldValidate: false,
+									shouldValidate: true,
 								});
 							}
 						} else {

@@ -702,7 +702,11 @@ function TableViewInner({
 	);
 
 	// Data fetching with filters and sort applied (normal browsing)
-	const { data: listData, isLoading: listLoading } = useCollectionList(
+	const {
+		data: listData,
+		isLoading: listLoading,
+		error: listError,
+	} = useCollectionList(
 		collection as any,
 		queryOptions,
 		{ enabled: !isSearching },
@@ -800,13 +804,15 @@ function TableViewInner({
 		}
 
 		// Determine which columns to show
-		// If visibleColumns is empty, show ALL columns (default behavior)
+		// Cascade: saved prefs → computed defaults → all columns
 		const columnsToShow =
 			viewState.config.visibleColumns.length > 0
 				? viewState.config.visibleColumns
-				: columns
-						.map((c) => (c as any).accessorKey || (c as any).id)
-						.filter(Boolean);
+				: defaultColumns.length > 0
+					? defaultColumns
+					: columns
+							.map((c) => (c as any).accessorKey || (c as any).id)
+							.filter(Boolean);
 
 		// Add remaining visible columns (excluding title since it's already added)
 		for (const colName of columnsToShow) {
@@ -822,15 +828,18 @@ function TableViewInner({
 		}
 
 		return orderedColumns;
-	}, [columns, viewState.config.visibleColumns, collectionMeta]);
+	}, [columns, viewState.config.visibleColumns, defaultColumns, collectionMeta]);
 
-	// Table sorting state - sync with view state
+	// Table sorting state - cascade: saved prefs → list defaultSort → empty
 	const [sorting, setSorting] = React.useState<SortingState>(() => {
-		if (viewState.config.sortConfig) {
+		const sortSource =
+			viewState.config.sortConfig ??
+			(resolvedListConfig as any)?.defaultSort;
+		if (sortSource?.field) {
 			return [
 				{
-					id: viewState.config.sortConfig.field,
-					desc: viewState.config.sortConfig.direction === "desc",
+					id: sortSource.field,
+					desc: sortSource.direction === "desc",
 				},
 			];
 		}
@@ -975,6 +984,26 @@ function TableViewInner({
 		[restoreMutation, actionHelpers, t],
 	);
 
+	if (listError && !isSearching) {
+		return (
+			<div className="container">
+				<div className="flex h-64 flex-col items-center justify-center gap-3 text-muted-foreground">
+					<Icon icon="ph:warning-circle" className="size-8 text-destructive" />
+					<p className="text-sm">
+						{listError instanceof Error ? listError.message : t("errors.failedToLoad")}
+					</p>
+					<Button
+						variant="outline"
+						size="sm"
+						onClick={() => window.location.reload()}
+					>
+						{t("common.retry")}
+					</Button>
+				</div>
+			</div>
+		);
+	}
+
 	if (isLoading) {
 		return (
 			<div className="container" aria-busy="true">
@@ -994,7 +1023,7 @@ function TableViewInner({
 	}
 
 	return (
-		<div className="qa-table-view container">
+		<div className="qa-table-view">
 			<div className="qa-table-view__inner space-y-4">
 				{/* Header - Title & Actions */}
 				<div className="qa-table-view__header flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
@@ -1099,7 +1128,7 @@ function TableViewInner({
 				/>
 
 				{/* Table */}
-				<div className="qa-table-view__table-wrapper bg-card border border-border overflow-hidden">
+				<div className="qa-table-view__table-wrapper bg-card border border-border overflow-x-auto min-w-0">
 					<Table
 						aria-label={resolveText(
 							(config as any)?.label ?? schema?.admin?.config?.label,

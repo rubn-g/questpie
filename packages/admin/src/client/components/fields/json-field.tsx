@@ -268,9 +268,12 @@ function JsonCodeEditor({
 		}
 	});
 	const [parseError, setParseError] = React.useState<string | null>(null);
+	const isEditingRef = React.useRef(false);
 
-	// Sync local value when external value changes
+	// Sync local value when external value changes (skip if user is actively editing)
 	React.useEffect(() => {
+		if (isEditingRef.current) return;
+
 		if (typeof value === "string") {
 			setLocalValue(value);
 		} else if (value !== null && value !== undefined) {
@@ -285,6 +288,7 @@ function JsonCodeEditor({
 	}, [value]);
 
 	const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+		isEditingRef.current = true;
 		const newValue = e.target.value;
 		setLocalValue(newValue);
 
@@ -324,6 +328,7 @@ function JsonCodeEditor({
 				<Textarea
 					value={localValue}
 					onChange={handleChange}
+					onBlur={() => { isEditingRef.current = false; }}
 					disabled={disabled}
 					readOnly={readOnly}
 					placeholder={placeholder}

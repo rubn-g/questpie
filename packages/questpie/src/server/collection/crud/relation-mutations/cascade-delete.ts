@@ -43,22 +43,25 @@ export async function handleCascadeDelete(
 ): Promise<void> {
 	const { record, relations, app, context, resolveFieldKey } = options;
 
-	// Phase 1: Check for RESTRICT violations before any mutations
+	// Phase 1: Check for RESTRICT violations before any mutations (parallel)
+	const restrictChecks: Promise<void>[] = [];
 	for (const [relationName, relation] of Object.entries(relations)) {
 		if (relation.onDelete === "restrict") {
-			// Check if related records exist for hasMany relations
 			if (relation.type === "many" && !relation.fields) {
-				await checkRestrictViolation(
-					record,
-					relation,
-					relationName,
-					app,
-					context,
-					resolveFieldKey,
+				restrictChecks.push(
+					checkRestrictViolation(
+						record,
+						relation,
+						relationName,
+						app,
+						context,
+						resolveFieldKey,
+					),
 				);
 			}
 		}
 	}
+	await Promise.all(restrictChecks);
 
 	// Phase 2: Handle cascade/set null operations
 	for (const [_relationName, relation] of Object.entries(relations)) {

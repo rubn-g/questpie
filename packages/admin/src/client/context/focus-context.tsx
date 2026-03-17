@@ -268,6 +268,14 @@ export function scrollFieldIntoView(fieldPath: string): void {
 	const target = focusable ?? wrapper;
 	target.scrollIntoView({ behavior: "smooth", block: "center" });
 
+	// Add pulse animation to highlight the field
+	wrapper.classList.add("field-focus-pulse");
+	wrapper.addEventListener(
+		"animationend",
+		() => wrapper.classList.remove("field-focus-pulse"),
+		{ once: true },
+	);
+
 	if (focusable) {
 		// Use requestAnimationFrame to focus after scroll starts
 		requestAnimationFrame(() => {

@@ -44,7 +44,7 @@ export function SelectField<TValue extends string = string>({
 					{multiple ? (
 						<SelectMulti<TValue>
 							id={name}
-							value={Array.isArray(field.value) ? field.value : []}
+							value={Array.isArray(field.value) ? field.value : field.value != null ? [field.value] : []}
 							onChange={field.onChange}
 							options={options}
 							loadOptions={loadOptions}

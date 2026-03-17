@@ -198,6 +198,28 @@ export function getAllAvailableFields(
 		});
 	}
 
+	// Include timestamp system fields when collection has timestamps enabled
+	if (options?.meta?.timestamps) {
+		if (!fields?.createdAt) {
+			availableFields.push({
+				name: "createdAt",
+				label: "Created At",
+				type: "date",
+				isSystem: true,
+				options: undefined,
+			});
+		}
+		if (!fields?.updatedAt) {
+			availableFields.push({
+				name: "updatedAt",
+				label: "Updated At",
+				type: "date",
+				isSystem: true,
+				options: undefined,
+			});
+		}
+	}
+
 	return availableFields;
 }
 

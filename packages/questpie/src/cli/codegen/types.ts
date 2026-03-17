@@ -285,10 +285,10 @@ export interface CategoryDeclaration {
 	 * 2. Cross-reference with export statements (`export const`, `export { }`,
 	 *    `export default`)
 	 *
-	 * Entity key derivation priority:
-	 * 1. Factory call's first string argument: `block("hero")` → `"hero"`
-	 * 2. Fallback to export name: `export const heroBlock = block(var)` → `"heroBlock"`
-	 * 3. For default exports, fallback to filename
+	 * Entity key is ALWAYS derived from the filename, never from the factory
+	 * call's string argument. For single-factory files (1 export), the key
+	 * equals `deriveFileKey(filename)`. For multi-export files, the export
+	 * name is used as fallback.
 	 *
 	 * @example ["collection"] — for collections category
 	 * @example ["block"] — for blocks category

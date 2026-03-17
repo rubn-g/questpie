@@ -16,16 +16,29 @@ import { normalizeContext } from "./context.js";
  *
  * @param hooks - Single hook function, array of hook functions, or undefined
  * @param ctx - Hook context to pass to each hook
+ * @param options - Optional configuration
+ * @param options.phase - "before" propagates errors (abort), "after" catches and logs (non-fatal)
  */
 export async function executeHooks(
 	hooks: any | any[] | undefined,
 	ctx: HookContext<any, any, any>,
+	options?: { phase?: "before" | "after" },
 ): Promise<void> {
 	if (!hooks) return;
 
 	const hookArray = Array.isArray(hooks) ? hooks : [hooks];
+	const isAfter = options?.phase === "after";
+
 	for (const hook of hookArray) {
-		await hook(ctx);
+		if (isAfter) {
+			try {
+				await hook(ctx);
+			} catch (err) {
+				console.error("[QuestPie] after* hook error:", err);
+			}
+		} else {
+			await hook(ctx);
+		}
 	}
 }
 

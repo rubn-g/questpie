@@ -341,10 +341,37 @@ export const createFetchHandler = (
 
 		// 1. Health check — public endpoint, no auth required
 		if (segments[0] === "health") {
-			return Response.json({
-				status: "ok",
-				timestamp: new Date().toISOString(),
-			});
+			const checks: Record<string, { status: string; latency_ms?: number }> = {};
+			let overall: "ok" | "degraded" | "unhealthy" = "ok";
+
+			// Database check
+			try {
+				const dbStart = Date.now();
+				const db = (_app as any).db;
+				if (db) {
+					await (db.execute?.("SELECT 1") ?? Promise.resolve());
+				}
+				checks.database = { status: "ok", latency_ms: Date.now() - dbStart };
+			} catch {
+				checks.database = { status: "unhealthy" };
+				overall = "unhealthy";
+			}
+
+			// Search check
+			if ((_app as any).search) {
+				checks.search = { status: (_app as any).search.isInitialized?.() ? "ok" : "degraded" };
+				if (checks.search.status === "degraded" && overall === "ok") overall = "degraded";
+			}
+
+			// Storage check
+			if ((_app as any).storage) {
+				checks.storage = { status: "ok" };
+			}
+
+			return Response.json(
+				{ status: overall, timestamp: new Date().toISOString(), checks },
+				{ status: overall === "unhealthy" ? 503 : 200 },
+			);
 		}
 
 		// 2. Auth routes

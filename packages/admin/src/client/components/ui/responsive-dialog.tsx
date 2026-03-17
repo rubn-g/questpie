@@ -127,11 +127,13 @@ function ResponsiveDialogTrigger({
 interface ResponsiveDialogContentProps {
 	children: React.ReactNode;
 	className?: string;
+	showCloseButton?: boolean;
 }
 
 function ResponsiveDialogContent({
 	children,
 	className,
+	showCloseButton,
 }: ResponsiveDialogContentProps) {
 	const { isMobile } = useResponsiveDialog();
 
@@ -144,7 +146,10 @@ function ResponsiveDialogContent({
 	}
 
 	return (
-		<DialogContent className={cn("qa-responsive-dialog__content", className)}>
+		<DialogContent
+			showCloseButton={showCloseButton}
+			className={cn("qa-responsive-dialog__content", className)}
+		>
 			{children}
 		</DialogContent>
 	);

@@ -27,13 +27,12 @@ export function DateField({
 			name={name}
 			control={resolvedControl}
 			render={({ field, fieldState }) => {
-				// Handle string dates from form (convert to Date object)
-				const dateValue =
-					field.value instanceof Date
-						? field.value
-						: field.value
-							? new Date(field.value)
-							: null;
+				// Handle string dates from form (convert to Date object, guard against Invalid Date)
+				const dateValue = (() => {
+					if (!field.value) return null;
+					const d = field.value instanceof Date ? field.value : new Date(field.value);
+					return Number.isNaN(d.getTime()) ? null : d;
+				})();
 
 				return (
 					<FieldWrapper

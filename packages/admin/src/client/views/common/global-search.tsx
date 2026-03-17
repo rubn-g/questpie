@@ -79,6 +79,27 @@ function getConfigProps(config: unknown) {
 }
 
 /**
+ * Safe highlight renderer - escapes HTML and wraps query matches in <mark> tags.
+ * Returns React elements instead of raw HTML to prevent XSS.
+ */
+function highlightText(text: string, query: string): React.ReactNode {
+	if (!query.trim() || !text) return text;
+
+	// Escape special regex characters in query
+	const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+	const regex = new RegExp(`(${escaped})`, "gi");
+	const parts = text.split(regex);
+
+	if (parts.length === 1) return text;
+
+	return parts.map((part, i) =>
+		regex.test(part)
+			? React.createElement("mark", { key: i, className: "bg-yellow-200/50" }, part)
+			: part,
+	);
+}
+
+/**
  * Simple fuzzy search - matches if query words appear anywhere in text
  */
 function fuzzyMatch(text: string, query: string): boolean {
@@ -116,6 +137,7 @@ interface SearchGroupProps {
 	startIndex: number;
 	onSelect: (item: SearchItem) => void;
 	onHover: (index: number) => void;
+	query?: string;
 }
 
 const SearchGroup = React.memo(function SearchGroup({
@@ -125,6 +147,7 @@ const SearchGroup = React.memo(function SearchGroup({
 	startIndex,
 	onSelect,
 	onHover,
+	query = "",
 }: SearchGroupProps) {
 	const resolveText = useResolveText();
 
@@ -160,11 +183,9 @@ const SearchGroup = React.memo(function SearchGroup({
 							)}
 							<div className="flex flex-col items-start min-w-0">
 								{item.highlights?.title ? (
-									<span
-										className="truncate"
-										// biome-ignore lint/security/noDangerouslySetInnerHtml: highlights from server
-										dangerouslySetInnerHTML={{ __html: item.highlights.title }}
-									/>
+									<span className="truncate">
+										{highlightText(item.label, query)}
+									</span>
 								) : (
 									<span className="truncate">{resolveText(item.label)}</span>
 								)}
@@ -368,11 +389,15 @@ export function GlobalSearch({
 			switch (e.key) {
 				case "ArrowDown":
 					e.preventDefault();
-					setSelectedIndex((i) => Math.min(i + 1, totalCount - 1));
+					setSelectedIndex((i) =>
+						totalCount > 0 ? (i + 1) % totalCount : 0,
+					);
 					break;
 				case "ArrowUp":
 					e.preventDefault();
-					setSelectedIndex((i) => Math.max(i - 1, 0));
+					setSelectedIndex((i) =>
+						totalCount > 0 ? (i - 1 + totalCount) % totalCount : 0,
+					);
 					break;
 				case "Enter":
 					e.preventDefault();
@@ -403,7 +428,7 @@ export function GlobalSearch({
 
 	return (
 		<ResponsiveDialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-			<ResponsiveDialogContent className="qa-global-search p-0 gap-0 max-w-2xl">
+			<ResponsiveDialogContent className="qa-global-search p-0 gap-0 sm:max-w-3xl" showCloseButton={false}>
 				{/* Search Input */}
 				<div className="qa-global-search__input-area flex items-center border-b px-3">
 					<Icon
@@ -471,6 +496,7 @@ export function GlobalSearch({
 									startIndex={recordsStartIndex}
 									onSelect={handleSelect}
 									onHover={handleHover}
+									query={query}
 								/>
 							)}
 						</>

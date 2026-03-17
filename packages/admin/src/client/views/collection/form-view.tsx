@@ -254,7 +254,7 @@ const AutosaveManager = React.memo(function AutosaveManager({
 						data,
 					});
 
-					form.reset(result as any);
+					form.reset(result as any, { keepTouched: true });
 
 					if (previewContext) {
 						previewContext.triggerPreviewRefresh();
@@ -270,6 +270,9 @@ const AutosaveManager = React.memo(function AutosaveManager({
 		} catch (error) {
 			onSavingChange(false);
 			console.error("Autosave failed:", error);
+			toast.error("Autosave failed", {
+				description: error instanceof Error ? error.message : undefined,
+			});
 		}
 	}, [
 		form,
@@ -637,7 +640,7 @@ export default function FormView({
 	);
 
 	// Fetch item if in edit mode (include relations if specified)
-	const { data: item, isLoading } = useCollectionItem(
+	const { data: item, isLoading, error: itemError } = useCollectionItem(
 		collection as any,
 		id ?? "",
 		hasManyToManyRelations(withRelations)
@@ -954,24 +957,29 @@ export default function FormView({
 
 	// Reset form when item loads
 	React.useEffect(() => {
-		if (skipItemResetRef.current) return;
+		if (skipItemResetRef.current || isLoading) return;
 		if (transformedItem) {
 			form.reset(transformedItem as any);
-		} else if (defaultValuesProp) {
+		} else if (!isEditMode && defaultValuesProp) {
 			form.reset(defaultValuesProp as any);
 		}
-	}, [form, transformedItem, defaultValuesProp]);
+	}, [form, transformedItem, defaultValuesProp, isLoading, isEditMode]);
 
-	// Handle locale change confirmation
+	// Handle locale change confirmation - invalidate queries so fresh locale data loads
+	const localeQueryClient = useQueryClient();
 	const handleLocaleChangeConfirm = React.useCallback(() => {
 		skipItemResetRef.current = false;
 		localeChangeSnapshotRef.current = null;
 		if (localeChangeDialog.pendingLocale) {
 			prevLocaleRef.current = localeChangeDialog.pendingLocale;
 			setContentLocale(localeChangeDialog.pendingLocale);
+			// Invalidate item query to refetch with new locale
+			localeQueryClient.invalidateQueries({
+				queryKey: ["collections", collection],
+			});
 		}
 		setLocaleChangeDialog({ open: false, pendingLocale: null });
-	}, [localeChangeDialog.pendingLocale, setContentLocale]);
+	}, [localeChangeDialog.pendingLocale, setContentLocale, localeQueryClient, collection]);
 
 	const handleLocaleChangeCancel = React.useCallback(() => {
 		skipItemResetRef.current = false;
@@ -1233,14 +1241,20 @@ export default function FormView({
 	};
 
 	// Action context for visibility/disabled checks
+	// Use ref for transformedItem to avoid re-computing action visibility on every field change
+	const transformedItemRef = React.useRef(transformedItem);
+	transformedItemRef.current = transformedItem;
+
 	const actionContext: ActionContext = React.useMemo(
 		() => ({
-			item: transformedItem,
+			get item() {
+				return transformedItemRef.current;
+			},
 			collection,
 			helpers: actionHelpers,
 			queryClient: actionQueryClient,
 		}),
-		[transformedItem, collection, actionHelpers, actionQueryClient],
+		[collection, actionHelpers, actionQueryClient],
 	);
 
 	// Filter visible actions
@@ -1575,6 +1589,39 @@ export default function FormView({
 		transformedItem,
 	]);
 
+	// Show error state for failed item fetch
+	if (isEditMode && itemError) {
+		const is404 =
+			itemError != null &&
+			typeof itemError === "object" &&
+			"status" in itemError &&
+			(itemError as any).status === 404;
+		return (
+			<div className="flex h-64 flex-col items-center justify-center gap-3 text-muted-foreground">
+				<Icon
+					icon={is404 ? "ph:file-dashed" : "ph:warning-circle"}
+					className="size-8 text-destructive"
+				/>
+				<p className="text-sm">
+					{is404
+						? t("errors.notFound")
+						: itemError instanceof Error
+							? itemError.message
+							: t("errors.failedToLoad")}
+				</p>
+				{is404 && (
+					<Button
+						variant="outline"
+						size="sm"
+						onClick={() => navigate(`${basePath}/collections/${collection}`)}
+					>
+						{t("common.backToList")}
+					</Button>
+				)}
+			</div>
+		);
+	}
+
 	// Show skeleton until form data is ready (edit mode only)
 	// This prevents race conditions where form fields render before data is loaded
 	if (isEditMode && isLoading) {
@@ -1774,8 +1821,8 @@ export default function FormView({
 									</Button>
 								)}
 
-								{/* History button */}
-								{isEditMode && id && (
+								{/* History button — only show when versioning is enabled */}
+								{isEditMode && id && schema?.options?.versioning && (
 									<Button
 										type="button"
 										variant="outline"
@@ -2132,6 +2179,8 @@ export default function FormView({
 					registry={registry}
 					previewUrl={previewUrl}
 					onSuccess={onSuccess}
+					defaultSize={schemaPreview?.defaultSize}
+					minSize={schemaPreview?.minSize}
 				/>
 			)}
 		</>

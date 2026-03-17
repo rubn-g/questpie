@@ -347,20 +347,25 @@ export function RelationPicker<T extends QuestpieApp>({
 		let cancelled = false;
 
 		(async () => {
-			for (const id of missingIds) {
-				if (cancelled) return;
-				const response = await (client as any).collections[
-					targetCollection
-				].findOne({ where: { id } });
-				if (cancelled) continue;
-				if (response) {
-					// Immutable update - spread prev and add new entry
-					setFetchedItems((prev) => new Map([...prev, [id, response]]));
+			// Fetch all missing items in parallel instead of sequentially
+			const results = await Promise.allSettled(
+				missingIds.map((id) =>
+					(client as any).collections[targetCollection]
+						.findOne({ where: { id } })
+						.then((response: any) => ({ id, response })),
+				),
+			);
+			if (cancelled) return;
+			const newEntries: [string, any][] = [];
+			for (const result of results) {
+				if (result.status === "fulfilled" && result.value.response) {
+					newEntries.push([result.value.id, result.value.response]);
 				}
 			}
-			if (!cancelled) {
-				setIsLoadingItems(false);
+			if (newEntries.length > 0) {
+				setFetchedItems((prev) => new Map([...prev, ...newEntries]));
 			}
+			setIsLoadingItems(false);
 		})().catch((error) => {
 			console.error("Failed to fetch selected items:", error);
 			toast.error("Failed to load selected items");

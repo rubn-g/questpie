@@ -288,7 +288,7 @@ export function AdminLayout({
 
 						<main
 							id="main-content"
-							className="qa-admin-layout__main flex-1 overflow-y-auto"
+							className="qa-admin-layout__main flex-1 overflow-y-auto min-w-0"
 							tabIndex={-1}
 						>
 							<div

@@ -14,7 +14,7 @@ import {
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuItem,
-	DropdownMenuPortal,
+
 	DropdownMenuSeparator,
 	DropdownMenuSub,
 	DropdownMenuSubContent,
@@ -53,9 +53,12 @@ import { cn, formatLabel } from "../../lib/utils";
 import {
 	selectAdmin,
 	selectBasePath,
+	selectContentLocale,
 	selectNavigate,
+	selectSetContentLocale,
 	useAdminStore,
 } from "../../runtime/provider";
+import { useSafeContentLocales } from "../../runtime/content-locales-provider";
 import type {
 	NavigationElement,
 	NavigationGroup,
@@ -500,8 +503,22 @@ const menuButtonStyles = cn(
 );
 
 const menuButtonActiveStyles = cn(
-	"bg-sidebar-primary/10 text-sidebar-primary border-l-2 border-sidebar-primary",
+	"bg-sidebar-primary/10 text-sidebar-primary",
 );
+
+/**
+ * Active indicator bar positioned at the sidebar group edge.
+ * Uses negative left offset to compensate for SidebarGroupContent nesting padding.
+ */
+function ActiveIndicator({ depth }: { depth: number }) {
+	return (
+		<div
+			className="absolute top-0 bottom-0 w-0.5 bg-sidebar-primary"
+			style={{ left: `${-depth * 0.75}rem` }}
+			aria-hidden="true"
+		/>
+	);
+}
 
 function NavItem({
 	item,
@@ -510,6 +527,7 @@ function NavItem({
 	renderNavItem,
 	useActiveProps,
 	className,
+	depth = 0,
 }: {
 	item: NavigationItem;
 	isActive: boolean;
@@ -517,6 +535,7 @@ function NavItem({
 	renderNavItem?: AdminSidebarProps["renderNavItem"];
 	useActiveProps: boolean;
 	className?: string;
+	depth?: number;
 }) {
 	const { state, isMobile, setOpenMobile } = useSidebar();
 	const collapsed = state === "collapsed";
@@ -554,6 +573,7 @@ function NavItem({
 	const linkContent = (
 		<LinkComponent
 			to={item.href}
+			aria-label={collapsed ? label : undefined}
 			className={cn(
 				"qa-sidebar__nav-link",
 				menuButtonStyles,
@@ -579,6 +599,7 @@ function NavItem({
 				onClickCapture={handleClick}
 				aria-current={ariaCurrent}
 			>
+				{isActive && <ActiveIndicator depth={0} />}
 				<Tooltip>
 					<TooltipTrigger
 						render={
@@ -613,6 +634,7 @@ function NavItem({
 			onClickCapture={handleClick}
 			aria-current={ariaCurrent}
 		>
+			{isActive && <ActiveIndicator depth={depth} />}
 			{linkContent}
 		</SidebarMenuItem>
 	);
@@ -649,8 +671,8 @@ function useSidebarCollapsedSections() {
 	const isSectionCollapsed = React.useCallback(
 		(sectionId: string | undefined, collapsible: boolean | undefined) => {
 			if (!collapsible || !sectionId) return false;
-			// Default to collapsed (true) when no stored preference
-			return stored?.[sectionId] ?? true;
+			// Default to expanded (false) when no stored preference
+			return stored?.[sectionId] ?? false;
 		},
 		[stored],
 	);
@@ -658,7 +680,7 @@ function useSidebarCollapsedSections() {
 	const toggleSection = React.useCallback(
 		(sectionId: string) => {
 			const current = stored ?? {};
-			const isCurrentlyCollapsed = current[sectionId] ?? true;
+			const isCurrentlyCollapsed = current[sectionId] ?? false;
 			const next = { ...current, [sectionId]: !isCurrentlyCollapsed };
 			// Optimistic update
 			queryClient.setQueryData(queryKey, next);
@@ -714,10 +736,21 @@ function NavGroup({
 						depth > 0 && "pl-6",
 					)}
 					role={group.collapsible ? "button" : undefined}
+					tabIndex={group.collapsible ? 0 : undefined}
 					aria-expanded={group.collapsible ? !isCollapsed : undefined}
 					onClick={
 						group.collapsible && group.id
 							? () => toggleSection(group.id!)
+							: undefined
+					}
+					onKeyDown={
+						group.collapsible && group.id
+							? (e: React.KeyboardEvent) => {
+									if (e.key === "Enter" || e.key === " ") {
+										e.preventDefault();
+										toggleSection(group.id!);
+									}
+								}
 							: undefined
 					}
 				>
@@ -771,6 +804,7 @@ function NavGroup({
 										LinkComponent={LinkComponent}
 										renderNavItem={renderNavItem}
 										useActiveProps={useActiveProps}
+										depth={depth}
 									/>
 								);
 							})}
@@ -853,6 +887,13 @@ function UserFooter() {
 		code,
 		label: getLocaleName(code),
 	}));
+
+	// Content locale (for data/content language)
+	const contentLocales = useSafeContentLocales();
+	const contentLocale = useAdminStore(selectContentLocale);
+	const setContentLocale = useAdminStore(selectSetContentLocale);
+	const hasMultipleContentLocales =
+		(contentLocales?.locales?.length ?? 0) > 1;
 
 	// Close sidebar on mobile when navigating
 	const closeSidebarOnMobile = React.useCallback(() => {
@@ -959,7 +1000,7 @@ function UserFooter() {
 										<Icon icon="ph:globe" />
 										{t("locale.uiLanguage")}
 									</DropdownMenuSubTrigger>
-									<DropdownMenuPortal>
+
 										<DropdownMenuSubContent>
 											{uiLocaleOptions.map((locale) => (
 												<DropdownMenuItem
@@ -987,7 +1028,47 @@ function UserFooter() {
 												</DropdownMenuItem>
 											))}
 										</DropdownMenuSubContent>
-									</DropdownMenuPortal>
+
+								</DropdownMenuSub>
+							)}
+							{/* Content Language Switcher */}
+							{hasMultipleContentLocales && (
+								<DropdownMenuSub>
+									<DropdownMenuSubTrigger>
+										<Icon icon="ph:translate" />
+										{t("locale.contentLanguage")}
+									</DropdownMenuSubTrigger>
+									<DropdownMenuSubContent>
+										{contentLocales!.locales.map((locale) => (
+											<DropdownMenuItem
+												key={locale.code}
+												onClick={() => setContentLocale(locale.code)}
+											>
+												<img
+													src={getFlagUrl(
+														locale.flagCountryCode ?? locale.code,
+													)}
+													alt={locale.code}
+													className="h-3 w-4 rounded-sm object-cover"
+													onError={(e) => {
+														e.currentTarget.style.display = "none";
+													}}
+												/>
+												<span className="uppercase text-xs font-medium w-6">
+													{locale.code}
+												</span>
+												<span className="flex-1">
+													{locale.label ?? locale.code}
+												</span>
+												{locale.code === contentLocale && (
+													<Icon
+														icon="ph:check"
+														className="size-4 text-primary"
+													/>
+												)}
+											</DropdownMenuItem>
+										))}
+									</DropdownMenuSubContent>
 								</DropdownMenuSub>
 							)}
 							<DropdownMenuSeparator />

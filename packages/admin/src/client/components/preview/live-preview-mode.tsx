@@ -73,6 +73,10 @@ interface LivePreviewModeProps {
 	previewUrl: string | null;
 	/** Callback after successful save */
 	onSuccess?: (data: any) => void;
+	/** Default preview pane size (percentage, 0-100). @default 50 */
+	defaultSize?: number;
+	/** Minimum preview pane size (percentage, 0-100). @default 30 */
+	minSize?: number;
 }
 
 // ============================================================================
@@ -82,6 +86,52 @@ interface LivePreviewModeProps {
 type LivePreviewContentProps = LivePreviewModeProps & {
 	previewRef: React.RefObject<PreviewPaneRef | null>;
 };
+
+// ============================================================================
+// Resize Hook
+// ============================================================================
+
+function useResizablePane(defaultSize = 50, minSize = 30) {
+	const [previewPercent, setPreviewPercent] = React.useState(defaultSize);
+	const isDragging = React.useRef(false);
+	const containerRef = React.useRef<HTMLDivElement>(null);
+
+	const handleMouseDown = React.useCallback((e: React.MouseEvent) => {
+		e.preventDefault();
+		isDragging.current = true;
+		document.body.style.cursor = "col-resize";
+		document.body.style.userSelect = "none";
+	}, []);
+
+	React.useEffect(() => {
+		const handleMouseMove = (e: MouseEvent) => {
+			if (!isDragging.current || !containerRef.current) return;
+			const rect = containerRef.current.getBoundingClientRect();
+			const x = e.clientX - rect.left;
+			const formPercent = (x / rect.width) * 100;
+			const newPreview = Math.min(
+				100 - minSize,
+				Math.max(minSize, 100 - formPercent),
+			);
+			setPreviewPercent(newPreview);
+		};
+		const handleMouseUp = () => {
+			if (isDragging.current) {
+				isDragging.current = false;
+				document.body.style.cursor = "";
+				document.body.style.userSelect = "";
+			}
+		};
+		window.addEventListener("mousemove", handleMouseMove);
+		window.addEventListener("mouseup", handleMouseUp);
+		return () => {
+			window.removeEventListener("mousemove", handleMouseMove);
+			window.removeEventListener("mouseup", handleMouseUp);
+		};
+	}, [minSize]);
+
+	return { previewPercent, containerRef, handleMouseDown };
+}
 
 function LivePreviewContent({
 	onClose,
@@ -93,12 +143,18 @@ function LivePreviewContent({
 	previewUrl,
 	onSuccess,
 	previewRef,
+	defaultSize = 50,
+	minSize = 30,
 }: LivePreviewContentProps) {
 	const { t } = useTranslation();
 	const isMobile = useIsMobile();
 	const navigate = useAdminStore(selectNavigate);
 	const basePath = useAdminStore(selectBasePath);
 	const [activeTab, setActiveTab] = React.useState<"form" | "preview">("form");
+	const { previewPercent, containerRef, handleMouseDown } = useResizablePane(
+		defaultSize,
+		minSize,
+	);
 
 	// Access FocusContext
 	const focusContext = useFocus();
@@ -128,6 +184,52 @@ function LivePreviewContent({
 			}
 		}
 	}, [focusState, previewRef]);
+
+	// Keyboard navigation: Tab/Shift+Tab cycles through fields in preview form
+	React.useEffect(() => {
+		const handleKeyDown = (e: KeyboardEvent) => {
+			if (e.key !== "Tab") return;
+			const formScope = document.querySelector<HTMLElement>(
+				"[data-preview-form-scope]",
+			);
+			if (!formScope) return;
+
+			const fields = Array.from(
+				formScope.querySelectorAll<HTMLElement>("[data-field-path]"),
+			);
+			if (fields.length === 0) return;
+
+			// Only intercept Tab when focus is inside the form scope
+			if (!formScope.contains(document.activeElement)) return;
+
+			e.preventDefault();
+			const currentPath =
+				focusState.type === "field" ? focusState.fieldPath : null;
+			const currentIdx = currentPath
+				? fields.findIndex(
+						(el) => el.getAttribute("data-field-path") === currentPath,
+					)
+				: -1;
+
+			let nextIdx: number;
+			if (e.shiftKey) {
+				nextIdx =
+					currentIdx <= 0 ? fields.length - 1 : currentIdx - 1;
+			} else {
+				nextIdx =
+					currentIdx >= fields.length - 1 ? 0 : currentIdx + 1;
+			}
+
+			const nextField = fields[nextIdx];
+			const nextPath = nextField?.getAttribute("data-field-path");
+			if (nextPath) {
+				focusContext.focusField(nextPath);
+			}
+		};
+
+		window.addEventListener("keydown", handleKeyDown);
+		return () => window.removeEventListener("keydown", handleKeyDown);
+	}, [focusState, focusContext]);
 
 	// Preview click handlers - update FocusContext state
 	const handlePreviewFieldClick = React.useCallback(
@@ -245,16 +347,13 @@ function LivePreviewContent({
 					)}
 				</div>
 			) : (
-				/* Desktop: Side by side */
-				<div className="flex-1 flex min-h-0">
-					{/* Form panel - fixed width like sheet */}
+				/* Desktop: Side by side with resizable pane */
+				<div ref={containerRef} className="flex-1 flex min-h-0">
+					{/* Form panel */}
 					<div
 						data-preview-form-scope
-						className={cn(
-							"h-full border-r bg-background shrink-0",
-							"w-full sm:max-w-2xl",
-							"overflow-y-auto p-6",
-						)}
+						className="h-full border-r bg-background overflow-y-auto p-6"
+						style={{ width: `${100 - previewPercent}%` }}
 					>
 						<LocaleScopeProvider>
 							<FormView
@@ -271,8 +370,17 @@ function LivePreviewContent({
 						</LocaleScopeProvider>
 					</div>
 
-					{/* Preview panel - fills remaining space */}
-					<div className="flex-1 min-w-0 bg-muted">
+					{/* Drag handle */}
+					<div
+						onMouseDown={handleMouseDown}
+						className="w-1 shrink-0 cursor-col-resize bg-border hover:bg-primary/40 transition-colors"
+					/>
+
+					{/* Preview panel */}
+					<div
+						className="min-w-0 bg-muted"
+						style={{ width: `${previewPercent}%` }}
+					>
 						{previewUrl ? (
 							<PreviewPane
 								ref={previewRef}
@@ -312,6 +420,8 @@ export function LivePreviewMode({
 	registry,
 	previewUrl,
 	onSuccess,
+	defaultSize,
+	minSize,
 }: LivePreviewModeProps) {
 	// Create ref for PreviewPane
 	const previewRef = React.useRef<PreviewPaneRef>(null);
@@ -357,6 +467,8 @@ export function LivePreviewMode({
 					previewUrl={previewUrl}
 					onSuccess={onSuccess}
 					previewRef={previewRef}
+					defaultSize={defaultSize}
+					minSize={minSize}
 				/>
 			</FocusProvider>
 		</LivePreviewContext.Provider>
