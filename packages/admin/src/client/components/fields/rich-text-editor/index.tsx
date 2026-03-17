@@ -94,23 +94,31 @@ export function RichTextEditor({
 	const allowCharacterCount =
 		resolvedFeatures.characterCount && (showCharacterCount || maxCharacters);
 
-	// Build Tiptap extensions
-	const resolvedExtensions = React.useMemo(
-		() =>
-			buildExtensions({
-				features: resolvedFeatures,
-				placeholder: placeholder || t("editor.startWriting"),
-				maxCharacters,
-				customExtensions: extensions,
-			}),
-		[resolvedFeatures, placeholder, maxCharacters, extensions, t],
-	);
+	// Build Tiptap extensions (async due to lazy-loaded lowlight)
+	const [resolvedExtensions, setResolvedExtensions] = React.useState<
+		Awaited<ReturnType<typeof buildExtensions>> | undefined
+	>(undefined);
+
+	React.useEffect(() => {
+		let mounted = true;
+		buildExtensions({
+			features: resolvedFeatures,
+			placeholder: placeholder || t("editor.startWriting"),
+			maxCharacters,
+			customExtensions: extensions,
+		}).then((exts) => {
+			if (mounted) setResolvedExtensions(exts);
+		});
+		return () => {
+			mounted = false;
+		};
+	}, [resolvedFeatures, placeholder, maxCharacters, extensions, t]);
 
 	// Initialize editor — no dependency array and no immediatelyRender:false
 	// to avoid known tiptap race conditions (issues #5432, #5333).
 	// Content sync and locale changes are handled via the effect below.
 	const editor = useEditor({
-		extensions: resolvedExtensions,
+		extensions: resolvedExtensions ?? [],
 		content: value ?? "",
 		editorProps: {
 			attributes: {

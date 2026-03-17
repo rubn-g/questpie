@@ -24,6 +24,7 @@ import {
 	useState,
 } from "react";
 import { I18nProvider } from "../i18n/hooks";
+import { getCookie } from "../lib/cookies.js";
 import { createSimpleI18n, type SimpleMessages } from "../i18n/simple";
 import { selectClient, useAdminStore } from "./provider";
 
@@ -39,12 +40,6 @@ const LOCALE_COOKIE_MAX_AGE = 60 * 60 * 24 * 365;
 // ============================================================================
 // Cookie Helpers
 // ============================================================================
-
-function getCookie(name: string): string | null {
-	if (typeof document === "undefined") return null;
-	const match = document.cookie.match(new RegExp(`${name}=([^;]+)`));
-	return match ? match[1] : null;
-}
 
 function setCookie(name: string, value: string): void {
 	if (typeof document === "undefined") return;

@@ -19,9 +19,8 @@ import {
 	useBlockLibraryOpen,
 	useBlockTree,
 } from "./block-editor-context.js";
+import { SEARCH_PARAMS_EVENT } from "../../lib/events.js";
 import { BlockLibrarySidebar } from "./block-library-sidebar.js";
-
-const SEARCH_PARAMS_EVENT = "questpie:searchparamschange";
 
 // ============================================================================
 // Types

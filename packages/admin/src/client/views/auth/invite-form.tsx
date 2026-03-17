@@ -171,11 +171,12 @@ export function InviteForm({
 						>
 							<SelectTrigger id="invite-role">
 								<SelectValue>
-									{roles.find((r) => r.value === selectedRole)?.label
-										? resolveText(
-												roles.find((r) => r.value === selectedRole)?.label,
-											)
-										: t("auth.inviteSelectRole")}
+									{(() => {
+										const selectedRoleLabel = roles.find((r) => r.value === selectedRole)?.label;
+										return selectedRoleLabel
+											? resolveText(selectedRoleLabel)
+											: t("auth.inviteSelectRole");
+									})()}
 								</SelectValue>
 							</SelectTrigger>
 							<SelectContent>

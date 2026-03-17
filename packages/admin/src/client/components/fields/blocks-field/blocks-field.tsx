@@ -81,8 +81,9 @@ export function BlocksField({
 		if (!allowedBlocks || allowedBlocks.length === 0) {
 			return blocks;
 		}
+		const allowed = new Set(allowedBlocks);
 		return Object.fromEntries(
-			Object.entries(blocks).filter(([name]) => allowedBlocks.includes(name)),
+			Object.entries(blocks).filter(([name]) => allowed.has(name)),
 		);
 	}, [blocks, allowedBlocks]);
 

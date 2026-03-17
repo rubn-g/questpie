@@ -535,63 +535,68 @@ export const batchReactive = route()
 			locale: (ctx as any).locale ?? "en",
 		};
 
-		const results: z.infer<typeof reactiveResultSchema>[] = [];
-
-		for (const request of requests) {
-			const { field, type, formData, siblingData, prevData, prevSiblingData } =
-				request;
-
-			try {
-				// Get field definition
-				getFieldDefinition(app, entityName, field, entityType);
-
-				// Get reactive handler
-				const handler = getReactiveHandler(
-					app,
-					entityName,
+		const results = await Promise.all(
+			requests.map(async (request) => {
+				const {
 					field,
 					type,
-					entityType,
-				);
+					formData,
+					siblingData,
+					prevData,
+					prevSiblingData,
+				} = request;
 
-				if (!handler) {
-					// No handler found - skip
-					results.push({
+				try {
+					// Get field definition
+					getFieldDefinition(app, entityName, field, entityType);
+
+					// Get reactive handler
+					const handler = getReactiveHandler(
+						app,
+						entityName,
 						field,
 						type,
-						value: undefined,
-						error: `No ${type} handler found for field '${field}'`,
-					});
-					continue;
+						entityType,
+					);
+
+					if (!handler) {
+						// No handler found - skip
+						return {
+							field,
+							type,
+							value: undefined as unknown,
+							error: `No ${type} handler found for field '${field}'`,
+						};
+					}
+
+					// Build context
+					const reactiveCtx = buildReactiveContext(
+						formData as Record<string, any>,
+						siblingData as Record<string, any> | null,
+						prevData as Record<string, any> | null,
+						prevSiblingData as Record<string, any> | null,
+						serverCtx,
+					);
+
+					// Execute handler
+					const value = await handler(reactiveCtx);
+
+					return {
+						field,
+						type,
+						value,
+					};
+				} catch (error) {
+					// Handler error - return error message
+					return {
+						field,
+						type,
+						value: undefined as unknown,
+						error: error instanceof Error ? error.message : String(error),
+					};
 				}
-
-				// Build context
-				const reactiveCtx = buildReactiveContext(
-					formData as Record<string, any>,
-					siblingData as Record<string, any> | null,
-					prevData as Record<string, any> | null,
-					prevSiblingData as Record<string, any> | null,
-					serverCtx,
-				);
-
-				// Execute handler
-				const value = await handler(reactiveCtx);
-
-				results.push({
-					field,
-					type,
-					value,
-				});
-			} catch (error) {
-				// Handler error - return error message
-				results.push({
-					field,
-					type,
-					value: undefined,
-					error: error instanceof Error ? error.message : String(error),
-				});
-			}
-		}
+			}),
+		);
 
 		return { results };
 	});

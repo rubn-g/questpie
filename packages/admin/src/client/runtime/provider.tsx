@@ -27,6 +27,7 @@ import { I18nProvider } from "../i18n/hooks";
 import { adminMessages } from "../i18n/messages";
 import { createSimpleI18n, type SimpleMessages } from "../i18n/simple";
 import type { I18nAdapter } from "../i18n/types";
+import { getCookie } from "../lib/cookies.js";
 import { ContentLocalesProvider } from "./content-locales-provider";
 import { buildNavigation, type NavigationGroup } from "./routes";
 import {
@@ -51,12 +52,6 @@ const LEGACY_LOCALE_COOKIE = "questpie_locale";
 // ============================================================================
 // Cookie Helpers
 // ============================================================================
-
-function getCookie(name: string): string | null {
-	if (typeof document === "undefined") return null;
-	const match = document.cookie.match(new RegExp(`${name}=([^;]+)`));
-	return match ? match[1] : null;
-}
 
 function setCookie(name: string, value: string): void {
 	if (typeof document === "undefined") return;

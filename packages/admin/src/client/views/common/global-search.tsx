@@ -93,7 +93,7 @@ function highlightText(text: string, query: string): React.ReactNode {
 	if (parts.length === 1) return text;
 
 	return parts.map((part, i) =>
-		regex.test(part)
+		i % 2 === 1
 			? React.createElement("mark", { key: i, className: "bg-yellow-200/50" }, part)
 			: part,
 	);

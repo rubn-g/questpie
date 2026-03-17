@@ -814,16 +814,21 @@ function TableViewInner({
 							.map((c) => (c as any).accessorKey || (c as any).id)
 							.filter(Boolean);
 
+		// Build lookup map for O(1) column access
+		const columnMap = new Map<string, ColumnDef<any>>();
+		for (const c of columns) {
+			const key = (c as any).accessorKey || (c as any).id;
+			if (key) columnMap.set(key, c as ColumnDef<any>);
+		}
+
 		// Add remaining visible columns (excluding title since it's already added)
 		for (const colName of columnsToShow) {
 			// Skip title column - already added first
 			if (colName === titleColName) continue;
 
-			const col = columns.find(
-				(c) => (c as any).accessorKey === colName || (c as any).id === colName,
-			);
+			const col = columnMap.get(colName);
 			if (col) {
-				orderedColumns.push(col as ColumnDef<any>);
+				orderedColumns.push(col);
 			}
 		}
 

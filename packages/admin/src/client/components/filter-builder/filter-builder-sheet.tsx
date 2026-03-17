@@ -15,9 +15,48 @@ import { FiltersTab } from "./filters-tab.js";
 import { SavedViewsTab } from "./saved-views-tab.js";
 import type {
 	FilterBuilderProps,
+	FilterRule,
 	SavedView,
+	SortConfig,
 	ViewConfiguration,
 } from "./types.js";
+
+function arraysEqual<T>(a: T[], b: T[], eq: (x: T, y: T) => boolean): boolean {
+	return a.length === b.length && a.every((v, i) => eq(v, b[i]));
+}
+
+function filterValueEqual(a: FilterRule["value"], b: FilterRule["value"]): boolean {
+	if (a === b) return true;
+	if (Array.isArray(a) && Array.isArray(b)) {
+		return a.length === b.length && a.every((v, i) => v === b[i]);
+	}
+	return false;
+}
+
+function filtersEqual(a: FilterRule[], b: FilterRule[]): boolean {
+	return arraysEqual(a, b, (x, y) =>
+		x.id === y.id &&
+		x.field === y.field &&
+		x.operator === y.operator &&
+		filterValueEqual(x.value, y.value),
+	);
+}
+
+function sortConfigEqual(a: SortConfig | null, b: SortConfig | null): boolean {
+	if (a === b) return true;
+	if (!a || !b) return false;
+	return a.field === b.field && a.direction === b.direction;
+}
+
+function viewConfigEqual(a: ViewConfiguration, b: ViewConfiguration): boolean {
+	return (
+		filtersEqual(a.filters, b.filters) &&
+		sortConfigEqual(a.sortConfig, b.sortConfig) &&
+		arraysEqual(a.visibleColumns, b.visibleColumns, (x, y) => x === y) &&
+		a.realtime === b.realtime &&
+		a.includeDeleted === b.includeDeleted
+	);
+}
 
 // Module-level constant for empty array to avoid recreating on each render
 const EMPTY_SAVED_VIEWS: SavedView[] = [];
@@ -94,8 +133,7 @@ export function FilterBuilderSheet({
 		setLocalConfig(resetConfig);
 	};
 
-	const hasChanges =
-		JSON.stringify(localConfig) !== JSON.stringify(currentConfig);
+	const hasChanges = !viewConfigEqual(localConfig, currentConfig);
 
 	return (
 		<Sheet open={isOpen} onOpenChange={onOpenChange}>

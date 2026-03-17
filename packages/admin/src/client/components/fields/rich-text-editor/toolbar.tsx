@@ -68,11 +68,11 @@ export function ToolbarButton({
 	className,
 	...rest
 }: ToolbarButtonProps) {
-	const tooltipText = React.useMemo(() => {
-		if (!title && !shortcut) return undefined;
-		if (shortcut) return `${title || ""} (${shortcut})`.trim();
-		return title;
-	}, [title, shortcut]);
+	const tooltipText = !title && !shortcut
+		? undefined
+		: shortcut
+			? `${title || ""} (${shortcut})`.trim()
+			: title;
 
 	const iconSuffix = active ? "-fill" : "";
 	const buttonSize = iconName ? "icon-xs" : "xs";

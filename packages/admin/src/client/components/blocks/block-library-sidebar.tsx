@@ -112,17 +112,12 @@ export function BlockLibrarySidebar({
 
 		// Convert to array and sort
 		const result = Array.from(categoryMap.values());
-
-		// Sort categories by order
 		result.sort((a, b) => (a.config.order ?? 999) - (b.config.order ?? 999));
-
-		// Sort blocks within each category by order
 		for (const category of result) {
 			category.blocks.sort(
 				(a, b) => (a.admin?.order ?? 999) - (b.admin?.order ?? 999),
 			);
 		}
-
 		return result;
 	}, [blockRegistry, allowedBlocks, search]);
 

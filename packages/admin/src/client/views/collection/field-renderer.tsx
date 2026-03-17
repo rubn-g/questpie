@@ -9,6 +9,8 @@ import * as React from "react";
 import { useFormContext, useWatch } from "react-hook-form";
 import type { ComponentRegistry } from "../../builder";
 import type { FieldInstance } from "../../builder/field/field";
+import type { MaybeLazyComponent } from "../../builder/types/common";
+import { Spinner } from "../../components/ui/spinner";
 import { useAdminConfig } from "../../hooks/use-admin-config";
 import { useFieldHooks } from "../../hooks/use-field-hooks";
 import { useResolveText } from "../../i18n/hooks";
@@ -138,6 +140,76 @@ function computeDynamicDependencyPaths({
 		scopedValues,
 	);
 	return scopeDependencies(trackedDeps, fieldPrefix);
+}
+
+/**
+ * Resolve a MaybeLazyComponent to a concrete React component.
+ * Handles direct components, React.lazy, and `() => import(...)` loaders.
+ */
+function useLazyComponent(
+	loader: MaybeLazyComponent | undefined,
+): { Component: React.ComponentType<any> | null; loading: boolean } {
+	const [state, setState] = React.useState<{
+		Component: React.ComponentType<any> | null;
+		loading: boolean;
+	}>(() => {
+		if (!loader) return { Component: null, loading: false };
+
+		// Check if it's a lazy loader function (not a React component)
+		const isLazyLoader =
+			typeof loader === "function" &&
+			!loader.prototype?.render &&
+			!loader.prototype?.isReactComponent &&
+			loader.length === 0 &&
+			// Exclude React.lazy exotic components — they render directly
+			!(loader as any).$$typeof;
+
+		if (!isLazyLoader) {
+			return { Component: loader as React.ComponentType<any>, loading: false };
+		}
+
+		return { Component: null, loading: true };
+	});
+
+	React.useEffect(() => {
+		if (!loader) {
+			setState({ Component: null, loading: false });
+			return;
+		}
+
+		const isLazyLoader =
+			typeof loader === "function" &&
+			!loader.prototype?.render &&
+			!loader.prototype?.isReactComponent &&
+			loader.length === 0 &&
+			!(loader as any).$$typeof;
+
+		if (!isLazyLoader) {
+			setState({ Component: loader as React.ComponentType<any>, loading: false });
+			return;
+		}
+
+		let mounted = true;
+		(async () => {
+			try {
+				const result = await (loader as () => Promise<any>)();
+				if (mounted) {
+					const Component = result.default || result;
+					setState({ Component, loading: false });
+				}
+			} catch {
+				if (mounted) {
+					setState({ Component: null, loading: false });
+				}
+			}
+		})();
+
+		return () => {
+			mounted = false;
+		};
+	}, [loader]);
+
+	return state;
 }
 
 /**
@@ -333,6 +405,10 @@ export function FieldRenderer({
 		formValues, // Pass pre-watched values to avoid calling form.watch() internally
 	});
 
+	// Resolve lazy component (supports () => import(...) loaders)
+	const { Component: resolvedComponent, loading: componentLoading } =
+		useLazyComponent(context.component);
+
 	// Check if compute is client-side (function) vs server-side (object with handler)
 	// Server-side compute is handled by useReactiveFields in form-view.tsx
 	const clientSideCompute =
@@ -405,7 +481,7 @@ export function FieldRenderer({
 	// 1. Embedded fields need special handling for recursive rendering
 	if (context.type === "embedded") {
 		content = renderEmbeddedField({
-			context,
+			context: { ...context, component: resolvedComponent ?? undefined },
 			registry,
 			allCollectionsConfig,
 			componentProps,
@@ -413,16 +489,25 @@ export function FieldRenderer({
 		});
 	}
 
-	// 2. Use FieldDefinition.field.component (registry-first approach)
-	if (!content && context.component) {
+	// 2. Show loading spinner while lazy component is loading
+	if (!content && componentLoading) {
+		content = (
+			<div className="flex items-center justify-center p-4">
+				<Spinner className="size-5" />
+			</div>
+		);
+	}
+
+	// 3. Use FieldDefinition.field.component (registry-first approach)
+	if (!content && resolvedComponent) {
 		content = renderDefinitionComponent({
-			context,
+			context: { ...context, component: resolvedComponent },
 			componentProps,
 			blocks: adminConfig?.blocks,
 		});
 	}
 
-	// 3. No component found - show error (all fields should have registered components)
+	// 4. No component found - show error (all fields should have registered components)
 	if (!content) {
 		content = renderConfigError(
 			`No component registered for field type "${context.type}" (field: "${context.fieldName}").`,

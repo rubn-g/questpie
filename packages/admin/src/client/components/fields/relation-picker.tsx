@@ -275,8 +275,9 @@ export function RelationPicker<T extends QuestpieApp>({
 				}
 
 				// Filter out already selected items and transform to SelectOption format
+				const selectedIdSet = new Set(selectedIds);
 				return docs
-					.filter((opt: any) => !selectedIds.includes(opt.id))
+					.filter((opt: any) => !selectedIdSet.has(opt.id))
 					.map((item: any) => {
 						let label: string;
 						if (renderOption) {

@@ -103,7 +103,7 @@ async function hasReadAccess(
 		});
 		return result !== false; // AccessWhere = still visible (row-level filter, but collection itself is accessible)
 	} catch {
-		return true; // Fail-open: don't hide content due to access rule errors
+		return false; // Fail-closed: deny access on rule errors
 	}
 }
 
@@ -671,15 +671,16 @@ async function processDashboardItems(
 
 		// Recurse into tabs
 		if (item.type === "tabs") {
-			const tabs = [];
-			for (const tab of (item as any).tabs || []) {
-				const filtered = await processDashboardItems(
-					tab.items || [],
-					accessibleCollections,
-					accessCtx,
-				);
-				tabs.push({ ...tab, items: filtered });
-			}
+			const tabs = await Promise.all(
+				((item as any).tabs || []).map(async (tab: any) => {
+					const filtered = await processDashboardItems(
+						tab.items || [],
+						accessibleCollections,
+						accessCtx,
+					);
+					return { ...tab, items: filtered };
+				}),
+			);
 			result.push({ ...item, tabs } as any);
 			continue;
 		}
@@ -798,19 +799,22 @@ const getAdminConfig = route()
 			locale: (ctx as any).locale,
 		};
 
-		const accessibleCollections = new Set<string>();
-		for (const [name, col] of Object.entries(collections)) {
-			if (await hasReadAccess((col as any).state?.access?.read, accessCtx)) {
-				accessibleCollections.add(name);
-			}
-		}
-
-		const accessibleGlobals = new Set<string>();
-		for (const [name, g] of Object.entries(globals)) {
-			if (await hasReadAccess((g as any).state?.access?.read, accessCtx)) {
-				accessibleGlobals.add(name);
-			}
-		}
+		const [accessibleCollections, accessibleGlobals] = await Promise.all([
+			Promise.all(
+				Object.entries(collections).map(async ([name, col]) =>
+					(await hasReadAccess((col as any).state?.access?.read, accessCtx))
+						? name
+						: null,
+				),
+			).then((names) => new Set(names.filter(Boolean) as string[])),
+			Promise.all(
+				Object.entries(globals).map(async ([name, g]) =>
+					(await hasReadAccess((g as any).state?.access?.read, accessCtx))
+						? name
+						: null,
+				),
+			).then((names) => new Set(names.filter(Boolean) as string[])),
+		]);
 
 		// 2. Extract and filter metadata
 		const allCollectionsMeta = extractCollectionsMeta(app);

@@ -6,7 +6,6 @@
 
 import type { AnyExtension } from "@tiptap/core";
 import CharacterCount from "@tiptap/extension-character-count";
-import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
 import Image from "@tiptap/extension-image";
 import Link from "@tiptap/extension-link";
 import Placeholder from "@tiptap/extension-placeholder";
@@ -17,17 +16,14 @@ import TableRow from "@tiptap/extension-table-row";
 import TextAlign from "@tiptap/extension-text-align";
 import Underline from "@tiptap/extension-underline";
 import StarterKit from "@tiptap/starter-kit";
-import { common, createLowlight } from "lowlight";
 
 import { createSlashCommandExtension } from "./slash-commands";
 import type { RichTextFeatures, SlashCommandItem } from "./types";
 
-const lowlight = createLowlight(common);
-
 /**
  * Build Tiptap extensions based on feature configuration
  */
-export function buildExtensions({
+export async function buildExtensions({
 	features,
 	placeholder,
 	maxCharacters,
@@ -37,7 +33,7 @@ export function buildExtensions({
 	placeholder?: string;
 	maxCharacters?: number;
 	customExtensions?: AnyExtension[];
-}): AnyExtension[] {
+}): Promise<AnyExtension[]> {
 	const starterKitConfig: Record<string, any> = {
 		codeBlock: false,
 	};
@@ -95,6 +91,12 @@ export function buildExtensions({
 	}
 
 	if (features.codeBlock) {
+		const [{ default: CodeBlockLowlight }, { common, createLowlight }] =
+			await Promise.all([
+				import("@tiptap/extension-code-block-lowlight"),
+				import("lowlight"),
+			]);
+		const lowlight = createLowlight(common);
 		extensions.push(CodeBlockLowlight.configure({ lowlight }));
 	}
 
