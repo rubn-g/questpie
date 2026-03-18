@@ -265,6 +265,7 @@ export function resolveTargetGraph(
 					registries: {
 						collectionExtensions: {},
 						globalExtensions: {},
+						fieldExtensions: {},
 						singletonFactories: {},
 					},
 					callbackParams: {},
@@ -339,6 +340,12 @@ export function resolveTargetGraph(
 					Object.assign(
 						target.registries.globalExtensions,
 						reg.globalExtensions,
+					);
+				}
+				if (reg.fieldExtensions) {
+					Object.assign(
+						target.registries.fieldExtensions,
+						reg.fieldExtensions,
 					);
 				}
 				if (reg.singletonFactories) {

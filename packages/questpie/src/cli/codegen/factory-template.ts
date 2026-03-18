@@ -51,6 +51,7 @@ export function generateFactoryTemplate(
 	// Extract merged registries and callback params from the resolved target
 	const collExtensions = new Map<string, RegistryExtension>();
 	const globalExtensions = new Map<string, RegistryExtension>();
+	const fieldExtensions = new Map<string, RegistryExtension>();
 	const singletonFactories = new Map<string, SingletonFactory>();
 	const allImports = new Map<string, Set<string>>(); // from → Set<name>
 
@@ -65,6 +66,13 @@ export function generateFactoryTemplate(
 		target.registries.globalExtensions,
 	)) {
 		globalExtensions.set(name, ext);
+		collectImports(ext, allImports);
+	}
+
+	for (const [name, ext] of Object.entries(
+		target.registries.fieldExtensions,
+	)) {
+		fieldExtensions.set(name, ext);
 		collectImports(ext, allImports);
 	}
 
@@ -91,7 +99,8 @@ export function generateFactoryTemplate(
 
 	// Collect imports for callback param factory functions (only when extensions exist)
 	const hasExtensions = collExtensions.size > 0 || globalExtensions.size > 0;
-	if (hasExtensions) {
+	const hasFieldExtensions = fieldExtensions.size > 0;
+	if (hasExtensions || hasFieldExtensions) {
 		collectCallbackParamImports(callbackParams, allImports);
 	}
 
@@ -100,6 +109,7 @@ export function generateFactoryTemplate(
 	for (const ext of [
 		...collExtensions.values(),
 		...globalExtensions.values(),
+		...fieldExtensions.values(),
 	]) {
 		if (ext.configTypePlaceholders) {
 			for (const [placeholder, category] of Object.entries(
@@ -123,9 +133,10 @@ export function generateFactoryTemplate(
 	// Core imports — always import builders; conditionally import wrapBuilderWithExtensions
 	// Also import builtinFields (runtime value) for constructing the merged field defs map
 	lines.push("// ── Core Imports ───────────────────────────────────────────");
-	if (hasExtensions) {
+	if (hasExtensions || hasFieldExtensions) {
+		const fieldImport = hasFieldExtensions ? ", Field" : "";
 		lines.push(
-			'import { CollectionBuilder, GlobalBuilder, wrapBuilderWithExtensions, builtinFields, type EmptyCollectionState, type EmptyGlobalState, type BuiltinFields } from "questpie";',
+			`import { CollectionBuilder, GlobalBuilder, wrapBuilderWithExtensions, builtinFields, type EmptyCollectionState, type EmptyGlobalState, type BuiltinFields${fieldImport} } from "questpie";`,
 		);
 	} else {
 		lines.push(
@@ -152,6 +163,17 @@ export function generateFactoryTemplate(
 		lines.push("");
 	}
 
+	// Emit field extension registry early (before field defs, which reference it)
+	if (hasFieldExtensions) {
+		emitExtensionRegistry(
+			lines,
+			"_fieldExt",
+			fieldExtensions,
+			callbackParams,
+		);
+		lines.push("");
+	}
+
 	// Build merged field defs constant — builtinFields + plugin fields + user fields
 	{
 		const spreads = ["...builtinFields"];
@@ -164,7 +186,33 @@ export function generateFactoryTemplate(
 		lines.push(
 			"// Merged field factories — builtins + module-contributed (e.g. richText, blocks) + user fields",
 		);
-		lines.push(`const _allFieldDefs = { ${spreads.join(", ")} } as const;`);
+		lines.push(`const _rawFieldDefs = { ${spreads.join(", ")} } as const;`);
+		lines.push("");
+
+		// When field extensions exist, wrap each field factory so returned Field instances
+		// go through the extension proxy (intercepting .admin(), .form(), etc.)
+		if (hasFieldExtensions) {
+			lines.push(
+				"// Wrap field factories so returned Field instances have extension methods",
+			);
+			lines.push(
+				"function _wrapFieldFactory(fn: (...args: any[]) => any): (...args: any[]) => any {",
+			);
+			lines.push(
+				"\treturn (...args: any[]) => wrapBuilderWithExtensions(fn(...args), _fieldExt, Field);",
+			);
+			lines.push("}");
+			lines.push("");
+			lines.push(
+				"const _allFieldDefs = Object.fromEntries(",
+			);
+			lines.push(
+				"\tObject.entries(_rawFieldDefs).map(([k, v]) => [k, _wrapFieldFactory(v as any)])",
+			);
+			lines.push(") as unknown as typeof _rawFieldDefs;");
+		} else {
+			lines.push("const _allFieldDefs = _rawFieldDefs;");
+		}
 		lines.push("");
 	}
 
@@ -260,7 +308,7 @@ export function generateFactoryTemplate(
 	lines.push("");
 
 	// ── Type augmentations (declare module) ────────────────────
-	if (hasExtensions || registryCategories.size > 0) {
+	if (hasExtensions || hasFieldExtensions || registryCategories.size > 0) {
 		lines.push(
 			"// ════════════════════════════════════════════════════════════",
 		);
@@ -273,7 +321,7 @@ export function generateFactoryTemplate(
 		const placeholderMap = buildPlaceholderMap(registryCategories);
 
 		// Builder interface augmentations — keep declare module "questpie" for class merging
-		if (collExtensions.size > 0 || globalExtensions.size > 0) {
+		if (collExtensions.size > 0 || globalExtensions.size > 0 || fieldExtensions.size > 0) {
 			lines.push('declare module "questpie" {');
 
 			if (collExtensions.size > 0) {
@@ -305,6 +353,23 @@ export function generateFactoryTemplate(
 					);
 					lines.push(
 						`\t\t${name}(${paramName}: ${paramType}): GlobalBuilder<TState>;`,
+					);
+				}
+				lines.push("\t}");
+			}
+
+			if (fieldExtensions.size > 0) {
+				lines.push("\tinterface Field<TState> {");
+				for (const [name, ext] of fieldExtensions) {
+					const paramName = ext.isCallback ? "configFn" : "config";
+					let paramType = ext.configType ?? "any";
+					paramType = resolvePlaceholders(
+						paramType,
+						hasModules,
+						placeholderMap,
+					);
+					lines.push(
+						`\t\t${name}(${paramName}: ${paramType}): Field<TState>;`,
 					);
 				}
 				lines.push("\t}");
@@ -368,7 +433,7 @@ export function generateFactoryTemplate(
 	}
 
 	// ── Extension registries ─────────────────────────────────
-	if (hasExtensions) {
+	if (hasExtensions || hasFieldExtensions) {
 		lines.push(
 			"// ════════════════════════════════════════════════════════════",
 		);
@@ -392,6 +457,8 @@ export function generateFactoryTemplate(
 			);
 			lines.push("");
 		}
+
+		// Note: _fieldExt is emitted earlier (before field defs) since _allFieldDefs references it
 	}
 
 	// ── Factory functions ─────────────────────────────────────

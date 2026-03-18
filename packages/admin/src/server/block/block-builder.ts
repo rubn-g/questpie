@@ -36,6 +36,7 @@ import {
 	type AppContext,
 	type BuiltinFields,
 	builtinFields,
+	createFieldNameProxy,
 	createFieldsCallbackContext,
 	type Field,
 	type FieldBuilderProxy,
@@ -43,7 +44,11 @@ import {
 	type FieldState,
 } from "questpie";
 
-import type { AdminBlockConfig, AdminConfigContext } from "../augmentation.js";
+import type {
+	AdminBlockConfig,
+	AdminConfigContext,
+	FieldLayoutItem,
+} from "../augmentation.js";
 import { adminFields } from "../fields/index.js";
 
 /**
@@ -181,6 +186,8 @@ export interface BlockBuilderState<
 	}) => Promise<Record<string, unknown>> | Record<string, unknown>;
 	/** Type-level marker for prefetch data type (not used at runtime) */
 	"~prefetchData"?: unknown;
+	/** Form layout for block fields (sections, tabs, grid) */
+	form?: { fields: FieldLayoutItem[] };
 	/** Optional registered component names from Questpie builder registry */
 	"~components"?: string[];
 }
@@ -386,6 +393,39 @@ export class BlockBuilder<
 		return new BlockBuilder({
 			...this._state,
 			fields: resolvedFields,
+		} as any);
+	}
+
+	/**
+	 * Define form layout for block fields.
+	 * Supports sections, tabs, and grid layouts — same as collection .form().
+	 *
+	 * @example
+	 * ```ts
+	 * block("pricing")
+	 *   .fields(({ f }) => ({
+	 *     title: f.text().required(),
+	 *     price: f.number().required(),
+	 *     currency: f.select([...]),
+	 *     description: f.textarea(),
+	 *   }))
+	 *   .form(({ f }) => ({
+	 *     fields: [
+	 *       { type: "section", label: "Basic", fields: [f.title, f.description] },
+	 *       { type: "section", label: "Pricing", layout: "grid", fields: [f.price, f.currency] },
+	 *     ],
+	 *   }))
+	 * ```
+	 */
+	form(
+		configFn: (ctx: { f: Record<string, string> }) => {
+			fields: FieldLayoutItem[];
+		},
+	): BlockBuilder<TState & { form: { fields: FieldLayoutItem[] } }, TFieldMap, TData> {
+		const resolved = configFn({ f: createFieldNameProxy() });
+		return new BlockBuilder({
+			...this._state,
+			form: resolved,
 		} as any);
 	}
 

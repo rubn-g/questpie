@@ -13,9 +13,6 @@
  * ```
  */
 
-// Side-effect: patch Field.prototype with .admin() method
-import "../server/field-patch.js";
-
 // Framework adapters
 export * from "../server/adapters/index.js";
 // Export augmentation types for external use

@@ -426,6 +426,8 @@ export interface CodegenTargetContribution {
 		collectionExtensions?: Record<string, RegistryExtension>;
 		/** Extension methods for global() factory. */
 		globalExtensions?: Record<string, RegistryExtension>;
+		/** Extension methods for Field instances (e.g. .admin(), .form()). */
+		fieldExtensions?: Record<string, RegistryExtension>;
 		/** Singleton factory functions (branding, sidebar, locale, etc.). */
 		singletonFactories?: Record<string, SingletonFactory>;
 	};
@@ -560,6 +562,7 @@ export interface ResolvedTarget {
 	registries: {
 		collectionExtensions: Record<string, RegistryExtension>;
 		globalExtensions: Record<string, RegistryExtension>;
+		fieldExtensions: Record<string, RegistryExtension>;
 		singletonFactories: Record<string, SingletonFactory>;
 	};
 

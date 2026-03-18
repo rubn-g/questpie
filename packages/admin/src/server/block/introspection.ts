@@ -11,6 +11,7 @@ import type {
 	AdminBlockConfig,
 	BlockCategoryConfig,
 	ComponentReference,
+	FieldLayoutItem,
 } from "../augmentation.js";
 import type { AnyBlockDefinition, BlockBuilderState } from "./block-builder.js";
 
@@ -53,6 +54,9 @@ export interface BlockSchema {
 
 	/** Field schemas - unified format using FieldSchema */
 	fields: Record<string, FieldSchema>;
+
+	/** Form layout for block fields (sections, tabs, grid) */
+	form?: { fields: FieldLayoutItem[] };
 
 	/** Validation schemas */
 	validation?: {
@@ -106,6 +110,7 @@ export function introspectBlock(blockDef: AnyBlockDefinition): BlockSchema {
 		maxChildren: state.maxChildren,
 		hasPrefetch: typeof state.prefetch === "function",
 		fields: resolved.getFieldMetadata(),
+		form: state.form,
 	};
 }
 

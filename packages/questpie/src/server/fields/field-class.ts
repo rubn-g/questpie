@@ -5,7 +5,7 @@
  * with updated type state via intersections.
  *
  * ```ts
- * f.text(255).required().label({ en: "Name" }).admin({ placeholder: "..." })
+ * f.text(255).required().label({ en: "Name" })
  * ```
  *
  * Type state grows monotonically:
@@ -229,12 +229,17 @@ export class Field<TState extends FieldState = FieldState> {
 	// ========================================================================
 
 	/**
-	 * Set admin-specific configuration for this field.
-	 * Added at runtime by @questpie/admin via prototype patching.
+	 * Generic extension setter for plugin-contributed state.
+	 * Used by codegen-generated extension proxies (e.g. `.admin()`, `.form()`).
+	 *
+	 * @param key - Extension key (e.g. "admin", "form")
+	 * @param value - Extension value
 	 */
-	admin(opts: unknown): Field<TState> {
-		// Runtime implementation is patched in by @questpie/admin/server
-		return this._clone<{}>({ admin: opts });
+	set<TKey extends string>(key: TKey, value: unknown): Field<TState> {
+		return new Field({
+			...this._state,
+			extensions: { ...this._state.extensions, [key]: value },
+		}) as unknown as Field<TState>;
 	}
 
 	// ========================================================================
@@ -455,7 +460,7 @@ export class Field<TState extends FieldState = FieldState> {
 			readOnly: s.input === false ? true : undefined,
 			writeOnly: s.output === false ? true : undefined,
 			validation: this._buildValidation(),
-			meta: s.admin as any,
+			meta: s.extensions?.admin as any,
 		};
 
 		return base;

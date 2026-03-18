@@ -231,9 +231,9 @@ export interface FieldRuntimeState {
 	/** Explicit type override */
 	customType?: string;
 
-	// ---- Admin config (added via .admin() augmentation) ----
-	/** Admin-specific configuration */
-	admin?: unknown;
+	// ---- Plugin-contributed extensions (populated via .set()) ----
+	/** Plugin-contributed extensions keyed by extension name */
+	extensions?: Record<string, unknown>;
 
 	// ---- Metadata factory override ----
 	/** Custom metadata factory (for fields that need special metadata) */

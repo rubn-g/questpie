@@ -15,6 +15,7 @@ import type { FieldInstance } from "../../builder/field/field.js";
 import { useResolveText, useTranslation } from "../../i18n/hooks.js";
 import { selectAdmin, useAdminStore } from "../../runtime/provider.js";
 import { buildFieldDefinitionsFromMetadata } from "../../utils/build-field-definitions-from-schema.js";
+import { FieldLayoutRenderer, type FieldLayoutContext } from "../layout/field-layout-renderer.js";
 
 // ============================================================================
 // Types
@@ -50,11 +51,38 @@ export function BlockFieldsRenderer({
 		);
 	}, [blockSchema?.fields, admin]);
 
+	const resolveText = useResolveText();
+
 	if (Object.keys(blockFields).length === 0) {
 		return (
 			<div className="text-muted-foreground py-4 text-center text-sm">
 				{t("blocks.noEditableFields")}
 			</div>
+		);
+	}
+
+	// When form layout is defined, use the shared layout renderer
+	if (blockSchema.form?.fields?.length) {
+		const layoutCtx: FieldLayoutContext = {
+			renderField: (fieldName, opts) => {
+				const fieldDef = blockFields[fieldName];
+				if (!fieldDef) return null;
+				return (
+					<BlockField
+						key={`${blockId}:${fieldName}`}
+						name={fieldName}
+						blockId={blockId}
+						definition={fieldDef}
+					/>
+				);
+			},
+			resolveText: (text, fallback) => resolveText(text, fallback),
+		};
+		return (
+			<FieldLayoutRenderer
+				items={blockSchema.form.fields as any}
+				ctx={layoutCtx}
+			/>
 		);
 	}
 

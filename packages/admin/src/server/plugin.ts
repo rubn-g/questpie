@@ -93,6 +93,18 @@ export function adminPlugin(): CodegenPlugin {
 					adminLocale: "admin-locale.ts",
 				},
 				registries: {
+					fieldExtensions: {
+						admin: {
+							stateKey: "admin",
+							configType: "unknown",
+						},
+						form: {
+							stateKey: "form",
+							configType: "(ctx: { f: Record<string, string> }) => { fields: import('@questpie/admin/server').FieldLayoutItem[] }",
+							isCallback: true,
+							callbackContextParams: ["f"],
+						},
+					},
 					collectionExtensions: {
 						admin: {
 							stateKey: "admin",

@@ -368,6 +368,10 @@ function applyNestedConfig(
 			registry,
 		);
 		config.fields = () => nestedDefs;
+		// Pass through form layout from server metadata
+		if (metadata.form) {
+			config.form = metadata.form;
+		}
 		return;
 	}
 

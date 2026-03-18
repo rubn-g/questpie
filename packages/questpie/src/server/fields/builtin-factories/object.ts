@@ -88,7 +88,7 @@ export function object<TFields extends Record<string, Field<any>>>(
 					nestedMetadata[key] = (field as Field<any>).getMetadata();
 				}
 			}
-			return {
+			const result: NestedFieldMetadata = {
 				type: "object",
 				label: state.label,
 				description: state.description,
@@ -97,8 +97,12 @@ export function object<TFields extends Record<string, Field<any>>>(
 				readOnly: state.input === false,
 				writeOnly: state.output === false,
 				nestedFields: nestedMetadata,
-				meta: state.admin,
-			} as NestedFieldMetadata;
+				meta: state.extensions?.admin as any,
+			};
+			if (state.extensions?.form) {
+				(result as any).form = state.extensions.form;
+			}
+			return result;
 		},
 	});
 }

@@ -171,7 +171,7 @@ function buildRelationMetadata(
 		relationName: state.relationName,
 		_toConfig: state.to,
 		_throughConfig: state.through,
-		meta: state.admin as RelationFieldMetadata["meta"],
+		meta: state.extensions?.admin as RelationFieldMetadata["meta"],
 	};
 }
 

@@ -220,7 +220,7 @@ export function blocks(): Field<BlocksFieldState> {
 			localized: state.localized ?? false,
 			readOnly: state.input === false ? true : undefined,
 			writeOnly: state.output === false ? true : undefined,
-			meta: state.admin as any,
+			meta: state.extensions?.admin as any,
 		}),
 		notNull: false,
 		hasDefault: false,

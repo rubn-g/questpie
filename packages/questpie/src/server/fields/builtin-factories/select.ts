@@ -129,7 +129,7 @@ export function select(
 					? []
 					: staticOptions.map((o) => ({ value: o.value, label: o.label })),
 				multiple: state.isArray || state.multiple,
-				meta: state.admin,
+				meta: state.extensions?.admin,
 			} as SelectFieldMetadata;
 		},
 	});

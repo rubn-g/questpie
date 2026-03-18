@@ -120,7 +120,7 @@ export function upload<TTo extends string = "assets">(
 				sourceField: state.sourceField,
 				targetField: state.targetField,
 				isUpload: true,
-				meta: state.admin,
+				meta: state.extensions?.admin,
 			}) as RelationFieldMetadata,
 	});
 }

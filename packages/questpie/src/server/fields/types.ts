@@ -439,6 +439,8 @@ export interface RelationFieldMetadata extends FieldMetadataBase {
 export interface NestedFieldMetadata extends FieldMetadataBase {
 	type: "object" | "array" | "blocks";
 	nestedFields?: Record<string, FieldMetadata>;
+	/** Form layout for object fields (sections, tabs, grid). Added by admin plugin. */
+	form?: { fields: unknown[] };
 }
 
 /**
