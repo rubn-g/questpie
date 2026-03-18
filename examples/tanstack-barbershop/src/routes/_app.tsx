@@ -67,7 +67,6 @@ function AppLayout() {
 				<HeadContent />
 				{/* Inline script to prevent FOUC for theme */}
 				<script
-					// biome-ignore lint: theme pre-hydration
 					dangerouslySetInnerHTML={{
 						__html: `
 							(function() {

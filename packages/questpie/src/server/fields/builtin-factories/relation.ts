@@ -24,7 +24,6 @@ import type {
 
 declare global {
 	namespace Questpie {
-		// biome-ignore lint/suspicious/noEmptyInterface: Augmentation point
 		interface RelationFieldMeta {}
 	}
 }

@@ -32,7 +32,6 @@ const EMPTY_DATA: Record<string, unknown> = {};
  * Block renderer function type.
  * Consumers provide their own renderers mapped by block type.
  */
-// biome-ignore lint/suspicious/noExplicitAny: Renderers are a dispatch table — contravariance on typed block props would reject all concrete renderers
 type BlockRendererFn = (props: any) => React.ReactNode;
 
 /**

@@ -527,9 +527,7 @@ export type ExtractFromModule<M, K extends string> = (M extends {
 	modules: infer Sub extends readonly any[];
 }
 	? ExtractFromModuleArray<Sub, K>
-	: // biome-ignore lint/complexity/noBannedTypes: empty object needed for intersection base
-		{}) &
-	// biome-ignore lint/complexity/noBannedTypes: empty object used as intersection identity
+	: {}) &
 	(K extends keyof M ? (M[K] extends Record<string, any> ? M[K] : {}) : {});
 
 /**
@@ -546,8 +544,7 @@ export type ExtractFromModuleArray<
 	K extends string,
 > = A extends readonly [infer First, ...infer Rest]
 	? ExtractFromModule<First, K> & ExtractFromModuleArray<Rest, K>
-	: // biome-ignore lint/complexity/noBannedTypes: empty object needed for tuple base case
-		{};
+	: {};
 
 /**
  * Extract property `K` from a config type's `modules` array.
@@ -569,5 +566,4 @@ export type ExtractModulesProperty<Config, K extends string> = Config extends {
 	modules: infer M extends readonly any[];
 }
 	? ExtractFromModuleArray<M, K>
-	: // biome-ignore lint/complexity/noBannedTypes: empty object needed for config without modules
-		{};
+	: {};

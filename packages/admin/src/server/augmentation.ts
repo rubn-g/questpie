@@ -115,7 +115,6 @@ type BadgeReference = ComponentReference<
  * }
  * ```
  */
-// biome-ignore lint/suspicious/noEmptyInterface: Designed to be augmented via declaration merging
 export interface ComponentTypeRegistry {}
 
 /**

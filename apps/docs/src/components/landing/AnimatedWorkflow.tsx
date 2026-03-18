@@ -80,7 +80,6 @@ export function AnimatedWorkflow({ steps, className }: AnimatedWorkflowProps) {
 	};
 
 	// Update target when step changes
-	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	useEffect(() => {
 		const currentStep = steps[activeStepIndex];
 		if (!currentStep) return;

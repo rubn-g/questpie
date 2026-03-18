@@ -21,7 +21,6 @@ import type { I18nText } from "#questpie/shared/i18n/types.js";
 
 declare global {
 	namespace Questpie {
-		// biome-ignore lint/complexity/noBannedTypes: Empty interface for declaration merging augmentation
 		interface FieldTypeRegistry {}
 	}
 }
@@ -30,7 +29,6 @@ declare global {
  * Open augmentation point for field type names.
  * Augment via `declare global { namespace Questpie { interface FieldTypeRegistry { ... } } }`
  */
-// biome-ignore lint/complexity/noBannedTypes: Extends global augmentable interface
 export interface FieldTypeRegistry extends Questpie.FieldTypeRegistry {}
 
 /**

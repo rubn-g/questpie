@@ -44,7 +44,6 @@ const LOCALE_COOKIE_MAX_AGE = 60 * 60 * 24 * 365;
 
 function setCookie(name: string, value: string): void {
 	if (typeof document === "undefined") return;
-	// biome-ignore lint/suspicious/noDocumentCookie: this string is ok
 	document.cookie = `${name}=${value}; path=/; max-age=${LOCALE_COOKIE_MAX_AGE}; SameSite=Lax`;
 }
 

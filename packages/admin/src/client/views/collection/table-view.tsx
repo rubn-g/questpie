@@ -743,7 +743,6 @@ function TableViewInner({
 				const isAllSelected = t.getIsAllPageRowsSelected();
 				const isSomeSelected = t.getIsSomePageRowsSelected();
 				return (
-					// biome-ignore lint/a11y/noStaticElementInteractions: stops row click propagation for checkbox cell
 					<div
 						role="presentation"
 						onClick={(e) => e.stopPropagation()}
@@ -764,7 +763,6 @@ function TableViewInner({
 				const isSelected = row.getIsSelected();
 				const canSelect = row.getCanSelect();
 				return (
-					// biome-ignore lint/a11y/noStaticElementInteractions: stops row click propagation for checkbox cell
 					<div
 						role="presentation"
 						onClick={(e) => e.stopPropagation()}

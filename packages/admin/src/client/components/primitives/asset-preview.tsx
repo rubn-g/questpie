@@ -631,7 +631,7 @@ export function AssetPreview({
 								size="icon-sm"
 								nativeButton={false}
 								render={
-									// biome-ignore lint/a11y/useAnchorContent: TODO: improve accessibility
+									// oxlint-disable-next-line jsx-a11y/anchor-has-content -- TODO: improve accessibility
 									<a href={href} onClick={(e) => e.stopPropagation()} />
 								}
 							>

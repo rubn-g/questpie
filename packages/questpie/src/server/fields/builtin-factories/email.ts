@@ -11,7 +11,6 @@ import { emailOps } from "../operators/builtin.js";
 
 declare global {
 	namespace Questpie {
-		// biome-ignore lint/suspicious/noEmptyInterface: Augmentation point
 		interface EmailFieldMeta {}
 	}
 }

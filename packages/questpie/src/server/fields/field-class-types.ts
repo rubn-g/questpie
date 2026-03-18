@@ -80,7 +80,6 @@ export type DefaultFieldState = {
 
 declare global {
 	namespace Questpie {
-		// biome-ignore lint/suspicious/noEmptyInterface: Augmentation point
 		interface ArrayFieldMeta {}
 	}
 }

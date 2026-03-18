@@ -19,7 +19,6 @@ import { numberOps } from "../operators/builtin.js";
 
 declare global {
 	namespace Questpie {
-		// biome-ignore lint/suspicious/noEmptyInterface: Augmentation point
 		interface NumberFieldMeta {}
 	}
 }

@@ -50,7 +50,6 @@ import type { Admin } from "./admin";
  * } = createTypedHooks<App>();
  * ```
  */
-// biome-ignore lint/suspicious/noEmptyInterface: Augmentation target for user's types
 export interface AdminTypeRegistry {
 	// NOTE: Module augmentation is deprecated.
 	// Use createTypedHooks<App>() from '@questpie/admin/client' instead.

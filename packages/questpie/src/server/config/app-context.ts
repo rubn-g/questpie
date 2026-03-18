@@ -31,11 +31,8 @@
  */
 declare global {
 	namespace Questpie {
-		// biome-ignore lint/suspicious/noEmptyInterface: Designed to be augmented
 		interface AppContext {}
-		// biome-ignore lint/suspicious/noEmptyInterface: Designed to be augmented
 		interface Registry {}
-		// biome-ignore lint/suspicious/noEmptyInterface: Designed to be augmented
 		interface QuestpieContextExtension {}
 
 		/**
@@ -43,14 +40,12 @@ declare global {
 		 * Populated by each module's codegen output to provide autocomplete on `v.*` proxies.
 		 * Declared empty to break circular references in the CollectionBuilder augmentation chain.
 		 */
-		// biome-ignore lint/suspicious/noEmptyInterface: Designed to be augmented by module codegen
 		interface ViewsRegistry {}
 
 		/**
 		 * Augmentable interface for component record types.
 		 * Populated by each module's codegen output to provide autocomplete on `c.*` proxies.
 		 */
-		// biome-ignore lint/suspicious/noEmptyInterface: Designed to be augmented by module codegen
 		interface ComponentsRegistry {}
 
 		/**
@@ -58,7 +53,6 @@ declare global {
 		 * Populated by each module's codegen output with field factory functions.
 		 * Used by `.fields(({ f }) => ...)` for autocomplete on `f.*`.
 		 */
-		// biome-ignore lint/suspicious/noEmptyInterface: Designed to be augmented by module codegen
 		interface FieldTypesMap {}
 	}
 }
@@ -67,14 +61,12 @@ declare global {
  * AppContext — the extensible context interface.
  * Augment via `declare global { namespace Questpie { interface AppContext { ... } } }`
  */
-// biome-ignore lint/suspicious/noEmptyInterface: Extends global augmentable interface
 export interface AppContext extends Questpie.AppContext {}
 
 /**
  * Registry — the app-wide type catalogue.
  * Augment via `declare global { namespace Questpie { interface Registry { ... } } }`
  */
-// biome-ignore lint/suspicious/noEmptyInterface: Extends global augmentable interface
 export interface Registry extends Questpie.Registry {}
 
 /**

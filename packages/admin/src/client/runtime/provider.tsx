@@ -56,7 +56,6 @@ const LEGACY_LOCALE_COOKIE = "questpie_locale";
 
 function setCookie(name: string, value: string): void {
 	if (typeof document === "undefined") return;
-	// biome-ignore lint/suspicious/noDocumentCookie: this string is ok
 	document.cookie = `${name}=${value}; path=/; max-age=${LOCALE_COOKIE_MAX_AGE}; SameSite=Lax`;
 }
 

@@ -22,7 +22,6 @@ import type { Registry } from "./app-context.js";
  * Used in generated index.ts to merge module property types:
  * `_U2I<ModuleUnion extends ... ? V : never>` collapses into an intersection.
  */
-// biome-ignore lint/suspicious/noExplicitAny: Required for distributive conditional type
 export type UnionToIntersection<U> = (
 	U extends any ? (x: U) => void : never
 ) extends (x: infer I) => void
@@ -47,27 +46,22 @@ export type RegistryProp<K extends string> =
  *
  * Used in generated code to derive `_AllFieldTypes` and `_AllModule*` types.
  */
-// biome-ignore lint/suspicious/noExplicitAny: Required for generic module shape matching
 export type ExtractModuleProp<M, K extends string> = (M extends {
 	modules: infer Sub extends readonly any[];
 }
 	? ExtractModulePropArr<Sub, K>
-	: // biome-ignore lint/complexity/noBannedTypes: Empty object is correct base case
-		{}) &
-	// biome-ignore lint/suspicious/noExplicitAny: Required for generic module shape matching
+	: {}) &
 	(K extends keyof M ? (M[K] extends Record<string, any> ? M[K] : {}) : {});
 
 /**
  * Array companion for ExtractModuleProp — recurses over a readonly tuple of modules.
  */
-// biome-ignore lint/suspicious/noExplicitAny: Required for generic module shape matching
 export type ExtractModulePropArr<
 	A extends readonly any[],
 	K extends string,
-> = A extends readonly [infer H, ...infer T extends readonly any[]] // biome-ignore lint/suspicious/noExplicitAny: Required for generic module shape matching
+> = A extends readonly [infer H, ...infer T extends readonly any[]]
 	? ExtractModuleProp<H, K> & ExtractModulePropArr<T, K>
-	: // biome-ignore lint/complexity/noBannedTypes: Empty object is correct base case
-		{};
+	: {};
 
 /**
  * Normalize a service namespace to its runtime placement namespace.

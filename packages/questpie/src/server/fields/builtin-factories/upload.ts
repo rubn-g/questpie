@@ -16,7 +16,6 @@ import type { ReferentialAction, RelationFieldMetadata } from "../types.js";
 
 declare global {
 	namespace Questpie {
-		// biome-ignore lint/suspicious/noEmptyInterface: Augmentation point
 		interface UploadFieldMeta {}
 	}
 }

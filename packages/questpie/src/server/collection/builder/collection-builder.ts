@@ -81,7 +81,7 @@ type ExtractFieldTypes<TState extends CollectionBuilderState> =
  * Main collection builder class.
  * Uses field builder pattern for type-safe field definitions.
  */
-// biome-ignore lint/suspicious/noUnsafeDeclarationMerging: Declaration merging is intentional for extension pattern
+// oxlint-disable-next-line no-unsafe-declaration-merging -- Declaration merging is intentional for extension pattern
 export class CollectionBuilder<TState extends CollectionBuilderState> {
 	/**
 	 * Internal state. Public for type extraction.

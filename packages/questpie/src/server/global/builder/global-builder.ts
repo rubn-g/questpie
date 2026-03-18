@@ -45,7 +45,7 @@ type ExtractFieldTypes<TState extends GlobalBuilderState> =
 /**
  * Main global builder class
  */
-// biome-ignore lint/suspicious/noUnsafeDeclarationMerging: Declaration merging is intentional for extension pattern
+// oxlint-disable-next-line no-unsafe-declaration-merging -- Declaration merging is intentional for extension pattern
 export class GlobalBuilder<TState extends GlobalBuilderState> {
 	private state: TState;
 	private _builtGlobal?: Global<TState>;

@@ -595,7 +595,6 @@ export interface ContextExtensions {
  * }
  * ```
  */
-// biome-ignore lint/suspicious/noEmptyInterface: Designed to be augmented
 export interface QuestpieContextExtension
 	extends Questpie.QuestpieContextExtension {}
 

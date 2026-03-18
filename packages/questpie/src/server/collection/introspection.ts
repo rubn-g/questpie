@@ -845,15 +845,10 @@ function serializeActionFormFields(
  * known to the core package.
  */
 interface AdminPluginState {
-	// biome-ignore lint/suspicious/noExplicitAny: plugin-dynamic state
 	admin?: any;
-	// biome-ignore lint/suspicious/noExplicitAny: plugin-dynamic state
 	adminList?: any;
-	// biome-ignore lint/suspicious/noExplicitAny: plugin-dynamic state
 	adminForm?: any;
-	// biome-ignore lint/suspicious/noExplicitAny: plugin-dynamic state
 	adminPreview?: any;
-	// biome-ignore lint/suspicious/noExplicitAny: plugin-dynamic state
 	adminActions?: any;
 }
 
