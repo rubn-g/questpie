@@ -6,6 +6,7 @@
  */
 
 import { useQuery } from "@tanstack/react-query";
+
 import type {
 	ValueWidgetConfig,
 	ValueWidgetResult,
@@ -132,14 +133,14 @@ export default function ValueWidget({ config }: ValueWidgetProps) {
 
 				{/* Subtitle */}
 				{subtitle && (
-					<p className={cn("text-xs text-muted-foreground", cls.subtitle)}>
+					<p className={cn("text-muted-foreground text-xs", cls.subtitle)}>
 						{subtitle}
 					</p>
 				)}
 
 				{/* Footer */}
 				{footer && (
-					<p className={cn("text-xs text-muted-foreground pt-2", cls.footer)}>
+					<p className={cn("text-muted-foreground pt-2 text-xs", cls.footer)}>
 						{footer}
 					</p>
 				)}

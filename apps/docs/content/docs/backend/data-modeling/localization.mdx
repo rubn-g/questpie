@@ -13,27 +13,27 @@ Define content locales in the locale convention file:
 import { locale } from "#questpie/factories";
 
 export default locale({
-  locales: [
-    {
-      code: "en",
-      label: "English",
-      fallback: true,
-      flagCountryCode: "us",
-    },
-    { code: "sk", label: "Slovenčina" },
-    { code: "de", label: "Deutsch" },
-  ],
-  defaultLocale: "en",
+	locales: [
+		{
+			code: "en",
+			label: "English",
+			fallback: true,
+			flagCountryCode: "us",
+		},
+		{ code: "sk", label: "Slovenčina" },
+		{ code: "de", label: "Deutsch" },
+	],
+	defaultLocale: "en",
 });
 ```
 
-| Option | Type | Description |
-|---|---|---|
-| `code` | `string` | Locale identifier (e.g., `"en"`, `"sk"`) |
-| `label` | `string` | Display name |
-| `fallback` | `boolean` | Fallback locale when translation is missing |
-| `flagCountryCode` | `string` | ISO country code for flag icon |
-| `defaultLocale` | `string` | Default locale for new content |
+| Option            | Type      | Description                                 |
+| ----------------- | --------- | ------------------------------------------- |
+| `code`            | `string`  | Locale identifier (e.g., `"en"`, `"sk"`)    |
+| `label`           | `string`  | Display name                                |
+| `fallback`        | `boolean` | Fallback locale when translation is missing |
+| `flagCountryCode` | `string`  | ISO country code for flag icon              |
+| `defaultLocale`   | `string`  | Default locale for new content              |
 
 ## Localizing Fields
 
@@ -83,8 +83,8 @@ The admin panel has its own locale config for the interface language:
 import { adminLocale } from "#questpie/factories";
 
 export default adminLocale({
-  locales: ["en", "sk"],
-  defaultLocale: "en",
+	locales: ["en", "sk"],
+	defaultLocale: "en",
 });
 ```
 
@@ -99,7 +99,7 @@ The locale is part of the request context:
 ```ts
 // In routes/hooks - locale comes from the request
 const services = await collections.services.find({
-  where: { isActive: true },
+	where: { isActive: true },
 });
 // Returns localized `name` and `description` for the current locale
 ```
@@ -112,7 +112,7 @@ Set the locale on the client:
 client.setLocale("sk");
 
 const services = await client.collections.services.find({
-  where: { isActive: true },
+	where: { isActive: true },
 });
 // Returns Slovak translations
 ```

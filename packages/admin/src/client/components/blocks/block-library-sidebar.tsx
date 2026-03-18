@@ -9,8 +9,10 @@
 
 import { Icon } from "@iconify/react";
 import * as React from "react";
+
 import type { BlockCategoryConfig } from "#questpie/admin/server/augmentation.js";
 import type { BlockSchema } from "#questpie/admin/server/block/index.js";
+
 import { useTranslation } from "../../i18n/hooks.js";
 import { cn } from "../../lib/utils.js";
 import { Input } from "../ui/input.js";
@@ -148,7 +150,7 @@ export function BlockLibrarySidebar({
 		>
 			<SheetContent
 				side="left"
-				className="qa-block-library w-full sm:max-w-md flex flex-col"
+				className="qa-block-library flex w-full flex-col sm:max-w-md"
 			>
 				<SheetHeader className="space-y-2">
 					<SheetTitle>Add Block</SheetTitle>
@@ -162,7 +164,7 @@ export function BlockLibrarySidebar({
 					<div className="relative">
 						<Icon
 							icon="ph:magnifying-glass"
-							className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+							className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2"
 						/>
 						<Input
 							ref={searchInputRef}
@@ -180,11 +182,11 @@ export function BlockLibrarySidebar({
 						<div className="flex flex-col items-center justify-center py-12 text-center">
 							<Icon
 								icon="ph:cube"
-								className="h-12 w-12 text-muted-foreground/50 mb-4"
+								className="text-muted-foreground/50 mb-4 h-12 w-12"
 							/>
-							<p className="text-sm text-muted-foreground">No blocks found</p>
+							<p className="text-muted-foreground text-sm">No blocks found</p>
 							{search && (
-								<p className="text-xs text-muted-foreground mt-1">
+								<p className="text-muted-foreground mt-1 text-xs">
 									Try a different search term
 								</p>
 							)}
@@ -198,10 +200,10 @@ export function BlockLibrarySidebar({
 										{category.config.icon && (
 											<Icon
 												icon={category.config.icon.props.name as string}
-												className="h-4 w-4 text-muted-foreground"
+												className="text-muted-foreground h-4 w-4"
 											/>
 										)}
-										<h4 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+										<h4 className="text-muted-foreground text-xs font-semibold tracking-wide uppercase">
 											{getCategoryDisplayLabel(category.config)}
 										</h4>
 									</div>
@@ -214,8 +216,8 @@ export function BlockLibrarySidebar({
 												key={block.name}
 												className={cn(
 													"flex flex-col items-start gap-2 rounded-md border p-3 text-left",
-													"transition-colors hover:border-primary hover:bg-accent",
-													"focus:outline-none focus-visible:ring-2 focus-visible:ring-primary",
+													"hover:border-primary hover:bg-accent transition-colors",
+													"focus-visible:ring-primary focus:outline-none focus-visible:ring-2",
 												)}
 												onClick={() => handleSelectBlock(block.name)}
 											>
@@ -225,11 +227,11 @@ export function BlockLibrarySidebar({
 													className="text-muted-foreground"
 												/>
 												<div className="min-w-0">
-													<p className="text-sm font-medium truncate">
+													<p className="truncate text-sm font-medium">
 														{getBlockDisplayLabel(block)}
 													</p>
 													{block.admin?.description && (
-														<p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">
+														<p className="text-muted-foreground mt-0.5 line-clamp-2 text-xs">
 															{getDescriptionText(block.admin.description)}
 														</p>
 													)}

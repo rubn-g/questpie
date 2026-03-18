@@ -18,6 +18,7 @@
  */
 
 import type { CodegenPlugin } from "questpie";
+
 import { generateAdminClientTemplate } from "./codegen/admin-client-template.js";
 import { createAdminProjectionValidator } from "./codegen/projection-validator.js";
 

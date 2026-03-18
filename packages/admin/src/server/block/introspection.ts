@@ -6,6 +6,7 @@
 
 import type { FieldSchema } from "questpie";
 import { type I18nText, isI18nLocaleMap } from "questpie/shared";
+
 import type {
 	AdminBlockConfig,
 	BlockCategoryConfig,

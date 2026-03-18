@@ -79,8 +79,10 @@ export type CollectionNames<TApp extends QuestpieApp> =
 /**
  * Extract global names from a QuestpieApp config
  */
-export type GlobalNames<TApp extends QuestpieApp> =
-	keyof NonNullable<TApp["globals"]> & string;
+export type GlobalNames<TApp extends QuestpieApp> = keyof NonNullable<
+	TApp["globals"]
+> &
+	string;
 
 /**
  * Extract collection item type
@@ -88,11 +90,12 @@ export type GlobalNames<TApp extends QuestpieApp> =
 export type CollectionItem<
 	TApp extends QuestpieApp,
 	TName extends CollectionNames<TApp>,
-> = Awaited<
-	ReturnType<QuestpieClient<any>["collections"][TName]["find"]>
-> extends { docs: Array<infer TItem> }
-	? TItem
-	: never;
+> =
+	Awaited<
+		ReturnType<QuestpieClient<any>["collections"][TName]["find"]>
+	> extends { docs: Array<infer TItem> }
+		? TItem
+		: never;
 
 /**
  * Extract field keys from a backend collection

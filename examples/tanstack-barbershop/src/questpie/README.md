@@ -44,9 +44,9 @@ import { runtimeConfig } from "questpie";
 import { adminPlugin } from "@questpie/admin/plugin";
 
 export default runtimeConfig({
-  plugins: [adminPlugin()],
-  db: { url: process.env.DATABASE_URL! },
-  app: { url: process.env.APP_URL! },
+	plugins: [adminPlugin()],
+	db: { url: process.env.DATABASE_URL! },
+	app: { url: process.env.APP_URL! },
 });
 ```
 
@@ -79,10 +79,10 @@ import type { App } from "#questpie";
 import type { admin } from "./admin";
 
 declare module "@questpie/admin/client" {
-  interface AdminTypeRegistry {
-    app: App;
-    admin: typeof admin;
-  }
+	interface AdminTypeRegistry {
+		app: App;
+		admin: typeof admin;
+	}
 }
 ```
 
@@ -131,10 +131,10 @@ const { client } = useAdminContext();
 import { collection } from "questpie";
 
 export default collection("barbers").fields(({ f }) => ({
-  name: f.text({ label: "Name", required: true }),
-  email: f.email({ label: "Email", required: true }),
-  bio: f.textarea({ label: "Bio" }),
-  isActive: f.boolean({ label: "Active", default: true }),
+	name: f.text({ label: "Name", required: true }),
+	email: f.email({ label: "Email", required: true }),
+	bio: f.textarea({ label: "Bio" }),
+	isActive: f.boolean({ label: "Active", default: true }),
 }));
 ```
 
@@ -145,9 +145,9 @@ Admin collection configs are auto-discovered from `admin/collections/`:
 ```typescript
 // admin/collections/barbers.ts
 export default {
-  label: "Barbers",
-  icon: "ph:users",
-  // Field renderers, list/form view config, etc.
+	label: "Barbers",
+	icon: "ph:users",
+	// Field renderers, list/form view config, etc.
 };
 ```
 
@@ -163,9 +163,9 @@ import { runtimeConfig } from "questpie";
 import { adminPlugin } from "@questpie/admin/plugin";
 
 export default runtimeConfig({
-  plugins: [adminPlugin()],
-  db: { url: process.env.DATABASE_URL! },
-  app: { url: process.env.APP_URL! },
+	plugins: [adminPlugin()],
+	db: { url: process.env.DATABASE_URL! },
+	app: { url: process.env.APP_URL! },
 });
 ```
 
@@ -241,30 +241,30 @@ Add custom translated messages for API responses and validation:
 
 ```typescript
 const backendMessages = {
-  en: {
-    "appointment.created": "Appointment booked for {{date}}",
-    "appointment.slotNotAvailable": "This time slot is no longer available",
-  },
-  sk: {
-    "appointment.created": "Rezervácia vytvorená na {{date}}",
-    "appointment.slotNotAvailable": "Tento termín už nie je dostupný",
-  },
+	en: {
+		"appointment.created": "Appointment booked for {{date}}",
+		"appointment.slotNotAvailable": "This time slot is no longer available",
+	},
+	sk: {
+		"appointment.created": "Rezervácia vytvorená na {{date}}",
+		"appointment.slotNotAvailable": "Tento termín už nie je dostupný",
+	},
 } as const;
 
 export default runtimeConfig({
-  plugins: [adminPlugin()],
-  db: { url: process.env.DATABASE_URL! },
-  app: { url: process.env.APP_URL! },
-  // Configure content locales
-  locale: {
-    locales: [
-      { code: "en", label: "English", fallback: true },
-      { code: "sk", label: "Slovenčina" },
-    ],
-    defaultLocale: "en",
-  },
-  // Add custom messages
-  messages: backendMessages,
+	plugins: [adminPlugin()],
+	db: { url: process.env.DATABASE_URL! },
+	app: { url: process.env.APP_URL! },
+	// Configure content locales
+	locale: {
+		locales: [
+			{ code: "en", label: "English", fallback: true },
+			{ code: "sk", label: "Slovenčina" },
+		],
+		defaultLocale: "en",
+	},
+	// Add custom messages
+	messages: backendMessages,
 });
 
 // Use in handlers:
@@ -282,13 +282,13 @@ import { runtimeConfig } from "questpie";
 import { adminPlugin } from "@questpie/admin/plugin";
 
 export default runtimeConfig({
-  plugins: [adminPlugin()],
-  db: { url: process.env.DATABASE_URL! },
-  app: { url: process.env.APP_URL! },
-  adminLocale: {
-    default: "en",
-    supported: ["en", "sk"],
-  },
+	plugins: [adminPlugin()],
+	db: { url: process.env.DATABASE_URL! },
+	app: { url: process.env.APP_URL! },
+	adminLocale: {
+		default: "en",
+		supported: ["en", "sk"],
+	},
 });
 ```
 

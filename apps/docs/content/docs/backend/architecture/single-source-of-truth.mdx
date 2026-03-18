@@ -8,21 +8,21 @@ In QUESTPIE, a field definition is not just a form widget or a database column. 
 ## What One Field Definition Produces
 
 ```ts
-price: f.number().required().label("Price (cents)")
+price: f.number().required().label("Price (cents)");
 ```
 
 From this single line, QUESTPIE derives:
 
-| Layer | Output |
-|---|---|
-| **Database** | `integer NOT NULL` column in Drizzle schema |
-| **API validation** | `z.number()` in the create/update Zod schema |
-| **Query operators** | `where: { price: { gte: 1000, lt: 5000 } }` |
-| **TypeScript types** | `price: number` in `Select` and `Insert` types |
-| **Client SDK** | Typed `find()`, `create()`, `update()` with `price` field |
-| **Admin list** | Numeric column with sorting |
-| **Admin form** | Number input with "Price (cents)" label |
-| **Admin filters** | Numeric range filter |
+| Layer                | Output                                                    |
+| -------------------- | --------------------------------------------------------- |
+| **Database**         | `integer NOT NULL` column in Drizzle schema               |
+| **API validation**   | `z.number()` in the create/update Zod schema              |
+| **Query operators**  | `where: { price: { gte: 1000, lt: 5000 } }`               |
+| **TypeScript types** | `price: number` in `Select` and `Insert` types            |
+| **Client SDK**       | Typed `find()`, `create()`, `update()` with `price` field |
+| **Admin list**       | Numeric column with sorting                               |
+| **Admin form**       | Number input with "Price (cents)" label                   |
+| **Admin filters**    | Numeric range filter                                      |
 
 ## No Dual Definitions
 
@@ -82,6 +82,7 @@ Add a field to a collection, re-run codegen:
 ```
 
 After `questpie generate`:
+
 - Database gets a new `status` column
 - API validates `status` on create/update
 - Client SDK exposes `where: { status: "draft" }`
@@ -117,21 +118,21 @@ where: { barber: barberId }
 
 The field type maps to an admin form component:
 
-| Field Type | Default Renderer |
-|---|---|
-| `text` | Text input |
-| `textarea` | Textarea |
+| Field Type | Default Renderer          |
+| ---------- | ------------------------- |
+| `text`     | Text input                |
+| `textarea` | Textarea                  |
 | `richText` | Rich text editor (TipTap) |
-| `number` | Number input |
-| `boolean` | Checkbox / switch |
-| `date` | Date picker |
-| `datetime` | Date-time picker |
-| `select` | Select dropdown |
-| `relation` | Relation picker |
-| `upload` | File upload with preview |
-| `object` | Nested form group |
-| `array` | Repeatable items |
-| `blocks` | Block editor |
+| `number`   | Number input              |
+| `boolean`  | Checkbox / switch         |
+| `date`     | Date picker               |
+| `datetime` | Date-time picker          |
+| `select`   | Select dropdown           |
+| `relation` | Relation picker           |
+| `upload`   | File upload with preview  |
+| `object`   | Nested form group         |
+| `array`    | Repeatable items          |
+| `blocks`   | Block editor              |
 
 ## Related Pages
 

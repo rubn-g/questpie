@@ -4,6 +4,7 @@ import { PrismLight as SyntaxHighlighter } from "react-syntax-highlighter";
 import typescript from "react-syntax-highlighter/dist/esm/languages/prism/typescript";
 import coldarkCold from "react-syntax-highlighter/dist/esm/styles/prism/coldark-cold";
 import coldarkDark from "react-syntax-highlighter/dist/esm/styles/prism/coldark-dark";
+
 import { cn } from "@/lib/utils";
 
 SyntaxHighlighter.registerLanguage("typescript", typescript);
@@ -144,28 +145,28 @@ export function HeroVisual() {
 	return (
 		<div className="relative">
 			{/* Glow */}
-			<div className="absolute -inset-4 bg-gradient-to-r from-primary/20 via-primary/10 to-transparent rounded-3xl blur-2xl" />
+			<div className="from-primary/20 via-primary/10 absolute -inset-4 rounded-3xl bg-gradient-to-r to-transparent blur-2xl" />
 
 			{/* Main card */}
-			<div className="relative rounded-2xl border border-border bg-background/95 backdrop-blur-sm overflow-hidden shadow-2xl">
+			<div className="border-border bg-background/95 relative overflow-hidden rounded-2xl border shadow-2xl backdrop-blur-sm">
 				{/* Code view */}
 				<div
 					className={cn(
 						"transition-all duration-500",
 						showCode
 							? "opacity-100"
-							: "opacity-0 absolute inset-0 pointer-events-none",
+							: "pointer-events-none absolute inset-0 opacity-0",
 					)}
 				>
 					{/* Header */}
-					<div className="flex items-center justify-between px-4 py-3 border-b border-border bg-muted/30">
+					<div className="border-border bg-muted/30 flex items-center justify-between border-b px-4 py-3">
 						<div className="flex items-center gap-2">
 							<div className="flex gap-1.5">
-								<div className="w-3 h-3 rounded-full bg-red-500/50" />
-								<div className="w-3 h-3 rounded-full bg-yellow-500/50" />
-								<div className="w-3 h-3 rounded-full bg-green-500/50" />
+								<div className="h-3 w-3 rounded-full bg-red-500/50" />
+								<div className="h-3 w-3 rounded-full bg-yellow-500/50" />
+								<div className="h-3 w-3 rounded-full bg-green-500/50" />
 							</div>
-							<span className="text-xs text-muted-foreground font-mono ml-2">
+							<span className="text-muted-foreground ml-2 font-mono text-xs">
 								{phase === "schema" || phase === "schema-done"
 									? "server/posts.ts"
 									: phase === "endpoints" || phase === "endpoints-done"
@@ -176,15 +177,15 @@ export function HeroVisual() {
 						<div className="flex items-center gap-2">
 							{isTyping ? (
 								<>
-									<Sparkles className="w-3 h-3 text-primary animate-pulse" />
-									<span className="text-xs text-primary font-mono">
+									<Sparkles className="text-primary h-3 w-3 animate-pulse" />
+									<span className="text-primary font-mono text-xs">
 										Writing...
 									</span>
 								</>
 							) : phase === "schema-done" || phase === "endpoints-done" ? (
 								<>
-									<CheckCircle className="w-3 h-3 text-green-500" />
-									<span className="text-xs text-green-500 font-mono">
+									<CheckCircle className="h-3 w-3 text-green-500" />
+									<span className="font-mono text-xs text-green-500">
 										Ready
 									</span>
 								</>
@@ -193,7 +194,7 @@ export function HeroVisual() {
 					</div>
 
 					{/* Code */}
-					<div className="p-4 min-h-[280px] relative">
+					<div className="relative min-h-[280px] p-4">
 						{/* Light mode */}
 						<div className="dark:hidden">
 							<SyntaxHighlighter
@@ -233,15 +234,15 @@ export function HeroVisual() {
 						{/* Typing cursor */}
 						{isTyping && (
 							<span
-								className="absolute inline-block w-2 h-4 bg-primary animate-pulse"
+								className="bg-primary absolute inline-block h-4 w-2 animate-pulse"
 								style={{ marginLeft: "2px" }}
 							/>
 						)}
 					</div>
 
 					{/* Footer */}
-					<div className="px-4 py-2.5 border-t border-border bg-muted/30">
-						<span className="font-mono text-xs text-primary">
+					<div className="border-border bg-muted/30 border-t px-4 py-2.5">
+						<span className="text-primary font-mono text-xs">
 							{phase === "schema" || phase === "schema-done"
 								? "Step 1 — Define Schema"
 								: phase === "endpoints" || phase === "endpoints-done"
@@ -257,17 +258,17 @@ export function HeroVisual() {
 						"transition-all duration-500",
 						!showCode
 							? "opacity-100"
-							: "opacity-0 absolute inset-0 pointer-events-none",
+							: "pointer-events-none absolute inset-0 opacity-0",
 					)}
 				>
 					{/* Title bar */}
-					<div className="flex items-center gap-2 px-4 py-3 border-b border-border bg-muted/50">
+					<div className="border-border bg-muted/50 flex items-center gap-2 border-b px-4 py-3">
 						<div className="flex gap-1.5">
-							<div className="w-3 h-3 rounded-full bg-red-500/80" />
-							<div className="w-3 h-3 rounded-full bg-yellow-500/80" />
-							<div className="w-3 h-3 rounded-full bg-green-500/80" />
+							<div className="h-3 w-3 rounded-full bg-red-500/80" />
+							<div className="h-3 w-3 rounded-full bg-yellow-500/80" />
+							<div className="h-3 w-3 rounded-full bg-green-500/80" />
 						</div>
-						<span className="text-xs text-muted-foreground font-mono ml-2">
+						<span className="text-muted-foreground ml-2 font-mono text-xs">
 							localhost:3000/admin/posts
 						</span>
 					</div>
@@ -275,22 +276,22 @@ export function HeroVisual() {
 					{/* Main content with sidebar */}
 					<div className="flex min-h-[280px]">
 						{/* Sidebar */}
-						<div className="w-36 border-r border-border p-2 bg-muted/30 hidden sm:block">
+						<div className="border-border bg-muted/30 hidden w-36 border-r p-2 sm:block">
 							<div className="space-y-0.5">
-								<div className="flex items-center gap-2 px-2 py-1.5 text-xs font-medium text-muted-foreground rounded">
-									<div className="w-3.5 h-3.5 bg-muted rounded" />
+								<div className="text-muted-foreground flex items-center gap-2 rounded px-2 py-1.5 text-xs font-medium">
+									<div className="bg-muted h-3.5 w-3.5 rounded" />
 									Dashboard
 								</div>
-								<div className="flex items-center gap-2 px-2 py-1.5 text-xs font-medium bg-primary/10 text-primary rounded">
-									<FileText className="w-3.5 h-3.5" />
+								<div className="bg-primary/10 text-primary flex items-center gap-2 rounded px-2 py-1.5 text-xs font-medium">
+									<FileText className="h-3.5 w-3.5" />
 									Posts
 								</div>
-								<div className="flex items-center gap-2 px-2 py-1.5 text-xs font-medium text-muted-foreground rounded">
-									<div className="w-3.5 h-3.5 bg-muted rounded" />
+								<div className="text-muted-foreground flex items-center gap-2 rounded px-2 py-1.5 text-xs font-medium">
+									<div className="bg-muted h-3.5 w-3.5 rounded" />
 									Authors
 								</div>
-								<div className="flex items-center gap-2 px-2 py-1.5 text-xs font-medium text-muted-foreground rounded">
-									<div className="w-3.5 h-3.5 bg-muted rounded" />
+								<div className="text-muted-foreground flex items-center gap-2 rounded px-2 py-1.5 text-xs font-medium">
+									<div className="bg-muted h-3.5 w-3.5 rounded" />
 									Settings
 								</div>
 							</div>
@@ -299,35 +300,35 @@ export function HeroVisual() {
 						{/* Main area */}
 						<div className="flex-1 p-3">
 							{/* Header */}
-							<div className="flex items-center justify-between mb-3">
+							<div className="mb-3 flex items-center justify-between">
 								<div className="flex items-center gap-2">
-									<FileText className="w-4 h-4 text-primary" />
-									<span className="font-semibold text-sm">Posts</span>
+									<FileText className="text-primary h-4 w-4" />
+									<span className="text-sm font-semibold">Posts</span>
 								</div>
 								<button
 									type="button"
-									className="flex items-center gap-1.5 px-2.5 py-1.5 bg-primary text-primary-foreground text-xs font-medium"
+									className="bg-primary text-primary-foreground flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium"
 								>
-									<Plus className="w-3.5 h-3.5" />
+									<Plus className="h-3.5 w-3.5" />
 									New
 								</button>
 							</div>
 
 							{/* Search bar */}
-							<div className="flex gap-2 mb-3">
-								<div className="flex-1 h-7 bg-muted/50 border border-border px-2 flex items-center">
-									<span className="text-xs text-muted-foreground">
+							<div className="mb-3 flex gap-2">
+								<div className="bg-muted/50 border-border flex h-7 flex-1 items-center border px-2">
+									<span className="text-muted-foreground text-xs">
 										Search posts...
 									</span>
 								</div>
-								<div className="h-7 px-2 bg-muted/50 border border-border flex items-center">
-									<span className="text-xs text-muted-foreground">Options</span>
+								<div className="bg-muted/50 border-border flex h-7 items-center border px-2">
+									<span className="text-muted-foreground text-xs">Options</span>
 								</div>
 							</div>
 
 							{/* Table */}
-							<div className="border border-border overflow-hidden">
-								<div className="grid grid-cols-[20px_1fr_80px_70px] gap-2 px-2.5 py-1.5 bg-muted/50 text-[10px] font-medium text-muted-foreground border-b border-border uppercase tracking-wider">
+							<div className="border-border overflow-hidden border">
+								<div className="bg-muted/50 text-muted-foreground border-border grid grid-cols-[20px_1fr_80px_70px] gap-2 border-b px-2.5 py-1.5 text-[10px] font-medium tracking-wider uppercase">
 									<div />
 									<div>Title</div>
 									<div>Status</div>
@@ -354,17 +355,17 @@ export function HeroVisual() {
 									<div
 										key={post.title}
 										className={cn(
-											"grid grid-cols-[20px_1fr_80px_70px] gap-2 px-2.5 py-2 text-xs border-b border-border last:border-0 hover:bg-muted/30 transition-all duration-300",
+											"border-border hover:bg-muted/30 grid grid-cols-[20px_1fr_80px_70px] gap-2 border-b px-2.5 py-2 text-xs transition-all duration-300 last:border-0",
 											showTable
-												? "opacity-100 translate-x-0"
-												: "opacity-0 translate-x-4",
+												? "translate-x-0 opacity-100"
+												: "translate-x-4 opacity-0",
 										)}
 										style={{
 											transitionDelay: showTable ? `${i * 75}ms` : "0ms",
 										}}
 									>
 										<div className="flex items-center">
-											<div className="w-3.5 h-3.5 border border-border rounded-sm bg-background" />
+											<div className="border-border bg-background h-3.5 w-3.5 rounded-sm border" />
 										</div>
 										<div className="truncate font-medium">{post.title}</div>
 										<div>
@@ -378,8 +379,8 @@ export function HeroVisual() {
 					</div>
 
 					{/* Footer */}
-					<div className="px-3 py-2 border-t border-border bg-muted/20">
-						<span className="text-[10px] text-muted-foreground font-mono">
+					<div className="border-border bg-muted/20 border-t px-3 py-2">
+						<span className="text-muted-foreground font-mono text-[10px]">
 							Showing 4 of 4 posts
 						</span>
 					</div>
@@ -402,7 +403,7 @@ export function HeroVisual() {
 						<div key={step} className="flex items-center gap-1.5">
 							<div
 								className={cn(
-									"w-2 h-2 rounded-full transition-all",
+									"h-2 w-2 rounded-full transition-all",
 									isActive
 										? "bg-primary scale-125"
 										: isDone
@@ -454,12 +455,12 @@ function StatusBadge({ status }: { status: string }) {
 	return (
 		<span
 			className={cn(
-				"inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium",
+				"inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-xs font-medium",
 				style.bg,
 				style.text,
 			)}
 		>
-			<span className={cn("w-1.5 h-1.5 rounded-full", style.dot)} />
+			<span className={cn("h-1.5 w-1.5 rounded-full", style.dot)} />
 			{status}
 		</span>
 	);

@@ -1,5 +1,7 @@
 import { describe, expect, it } from "bun:test";
+
 import { z } from "zod";
+
 import {
 	email,
 	type EmailTemplateDefinition,
@@ -72,7 +74,9 @@ describe("email() factory", () => {
 			}),
 		});
 
-		const result = def.handler({ input: { msg: "plain" } } as any) as EmailResult;
+		const result = def.handler({
+			input: { msg: "plain" },
+		} as any) as EmailResult;
 		expect(result.text).toBe("plain");
 	});
 

@@ -10,6 +10,7 @@
  */
 
 import type * as React from "react";
+
 import { useResolveText, useTranslation } from "../../../i18n/hooks";
 import type { I18nText } from "../../../i18n/types";
 import type {
@@ -153,7 +154,7 @@ export function RelationItemsDisplay({
 	if (!isLoading && (!items || items.length === 0)) {
 		return (
 			<div className="rounded-lg border border-dashed p-4 text-center">
-				<p className="text-sm text-muted-foreground">{resolvedEmptyMessage}</p>
+				<p className="text-muted-foreground text-sm">{resolvedEmptyMessage}</p>
 			</div>
 		);
 	}

@@ -7,6 +7,7 @@ import {
 	useQuery,
 	useSuspenseQuery,
 } from "@tanstack/react-query";
+
 import { selectClient, useAdminStore } from "../runtime";
 import type { AdminConfigResponse } from "../types/admin-config";
 

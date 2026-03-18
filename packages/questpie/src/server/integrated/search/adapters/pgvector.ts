@@ -79,8 +79,7 @@ import {
 // Types
 // ============================================================================
 
-export interface PgVectorSearchAdapterOptions
-	extends PostgresSearchAdapterOptions {
+export interface PgVectorSearchAdapterOptions extends PostgresSearchAdapterOptions {
 	/**
 	 * Embedding provider for generating vectors
 	 * Required for semantic search

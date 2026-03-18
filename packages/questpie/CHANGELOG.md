@@ -15,15 +15,15 @@
   ```ts
   // Before
   collection("posts").fields({
-    title: varchar("title", { length: 255 }),
-    content: text("content"),
+  	title: varchar("title", { length: 255 }),
+  	content: text("content"),
   });
 
   // After
   q.collection("posts").fields((f) => ({
-    title: f.text({ required: true }),
-    content: f.textarea({ localized: true }),
-    publishedAt: f.datetime(),
+  	title: f.text({ required: true }),
+  	content: f.textarea({ localized: true }),
+  	publishedAt: f.datetime(),
   }));
   ```
 
@@ -33,22 +33,22 @@
 
   ```ts
   const slugField = field<SlugFieldConfig, string>()({
-    type: "slug",
-    _value: undefined as unknown as string,
-    toColumn: (name, config) => varchar(name, { length: 255 }),
-    toZodSchema: (config) => z.string().regex(/^[a-z0-9-]+$/),
-    getOperators: (config) => ({
-      column: stringColumnOperators,
-      jsonb: stringJsonbOperators,
-    }),
-    getMetadata: (config) => ({
-      type: "slug",
-      label: config.label,
-      required: config.required ?? false,
-      localized: false,
-      readOnly: false,
-      writeOnly: false,
-    }),
+  	type: "slug",
+  	_value: undefined as unknown as string,
+  	toColumn: (name, config) => varchar(name, { length: 255 }),
+  	toZodSchema: (config) => z.string().regex(/^[a-z0-9-]+$/),
+  	getOperators: (config) => ({
+  		column: stringColumnOperators,
+  		jsonb: stringJsonbOperators,
+  	}),
+  	getMetadata: (config) => ({
+  		type: "slug",
+  		label: config.label,
+  		required: config.required ?? false,
+  		localized: false,
+  		readOnly: false,
+  		writeOnly: false,
+  	}),
   });
 
   // Register:
@@ -75,11 +75,11 @@
   ```ts
   const r = q.rpc<typeof app>();
   export const dashboardRouter = r.router({
-    stats: r.fn({
-      handler: async ({ app }) => {
-        /* ... */
-      },
-    }),
+  	stats: r.fn({
+  		handler: async ({ app }) => {
+  			/* ... */
+  		},
+  	}),
   });
   ```
 
@@ -219,12 +219,12 @@
 
   ```typescript
   const cms = q({ name: "app" }).build({
-    defaultAccess: {
-      read: ({ session }) => !!session,
-      create: ({ session }) => !!session,
-      update: ({ session }) => !!session,
-      delete: ({ session }) => !!session,
-    },
+  	defaultAccess: {
+  		read: ({ session }) => !!session,
+  		create: ({ session }) => !!session,
+  		update: ({ session }) => !!session,
+  		delete: ({ session }) => !!session,
+  	},
   });
   ```
 
@@ -253,11 +253,11 @@
 
   ```typescript
   async function logActivity() {
-    const { db, session } = getContext<App>(); // From storage
+  	const { db, session } = getContext<App>(); // From storage
   }
 
   await runWithContext({ app: cms, session, db }, async () => {
-    await logActivity(); // Works without passing context
+  	await logActivity(); // Works without passing context
   });
   ```
 
@@ -291,22 +291,22 @@
   ```typescript
   // Connect existing services
   await cms.api.globals.homepage.update(
-    {
-      featuredServices: { connect: [{ id: service1.id }, { id: service2.id }] },
-    },
-    ctx,
+  	{
+  		featuredServices: { connect: [{ id: service1.id }, { id: service2.id }] },
+  	},
+  	ctx,
   );
 
   // Create new services and link them
   await cms.api.globals.homepage.update(
-    {
-      featuredServices: {
-        create: [
-          { name: "Consulting", description: "Expert advice", price: 100 },
-        ],
-      },
-    },
-    ctx,
+  	{
+  		featuredServices: {
+  			create: [
+  				{ name: "Consulting", description: "Expert advice", price: 100 },
+  			],
+  		},
+  	},
+  	ctx,
   );
   ```
 
@@ -399,10 +399,10 @@
 
   ```typescript
   const cms = q({ name: "app" }).build({
-    locale: {
-      default: "en",
-      available: ["en", "sk", "cs", "de", "es", "fr", "pl", "pt"],
-    },
+  	locale: {
+  		default: "en",
+  		available: ["en", "sk", "cs", "de", "es", "fr", "pl", "pt"],
+  	},
   });
   ```
 

@@ -11,21 +11,21 @@ Blocks are defined in `blocks/` using the `block()` factory. Each block has fiel
 import { block } from "#questpie";
 
 export const heroBlock = block("hero")
-  .admin(({ c }) => ({
-    label: { en: "Hero Section", sk: "Hero sekcia" },
-    icon: c.icon("ph:image"),
-    category: "sections",
-  }))
-  .fields(({ f }) => ({
-    title: f.text().required().localized(),
-    subtitle: f.textarea().localized(),
-    backgroundImage: f.upload({ to: "assets" }),
-    overlayOpacity: f.number().default(60),
-    alignment: f.select(["left", "center", "right"]).default("center"),
-    ctaText: f.text().localized(),
-    ctaLink: f.text(),
-  }))
-  .prefetch({ with: { backgroundImage: true } });
+	.admin(({ c }) => ({
+		label: { en: "Hero Section", sk: "Hero sekcia" },
+		icon: c.icon("ph:image"),
+		category: "sections",
+	}))
+	.fields(({ f }) => ({
+		title: f.text().required().localized(),
+		subtitle: f.textarea().localized(),
+		backgroundImage: f.upload({ to: "assets" }),
+		overlayOpacity: f.number().default(60),
+		alignment: f.select(["left", "center", "right"]).default("center"),
+		ctaText: f.text().localized(),
+		ctaLink: f.text(),
+	}))
+	.prefetch({ with: { backgroundImage: true } });
 ```
 
 ## Admin Metadata
@@ -45,12 +45,11 @@ Add a `blocks` field to any collection:
 ```ts title="collections/pages.ts"
 import { collection } from "#questpie";
 
-export const pages = collection("pages")
-  .fields(({ f }) => ({
-    title: f.text().required().localized(),
-    slug: f.text().required(),
-    content: f.blocks().localized(),  // Block content field
-  }));
+export const pages = collection("pages").fields(({ f }) => ({
+	title: f.text().required().localized(),
+	slug: f.text().required(),
+	content: f.blocks().localized(), // Block content field
+}));
 ```
 
 The admin renders a visual block editor for this field.
@@ -63,25 +62,25 @@ Export multiple named blocks from one file:
 import { block } from "#questpie";
 
 export const twoColumnBlock = block("twoColumn")
-  .admin(({ c }) => ({
-    label: { en: "Two Columns" },
-    icon: c.icon("ph:columns"),
-    category: "layout",
-  }))
-  .fields(({ f }) => ({
-    left: f.blocks(),
-    right: f.blocks(),
-  }));
+	.admin(({ c }) => ({
+		label: { en: "Two Columns" },
+		icon: c.icon("ph:columns"),
+		category: "layout",
+	}))
+	.fields(({ f }) => ({
+		left: f.blocks(),
+		right: f.blocks(),
+	}));
 
 export const spacerBlock = block("spacer")
-  .admin(({ c }) => ({
-    label: { en: "Spacer" },
-    icon: c.icon("ph:arrows-out-line-vertical"),
-    category: "layout",
-  }))
-  .fields(({ f }) => ({
-    height: f.select(["sm", "md", "lg", "xl"]).default("md"),
-  }));
+	.admin(({ c }) => ({
+		label: { en: "Spacer" },
+		icon: c.icon("ph:arrows-out-line-vertical"),
+		category: "layout",
+	}))
+	.fields(({ f }) => ({
+		height: f.select(["sm", "md", "lg", "xl"]).default("md"),
+	}));
 ```
 
 ## Related Pages

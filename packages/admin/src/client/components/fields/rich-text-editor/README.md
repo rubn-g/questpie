@@ -26,11 +26,11 @@ import { RichTextEditor } from "@questpie/admin/client";
 
 // Simple editor - perfect for blog posts
 <RichTextEditor
-  preset="simple"
-  name="content"
-  value={content}
-  onChange={setContent}
-  placeholder="Start writing..."
+	preset="simple"
+	name="content"
+	value={content}
+	onChange={setContent}
+	placeholder="Start writing..."
 />;
 ```
 
@@ -41,7 +41,12 @@ import { RichTextEditor } from "@questpie/admin/client";
 Perfect for: Comments, notes, simple text fields
 
 ```tsx
-<RichTextEditor preset="minimal" name="comment" value={comment} onChange={setComment} />;
+<RichTextEditor
+	preset="minimal"
+	name="comment"
+	value={comment}
+	onChange={setComment}
+/>
 ```
 
 **Features:**
@@ -58,13 +63,13 @@ Perfect for: Blog posts, articles, descriptions
 
 ```tsx
 <RichTextEditor
-  preset="simple"
-  name="description"
-  value={description}
-  onChange={setDescription}
-  showCharacterCount
-  maxCharacters={500}
-/>;
+	preset="simple"
+	name="description"
+	value={description}
+	onChange={setDescription}
+	showCharacterCount
+	maxCharacters={500}
+/>
 ```
 
 **Features:**
@@ -86,12 +91,12 @@ Perfect for: General-purpose content editing
 
 ```tsx
 <RichTextEditor
-  preset="standard"
-  name="content"
-  value={content}
-  onChange={setContent}
-  onImageUpload={handleImageUpload}
-/>;
+	preset="standard"
+	name="content"
+	value={content}
+	onChange={setContent}
+	onImageUpload={handleImageUpload}
+/>
 ```
 
 **Features:**
@@ -110,13 +115,13 @@ Perfect for: Documentation, technical writing
 
 ```tsx
 <RichTextEditor
-  preset="advanced"
-  name="documentation"
-  value={docs}
-  onChange={setDocs}
-  onImageUpload={handleImageUpload}
-  showCharacterCount
-/>;
+	preset="advanced"
+	name="documentation"
+	value={docs}
+	onChange={setDocs}
+	onImageUpload={handleImageUpload}
+	showCharacterCount
+/>
 ```
 
 **Features:**
@@ -136,14 +141,14 @@ Start with a preset and customize specific features:
 import { RichTextEditor } from "@questpie/admin/client";
 
 <RichTextEditor
-  preset="simple"
-  features={{
-    // Enable images in simple preset
-    image: true,
-    // Disable headings
-    heading: false,
-  }}
-  onImageUpload={handleImageUpload}
+	preset="simple"
+	features={{
+		// Enable images in simple preset
+		image: true,
+		// Disable headings
+		heading: false,
+	}}
+	onImageUpload={handleImageUpload}
 />;
 ```
 
@@ -153,15 +158,15 @@ For full control, configure features manually:
 
 ```tsx
 <RichTextEditor
-  features={{
-    toolbar: true,
-    bubbleMenu: true,
-    bold: true,
-    italic: true,
-    underline: true,
-    link: true,
-    // ... other features
-  }}
+	features={{
+		toolbar: true,
+		bubbleMenu: true,
+		bold: true,
+		italic: true,
+		underline: true,
+		link: true,
+		// ... other features
+	}}
 />
 ```
 
@@ -171,22 +176,19 @@ Enable image uploads by providing an upload handler:
 
 ```tsx
 const handleImageUpload = async (file: File): Promise<string> => {
-  const formData = new FormData();
-  formData.append("file", file);
+	const formData = new FormData();
+	formData.append("file", file);
 
-  const response = await fetch("/api/upload", {
-    method: "POST",
-    body: formData,
-  });
+	const response = await fetch("/api/upload", {
+		method: "POST",
+		body: formData,
+	});
 
-  const { url } = await response.json();
-  return url;
+	const { url } = await response.json();
+	return url;
 };
 
-<RichTextEditor
-  preset="standard"
-  onImageUpload={handleImageUpload}
-/>;
+<RichTextEditor preset="standard" onImageUpload={handleImageUpload} />;
 ```
 
 ## Output Formats
@@ -253,11 +255,21 @@ Type `/` to open the command menu:
 The editor uses CSS classes for theming:
 
 ```css
-.qp-rich-text-editor { /* Main container */ }
-.qp-rich-text-editor__content { /* Editor content area */ }
-.qp-rich-text-editor__slash { /* Slash command menu */ }
-.qp-rich-text-editor__slash-item { /* Slash command item */ }
-.qp-rich-text-editor__slash-item--active { /* Active slash command item */ }
+.qp-rich-text-editor {
+	/* Main container */
+}
+.qp-rich-text-editor__content {
+	/* Editor content area */
+}
+.qp-rich-text-editor__slash {
+	/* Slash command menu */
+}
+.qp-rich-text-editor__slash-item {
+	/* Slash command item */
+}
+.qp-rich-text-editor__slash-item--active {
+	/* Active slash command item */
+}
 ```
 
 ## Advanced Usage
@@ -308,13 +320,13 @@ The editor is split into focused modules:
 
 ```tsx
 <RichTextEditor
-  preset="simple"
-  name="content"
-  value={post.content}
-  onChange={(content) => updatePost({ content })}
-  placeholder="Write your post..."
-  showCharacterCount
-  maxCharacters={5000}
+	preset="simple"
+	name="content"
+	value={post.content}
+	onChange={(content) => updatePost({ content })}
+	placeholder="Write your post..."
+	showCharacterCount
+	maxCharacters={5000}
 />
 ```
 
@@ -322,11 +334,11 @@ The editor is split into focused modules:
 
 ```tsx
 <RichTextEditor
-  preset="minimal"
-  name="comment"
-  value={comment}
-  onChange={setComment}
-  placeholder="Add a comment..."
+	preset="minimal"
+	name="comment"
+	value={comment}
+	onChange={setComment}
+	placeholder="Add a comment..."
 />
 ```
 
@@ -334,12 +346,12 @@ The editor is split into focused modules:
 
 ```tsx
 <RichTextEditor
-  preset="advanced"
-  name="docs"
-  value={documentation}
-  onChange={setDocumentation}
-  onImageUpload={uploadToS3}
-  showCharacterCount
+	preset="advanced"
+	name="docs"
+	value={documentation}
+	onChange={setDocumentation}
+	onImageUpload={uploadToS3}
+	showCharacterCount
 />
 ```
 
@@ -347,10 +359,10 @@ The editor is split into focused modules:
 
 ```tsx
 <RichTextEditor
-  preset="simple"
-  features={{ image: true }}
-  onImageUpload={uploadProductImage}
-  maxCharacters={1000}
-  showCharacterCount
+	preset="simple"
+	features={{ image: true }}
+	onImageUpload={uploadProductImage}
+	maxCharacters={1000}
+	showCharacterCount
 />
 ```

@@ -4,31 +4,31 @@ Complete configuration options for every built-in QUESTPIE field type. All field
 
 ## Common Options (All Fields)
 
-| Option | Type | Default | Description |
-|---|---|---|---|
-| `required` | `boolean` | `false` | Field must have a value |
-| `default` | `T` | -- | Default value |
-| `label` | `string \| Record<string, string>` | -- | Display label (supports i18n) |
-| `description` | `string \| Record<string, string>` | -- | Help text |
-| `localized` | `boolean` | `false` | Per-locale values |
-| `input` | `"optional"` | -- | Optional in API input but required in DB (e.g., auto-generated slugs) |
-| `meta` | `object` | -- | Admin UI rendering hints |
-| `virtual` | `SQL` | -- | SQL expression for computed read-only field |
+| Option        | Type                               | Default | Description                                                           |
+| ------------- | ---------------------------------- | ------- | --------------------------------------------------------------------- |
+| `required`    | `boolean`                          | `false` | Field must have a value                                               |
+| `default`     | `T`                                | --      | Default value                                                         |
+| `label`       | `string \| Record<string, string>` | --      | Display label (supports i18n)                                         |
+| `description` | `string \| Record<string, string>` | --      | Help text                                                             |
+| `localized`   | `boolean`                          | `false` | Per-locale values                                                     |
+| `input`       | `"optional"`                       | --      | Optional in API input but required in DB (e.g., auto-generated slugs) |
+| `meta`        | `object`                           | --      | Admin UI rendering hints                                              |
+| `virtual`     | `SQL`                              | --      | SQL expression for computed read-only field                           |
 
 ## `f.text(options?)`
 
 Short strings, titles, slugs. DB type: `varchar` or `text`.
 
-| Option | Type | Default | Description |
-|---|---|---|---|
-| `maxLength` | `number` | -- | Max string length (uses varchar when set) |
-| `required` | `boolean` | `false` | Required field |
-| `default` | `string` | -- | Default value |
-| `localized` | `boolean` | `false` | Per-locale values |
-| `input` | `"optional"` | -- | Optional in API input |
-| `label` | `string \| i18n` | -- | Display label |
-| `description` | `string \| i18n` | -- | Help text |
-| `virtual` | `SQL` | -- | SQL computed value |
+| Option        | Type             | Default | Description                               |
+| ------------- | ---------------- | ------- | ----------------------------------------- |
+| `maxLength`   | `number`         | --      | Max string length (uses varchar when set) |
+| `required`    | `boolean`        | `false` | Required field                            |
+| `default`     | `string`         | --      | Default value                             |
+| `localized`   | `boolean`        | `false` | Per-locale values                         |
+| `input`       | `"optional"`     | --      | Optional in API input                     |
+| `label`       | `string \| i18n` | --      | Display label                             |
+| `description` | `string \| i18n` | --      | Help text                                 |
+| `virtual`     | `SQL`            | --      | SQL computed value                        |
 
 ```ts
 name: f.text({ required: true, maxLength: 255 }),
@@ -75,14 +75,14 @@ profileUrl: f.url({ label: "Profile URL" }),
 
 Numeric values. DB type: `integer` or `numeric`.
 
-| Option | Type | Default | Description |
-|---|---|---|---|
-| `required` | `boolean` | `false` | Required |
-| `default` | `number` | -- | Default value |
-| `min` | `number` | -- | Minimum value |
-| `max` | `number` | -- | Maximum value |
-| `label` | `string \| i18n` | -- | Display label |
-| `description` | `string \| i18n` | -- | Help text |
+| Option        | Type             | Default | Description   |
+| ------------- | ---------------- | ------- | ------------- |
+| `required`    | `boolean`        | `false` | Required      |
+| `default`     | `number`         | --      | Default value |
+| `min`         | `number`         | --      | Minimum value |
+| `max`         | `number`         | --      | Maximum value |
+| `label`       | `string \| i18n` | --      | Display label |
+| `description` | `string \| i18n` | --      | Help text     |
 
 ```ts
 price: f.number({ required: true, min: 0 }),
@@ -94,12 +94,12 @@ sortOrder: f.number({ default: 0 }),
 
 Boolean flags. DB type: `boolean`.
 
-| Option | Type | Default | Description |
-|---|---|---|---|
-| `required` | `boolean` | `false` | Required |
-| `default` | `boolean` | -- | Default value |
-| `label` | `string \| i18n` | -- | Display label |
-| `description` | `string \| i18n` | -- | Help text |
+| Option        | Type             | Default | Description   |
+| ------------- | ---------------- | ------- | ------------- |
+| `required`    | `boolean`        | `false` | Required      |
+| `default`     | `boolean`        | --      | Default value |
+| `label`       | `string \| i18n` | --      | Display label |
+| `description` | `string \| i18n` | --      | Help text     |
 
 ```ts
 isActive: f.boolean({ default: true, required: true }),
@@ -119,11 +119,11 @@ isActive: f.boolean({
 
 Calendar dates. DB type: `date`.
 
-| Option | Type | Default | Description |
-|---|---|---|---|
-| `required` | `boolean` | `false` | Required |
-| `default` | `Date \| string` | -- | Default value |
-| `label` | `string \| i18n` | -- | Display label |
+| Option     | Type             | Default | Description   |
+| ---------- | ---------------- | ------- | ------------- |
+| `required` | `boolean`        | `false` | Required      |
+| `default`  | `Date \| string` | --      | Default value |
+| `label`    | `string \| i18n` | --      | Display label |
 
 ```ts
 publishedAt: f.date(),
@@ -134,11 +134,11 @@ birthDate: f.date({ required: true }),
 
 Time of day. DB type: `time`.
 
-| Option | Type | Default | Description |
-|---|---|---|---|
-| `required` | `boolean` | `false` | Required |
-| `default` | `string` | -- | Default value |
-| `label` | `string \| i18n` | -- | Display label |
+| Option     | Type             | Default | Description   |
+| ---------- | ---------------- | ------- | ------------- |
+| `required` | `boolean`        | `false` | Required      |
+| `default`  | `string`         | --      | Default value |
+| `label`    | `string \| i18n` | --      | Display label |
 
 ```ts
 startTime: f.time({ label: "Start" }),
@@ -149,11 +149,11 @@ endTime: f.time({ label: "End" }),
 
 Date + time. DB type: `timestamp`.
 
-| Option | Type | Default | Description |
-|---|---|---|---|
-| `required` | `boolean` | `false` | Required |
-| `default` | `Date \| string` | -- | Default value |
-| `label` | `string \| i18n` | -- | Display label |
+| Option     | Type             | Default | Description   |
+| ---------- | ---------------- | ------- | ------------- |
+| `required` | `boolean`        | `false` | Required      |
+| `default`  | `Date \| string` | --      | Default value |
+| `label`    | `string \| i18n` | --      | Display label |
 
 ```ts
 scheduledAt: f.datetime({ required: true }),
@@ -164,12 +164,12 @@ expiresAt: f.datetime(),
 
 Single value from a predefined list. DB type: `varchar`.
 
-| Option | Type | Default | Description |
-|---|---|---|---|
-| `options` | `string[] \| { value, label }[]` | -- | Available choices (REQUIRED) |
-| `required` | `boolean` | `false` | Required |
-| `default` | `string` | -- | Default value |
-| `label` | `string \| i18n` | -- | Display label |
+| Option     | Type                             | Default | Description                  |
+| ---------- | -------------------------------- | ------- | ---------------------------- |
+| `options`  | `string[] \| { value, label }[]` | --      | Available choices (REQUIRED) |
+| `required` | `boolean`                        | `false` | Required                     |
+| `default`  | `string`                         | --      | Default value                |
+| `label`    | `string \| i18n`                 | --      | Display label                |
 
 Simple string options:
 
@@ -199,16 +199,16 @@ status: f.select({
 
 Reference to another collection.
 
-| Option | Type | Default | Description |
-|---|---|---|---|
-| `to` | `string` | -- | Target collection name (REQUIRED) |
-| `required` | `boolean` | `false` | Required |
-| `hasMany` | `boolean` | `false` | Has-many relation |
-| `through` | `string` | -- | Junction collection (required with hasMany) |
-| `sourceField` | `string` | -- | FK in junction -> this collection (required with through) |
-| `targetField` | `string` | -- | FK in junction -> target collection (required with through) |
-| `onDelete` | `"cascade" \| "set null" \| "restrict"` | -- | Foreign key behavior |
-| `label` | `string \| i18n` | -- | Display label |
+| Option        | Type                                    | Default | Description                                                 |
+| ------------- | --------------------------------------- | ------- | ----------------------------------------------------------- |
+| `to`          | `string`                                | --      | Target collection name (REQUIRED)                           |
+| `required`    | `boolean`                               | `false` | Required                                                    |
+| `hasMany`     | `boolean`                               | `false` | Has-many relation                                           |
+| `through`     | `string`                                | --      | Junction collection (required with hasMany)                 |
+| `sourceField` | `string`                                | --      | FK in junction -> this collection (required with through)   |
+| `targetField` | `string`                                | --      | FK in junction -> target collection (required with through) |
+| `onDelete`    | `"cascade" \| "set null" \| "restrict"` | --      | Foreign key behavior                                        |
+| `label`       | `string \| i18n`                        | --      | Display label                                               |
 
 Belongs-to (single):
 
@@ -250,12 +250,12 @@ city: f.relation({
 
 File upload linked to a storage collection.
 
-| Option | Type | Default | Description |
-|---|---|---|---|
-| `to` | `string` | -- | Upload/storage collection name (REQUIRED) |
-| `mimeTypes` | `string[]` | -- | Allowed MIME types (e.g., `["image/*"]`) |
-| `maxSize` | `number` | -- | Max file size in bytes |
-| `label` | `string \| i18n` | -- | Display label |
+| Option      | Type             | Default | Description                               |
+| ----------- | ---------------- | ------- | ----------------------------------------- |
+| `to`        | `string`         | --      | Upload/storage collection name (REQUIRED) |
+| `mimeTypes` | `string[]`       | --      | Allowed MIME types (e.g., `["image/*"]`)  |
+| `maxSize`   | `number`         | --      | Max file size in bytes                    |
+| `label`     | `string \| i18n` | --      | Display label                             |
 
 ```ts
 avatar: f.upload({ to: "assets", mimeTypes: ["image/*"], maxSize: 5_000_000 }),
@@ -267,11 +267,11 @@ cover: f.upload({ to: "assets" }),
 
 Nested structured data stored as JSONB.
 
-| Option | Type | Default | Description |
-|---|---|---|---|
-| `fields` | `Record \| () => Record` | -- | Nested field definitions (REQUIRED) |
-| `default` | `object` | -- | Default value |
-| `label` | `string \| i18n` | -- | Display label |
+| Option    | Type                     | Default | Description                         |
+| --------- | ------------------------ | ------- | ----------------------------------- |
+| `fields`  | `Record \| () => Record` | --      | Nested field definitions (REQUIRED) |
+| `default` | `object`                 | --      | Default value                       |
+| `label`   | `string \| i18n`         | --      | Display label                       |
 
 Plain object form:
 
@@ -310,13 +310,13 @@ Function form (for helpers/reuse):
 
 Repeatable items stored as JSONB.
 
-| Option | Type | Default | Description |
-|---|---|---|---|
-| `of` | `Field` | -- | Item field type (REQUIRED) |
-| `maxItems` | `number` | -- | Maximum number of items |
-| `default` | `any[]` | -- | Default value |
-| `localized` | `boolean` | `false` | Per-locale array |
-| `label` | `string \| i18n` | -- | Display label |
+| Option      | Type             | Default | Description                |
+| ----------- | ---------------- | ------- | -------------------------- |
+| `of`        | `Field`          | --      | Item field type (REQUIRED) |
+| `maxItems`  | `number`         | --      | Maximum number of items    |
+| `default`   | `any[]`          | --      | Default value              |
+| `localized` | `boolean`        | `false` | Per-locale array           |
+| `label`     | `string \| i18n` | --      | Display label              |
 
 Array of primitives:
 
@@ -366,10 +366,10 @@ items: f.array({
 
 Content blocks for page builders. Stored as JSONB.
 
-| Option | Type | Default | Description |
-|---|---|---|---|
-| `localized` | `boolean` | `false` | Per-locale blocks |
-| `label` | `string \| i18n` | -- | Display label |
+| Option      | Type             | Default | Description       |
+| ----------- | ---------------- | ------- | ----------------- |
+| `localized` | `boolean`        | `false` | Per-locale blocks |
+| `label`     | `string \| i18n` | --      | Display label     |
 
 ```ts
 content: f.blocks({ localized: true }),
@@ -407,11 +407,11 @@ socialLinks: f.array({
 
 Fields support reactive behaviors in `meta.admin`:
 
-| Behavior | Description |
-|---|---|
-| `hidden` | `({ data }) => boolean` -- conditionally hide |
-| `readOnly` | `({ data }) => boolean` -- conditionally read-only |
-| `disabled` | `({ data }) => boolean` -- conditionally disable |
-| `compute` | `{ handler, deps, debounce }` -- auto-compute values |
+| Behavior   | Description                                          |
+| ---------- | ---------------------------------------------------- |
+| `hidden`   | `({ data }) => boolean` -- conditionally hide        |
+| `readOnly` | `({ data }) => boolean` -- conditionally read-only   |
+| `disabled` | `({ data }) => boolean` -- conditionally disable     |
+| `compute`  | `{ handler, deps, debounce }` -- auto-compute values |
 
 All reactive handlers run server-side with access to `ctx.db`, `ctx.user`, `ctx.req`.

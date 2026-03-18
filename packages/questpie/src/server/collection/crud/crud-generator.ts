@@ -8,6 +8,7 @@ import {
 	sql,
 } from "drizzle-orm";
 import { alias, type PgTable } from "drizzle-orm/pg-core";
+
 import type {
 	AccessWhere,
 	CollectionBuilderState,
@@ -94,7 +95,10 @@ import type {
 } from "#questpie/server/collection/crud/types.js";
 import { createVersionRecord } from "#questpie/server/collection/crud/versioning/index.js";
 import { extractAppServices } from "#questpie/server/config/app-context.js";
-import { guardHookRecursion, runWithContext } from "#questpie/server/config/context.js";
+import {
+	guardHookRecursion,
+	runWithContext,
+} from "#questpie/server/config/context.js";
 import type { Questpie } from "#questpie/server/config/questpie.js";
 import type { StorageVisibility } from "#questpie/server/config/types.js";
 import { ApiError, parseDatabaseError } from "#questpie/server/errors/index.js";
@@ -130,7 +134,8 @@ export class CRUDGenerator<TState extends CollectionBuilderState> {
 			i18nCurrentTable: PgTable | null,
 			i18nFallbackTable: PgTable | null,
 		) => TState["virtuals"],
-		private getTitleExpression?: (context: any) => TitleExpressionSQL, _getVirtualsForVersions?: (context: any) => TState["virtuals"],
+		private getTitleExpression?: (context: any) => TitleExpressionSQL,
+		_getVirtualsForVersions?: (context: any) => TState["virtuals"],
 		private getVirtualsForVersionsWithAliases?: (
 			context: any,
 			i18nVersionsCurrentTable: PgTable | null,
@@ -554,15 +559,15 @@ export class CRUDGenerator<TState extends CollectionBuilderState> {
 				// Create aliased i18n tables for current and fallback locales
 				const i18nCurrentTable = useI18n
 					? alias(
-						i18nSourceTable!,
-						useStageVersions ? "i18n_v_current" : "i18n_current",
-					)
+							i18nSourceTable!,
+							useStageVersions ? "i18n_v_current" : "i18n_current",
+						)
 					: null;
 				const i18nFallbackTable = needsFallback
 					? alias(
-						i18nSourceTable!,
-						useStageVersions ? "i18n_v_fallback" : "i18n_fallback",
-					)
+							i18nSourceTable!,
+							useStageVersions ? "i18n_v_fallback" : "i18n_fallback",
+						)
 					: null;
 
 				// Build SELECT object with aliased i18n tables
@@ -1268,7 +1273,8 @@ export class CRUDGenerator<TState extends CollectionBuilderState> {
 					);
 
 					// Execute beforeChange hooks (after validation)
-					await this.executeCollectionHooksWithGlobal("beforeChange",
+					await this.executeCollectionHooksWithGlobal(
+						"beforeChange",
 						this.state.hooks?.beforeChange,
 						this.createHookContext({
 							data: regularFields,
@@ -1393,7 +1399,8 @@ export class CRUDGenerator<TState extends CollectionBuilderState> {
 							}
 
 							// Execute afterChange hooks
-							await this.executeCollectionHooksWithGlobal("afterChange",
+							await this.executeCollectionHooksWithGlobal(
+								"afterChange",
 								this.state.hooks?.afterChange,
 								this.createHookContext({
 									data: createdRecord,
@@ -1587,7 +1594,8 @@ export class CRUDGenerator<TState extends CollectionBuilderState> {
 				existing,
 			);
 
-			await this.executeCollectionHooksWithGlobal("beforeChange",
+			await this.executeCollectionHooksWithGlobal(
+				"beforeChange",
 				this.state.hooks?.beforeChange,
 				this.createHookContext({
 					data: regularFields,
@@ -1697,7 +1705,8 @@ export class CRUDGenerator<TState extends CollectionBuilderState> {
 
 					// Collect afterChange hooks for parallel execution in bulk
 					afterChangePromises.push(
-						this.executeCollectionHooksWithGlobal("afterChange",
+						this.executeCollectionHooksWithGlobal(
+							"afterChange",
 							this.state.hooks?.afterChange,
 							this.createHookContext({
 								data: updated,
@@ -1707,7 +1716,10 @@ export class CRUDGenerator<TState extends CollectionBuilderState> {
 								db: tx,
 							}),
 						).catch((err) => {
-							console.error(`[QUESTPIE] afterChange hook error in bulk update:`, err);
+							console.error(
+								`[QUESTPIE] afterChange hook error in bulk update:`,
+								err,
+							);
 						}),
 					);
 				}
@@ -1848,7 +1860,8 @@ export class CRUDGenerator<TState extends CollectionBuilderState> {
 			}
 
 			// Execute beforeDelete hooks
-			await this.executeCollectionHooksWithGlobal("beforeDelete",
+			await this.executeCollectionHooksWithGlobal(
+				"beforeDelete",
 				this.state.hooks?.beforeDelete,
 				this.createHookContext({
 					data: existing,
@@ -1896,7 +1909,8 @@ export class CRUDGenerator<TState extends CollectionBuilderState> {
 
 				// Execute afterDelete hooks inside transaction (non-fatal)
 				try {
-					await this.executeCollectionHooksWithGlobal("afterDelete",
+					await this.executeCollectionHooksWithGlobal(
+						"afterDelete",
 						this.state.hooks?.afterDelete,
 						this.createHookContext({
 							data: existing,
@@ -1908,7 +1922,10 @@ export class CRUDGenerator<TState extends CollectionBuilderState> {
 					);
 				} catch (err) {
 					// afterDelete hook errors are non-fatal — log and continue
-					console.error(`[QUESTPIE] afterDelete hook error for "${this.state.name}":`, err);
+					console.error(
+						`[QUESTPIE] afterDelete hook error for "${this.state.name}":`,
+						err,
+					);
 				}
 			});
 
@@ -2059,7 +2076,8 @@ export class CRUDGenerator<TState extends CollectionBuilderState> {
 				}
 
 				// Execute beforeDelete hooks
-				await this.executeCollectionHooksWithGlobal("beforeDelete",
+				await this.executeCollectionHooksWithGlobal(
+					"beforeDelete",
 					this.state.hooks?.beforeDelete,
 					this.createHookContext({
 						data: record,
@@ -2116,7 +2134,8 @@ export class CRUDGenerator<TState extends CollectionBuilderState> {
 			// 4. Loop through afterDelete hooks
 			for (const record of records) {
 				// Execute afterDelete hooks
-				await this.executeCollectionHooksWithGlobal("afterDelete",
+				await this.executeCollectionHooksWithGlobal(
+					"afterDelete",
 					this.state.hooks?.afterDelete,
 					this.createHookContext({
 						data: record,
@@ -2282,19 +2301,19 @@ export class CRUDGenerator<TState extends CollectionBuilderState> {
 				.where(
 					hasVersionId
 						? and(
-							eq(getColumn(this.versionsTable!, "id")!, options.id),
-							eq(
-								getColumn(this.versionsTable!, "versionId")!,
-								options.versionId,
-							),
-						)
+								eq(getColumn(this.versionsTable!, "id")!, options.id),
+								eq(
+									getColumn(this.versionsTable!, "versionId")!,
+									options.versionId,
+								),
+							)
 						: and(
-							eq(getColumn(this.versionsTable!, "id")!, options.id),
-							eq(
-								getColumn(this.versionsTable!, "versionNumber")!,
-								options.version,
+								eq(getColumn(this.versionsTable!, "id")!, options.id),
+								eq(
+									getColumn(this.versionsTable!, "versionNumber")!,
+									options.version,
+								),
 							),
-						),
 				)
 				.limit(1);
 			const version = versionRows[0];
@@ -2384,7 +2403,8 @@ export class CRUDGenerator<TState extends CollectionBuilderState> {
 				}
 			}
 
-			await this.executeCollectionHooksWithGlobal("beforeChange",
+			await this.executeCollectionHooksWithGlobal(
+				"beforeChange",
 				this.state.hooks?.beforeChange,
 				this.createHookContext({
 					data: restoreData,
@@ -2461,7 +2481,8 @@ export class CRUDGenerator<TState extends CollectionBuilderState> {
 					version.versionStage,
 				);
 
-				await this.executeCollectionHooksWithGlobal("afterChange",
+				await this.executeCollectionHooksWithGlobal(
+					"afterChange",
 					this.state.hooks?.afterChange,
 					this.createHookContext({
 						data: result,
@@ -2612,7 +2633,8 @@ export class CRUDGenerator<TState extends CollectionBuilderState> {
 			} as TransitionHookContext;
 
 			// Execute beforeTransition hooks (throw to abort)
-			await this.executeTransitionHooksWithGlobal("beforeTransition",
+			await this.executeTransitionHooksWithGlobal(
+				"beforeTransition",
 				this.state.hooks?.beforeTransition,
 				transitionCtx,
 			);
@@ -2647,12 +2669,16 @@ export class CRUDGenerator<TState extends CollectionBuilderState> {
 
 				// Execute afterTransition hooks inside transaction (non-fatal)
 				try {
-					await this.executeTransitionHooksWithGlobal("afterTransition",
+					await this.executeTransitionHooksWithGlobal(
+						"afterTransition",
 						this.state.hooks?.afterTransition,
 						transitionCtx,
 					);
 				} catch (err) {
-					console.error(`[QUESTPIE] afterTransition hook error for "${this.state.name}":`, err);
+					console.error(
+						`[QUESTPIE] afterTransition hook error for "${this.state.name}":`,
+						err,
+					);
 				}
 			});
 
@@ -2734,12 +2760,22 @@ export class CRUDGenerator<TState extends CollectionBuilderState> {
 
 		if (isBefore) {
 			// Global before* first, then collection-specific
-			await executeGlobalCollectionHooks(globalEntries, hookName, this.state.name, ctx as any);
+			await executeGlobalCollectionHooks(
+				globalEntries,
+				hookName,
+				this.state.name,
+				ctx as any,
+			);
 			await this.executeHooks(collectionHooks, ctx);
 		} else {
 			// Collection-specific first, then global after*
 			await this.executeHooks(collectionHooks, ctx);
-			await executeGlobalCollectionHooks(globalEntries, hookName, this.state.name, ctx as any);
+			await executeGlobalCollectionHooks(
+				globalEntries,
+				hookName,
+				this.state.name,
+				ctx as any,
+			);
 		}
 	}
 
@@ -2770,11 +2806,21 @@ export class CRUDGenerator<TState extends CollectionBuilderState> {
 		const isBefore = hookName === "beforeTransition";
 
 		if (isBefore) {
-			await executeGlobalCollectionTransitionHooks(globalEntries, hookName, this.state.name, ctx as any);
+			await executeGlobalCollectionTransitionHooks(
+				globalEntries,
+				hookName,
+				this.state.name,
+				ctx as any,
+			);
 			await this.executeTransitionHooks(collectionHooks, ctx);
 		} else {
 			await this.executeTransitionHooks(collectionHooks, ctx);
-			await executeGlobalCollectionTransitionHooks(globalEntries, hookName, this.state.name, ctx as any);
+			await executeGlobalCollectionTransitionHooks(
+				globalEntries,
+				hookName,
+				this.state.name,
+				ctx as any,
+			);
 		}
 	}
 
@@ -3160,17 +3206,31 @@ export class CRUDGenerator<TState extends CollectionBuilderState> {
 
 			// Block dangerous file extensions
 			const BLOCKED_EXTENSIONS = [
-				".php", ".exe", ".bat", ".sh", ".jsp", ".asp", ".aspx",
-				".cgi", ".pl", ".py", ".rb", ".cmd", ".com", ".scr",
-				".pif", ".vbs", ".wsf", ".msi", ".dll",
+				".php",
+				".exe",
+				".bat",
+				".sh",
+				".jsp",
+				".asp",
+				".aspx",
+				".cgi",
+				".pl",
+				".py",
+				".rb",
+				".cmd",
+				".com",
+				".scr",
+				".pif",
+				".vbs",
+				".wsf",
+				".msi",
+				".dll",
 			];
 			const fileExt = file.name
 				? `.${file.name.split(".").pop()?.toLowerCase()}`
 				: "";
 			if (BLOCKED_EXTENSIONS.includes(fileExt)) {
-				throw ApiError.badRequest(
-					`File extension "${fileExt}" is not allowed`,
-				);
+				throw ApiError.badRequest(`File extension "${fileExt}" is not allowed`);
 			}
 
 			// Validate MIME type

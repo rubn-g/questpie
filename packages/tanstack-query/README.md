@@ -27,8 +27,8 @@ import { createQuestpieQueryOptions } from "@questpie/tanstack-query";
 import type { AppConfig } from "#questpie";
 
 const appClient = createClient<AppConfig>({
-  baseURL: "http://localhost:3000",
-  basePath: "/api",
+	baseURL: "http://localhost:3000",
+	basePath: "/api",
 });
 
 export const appQueries = createQuestpieQueryOptions(appClient);
@@ -41,26 +41,28 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { appQueries } from "@/lib/queries";
 
 function PostsList() {
-  const { data } = useQuery(
-    appQueries.collections.posts.find({ limit: 10 })
-  );
+	const { data } = useQuery(appQueries.collections.posts.find({ limit: 10 }));
 
-  const queryClient = useQueryClient();
-  const createPost = useMutation({
-    ...appQueries.collections.posts.create(),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: appQueries.collections.posts.key() });
-    },
-  });
+	const queryClient = useQueryClient();
+	const createPost = useMutation({
+		...appQueries.collections.posts.create(),
+		onSuccess: () => {
+			queryClient.invalidateQueries({
+				queryKey: appQueries.collections.posts.key(),
+			});
+		},
+	});
 
-  return (
-    <div>
-      {data?.docs.map((post) => <div key={post.id}>{post.title}</div>)}
-      <button onClick={() => createPost.mutate({ title: "New Post" })}>
-        Create
-      </button>
-    </div>
-  );
+	return (
+		<div>
+			{data?.docs.map((post) => (
+				<div key={post.id}>{post.title}</div>
+			))}
+			<button onClick={() => createPost.mutate({ title: "New Post" })}>
+				Create
+			</button>
+		</div>
+	);
 }
 ```
 
@@ -69,57 +71,57 @@ function PostsList() {
 ```ts
 // Find many (paginated)
 appQueries.collections.posts.find({
-  where: { published: { eq: true } },
-  orderBy: { createdAt: "desc" },
-  limit: 10,
-  offset: 0,
-  with: { author: true },
-})
+	where: { published: { eq: true } },
+	orderBy: { createdAt: "desc" },
+	limit: 10,
+	offset: 0,
+	with: { author: true },
+});
 
 // Find one
 appQueries.collections.posts.findOne({
-  where: { id: "post-id" },
-  with: { author: true },
-})
+	where: { id: "post-id" },
+	with: { author: true },
+});
 
 // Count
 appQueries.collections.posts.count({
-  where: { published: { eq: true } },
-})
+	where: { published: { eq: true } },
+});
 
 // Create (mutation)
-appQueries.collections.posts.create()
+appQueries.collections.posts.create();
 
 // Update (mutation)
-appQueries.collections.posts.update()
+appQueries.collections.posts.update();
 
 // Delete (mutation)
-appQueries.collections.posts.delete()
+appQueries.collections.posts.delete();
 
 // Update many (mutation)
-appQueries.collections.posts.updateMany()
+appQueries.collections.posts.updateMany();
 
 // Delete many (mutation)
-appQueries.collections.posts.deleteMany()
+appQueries.collections.posts.deleteMany();
 
 // Restore soft-deleted (mutation)
-appQueries.collections.posts.restore()
+appQueries.collections.posts.restore();
 
 // Query key for invalidation
-appQueries.collections.posts.key()
+appQueries.collections.posts.key();
 ```
 
 ## Globals
 
 ```ts
 // Get global value
-appQueries.globals.siteSettings.get()
+appQueries.globals.siteSettings.get();
 
 // Update global (mutation)
-appQueries.globals.siteSettings.update()
+appQueries.globals.siteSettings.update();
 
 // Query key
-appQueries.globals.siteSettings.key()
+appQueries.globals.siteSettings.key();
 ```
 
 ## Routes
@@ -129,18 +131,16 @@ Full type-safe query/mutation options for app routes:
 ```ts
 // Query options from route
 const { data } = useQuery(
-  appQueries.routes.dashboard.getStats.query({ period: "week" })
+	appQueries.routes.dashboard.getStats.query({ period: "week" }),
 );
 
 // Mutation options from route
-const publish = useMutation(
-  appQueries.routes.posts.publish.mutation()
-);
+const publish = useMutation(appQueries.routes.posts.publish.mutation());
 publish.mutate({ id: "post_123" });
 
 // Query key for invalidation/prefetch
 queryClient.invalidateQueries({
-  queryKey: appQueries.routes.dashboard.getStats.key({ period: "week" }),
+	queryKey: appQueries.routes.dashboard.getStats.key({ period: "week" }),
 });
 ```
 
@@ -151,17 +151,17 @@ Collection queries support SSE-based live updates via `streamedQuery`:
 ```ts
 // Enable realtime on a query
 const { data } = useQuery(
-  appQueries.collections.posts.find(
-    { limit: 10 },
-    { realtime: true }
-  )
+	appQueries.collections.posts.find({ limit: 10 }, { realtime: true }),
 );
 ```
 
 Topic helpers for manual subscription:
 
 ```ts
-import { buildCollectionTopic, buildGlobalTopic } from "@questpie/tanstack-query";
+import {
+	buildCollectionTopic,
+	buildGlobalTopic,
+} from "@questpie/tanstack-query";
 
 const postsTopic = buildCollectionTopic("posts");
 const settingsTopic = buildGlobalTopic("siteSettings");
@@ -177,23 +177,25 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { appQueries } from "@/lib/queries";
 
 export const Route = createFileRoute("/posts")({
-  loader: async ({ context }) => {
-    await context.queryClient.ensureQueryData(
-      appQueries.collections.posts.find({ limit: 10 })
-    );
-  },
-  component: PostsPage,
+	loader: async ({ context }) => {
+		await context.queryClient.ensureQueryData(
+			appQueries.collections.posts.find({ limit: 10 }),
+		);
+	},
+	component: PostsPage,
 });
 
 function PostsPage() {
-  const { data } = useSuspenseQuery(
-    appQueries.collections.posts.find({ limit: 10 })
-  );
-  return (
-    <ul>
-      {data.docs.map((post) => <li key={post.id}>{post.title}</li>)}
-    </ul>
-  );
+	const { data } = useSuspenseQuery(
+		appQueries.collections.posts.find({ limit: 10 }),
+	);
+	return (
+		<ul>
+			{data.docs.map((post) => (
+				<li key={post.id}>{post.title}</li>
+			))}
+		</ul>
+	);
 }
 ```
 
@@ -205,15 +207,15 @@ import { getQueryClient } from "@/lib/query-client";
 import { appQueries } from "@/lib/queries";
 
 export default async function PostsPage() {
-  const queryClient = getQueryClient();
-  await queryClient.prefetchQuery(
-    appQueries.collections.posts.find({ limit: 10 })
-  );
-  return (
-    <HydrationBoundary state={dehydrate(queryClient)}>
-      <PostsList />
-    </HydrationBoundary>
-  );
+	const queryClient = getQueryClient();
+	await queryClient.prefetchQuery(
+		appQueries.collections.posts.find({ limit: 10 }),
+	);
+	return (
+		<HydrationBoundary state={dehydrate(queryClient)}>
+			<PostsList />
+		</HydrationBoundary>
+	);
 }
 ```
 

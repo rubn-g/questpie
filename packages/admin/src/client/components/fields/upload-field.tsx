@@ -55,6 +55,7 @@ import {
 	type FieldValues,
 } from "react-hook-form";
 import { toast } from "sonner";
+
 import { useCollectionItem } from "../../hooks/use-collection";
 import { type Asset, useUpload } from "../../hooks/use-upload";
 import { useUploadCollection } from "../../hooks/use-upload-collection";
@@ -301,9 +302,7 @@ function SingleUploadInner({
 	const handleDrop = async (files: File[]) => {
 		if (files.length === 0 || disabled) return;
 		if (!collection) {
-			toast.error(
-				unresolvedCollectionMessage || t("error.noUploadCollection"),
-			);
+			toast.error(unresolvedCollectionMessage || t("error.noUploadCollection"));
 			return;
 		}
 
@@ -385,7 +384,7 @@ function SingleUploadInner({
 	return (
 		<div className={className}>
 			{unresolvedCollectionMessage && (
-				<p className="mb-2 rounded-md border border-warning/40 bg-warning/5 px-3 py-2 text-xs text-warning">
+				<p className="border-warning/40 bg-warning/5 text-warning mb-2 rounded-md border px-3 py-2 text-xs">
 					{unresolvedCollectionMessage}
 				</p>
 			)}
@@ -557,9 +556,7 @@ function MultipleUploadInner({
 	const handleDrop = (files: File[]) => {
 		if (files.length === 0 || disabled) return;
 		if (!collection) {
-			toast.error(
-				unresolvedCollectionMessage || t("error.noUploadCollection"),
-			);
+			toast.error(unresolvedCollectionMessage || t("error.noUploadCollection"));
 			return;
 		}
 
@@ -653,9 +650,7 @@ function MultipleUploadInner({
 
 	const handlePickerSelect = (ids: string | string[]) => {
 		if (!collection) {
-			toast.error(
-				unresolvedCollectionMessage || t("error.noUploadCollection"),
-			);
+			toast.error(unresolvedCollectionMessage || t("error.noUploadCollection"));
 			return;
 		}
 
@@ -702,7 +697,7 @@ function MultipleUploadInner({
 	return (
 		<div className={className}>
 			{unresolvedCollectionMessage && (
-				<p className="mb-2 rounded-md border border-warning/40 bg-warning/5 px-3 py-2 text-xs text-warning">
+				<p className="border-warning/40 bg-warning/5 text-warning mb-2 rounded-md border px-3 py-2 text-xs">
 					{unresolvedCollectionMessage}
 				</p>
 			)}

@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { type ReactNode, useEffect, useState } from "react";
+
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { cn } from "@/lib/utils";
 
@@ -15,15 +16,15 @@ function SectionBar({
 	title: string;
 }) {
 	return (
-		<div className="grid grid-cols-[auto_1fr] border-b border-border">
-			<div className="bg-card px-5 py-4 text-5xl font-extrabold font-mono text-primary leading-none min-w-[100px] text-center border-r border-border flex items-center justify-center max-sm:text-3xl max-sm:px-4 max-sm:min-w-[72px]">
+		<div className="border-border grid grid-cols-[auto_1fr] border-b">
+			<div className="bg-card text-primary border-border flex min-w-[100px] items-center justify-center border-r px-5 py-4 text-center font-mono text-5xl leading-none font-extrabold max-sm:min-w-[72px] max-sm:px-4 max-sm:text-3xl">
 				{num}
 			</div>
-			<div className="px-5 py-4 flex flex-col justify-center">
-				<div className="font-mono text-[10px] tracking-[3px] uppercase text-primary">
+			<div className="flex flex-col justify-center px-5 py-4">
+				<div className="text-primary font-mono text-[10px] tracking-[3px] uppercase">
 					{label}
 				</div>
-				<div className="font-mono text-[clamp(18px,2.5vw,24px)] font-bold text-foreground mt-0.5">
+				<div className="text-foreground mt-0.5 font-mono text-[clamp(18px,2.5vw,24px)] font-bold">
 					{title}
 				</div>
 			</div>
@@ -42,7 +43,7 @@ function Reveal({
 		<div
 			data-reveal
 			className={cn(
-				"opacity-0 translate-y-3 transition-all duration-500 [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] data-[visible]:opacity-100 data-[visible]:translate-y-0",
+				"translate-y-3 opacity-0 transition-all duration-500 [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] data-[visible]:translate-y-0 data-[visible]:opacity-100",
 				className,
 			)}
 		>
@@ -61,7 +62,7 @@ function Lmw({
 	return (
 		<div
 			className={cn(
-				"max-w-[1200px] mx-auto relative z-[1] border-x border-border",
+				"border-border relative z-[1] mx-auto max-w-[1200px] border-x",
 				className,
 			)}
 		>
@@ -94,7 +95,7 @@ function TwoColLeft({
 	return (
 		<div
 			className={cn(
-				"p-6 border-b border-border border-r border-border max-[900px]:border-r-0",
+				"border-border border-border border-r border-b p-6 max-[900px]:border-r-0",
 				className,
 			)}
 		>
@@ -111,7 +112,7 @@ function TwoColRight({
 	className?: string;
 }) {
 	return (
-		<div className={cn("p-6 border-b border-border", className)}>
+		<div className={cn("border-border border-b p-6", className)}>
 			{children}
 		</div>
 	);
@@ -241,14 +242,14 @@ function FileConventionsSection() {
 					label="File system = source of truth"
 					title="Drop a file. Get a feature."
 				/>
-				<div className="flex border-b border-border">
+				<div className="border-border flex border-b">
 					{(["by-type", "by-feature"] as const).map((mode) => (
 						<button
 							key={mode}
 							type="button"
 							onClick={() => setLayout(mode)}
 							className={cn(
-								"flex-1 py-2 font-mono text-[10px] uppercase tracking-[2px] font-semibold transition-colors border-r border-border last:border-r-0",
+								"border-border flex-1 border-r py-2 font-mono text-[10px] font-semibold tracking-[2px] uppercase transition-colors last:border-r-0",
 								layout === mode
 									? "bg-card text-primary"
 									: "bg-background text-muted-foreground hover:text-foreground",
@@ -259,20 +260,20 @@ function FileConventionsSection() {
 					))}
 				</div>
 				<TwoCol>
-					<TwoColLeft className="bg-background font-mono text-xs leading-relaxed text-muted-foreground p-0!">
+					<TwoColLeft className="bg-background text-muted-foreground p-0! font-mono text-xs leading-relaxed">
 						{layout === "by-type" ? byTypeTree : byFeatureTree}
 					</TwoColLeft>
 					<TwoColRight className="p-0!">
 						<div
-							className="grid gap-px bg-border"
+							className="bg-border grid gap-px"
 							style={{ gridTemplateColumns: "1fr" }}
 						>
 							{badges.map(([name, badge, color]) => (
 								<div
 									key={name}
-									className="flex justify-between items-center px-5 py-2.5 bg-background text-[13px]"
+									className="bg-background flex items-center justify-between px-5 py-2.5 text-[13px]"
 								>
-									<span className="font-mono text-foreground">{name}</span>
+									<span className="text-foreground font-mono">{name}</span>
 									<span
 										className={cn("font-mono text-[10px] tracking-wide", color)}
 									>
@@ -281,7 +282,7 @@ function FileConventionsSection() {
 								</div>
 							))}
 						</div>
-						<div className="px-5 py-3 text-[11px] text-muted-foreground border-t border-border">
+						<div className="text-muted-foreground border-border border-t px-5 py-3 text-[11px]">
 							{layout === "by-type"
 								? "Grouped by type. Codegen discovers everything. No manual registration."
 								: "Grouped by domain. Same conventions — codegen handles both layouts."}
@@ -325,16 +326,16 @@ function Nav() {
 			className={cn(
 				"fixed inset-x-0 top-0 z-50 h-14 border-b transition-colors duration-200",
 				isScrolled
-					? "bg-background/95 backdrop-blur-sm border-border"
+					? "bg-background/95 border-border backdrop-blur-sm"
 					: "bg-background border-border",
 			)}
 		>
-			<div className="mx-auto max-w-[1200px] px-6 h-full flex items-center justify-between max-sm:px-3">
+			<div className="mx-auto flex h-full max-w-[1200px] items-center justify-between px-6 max-sm:px-3">
 				<Link to="/" className="flex items-center gap-2">
 					<img
 						src="/symbol/Q-symbol-dark-pink.svg"
 						alt="QUESTPIE"
-						className="block h-6 w-auto dark:hidden sm:hidden"
+						className="block h-6 w-auto sm:hidden dark:hidden"
 					/>
 					<img
 						src="/symbol/Q-symbol-white-pink.svg"
@@ -344,7 +345,7 @@ function Nav() {
 					<img
 						src="/logo/Questpie-dark-pink.svg"
 						alt="QUESTPIE"
-						className="hidden h-5 w-auto dark:hidden sm:block"
+						className="hidden h-5 w-auto sm:block dark:hidden"
 					/>
 					<img
 						src="/logo/Questpie-white-pink.svg"
@@ -353,14 +354,14 @@ function Nav() {
 					/>
 				</Link>
 
-				<div className="hidden md:flex items-center gap-6">
+				<div className="hidden items-center gap-6 md:flex">
 					{navItems.map((item) =>
 						item.type === "internal" ? (
 							<Link
 								key={item.label}
 								to={item.href}
 								params={item.params as never}
-								className="font-mono text-[11px] font-medium text-muted-foreground uppercase tracking-wider transition-colors hover:text-foreground"
+								className="text-muted-foreground hover:text-foreground font-mono text-[11px] font-medium tracking-wider uppercase transition-colors"
 							>
 								{item.label}
 							</Link>
@@ -370,7 +371,7 @@ function Nav() {
 								href={item.href}
 								target="_blank"
 								rel="noreferrer"
-								className="font-mono text-[11px] font-medium text-muted-foreground uppercase tracking-wider transition-colors hover:text-foreground"
+								className="text-muted-foreground hover:text-foreground font-mono text-[11px] font-medium tracking-wider uppercase transition-colors"
 							>
 								{item.label}
 							</a>
@@ -380,7 +381,7 @@ function Nav() {
 					<Link
 						to="/docs/$"
 						params={{ _splat: "start-here/first-app" }}
-						className="inline-flex h-7 items-center justify-center border border-primary/40 bg-primary/10 px-4 font-mono text-[10px] font-semibold uppercase tracking-wider text-primary transition-all hover:bg-primary hover:text-white"
+						className="border-primary/40 bg-primary/10 text-primary hover:bg-primary inline-flex h-7 items-center justify-center border px-4 font-mono text-[10px] font-semibold tracking-wider uppercase transition-all hover:text-white"
 					>
 						Get started
 					</Link>
@@ -388,7 +389,7 @@ function Nav() {
 
 				<button
 					type="button"
-					className="p-1.5 text-muted-foreground transition-colors hover:text-foreground md:hidden"
+					className="text-muted-foreground hover:text-foreground p-1.5 transition-colors md:hidden"
 					onClick={() => setMobileOpen((v) => !v)}
 					aria-label="Toggle navigation"
 				>
@@ -417,11 +418,11 @@ function Nav() {
 			</div>
 
 			{mobileOpen && (
-				<div className="absolute inset-x-0 top-full border-b border-border bg-background p-4 md:hidden">
-					<div className="mx-auto max-w-[1200px] flex flex-col gap-3">
+				<div className="border-border bg-background absolute inset-x-0 top-full border-b p-4 md:hidden">
+					<div className="mx-auto flex max-w-[1200px] flex-col gap-3">
 						<Link
 							to="/docs/$"
-							className="font-mono text-sm text-muted-foreground"
+							className="text-muted-foreground font-mono text-sm"
 							onClick={() => setMobileOpen(false)}
 						>
 							Docs
@@ -429,7 +430,7 @@ function Nav() {
 						<Link
 							to="/docs/$"
 							params={{ _splat: "examples" }}
-							className="font-mono text-sm text-muted-foreground"
+							className="text-muted-foreground font-mono text-sm"
 							onClick={() => setMobileOpen(false)}
 						>
 							Examples
@@ -438,18 +439,18 @@ function Nav() {
 							href="https://github.com/questpie/questpie"
 							target="_blank"
 							rel="noreferrer"
-							className="font-mono text-sm text-muted-foreground"
+							className="text-muted-foreground font-mono text-sm"
 							onClick={() => setMobileOpen(false)}
 						>
 							GitHub
 						</a>
-						<div className="my-1 h-px bg-border" />
+						<div className="bg-border my-1 h-px" />
 						<div className="flex items-center justify-between">
 							<ThemeToggle />
 							<Link
 								to="/docs/$"
 								params={{ _splat: "start-here/first-app" }}
-								className="inline-flex h-7 items-center border border-primary/40 bg-primary/10 px-3 font-mono text-[10px] uppercase tracking-wider text-primary"
+								className="border-primary/40 bg-primary/10 text-primary inline-flex h-7 items-center border px-3 font-mono text-[10px] tracking-wider uppercase"
 								onClick={() => setMobileOpen(false)}
 							>
 								Get started
@@ -468,28 +469,28 @@ function LandingFooter() {
 	return (
 		<footer>
 			<div className="mx-auto max-w-[1200px]">
-				<div className="grid grid-cols-4 gap-px bg-border max-sm:grid-cols-2">
+				<div className="bg-border grid grid-cols-4 gap-px max-sm:grid-cols-2">
 					<div className="bg-background p-5">
-						<div className="font-mono text-[9px] tracking-[2px] uppercase text-muted-foreground/60 mb-2">
+						<div className="text-muted-foreground/60 mb-2 font-mono text-[9px] tracking-[2px] uppercase">
 							Product
 						</div>
 						<Link
 							to="/docs/$"
-							className="block text-xs text-muted-foreground py-0.5 hover:text-primary transition-colors"
+							className="text-muted-foreground hover:text-primary block py-0.5 text-xs transition-colors"
 						>
 							Docs
 						</Link>
 						<Link
 							to="/docs/$"
 							params={{ _splat: "examples" }}
-							className="block text-xs text-muted-foreground py-0.5 hover:text-primary transition-colors"
+							className="text-muted-foreground hover:text-primary block py-0.5 text-xs transition-colors"
 						>
 							Examples
 						</Link>
 						<Link
 							to="/docs/$"
 							params={{ _splat: "start-here" }}
-							className="block text-xs text-muted-foreground py-0.5 hover:text-primary transition-colors"
+							className="text-muted-foreground hover:text-primary block py-0.5 text-xs transition-colors"
 						>
 							Getting Started
 						</Link>
@@ -497,53 +498,53 @@ function LandingFooter() {
 							href="https://github.com/questpie/questpie/releases"
 							target="_blank"
 							rel="noreferrer"
-							className="block text-xs text-muted-foreground py-0.5 hover:text-primary transition-colors"
+							className="text-muted-foreground hover:text-primary block py-0.5 text-xs transition-colors"
 						>
 							Releases
 						</a>
 					</div>
 					<div className="bg-background p-5">
-						<div className="font-mono text-[9px] tracking-[2px] uppercase text-muted-foreground/60 mb-2">
+						<div className="text-muted-foreground/60 mb-2 font-mono text-[9px] tracking-[2px] uppercase">
 							Ecosystem
 						</div>
 						<Link
 							to="/docs/$"
 							params={{ _splat: "frontend/adapters/hono" }}
-							className="block text-xs text-muted-foreground py-0.5 hover:text-primary transition-colors"
+							className="text-muted-foreground hover:text-primary block py-0.5 text-xs transition-colors"
 						>
 							Hono
 						</Link>
 						<Link
 							to="/docs/$"
 							params={{ _splat: "frontend/adapters/elysia" }}
-							className="block text-xs text-muted-foreground py-0.5 hover:text-primary transition-colors"
+							className="text-muted-foreground hover:text-primary block py-0.5 text-xs transition-colors"
 						>
 							Elysia
 						</Link>
 						<Link
 							to="/docs/$"
 							params={{ _splat: "frontend/adapters/nextjs" }}
-							className="block text-xs text-muted-foreground py-0.5 hover:text-primary transition-colors"
+							className="text-muted-foreground hover:text-primary block py-0.5 text-xs transition-colors"
 						>
 							Next.js
 						</Link>
 						<Link
 							to="/docs/$"
 							params={{ _splat: "frontend/tanstack-query" }}
-							className="block text-xs text-muted-foreground py-0.5 hover:text-primary transition-colors"
+							className="text-muted-foreground hover:text-primary block py-0.5 text-xs transition-colors"
 						>
 							TanStack
 						</Link>
 					</div>
 					<div className="bg-background p-5">
-						<div className="font-mono text-[9px] tracking-[2px] uppercase text-muted-foreground/60 mb-2">
+						<div className="text-muted-foreground/60 mb-2 font-mono text-[9px] tracking-[2px] uppercase">
 							Community
 						</div>
 						<a
 							href="https://github.com/questpie/questpie"
 							target="_blank"
 							rel="noreferrer"
-							className="block text-xs text-muted-foreground py-0.5 hover:text-primary transition-colors"
+							className="text-muted-foreground hover:text-primary block py-0.5 text-xs transition-colors"
 						>
 							GitHub
 						</a>
@@ -551,7 +552,7 @@ function LandingFooter() {
 							href="https://github.com/questpie/questpie/issues"
 							target="_blank"
 							rel="noreferrer"
-							className="block text-xs text-muted-foreground py-0.5 hover:text-primary transition-colors"
+							className="text-muted-foreground hover:text-primary block py-0.5 text-xs transition-colors"
 						>
 							Issues
 						</a>
@@ -559,19 +560,19 @@ function LandingFooter() {
 							href="https://github.com/questpie/questpie/pulls"
 							target="_blank"
 							rel="noreferrer"
-							className="block text-xs text-muted-foreground py-0.5 hover:text-primary transition-colors"
+							className="text-muted-foreground hover:text-primary block py-0.5 text-xs transition-colors"
 						>
 							Pull Requests
 						</a>
 					</div>
 					<div className="bg-background p-5">
-						<div className="font-mono text-[9px] tracking-[2px] uppercase text-muted-foreground/60 mb-2">
+						<div className="text-muted-foreground/60 mb-2 font-mono text-[9px] tracking-[2px] uppercase">
 							Install
 						</div>
-						<div className="font-mono text-xs text-primary mt-1">
+						<div className="text-primary mt-1 font-mono text-xs">
 							npx create-questpie
 						</div>
-						<div className="text-[10px] text-muted-foreground mt-3 leading-relaxed">
+						<div className="text-muted-foreground mt-3 text-[10px] leading-relaxed">
 							MIT License
 							<br />
 							TypeScript &middot; Drizzle &middot; Zod
@@ -580,7 +581,7 @@ function LandingFooter() {
 						</div>
 					</div>
 				</div>
-				<div className="px-6 py-4 flex justify-between items-center flex-wrap gap-2 text-[11px] text-muted-foreground/60">
+				<div className="text-muted-foreground/60 flex flex-wrap items-center justify-between gap-2 px-6 py-4 text-[11px]">
 					<Link to="/" className="flex items-center">
 						<img
 							src="/logo/Questpie-dark-pink.svg"
@@ -623,27 +624,27 @@ export function LandingPage() {
 			<Nav />
 
 			{/* ─── §1 HERO ─── */}
-			<section className="mt-14 border-b border-border">
-				<div className="grid grid-cols-2 min-h-[calc(100vh-56px)] max-w-[1200px] mx-auto border-x border-border max-[900px]:grid-cols-1">
-					<div className="px-6 py-16 sm:py-20 flex flex-col justify-center border-r border-border max-[900px]:border-r-0 max-[900px]:border-b max-[900px]:border-border">
-						<div className="font-mono text-[10px] tracking-[3px] text-primary uppercase mb-6">
+			<section className="border-border mt-14 border-b">
+				<div className="border-border mx-auto grid min-h-[calc(100vh-56px)] max-w-[1200px] grid-cols-2 border-x max-[900px]:grid-cols-1">
+					<div className="border-border max-[900px]:border-border flex flex-col justify-center border-r px-6 py-16 max-[900px]:border-r-0 max-[900px]:border-b sm:py-20">
+						<div className="text-primary mb-6 font-mono text-[10px] tracking-[3px] uppercase">
 							Open source framework
 						</div>
-						<h1 className="font-mono text-[clamp(28px,5vw,52px)] font-extrabold text-foreground leading-[1.05] tracking-tight">
+						<h1 className="text-foreground font-mono text-[clamp(28px,5vw,52px)] leading-[1.05] font-extrabold tracking-tight">
 							One backend.
 							<br />
 							Ship everywhere.
 						</h1>
-						<p className="text-sm text-muted-foreground leading-relaxed mt-5 max-w-[440px]">
+						<p className="text-muted-foreground mt-5 max-w-[440px] text-sm leading-relaxed">
 							Define your schema once. Get REST, typed routes, realtime, typed
 							client SDK, and optional admin UI. Server-first TypeScript. Built
 							on Drizzle, Zod, Better Auth.
 						</p>
-						<div className="flex gap-px mt-8">
+						<div className="mt-8 flex gap-px">
 							<Link
 								to="/docs/$"
 								params={{ _splat: "start-here/first-app" }}
-								className="font-mono px-5 py-2.5 bg-primary border border-primary text-white text-[11px] font-semibold uppercase tracking-wider transition-colors hover:bg-primary/80"
+								className="bg-primary border-primary hover:bg-primary/80 border px-5 py-2.5 font-mono text-[11px] font-semibold tracking-wider text-white uppercase transition-colors"
 							>
 								Get started &rarr;
 							</Link>
@@ -651,12 +652,12 @@ export function LandingPage() {
 								href="https://github.com/questpie/questpie"
 								target="_blank"
 								rel="noreferrer"
-								className="font-mono px-5 py-2.5 bg-background border border-border text-foreground text-[11px] font-semibold uppercase tracking-wider transition-colors hover:border-primary hover:text-primary"
+								className="bg-background border-border text-foreground hover:border-primary hover:text-primary border px-5 py-2.5 font-mono text-[11px] font-semibold tracking-wider uppercase transition-colors"
 							>
 								GitHub &#9733;
 							</a>
 						</div>
-						<div className="flex gap-px mt-6 flex-wrap">
+						<div className="mt-6 flex flex-wrap gap-px">
 							{[
 								"TypeScript",
 								"Server-first",
@@ -665,7 +666,7 @@ export function LandingPage() {
 							].map((t) => (
 								<span
 									key={t}
-									className="font-mono text-[10px] px-2.5 py-1 bg-card text-muted-foreground tracking-wide"
+									className="bg-card text-muted-foreground px-2.5 py-1 font-mono text-[10px] tracking-wide"
 								>
 									{t}
 								</span>
@@ -673,7 +674,7 @@ export function LandingPage() {
 						</div>
 					</div>
 					<div className="flex flex-col">
-						<div className="bg-background font-mono text-xs leading-relaxed text-muted-foreground flex-1 border-b border-border">
+						<div className="bg-background text-muted-foreground border-border flex-1 border-b font-mono text-xs leading-relaxed">
 							<pre className="p-6">
 								<span className="text-primary font-semibold">collection</span>(
 								<span className="text-[var(--syntax-string)]">"posts"</span>)
@@ -751,7 +752,7 @@ export function LandingPage() {
 								{` })`}
 							</pre>
 						</div>
-						<div className="grid grid-cols-4 gap-px bg-border">
+						<div className="bg-border grid grid-cols-4 gap-px">
 							{[
 								"REST API",
 								"Typed client SDK",
@@ -760,7 +761,7 @@ export function LandingPage() {
 							].map((label) => (
 								<div
 									key={label}
-									className="font-mono bg-background px-3 py-2.5 text-[10px] tracking-wide text-[#00E676]"
+									className="bg-background px-3 py-2.5 font-mono text-[10px] tracking-wide text-[#00E676]"
 								>
 									<span className="text-muted-foreground/40">→ </span>
 									{label}
@@ -781,7 +782,7 @@ export function LandingPage() {
 							title="Define once. Get the rest for free."
 						/>
 						<TwoCol>
-							<TwoColLeft className="bg-background font-mono text-xs leading-relaxed text-muted-foreground p-0!">
+							<TwoColLeft className="bg-background text-muted-foreground p-0! font-mono text-xs leading-relaxed">
 								<pre className="px-5 py-4">
 									<span className="text-muted-foreground/60">
 										{"// This one definition generates:"}
@@ -834,7 +835,7 @@ export function LandingPage() {
 								</pre>
 							</TwoColLeft>
 							<TwoColRight>
-								<ul className="list-none font-mono text-xs p-0 m-0">
+								<ul className="m-0 list-none p-0 font-mono text-xs">
 									{[
 										["REST API", "/api/collections/posts"],
 										["Typed routes", "typed, namespaced"],
@@ -848,7 +849,7 @@ export function LandingPage() {
 									].map(([title, desc]) => (
 										<li
 											key={title}
-											className="py-1 flex gap-2.5 border-b border-border"
+											className="border-border flex gap-2.5 border-b py-1"
 										>
 											<span className="text-[#00E676]">&#10003;</span>
 											<span className="text-foreground">{title}</span>
@@ -889,9 +890,9 @@ export function LandingPage() {
 							title="Your infrastructure. Your choice."
 						/>
 						<TwoCol>
-							<TwoColLeft className="p-0! border-b-0!">
+							<TwoColLeft className="border-b-0! p-0!">
 								<div
-									className="grid gap-px bg-border"
+									className="bg-border grid gap-px"
 									style={{ gridTemplateColumns: "100px 1fr" }}
 								>
 									{[
@@ -906,13 +907,13 @@ export function LandingPage() {
 										<>
 											<div
 												key={`c-${cat}`}
-												className="font-mono px-4 py-2 text-[10px] tracking-[2px] text-primary uppercase bg-card flex items-center"
+												className="text-primary bg-card flex items-center px-4 py-2 font-mono text-[10px] tracking-[2px] uppercase"
 											>
 												{cat}
 											</div>
 											<div
 												key={`v-${cat}`}
-												className="px-4 py-2 text-[13px] text-foreground bg-background"
+												className="text-foreground bg-background px-4 py-2 text-[13px]"
 											>
 												{val}
 											</div>
@@ -920,7 +921,7 @@ export function LandingPage() {
 									))}
 								</div>
 							</TwoColLeft>
-							<TwoColRight className="bg-background font-mono text-xs leading-relaxed text-muted-foreground p-0! border-b-0!">
+							<TwoColRight className="bg-background text-muted-foreground border-b-0! p-0! font-mono text-xs leading-relaxed">
 								<pre className="px-5 py-4">
 									{`runtimeConfig({
   db: { url: `}
@@ -959,7 +960,7 @@ export function LandingPage() {
 									{`() },
 })`}
 								</pre>
-								<div className="mt-4 pt-3 border-t border-border mx-6 text-[11px] text-muted-foreground pb-4">
+								<div className="border-border text-muted-foreground mx-6 mt-4 border-t pt-3 pb-4 text-[11px]">
 									Write your own adapter in under 50 lines.
 								</div>
 							</TwoColRight>
@@ -978,7 +979,7 @@ export function LandingPage() {
 							title="Ship the admin panel only when you need it."
 						/>
 						<TwoCol>
-							<TwoColLeft className="bg-background font-mono text-xs leading-relaxed text-muted-foreground p-0!">
+							<TwoColLeft className="bg-background text-muted-foreground p-0! font-mono text-xs leading-relaxed">
 								<pre className="px-5 py-4">
 									<span className="text-primary font-semibold">collection</span>
 									(<span className="text-[var(--syntax-string)]">"posts"</span>)
@@ -1024,40 +1025,40 @@ export function LandingPage() {
     sidebar: { fields: [f.status, f.author] },
   }))`}
 								</pre>
-								<div className="mt-4 pt-3 border-t border-border mx-6 text-[11px] text-muted-foreground pb-4">
+								<div className="border-border text-muted-foreground mx-6 mt-4 border-t pt-3 pb-4 text-[11px]">
 									Swappable package. Web, React Native, or build your own.
 								</div>
 							</TwoColLeft>
 							<TwoColRight className="p-0!">
-								<div className="grid grid-cols-[140px_1fr] font-mono text-[11px] overflow-hidden max-[900px]:grid-cols-1">
-									<div className="bg-card border-r border-border p-3 max-[900px]:border-r-0 max-[900px]:border-b max-[900px]:border-border max-[900px]:flex max-[900px]:gap-1 max-[900px]:flex-wrap">
-										<div className="font-mono text-[9px] tracking-[2px] text-muted-foreground/60 uppercase px-3.5 py-1 mb-1 max-[900px]:mb-0">
+								<div className="grid grid-cols-[140px_1fr] overflow-hidden font-mono text-[11px] max-[900px]:grid-cols-1">
+									<div className="bg-card border-border max-[900px]:border-border border-r p-3 max-[900px]:flex max-[900px]:flex-wrap max-[900px]:gap-1 max-[900px]:border-r-0 max-[900px]:border-b">
+										<div className="text-muted-foreground/60 mb-1 px-3.5 py-1 font-mono text-[9px] tracking-[2px] uppercase max-[900px]:mb-0">
 											Admin
 										</div>
-										<div className="px-3.5 py-1 text-foreground border-l-2 border-primary">
+										<div className="text-foreground border-primary border-l-2 px-3.5 py-1">
 											Posts
 										</div>
-										<div className="px-3.5 py-1 text-muted-foreground">
+										<div className="text-muted-foreground px-3.5 py-1">
 											Users
 										</div>
-										<div className="px-3.5 py-1 text-muted-foreground">
+										<div className="text-muted-foreground px-3.5 py-1">
 											Settings
 										</div>
-										<div className="px-3.5 py-1 text-muted-foreground">
+										<div className="text-muted-foreground px-3.5 py-1">
 											Assets
 										</div>
-										<div className="px-3.5 py-1 text-muted-foreground">
+										<div className="text-muted-foreground px-3.5 py-1">
 											Audit log
 										</div>
 									</div>
 									<div className="flex flex-col">
-										<div className="flex justify-between items-center px-3 py-2 border-b border-border">
-											<span className="font-bold text-foreground">Posts</span>
+										<div className="border-border flex items-center justify-between border-b px-3 py-2">
+											<span className="text-foreground font-bold">Posts</span>
 											<div className="flex gap-1">
-												<span className="text-[9px] px-1.5 py-0.5 bg-primary text-white opacity-80">
+												<span className="bg-primary px-1.5 py-0.5 text-[9px] text-white opacity-80">
 													EN
 												</span>
-												<span className="text-[9px] px-1.5 py-0.5 border border-border text-muted-foreground">
+												<span className="border-border text-muted-foreground border px-1.5 py-0.5 text-[9px]">
 													SK
 												</span>
 											</div>
@@ -1065,74 +1066,74 @@ export function LandingPage() {
 										<table className="w-full border-collapse text-[11px]">
 											<thead>
 												<tr>
-													<th className="bg-card text-muted-foreground text-[9px] uppercase tracking-[1.5px] font-medium px-2.5 py-1.5 text-left border-b border-border">
+													<th className="bg-card text-muted-foreground border-border border-b px-2.5 py-1.5 text-left text-[9px] font-medium tracking-[1.5px] uppercase">
 														Title
 													</th>
-													<th className="bg-card text-muted-foreground text-[9px] uppercase tracking-[1.5px] font-medium px-2.5 py-1.5 text-left border-b border-border">
+													<th className="bg-card text-muted-foreground border-border border-b px-2.5 py-1.5 text-left text-[9px] font-medium tracking-[1.5px] uppercase">
 														Status
 													</th>
-													<th className="bg-card text-muted-foreground text-[9px] uppercase tracking-[1.5px] font-medium px-2.5 py-1.5 text-left border-b border-border">
+													<th className="bg-card text-muted-foreground border-border border-b px-2.5 py-1.5 text-left text-[9px] font-medium tracking-[1.5px] uppercase">
 														Author
 													</th>
-													<th className="bg-card text-muted-foreground text-[9px] uppercase tracking-[1.5px] font-medium px-2.5 py-1.5 text-left border-b border-border">
+													<th className="bg-card text-muted-foreground border-border border-b px-2.5 py-1.5 text-left text-[9px] font-medium tracking-[1.5px] uppercase">
 														Date
 													</th>
 												</tr>
 											</thead>
 											<tbody>
 												<tr>
-													<td className="px-2.5 py-1.5 border-b border-border text-foreground">
+													<td className="border-border text-foreground border-b px-2.5 py-1.5">
 														Getting Started Guide
 													</td>
-													<td className="px-2.5 py-1.5 border-b border-border text-[#00E676] text-[9px] tracking-wide">
+													<td className="border-border border-b px-2.5 py-1.5 text-[9px] tracking-wide text-[#00E676]">
 														PUBLISHED
 													</td>
-													<td className="px-2.5 py-1.5 border-b border-border text-muted-foreground">
+													<td className="border-border text-muted-foreground border-b px-2.5 py-1.5">
 														admin
 													</td>
-													<td className="px-2.5 py-1.5 border-b border-border text-muted-foreground">
+													<td className="border-border text-muted-foreground border-b px-2.5 py-1.5">
 														Mar 6
 													</td>
 												</tr>
 												<tr>
-													<td className="px-2.5 py-1.5 border-b border-border text-foreground">
+													<td className="border-border text-foreground border-b px-2.5 py-1.5">
 														Adapter Architecture
 													</td>
-													<td className="px-2.5 py-1.5 border-b border-border text-[#FFB300] text-[9px] tracking-wide">
+													<td className="border-border border-b px-2.5 py-1.5 text-[9px] tracking-wide text-[#FFB300]">
 														DRAFT
 													</td>
-													<td className="px-2.5 py-1.5 border-b border-border text-muted-foreground">
+													<td className="border-border text-muted-foreground border-b px-2.5 py-1.5">
 														admin
 													</td>
-													<td className="px-2.5 py-1.5 border-b border-border text-muted-foreground">
+													<td className="border-border text-muted-foreground border-b px-2.5 py-1.5">
 														Mar 5
 													</td>
 												</tr>
 												<tr>
-													<td className="px-2.5 py-1.5 border-b border-border text-foreground">
+													<td className="border-border text-foreground border-b px-2.5 py-1.5">
 														File Conventions Deep Dive
 													</td>
-													<td className="px-2.5 py-1.5 border-b border-border text-[#00E676] text-[9px] tracking-wide">
+													<td className="border-border border-b px-2.5 py-1.5 text-[9px] tracking-wide text-[#00E676]">
 														PUBLISHED
 													</td>
-													<td className="px-2.5 py-1.5 border-b border-border text-muted-foreground">
+													<td className="border-border text-muted-foreground border-b px-2.5 py-1.5">
 														admin
 													</td>
-													<td className="px-2.5 py-1.5 border-b border-border text-muted-foreground">
+													<td className="border-border text-muted-foreground border-b px-2.5 py-1.5">
 														Mar 3
 													</td>
 												</tr>
 												<tr>
-													<td className="px-2.5 py-1.5 border-b-0 text-foreground">
+													<td className="text-foreground border-b-0 px-2.5 py-1.5">
 														Block System Overview
 													</td>
-													<td className="px-2.5 py-1.5 border-b-0 text-[#FFB300] text-[9px] tracking-wide">
+													<td className="border-b-0 px-2.5 py-1.5 text-[9px] tracking-wide text-[#FFB300]">
 														DRAFT
 													</td>
-													<td className="px-2.5 py-1.5 border-b-0 text-muted-foreground">
+													<td className="text-muted-foreground border-b-0 px-2.5 py-1.5">
 														admin
 													</td>
-													<td className="px-2.5 py-1.5 border-b-0 text-muted-foreground">
+													<td className="text-muted-foreground border-b-0 px-2.5 py-1.5">
 														Mar 1
 													</td>
 												</tr>
@@ -1155,7 +1156,7 @@ export function LandingPage() {
 							label="End-to-end types"
 							title="Schema to screen. Zero disconnect."
 						/>
-						<div className="flex items-center flex-wrap gap-0 p-6 border-b border-border overflow-x-auto max-sm:p-4">
+						<div className="border-border flex flex-wrap items-center gap-0 overflow-x-auto border-b p-6 max-sm:p-4">
 							{[
 								"Field def",
 								"Codegen",
@@ -1175,14 +1176,14 @@ export function LandingPage() {
 									)}
 									<div
 										key={step}
-										className="font-mono py-2 px-3.5 bg-card border border-border text-[11px] text-foreground max-sm:text-[10px] max-sm:py-1.5 max-sm:px-2.5"
+										className="bg-card border-border text-foreground border px-3.5 py-2 font-mono text-[11px] max-sm:px-2.5 max-sm:py-1.5 max-sm:text-[10px]"
 									>
 										{step}
 									</div>
 								</>
 							))}
 						</div>
-						<div className="bg-background font-mono text-xs leading-relaxed text-muted-foreground border-b border-border">
+						<div className="bg-background text-muted-foreground border-border border-b font-mono text-xs leading-relaxed">
 							<pre className="px-5 py-4">
 								<span className="text-primary font-semibold">const</span>
 								{` { docs } = `}
@@ -1239,7 +1240,7 @@ export function LandingPage() {
 							label="Composable"
 							title="Core parts = user code."
 						/>
-						<div className="grid gap-px bg-border grid-cols-[repeat(auto-fill,minmax(260px,1fr))]">
+						<div className="bg-border grid grid-cols-[repeat(auto-fill,minmax(260px,1fr))] gap-px">
 							{[
 								[
 									"01",
@@ -1264,21 +1265,21 @@ export function LandingPage() {
 							].map(([idx, title, desc]) => (
 								<div
 									key={idx}
-									className="bg-background p-5 transition-[outline-color] hover:outline hover:outline-1 hover:outline-primary hover:-outline-offset-1 hover:z-[2] hover:relative"
+									className="bg-background hover:outline-primary p-5 transition-[outline-color] hover:relative hover:z-[2] hover:outline hover:outline-1 hover:-outline-offset-1"
 								>
-									<div className="font-mono text-[10px] tracking-[3px] text-primary mb-1.5">
+									<div className="text-primary mb-1.5 font-mono text-[10px] tracking-[3px]">
 										{idx}
 									</div>
-									<div className="font-mono text-[13px] font-bold text-foreground mb-1">
+									<div className="text-foreground mb-1 font-mono text-[13px] font-bold">
 										{title}
 									</div>
-									<div className="text-xs text-muted-foreground leading-normal">
+									<div className="text-muted-foreground text-xs leading-normal">
 										{desc}
 									</div>
 								</div>
 							))}
 						</div>
-						<div className="px-5 py-3 text-[11px] text-muted-foreground border-b border-border">
+						<div className="text-muted-foreground border-border border-b px-5 py-3 text-[11px]">
 							Modules compose depth-first with deduplication. Every module uses
 							the exact same conventions as user code.
 						</div>
@@ -1295,47 +1296,57 @@ export function LandingPage() {
 							label="Developer experience"
 							title="The details matter."
 						/>
-						<div className="grid gap-px bg-border grid-cols-[repeat(auto-fill,minmax(260px,1fr))]">
-							<div className="bg-background p-5 transition-[outline-color] hover:outline hover:outline-1 hover:outline-primary hover:-outline-offset-1 hover:z-[2] hover:relative">
-								<div className="font-mono text-[10px] tracking-[3px] text-primary mb-1.5">
+						<div className="bg-border grid grid-cols-[repeat(auto-fill,minmax(260px,1fr))] gap-px">
+							<div className="bg-background hover:outline-primary p-5 transition-[outline-color] hover:relative hover:z-[2] hover:outline hover:outline-1 hover:-outline-offset-1">
+								<div className="text-primary mb-1.5 font-mono text-[10px] tracking-[3px]">
 									WATCH
 								</div>
-								<div className="bg-background font-mono text-[11px] leading-[1.8] px-4 py-3 whitespace-pre text-muted-foreground my-2">
+								<div className="bg-background text-muted-foreground my-2 px-4 py-3 font-mono text-[11px] leading-[1.8] whitespace-pre">
 									<span className="text-primary">$</span> questpie dev{"\n"}
-									<span className="text-[var(--syntax-string)]">&#10003;</span>{" "}
+									<span className="text-[var(--syntax-string)]">
+										&#10003;
+									</span>{" "}
 									Watching...{"\n"}
-									<span className="text-[var(--syntax-string)]">&#10003;</span>{" "}
+									<span className="text-[var(--syntax-string)]">
+										&#10003;
+									</span>{" "}
 									server (23 collections)
 									{"\n"}
-									<span className="text-[var(--syntax-string)]">&#10003;</span>{" "}
+									<span className="text-[var(--syntax-string)]">
+										&#10003;
+									</span>{" "}
 									admin-client (15 blocks)
 								</div>
-								<div className="text-xs text-muted-foreground leading-normal">
+								<div className="text-muted-foreground text-xs leading-normal">
 									Instant regeneration on file changes.
 								</div>
 							</div>
-							<div className="bg-background p-5 transition-[outline-color] hover:outline hover:outline-1 hover:outline-primary hover:-outline-offset-1 hover:z-[2] hover:relative">
-								<div className="font-mono text-[10px] tracking-[3px] text-primary mb-1.5">
+							<div className="bg-background hover:outline-primary p-5 transition-[outline-color] hover:relative hover:z-[2] hover:outline hover:outline-1 hover:-outline-offset-1">
+								<div className="text-primary mb-1.5 font-mono text-[10px] tracking-[3px]">
 									SCAFFOLD
 								</div>
-								<div className="bg-background font-mono text-[11px] leading-[1.8] px-4 py-3 whitespace-pre text-muted-foreground my-2">
+								<div className="bg-background text-muted-foreground my-2 px-4 py-3 font-mono text-[11px] leading-[1.8] whitespace-pre">
 									<span className="text-primary">$</span> questpie add
 									collection products
 									{"\n"}
-									<span className="text-[var(--syntax-string)]">&#10003;</span>{" "}
+									<span className="text-[var(--syntax-string)]">
+										&#10003;
+									</span>{" "}
 									Created collections/products.ts{"\n"}
-									<span className="text-[var(--syntax-string)]">&#10003;</span>{" "}
+									<span className="text-[var(--syntax-string)]">
+										&#10003;
+									</span>{" "}
 									Regenerated types
 								</div>
-								<div className="text-xs text-muted-foreground leading-normal">
+								<div className="text-muted-foreground text-xs leading-normal">
 									One command. Typed immediately.
 								</div>
 							</div>
-							<div className="bg-background p-5 transition-[outline-color] hover:outline hover:outline-1 hover:outline-primary hover:-outline-offset-1 hover:z-[2] hover:relative">
-								<div className="font-mono text-[10px] tracking-[3px] text-primary mb-1.5">
+							<div className="bg-background hover:outline-primary p-5 transition-[outline-color] hover:relative hover:z-[2] hover:outline hover:outline-1 hover:-outline-offset-1">
+								<div className="text-primary mb-1.5 font-mono text-[10px] tracking-[3px]">
 									VALIDATE
 								</div>
-								<div className="bg-background font-mono text-[11px] leading-[1.8] px-4 py-3 whitespace-pre text-muted-foreground my-2">
+								<div className="bg-background text-muted-foreground my-2 px-4 py-3 font-mono text-[11px] leading-[1.8] whitespace-pre">
 									<span className="text-destructive">
 										&#10007; Server defines blocks/hero
 									</span>
@@ -1348,16 +1359,16 @@ export function LandingPage() {
 										&rarr; Create admin/blocks/hero.tsx
 									</span>
 								</div>
-								<div className="text-xs text-muted-foreground leading-normal">
+								<div className="text-muted-foreground text-xs leading-normal">
 									Mismatch = build error. Not runtime surprise.
 								</div>
 							</div>
-							<div className="bg-background p-5 transition-[outline-color] hover:outline hover:outline-1 hover:outline-primary hover:-outline-offset-1 hover:z-[2] hover:relative">
-								<div className="font-mono text-[10px] tracking-[3px] text-primary mb-1.5">
+							<div className="bg-background hover:outline-primary p-5 transition-[outline-color] hover:relative hover:z-[2] hover:outline hover:outline-1 hover:-outline-offset-1">
+								<div className="text-primary mb-1.5 font-mono text-[10px] tracking-[3px]">
 									REALTIME
 								</div>
 								<div
-									className="bg-background font-mono text-xs leading-relaxed text-muted-foreground my-2"
+									className="bg-background text-muted-foreground my-2 font-mono text-xs leading-relaxed"
 									style={{ padding: "10px 14px", fontSize: 11 }}
 								>
 									<pre>
@@ -1377,7 +1388,7 @@ export function LandingPage() {
 );`}
 									</pre>
 								</div>
-								<div className="text-xs text-muted-foreground leading-normal">
+								<div className="text-muted-foreground text-xs leading-normal">
 									SSE multiplexer. PG NOTIFY. Auto-reconnect.
 								</div>
 							</div>
@@ -1387,28 +1398,28 @@ export function LandingPage() {
 			</Reveal>
 
 			{/* ─── §9 CTA ─── */}
-			<section className="border-y border-border">
-				<div className="grid grid-cols-[1fr_auto] max-w-[1200px] mx-auto border-x border-border max-[900px]:grid-cols-1">
-					<div className="py-10 px-6 border-r border-border max-[900px]:border-r-0 max-[900px]:border-b max-[900px]:border-border">
-						<h2 className="font-mono text-[clamp(20px,3vw,28px)] font-extrabold text-foreground tracking-tight">
+			<section className="border-border border-y">
+				<div className="border-border mx-auto grid max-w-[1200px] grid-cols-[1fr_auto] border-x max-[900px]:grid-cols-1">
+					<div className="border-border max-[900px]:border-border border-r px-6 py-10 max-[900px]:border-r-0 max-[900px]:border-b">
+						<h2 className="text-foreground font-mono text-[clamp(20px,3vw,28px)] font-extrabold tracking-tight">
 							One backend. Ship everywhere.
 						</h2>
-						<div className="font-mono mt-3 text-sm text-primary">
+						<div className="text-primary mt-3 font-mono text-sm">
 							npx create-questpie
 						</div>
 					</div>
-					<div className="p-6 flex flex-col gap-px justify-center">
+					<div className="flex flex-col justify-center gap-px p-6">
 						<Link
 							to="/docs/$"
 							params={{ _splat: "start-here/first-app" }}
-							className="font-mono px-5 py-2.5 bg-primary border border-primary text-white text-[11px] uppercase tracking-wider text-center block transition-colors hover:bg-primary/80"
+							className="bg-primary border-primary hover:bg-primary/80 block border px-5 py-2.5 text-center font-mono text-[11px] tracking-wider text-white uppercase transition-colors"
 						>
 							Read the docs &rarr;
 						</Link>
 						<Link
 							to="/docs/$"
 							params={{ _splat: "examples" }}
-							className="font-mono px-5 py-2.5 bg-background border border-border text-foreground text-[11px] uppercase tracking-wider text-center block transition-colors hover:border-primary hover:text-primary"
+							className="bg-background border-border text-foreground hover:border-primary hover:text-primary block border px-5 py-2.5 text-center font-mono text-[11px] tracking-wider uppercase transition-colors"
 						>
 							Browse examples &rarr;
 						</Link>
@@ -1416,7 +1427,7 @@ export function LandingPage() {
 							href="https://github.com/questpie/questpie"
 							target="_blank"
 							rel="noreferrer"
-							className="font-mono px-5 py-2.5 bg-background border border-border text-foreground text-[11px] uppercase tracking-wider text-center block transition-colors hover:border-primary hover:text-primary"
+							className="bg-background border-border text-foreground hover:border-primary hover:text-primary block border px-5 py-2.5 text-center font-mono text-[11px] tracking-wider uppercase transition-colors"
 						>
 							Star on GitHub &#9733;
 						</a>

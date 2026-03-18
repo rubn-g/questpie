@@ -1,6 +1,8 @@
 import { sql } from "drizzle-orm";
+
 import { extractAppServices } from "#questpie/server/config/app-context.js";
 import type { Questpie } from "#questpie/server/config/questpie.js";
+
 import type {
 	ResetSeedsOptions,
 	RunSeedsOptions,
@@ -125,7 +127,10 @@ export class SeedRunner {
 				const seedCtx: SeedContext = {
 					...baseServices,
 					log: (msg: string) => this.log(`    ${msg}`),
-					createContext: (opts?: { locale?: string; accessMode?: "system" | "user" }) =>
+					createContext: (opts?: {
+						locale?: string;
+						accessMode?: "system" | "user";
+					}) =>
 						this.app.createContext({
 							accessMode: opts?.accessMode ?? "system",
 							locale: opts?.locale,
@@ -187,7 +192,10 @@ export class SeedRunner {
 					const seedCtx: SeedContext = {
 						...txServices,
 						log: (msg: string) => this.log(`    ${msg}`),
-						createContext: (opts?: { locale?: string; accessMode?: "system" | "user" }) =>
+						createContext: (opts?: {
+							locale?: string;
+							accessMode?: "system" | "user";
+						}) =>
 							this.app.createContext({
 								accessMode: opts?.accessMode ?? "system",
 								locale: opts?.locale,
@@ -265,7 +273,10 @@ export class SeedRunner {
 				const seedCtx: SeedContext = {
 					...baseServices,
 					log: (msg: string) => this.log(`    ${msg}`),
-					createContext: (opts?: { locale?: string; accessMode?: "system" | "user" }) =>
+					createContext: (opts?: {
+						locale?: string;
+						accessMode?: "system" | "user";
+					}) =>
 						this.app.createContext({
 							accessMode: opts?.accessMode ?? "system",
 							locale: opts?.locale,

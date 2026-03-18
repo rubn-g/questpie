@@ -11,6 +11,7 @@
  */
 
 import { z } from "zod";
+
 import type { FieldInstance } from "./field/field";
 import type { FieldValidationConfig } from "./types/field-types";
 
@@ -77,18 +78,16 @@ const FIELD_VALIDATORS: Record<
 	},
 
 	multiSelect: (opts) => {
-		const validValues = opts.options?.length > 0
-			? new Set(opts.options.map((o: any) => o.value))
-			: null;
+		const validValues =
+			opts.options?.length > 0
+				? new Set(opts.options.map((o: any) => o.value))
+				: null;
 		const itemSchema = validValues
 			? z
 					.union([z.string(), z.number()])
-					.refine(
-						(val) => validValues.has(val),
-						{
-							message: "Invalid selection",
-						},
-					)
+					.refine((val) => validValues.has(val), {
+						message: "Invalid selection",
+					})
 			: z.union([z.string(), z.number()]);
 
 		let schema = z.array(itemSchema);

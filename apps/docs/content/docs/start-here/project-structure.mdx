@@ -73,31 +73,31 @@ my-app/
 
 Codegen discovers files based on **directory name** and **export pattern**:
 
-| Directory | Export | Key derivation | Example |
-|---|---|---|---|
-| `collections/` | Default or named | Filename → camelCase | `blog-posts.ts` → `blogPosts` |
-| `globals/` | Default or named | Filename → camelCase | `site-settings.ts` → `siteSettings` |
-| `routes/` | Default | Filename → camelCase/slash path | `create-booking.ts` → `createBooking` |
-| `jobs/` | Default | Filename → camelCase | `send-email.ts` → `sendEmail` |
-| `routes/` (raw) | Default | Filename → slash path | `webhook.ts` → `webhook` |
-| `services/` | Default | Filename → camelCase | `blog.ts` → `blog` |
-| `blocks/` | Named exports | Export name | `export const hero` → `hero` |
-| `emails/` | Default | Filename → camelCase | `appointment-confirmation.ts` → `appointmentConfirmation` |
+| Directory       | Export           | Key derivation                  | Example                                                   |
+| --------------- | ---------------- | ------------------------------- | --------------------------------------------------------- |
+| `collections/`  | Default or named | Filename → camelCase            | `blog-posts.ts` → `blogPosts`                             |
+| `globals/`      | Default or named | Filename → camelCase            | `site-settings.ts` → `siteSettings`                       |
+| `routes/`       | Default          | Filename → camelCase/slash path | `create-booking.ts` → `createBooking`                     |
+| `jobs/`         | Default          | Filename → camelCase            | `send-email.ts` → `sendEmail`                             |
+| `routes/` (raw) | Default          | Filename → slash path           | `webhook.ts` → `webhook`                                  |
+| `services/`     | Default          | Filename → camelCase            | `blog.ts` → `blog`                                        |
+| `blocks/`       | Named exports    | Export name                     | `export const hero` → `hero`                              |
+| `emails/`       | Default          | Filename → camelCase            | `appointment-confirmation.ts` → `appointmentConfirmation` |
 
 ### Single-file conventions
 
 Some configs are single files instead of directories:
 
-| File | Purpose |
-|---|---|
+| File                 | Purpose                                |
+| -------------------- | -------------------------------------- |
 | `questpie.config.ts` | Runtime config (DB, plugins, adapters) |
-| `modules.ts` | Module dependencies array |
-| `auth.ts` | Authentication config |
-| `locale.ts` | Content locale config |
-| `sidebar.ts` | Admin sidebar sections |
-| `dashboard.ts` | Admin dashboard widgets |
-| `branding.ts` | Admin branding (name, logo) |
-| `admin-locale.ts` | Admin UI locale |
+| `modules.ts`         | Module dependencies array              |
+| `auth.ts`            | Authentication config                  |
+| `locale.ts`          | Content locale config                  |
+| `sidebar.ts`         | Admin sidebar sections                 |
+| `dashboard.ts`       | Admin dashboard widgets                |
+| `branding.ts`        | Admin branding (name, logo)            |
+| `admin-locale.ts`    | Admin UI locale                        |
 
 ### Nested routes
 
@@ -122,10 +122,10 @@ Running `bunx questpie generate` creates `.generated/` with:
 import type { AppCollections, AppGlobals, AppRoutes, AppJobs } from "./module";
 
 export type AppConfig = {
-  collections: AppCollections;
-  globals: AppGlobals;
-  routes: AppRoutes;
-  // ... auth, locales
+	collections: AppCollections;
+	globals: AppGlobals;
+	routes: AppRoutes;
+	// ... auth, locales
 };
 
 export { app, createContext } from "./app";
@@ -137,17 +137,19 @@ export type { AppConfig, AppCollections, AppGlobals, AppRoutes, AppJobs };
 The generated code augments `AppContext` so every handler gets typed DI:
 
 ```ts
-declare global { namespace Questpie {
-  interface AppContext {
-    db: Database;
-    email: MailerService<AppEmailTemplates>;
-    queue: QueueClient<AppJobs>;
-    collections: AppCollections;
-    globals: AppGlobals;
-    session: Session | null;
-    // ... custom services
-  }
-}}
+declare global {
+	namespace Questpie {
+		interface AppContext {
+			db: Database;
+			email: MailerService<AppEmailTemplates>;
+			queue: QueueClient<AppJobs>;
+			collections: AppCollections;
+			globals: AppGlobals;
+			session: Session | null;
+			// ... custom services
+		}
+	}
+}
 ```
 
 This is why `collections`, `queue`, `email` are available and typed in every handler — codegen generates the augmentation from your file structure.

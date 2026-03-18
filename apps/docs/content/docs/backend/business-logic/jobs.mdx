@@ -12,35 +12,35 @@ import { job } from "questpie";
 import z from "zod";
 
 export default job({
-  name: "sendAppointmentConfirmation",
-  schema: z.object({
-    appointmentId: z.string(),
-    customerId: z.string(),
-  }),
-  handler: async ({ payload, email, collections }) => {
-    const customer = await collections.user.findOne({
-      where: { id: payload.customerId },
-    });
-    if (!customer) return;
+	name: "sendAppointmentConfirmation",
+	schema: z.object({
+		appointmentId: z.string(),
+		customerId: z.string(),
+	}),
+	handler: async ({ payload, email, collections }) => {
+		const customer = await collections.user.findOne({
+			where: { id: payload.customerId },
+		});
+		if (!customer) return;
 
-    const appointment = await collections.appointments.findOne({
-      where: { id: payload.appointmentId },
-      with: { barber: true, service: true },
-    });
-    if (!appointment) return;
+		const appointment = await collections.appointments.findOne({
+			where: { id: payload.appointmentId },
+			with: { barber: true, service: true },
+		});
+		if (!appointment) return;
 
-    await email.sendTemplate({
-      template: "appointmentConfirmation",
-      input: {
-        customerName: customer.name,
-        appointmentId: appointment.id,
-        barberName: appointment.barber.name,
-        serviceName: appointment.service.name,
-        scheduledAt: appointment.scheduledAt.toISOString(),
-      },
-      to: customer.email,
-    });
-  },
+		await email.sendTemplate({
+			template: "appointmentConfirmation",
+			input: {
+				customerName: customer.name,
+				appointmentId: appointment.id,
+				barberName: appointment.barber.name,
+				serviceName: appointment.service.name,
+				scheduledAt: appointment.scheduledAt.toISOString(),
+			},
+			to: customer.email,
+		});
+	},
 });
 ```
 
@@ -69,13 +69,13 @@ The `queue` object is fully typed — autocompletion shows all available jobs an
 
 Job handlers receive the same `AppContext` as routes:
 
-| Property | Description |
-|---|---|
-| `payload` | Validated data matching the Zod schema |
-| `collections` | Typed collection API |
-| `email` | Email service |
-| `queue` | Publish other jobs |
-| `db` | Database instance |
+| Property      | Description                            |
+| ------------- | -------------------------------------- |
+| `payload`     | Validated data matching the Zod schema |
+| `collections` | Typed collection API                   |
+| `email`       | Email service                          |
+| `queue`       | Publish other jobs                     |
+| `db`          | Database instance                      |
 
 ## Email Templates
 
@@ -86,17 +86,17 @@ import { email } from "questpie";
 import z from "zod";
 
 export default email({
-  name: "appointmentConfirmation",
-  schema: z.object({
-    customerName: z.string(),
-    appointmentId: z.string(),
-    barberName: z.string(),
-    serviceName: z.string(),
-    scheduledAt: z.string(),
-  }),
-  handler: ({ input }) => ({
-    subject: "Appointment Confirmed",
-    html: `
+	name: "appointmentConfirmation",
+	schema: z.object({
+		customerName: z.string(),
+		appointmentId: z.string(),
+		barberName: z.string(),
+		serviceName: z.string(),
+		scheduledAt: z.string(),
+	}),
+	handler: ({ input }) => ({
+		subject: "Appointment Confirmed",
+		html: `
       <h1>Hi ${input.customerName}!</h1>
       <p>Your appointment has been confirmed.</p>
       <table>
@@ -105,7 +105,7 @@ export default email({
         <tr><td>When</td><td>${input.scheduledAt}</td></tr>
       </table>
     `,
-  }),
+	}),
 });
 ```
 
@@ -117,12 +117,12 @@ Configure the queue adapter in your runtime config. QUESTPIE uses [pg-boss](http
 import { pgBossAdapter, runtimeConfig } from "questpie";
 
 export default runtimeConfig({
-  queue: {
-    adapter: pgBossAdapter({
-      connectionString: process.env.DATABASE_URL,
-    }),
-  },
-  // ...
+	queue: {
+		adapter: pgBossAdapter({
+			connectionString: process.env.DATABASE_URL,
+		}),
+	},
+	// ...
 });
 ```
 
@@ -135,30 +135,30 @@ import { job } from "questpie";
 import z from "zod";
 
 export default job({
-  name: "notifyBlogSubscribers",
-  schema: z.object({
-    postId: z.string(),
-    title: z.string(),
-    excerpt: z.string(),
-    slug: z.string(),
-  }),
-  handler: async ({ payload, email, collections }) => {
-    const users = await collections.user.find({ limit: 1000 });
+	name: "notifyBlogSubscribers",
+	schema: z.object({
+		postId: z.string(),
+		title: z.string(),
+		excerpt: z.string(),
+		slug: z.string(),
+	}),
+	handler: async ({ payload, email, collections }) => {
+		const users = await collections.user.find({ limit: 1000 });
 
-    await Promise.allSettled(
-      users.docs.map((user) =>
-        email.sendTemplate({
-          template: "newBlogPost",
-          input: {
-            title: payload.title,
-            excerpt: payload.excerpt,
-            slug: payload.slug,
-          },
-          to: user.email,
-        }),
-      ),
-    );
-  },
+		await Promise.allSettled(
+			users.docs.map((user) =>
+				email.sendTemplate({
+					template: "newBlogPost",
+					input: {
+						title: payload.title,
+						excerpt: payload.excerpt,
+						slug: payload.slug,
+					},
+					to: user.email,
+				}),
+			),
+		);
+	},
 });
 ```
 

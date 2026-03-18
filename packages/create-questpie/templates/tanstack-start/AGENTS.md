@@ -128,45 +128,60 @@ Keep the entire builder chain in one file — single source of truth per entity:
 import { collection } from "questpie";
 
 export const posts = collection("posts")
-  .fields(({ f }) => ({
-    title: f.text(255).label("Title").required(),
-    slug: f.text(255).label("Slug").required().inputOptional().admin({
-      compute: {
-        handler: ({ data, prev }) => { /* slugify title */ },
-        deps: ({ data }) => [data.title],
-        debounce: 300,
-      },
-    }),
-    content: f.richText().label("Content"),
-    published: f.boolean().label("Published").default(false),
-    category: f.select().label("Category").options(["news", "blog", "tutorial"]),
-    author: f.relation().label("Author").to("users"),
-    image: f.upload().label("Cover Image"),
-  }))
-  .title(({ f }) => f.title)
-  .admin(({ c }) => ({
-    label: "Posts",
-    icon: c.icon("ph:article"),
-  }))
-  .access({
-    read: true,
-    create: ({ session }) => !!session,
-    update: ({ session }) => !!session,
-    delete: ({ session }) => session?.user?.role === "admin",
-  })
-  .hooks({
-    beforeCreate: [async ({ data, ctx }) => { /* ... */ return data; }],
-  })
-  .list(({ v }) => v.collectionTable({}))
-  .form(({ v, f }) =>
-    v.collectionForm({
-      sidebar: { position: "right", fields: [f.slug, f.published, f.category] },
-      fields: [f.title, f.content, f.author, f.image],
-    })
-  );
+	.fields(({ f }) => ({
+		title: f.text(255).label("Title").required(),
+		slug: f
+			.text(255)
+			.label("Slug")
+			.required()
+			.inputOptional()
+			.admin({
+				compute: {
+					handler: ({ data, prev }) => {
+						/* slugify title */
+					},
+					deps: ({ data }) => [data.title],
+					debounce: 300,
+				},
+			}),
+		content: f.richText().label("Content"),
+		published: f.boolean().label("Published").default(false),
+		category: f
+			.select()
+			.label("Category")
+			.options(["news", "blog", "tutorial"]),
+		author: f.relation().label("Author").to("users"),
+		image: f.upload().label("Cover Image"),
+	}))
+	.title(({ f }) => f.title)
+	.admin(({ c }) => ({
+		label: "Posts",
+		icon: c.icon("ph:article"),
+	}))
+	.access({
+		read: true,
+		create: ({ session }) => !!session,
+		update: ({ session }) => !!session,
+		delete: ({ session }) => session?.user?.role === "admin",
+	})
+	.hooks({
+		beforeCreate: [
+			async ({ data, ctx }) => {
+				/* ... */ return data;
+			},
+		],
+	})
+	.list(({ v }) => v.collectionTable({}))
+	.form(({ v, f }) =>
+		v.collectionForm({
+			sidebar: { position: "right", fields: [f.slug, f.published, f.category] },
+			fields: [f.title, f.content, f.author, f.image],
+		}),
+	);
 ```
 
 Then:
+
 1. Run `bunx questpie generate` to regenerate `.generated/index.ts`
 2. Run `bun questpie migrate:create` to generate migration
 
@@ -184,19 +199,22 @@ Collections are auto-discovered by codegen — no manual registration needed.
 import { global } from "questpie";
 
 export const siteSettings = global("site_settings")
-  .fields(({ f }) => ({
-    siteName: f.text(255).label("Site Name").required(),
-    description: f.textarea().label("Description"),
-    logo: f.upload().label("Logo"),
-    maintenanceMode: f.boolean().label("Maintenance Mode").default(false),
-  }))
-  .admin(({ c }) => ({ label: "Site Settings", icon: c.icon("ph:gear") }))
-  .form(({ v, f }) => v.globalForm({
-    fields: [f.siteName, f.description, f.logo, f.maintenanceMode],
-  }));
+	.fields(({ f }) => ({
+		siteName: f.text(255).label("Site Name").required(),
+		description: f.textarea().label("Description"),
+		logo: f.upload().label("Logo"),
+		maintenanceMode: f.boolean().label("Maintenance Mode").default(false),
+	}))
+	.admin(({ c }) => ({ label: "Site Settings", icon: c.icon("ph:gear") }))
+	.form(({ v, f }) =>
+		v.globalForm({
+			fields: [f.siteName, f.description, f.logo, f.maintenanceMode],
+		}),
+	);
 ```
 
 Then:
+
 1. Run `bunx questpie generate` to regenerate `.generated/index.ts`
 2. Run `bun questpie migrate:create`
 
@@ -214,17 +232,17 @@ import { route } from "questpie";
 import { z } from "zod";
 
 export default route()
-  .post()
-  .schema(
-    z.object({
-      period: z.enum(["day", "week", "month"]),
-    }),
-  )
-  .handler(async ({ input, collections }) => {
-    // input: typed from Zod schema; collections, db, session, etc. from AppContext
-    const count = await collections.posts.count({});
-    return { totalPosts: count, period: input.period };
-  });
+	.post()
+	.schema(
+		z.object({
+			period: z.enum(["day", "week", "month"]),
+		}),
+	)
+	.handler(async ({ input, collections }) => {
+		// input: typed from Zod schema; collections, db, session, etc. from AppContext
+		const count = await collections.posts.count({});
+		return { totalPosts: count, period: input.period };
+	});
 ```
 
 **Step 2 — Run codegen:**
@@ -253,8 +271,8 @@ export default route()
 import { useQuery } from "@tanstack/react-query";
 
 const { data } = useQuery({
-  queryKey: ["stats", period],
-  queryFn: () => client.routes.getStats({ period }),
+	queryKey: ["stats", period],
+	queryFn: () => client.routes.getStats({ period }),
 });
 ```
 
@@ -269,42 +287,42 @@ Blocks are content building units for page builders and rich content areas.
 import { block } from "@questpie/admin/server";
 
 export const heroBlock = block("hero")
-  .admin(({ c }) => ({
-    label: "Hero Section",
-    icon: c.icon("ph:image"),
-    category: { label: "Sections", icon: c.icon("ph:layout"), order: 1 },
-  }))
-  .fields(({ f }) => ({
-    title: f.text(255).label("Title").required(),
-    subtitle: f.textarea().label("Subtitle"),
-    backgroundImage: f.upload().label("Background Image"),
-    ctaText: f.text(255).label("CTA Text"),
-    ctaLink: f.text(255).label("CTA Link"),
-  }))
-  .prefetch({ with: { backgroundImage: true } }); // expand upload to full URL
+	.admin(({ c }) => ({
+		label: "Hero Section",
+		icon: c.icon("ph:image"),
+		category: { label: "Sections", icon: c.icon("ph:layout"), order: 1 },
+	}))
+	.fields(({ f }) => ({
+		title: f.text(255).label("Title").required(),
+		subtitle: f.textarea().label("Subtitle"),
+		backgroundImage: f.upload().label("Background Image"),
+		ctaText: f.text(255).label("CTA Text"),
+		ctaLink: f.text(255).label("CTA Link"),
+	}))
+	.prefetch({ with: { backgroundImage: true } }); // expand upload to full URL
 ```
 
 **Block with dynamic data fetching (prefetch):**
 
 ```ts
 const teamBlock = block("team")
-  .admin(({ c }) => ({
-    label: "Team",
-    icon: c.icon("ph:users"),
-    category: { label: "Sections", icon: c.icon("ph:layout"), order: 1 },
-  }))
-  .fields(({ f }) => ({
-    title: f.text(255).label("Title"),
-    limit: f.number().label("Number to Show").default(4),
-  }))
-  .prefetch(async ({ values, ctx }) => {
-    const res = await ctx.collections.members.find({
-      limit: values.limit || 4,
-      where: { isActive: true },
-      with: { avatar: true },
-    });
-    return { members: res.docs };
-  });
+	.admin(({ c }) => ({
+		label: "Team",
+		icon: c.icon("ph:users"),
+		category: { label: "Sections", icon: c.icon("ph:layout"), order: 1 },
+	}))
+	.fields(({ f }) => ({
+		title: f.text(255).label("Title"),
+		limit: f.number().label("Number to Show").default(4),
+	}))
+	.prefetch(async ({ values, ctx }) => {
+		const res = await ctx.collections.members.find({
+			limit: values.limit || 4,
+			where: { isActive: true },
+			with: { avatar: true },
+		});
+		return { members: res.docs };
+	});
 ```
 
 Blocks in `blocks/` are auto-discovered by codegen. No manual registration needed.
@@ -312,7 +330,7 @@ Blocks in `blocks/` are auto-discovered by codegen. No manual registration neede
 **Use blocks in a collection's richText field:**
 
 ```ts
-content: f.richText().label("Content").blocks([heroBlock, teamBlock])
+content: f.richText().label("Content").blocks([heroBlock, teamBlock]);
 ```
 
 #### Blocks & Circular Dependencies
@@ -324,16 +342,16 @@ Block prefetch handlers receive `ctx` with fully typed `collections` and `global
 import { block } from "@questpie/admin/server";
 
 export const latestPostsBlock = block("latest-posts")
-  .fields(({ f }) => ({
-    count: f.number().label("Number of Posts").default(3),
-  }))
-  .prefetch(async ({ values, ctx }) => {
-    const res = await ctx.collections.posts.find({
-      limit: values.count || 3,
-      where: { published: true },
-    });
-    return { posts: res.docs };
-  });
+	.fields(({ f }) => ({
+		count: f.number().label("Number of Posts").default(3),
+	}))
+	.prefetch(async ({ values, ctx }) => {
+		const res = await ctx.collections.posts.find({
+			limit: values.count || 3,
+			where: { published: true },
+		});
+		return { posts: res.docs };
+	});
 ```
 
 Do NOT import `app` from `#questpie` inside block files — these are imported BY `.generated/index.ts`, creating circular dependencies. Use the `ctx` parameters instead.
@@ -353,23 +371,35 @@ All reactive handlers run **server-side** with access to `ctx.db`, `ctx.user`, `
 
 ```ts
 fields: ({ f }) => ({
-  country: f.relation().to("countries").label("Country"),
-  city: f.relation().to("cities").label("City").admin({
-    options: {
-      handler: async ({ data, search, ctx }) => {
-        const cities = await ctx.db.query.cities.findMany({
-          where: { countryId: data.country },
-        });
-        return { options: cities.map((c) => ({ value: c.id, label: c.name })) };
-      },
-      deps: ({ data }) => [data.country],
-    },
-  }),
-  status: f.select().label("Status").options(["draft", "published", "archived"]),
-  publishedAt: f.datetime().label("Published At").admin({
-    hidden: ({ data }) => data.status !== "published",
-  }),
-})
+	country: f.relation().to("countries").label("Country"),
+	city: f
+		.relation()
+		.to("cities")
+		.label("City")
+		.admin({
+			options: {
+				handler: async ({ data, search, ctx }) => {
+					const cities = await ctx.db.query.cities.findMany({
+						where: { countryId: data.country },
+					});
+					return {
+						options: cities.map((c) => ({ value: c.id, label: c.name })),
+					};
+				},
+				deps: ({ data }) => [data.country],
+			},
+		}),
+	status: f
+		.select()
+		.label("Status")
+		.options(["draft", "published", "archived"]),
+	publishedAt: f
+		.datetime()
+		.label("Published At")
+		.admin({
+			hidden: ({ data }) => data.status !== "published",
+		}),
+});
 ```
 
 ### Admin Configuration (Client-Side)
@@ -388,9 +418,14 @@ import { createTypedHooks } from "@questpie/admin/client";
 import type { App } from "#questpie";
 
 export const {
-  useCollectionList, useCollectionCount, useCollectionItem,
-  useCollectionCreate, useCollectionUpdate, useCollectionDelete,
-  useGlobal, useGlobalUpdate,
+	useCollectionList,
+	useCollectionCount,
+	useCollectionItem,
+	useCollectionCreate,
+	useCollectionUpdate,
+	useCollectionDelete,
+	useGlobal,
+	useGlobalUpdate,
 } = createTypedHooks<App>();
 ```
 
@@ -409,6 +444,7 @@ OpenAPI is registered as a module in `src/questpie/server/modules.ts` via `openA
 ### Icons
 
 Use `@iconify/react` with Phosphor icon set:
+
 - Prefix: `ph:` (e.g., `ph:house`, `ph:article`, `ph:gear`)
 - Weight variants: `-bold`, `-fill`, `-duotone`, `-light`, `-thin`
 - Regular weight = no suffix (default)
@@ -418,13 +454,16 @@ Use `@iconify/react` with Phosphor icon set:
 ## Environment Variables
 
 Type-safe via `@t3-oss/env-core` in `src/lib/env.ts`. All env vars must be:
+
 1. Declared with Zod schema in `env.ts`
 2. Accessed via `env.VAR_NAME` (not `process.env.VAR_NAME`)
 
 Required:
+
 - `DATABASE_URL` — PostgreSQL connection string
 
 Optional (with defaults):
+
 - `APP_URL` — Application URL (default: `http://localhost:3000`)
 - `BETTER_AUTH_SECRET` — Auth secret key
 - `MAIL_ADAPTER` — `console` or `smtp`

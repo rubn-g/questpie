@@ -8,14 +8,15 @@
  * @see RFC-MODULE-ARCHITECTURE §8.1 (User Project)
  */
 
-import { adminPlugin } from "@questpie/admin/plugin";
 import {
 	ConsoleAdapter,
 	pgBossAdapter,
 	runtimeConfig,
 	SmtpAdapter,
 } from "questpie";
+
 import { messages } from "@/questpie/server/i18n";
+import { adminPlugin } from "@questpie/admin/plugin";
 
 const DATABASE_URL =
 	process.env.DATABASE_URL || "postgres://localhost/barbershop";

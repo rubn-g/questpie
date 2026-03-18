@@ -230,7 +230,10 @@ describe("relation() — morphTo", () => {
 	});
 
 	it("getMetadata() returns morphTo metadata", () => {
-		const meta = relation({ users: "users", posts: "posts" } as any).getMetadata() as any;
+		const meta = relation({
+			users: "users",
+			posts: "posts",
+		} as any).getMetadata() as any;
 		expect(meta.relationType).toBe("morphTo");
 		expect(meta.targetCollection).toEqual(["users", "posts"]);
 	});

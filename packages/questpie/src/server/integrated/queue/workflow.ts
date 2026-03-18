@@ -1,4 +1,5 @@
 import type { z } from "zod";
+
 import type { JobDefinition, JobHandlerArgs } from "./types.js";
 
 /**
@@ -60,9 +61,7 @@ export class WorkflowBuilder<
 	 */
 	step<TStepOutput>(
 		name: string,
-		execute: (
-			args: WorkflowStepArgs<TCurrentOutput>,
-		) => Promise<TStepOutput>,
+		execute: (args: WorkflowStepArgs<TCurrentOutput>) => Promise<TStepOutput>,
 	): WorkflowBuilder<TInput, TStepOutput, TName> {
 		this.steps.push({ name, execute });
 		return this as any;

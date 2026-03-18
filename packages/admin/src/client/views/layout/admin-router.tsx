@@ -15,6 +15,7 @@
 
 import { Icon } from "@iconify/react";
 import * as React from "react";
+
 import type { PageDefinition } from "../../builder/page/page.js";
 import type { MaybeLazyComponent } from "../../builder/types/common.js";
 import type { ComponentRegistry } from "../../builder/types/field-types.js";
@@ -352,7 +353,7 @@ function isDynamicImportLoader(
 
 function ViewLoadingState() {
 	return (
-		<div className="flex h-64 items-center justify-center text-muted-foreground">
+		<div className="text-muted-foreground flex h-64 items-center justify-center">
 			<Icon icon="ph:spinner-gap" className="size-6 animate-spin" />
 		</div>
 	);
@@ -366,10 +367,10 @@ function UnknownViewState({
 	viewId: string;
 }) {
 	return (
-		<div className="container ">
+		<div className="container">
 			<Card className="border-warning/30 bg-warning/5 p-6">
 				<h1 className="text-lg font-semibold">Unknown {viewKind} view</h1>
-				<p className="mt-2 text-sm text-muted-foreground">
+				<p className="text-muted-foreground mt-2 text-sm">
 					View "{viewId}" is not registered in the admin view registry.
 				</p>
 			</Card>
@@ -541,11 +542,11 @@ function DefaultDashboard() {
 	});
 
 	return (
-		<div className="qa-default-dashboard container ">
+		<div className="qa-default-dashboard container">
 			<div className="mb-8 flex items-end justify-between">
 				<div>
 					<h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-					<p className="text-muted-foreground mt-1 font-mono text-xs uppercase tracking-widest">
+					<p className="text-muted-foreground mt-1 font-mono text-xs tracking-widest uppercase">
 						{date}
 					</p>
 				</div>
@@ -553,16 +554,16 @@ function DefaultDashboard() {
 
 			<div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
 				<Card className="relative overflow-hidden p-6">
-					<div className="absolute -right-12 -top-12 h-32 w-32 rounded-full bg-primary/10 blur-3xl" />
+					<div className="bg-primary/10 absolute -top-12 -right-12 h-32 w-32 rounded-full blur-3xl" />
 					<div className="relative">
 						<div className="mb-4 flex items-center gap-3">
-							<div className="h-2 w-2 rounded-full bg-primary " />
-							<h3 className="font-mono text-xs font-bold uppercase tracking-widest text-primary">
+							<div className="bg-primary h-2 w-2 rounded-full" />
+							<h3 className="text-primary font-mono text-xs font-bold tracking-widest uppercase">
 								System Status
 							</h3>
 						</div>
 						<h2 className="mb-2 text-xl font-bold">Welcome back</h2>
-						<p className="text-sm leading-relaxed text-muted-foreground">
+						<p className="text-muted-foreground text-sm leading-relaxed">
 							Select a collection from the sidebar to manage your content.
 						</p>
 					</div>
@@ -574,7 +575,7 @@ function DefaultDashboard() {
 
 function DefaultNotFound() {
 	return (
-		<div className="qa-not-found container ">
+		<div className="qa-not-found container">
 			<h1 className="mb-4 text-2xl font-bold">Page Not Found</h1>
 			<p className="text-muted-foreground">
 				The page you're looking for doesn't exist.
@@ -597,26 +598,26 @@ function RestrictedAccess({
 	return (
 		<div className="qa-restricted-access container py-12">
 			<Card className="relative mx-auto max-w-lg overflow-hidden p-8 text-center">
-				<div className="absolute -right-16 -top-16 h-40 w-40 rounded-full bg-muted blur-3xl" />
-				<div className="absolute -left-16 -bottom-16 h-40 w-40 rounded-full bg-muted blur-3xl" />
+				<div className="bg-muted absolute -top-16 -right-16 h-40 w-40 rounded-full blur-3xl" />
+				<div className="bg-muted absolute -bottom-16 -left-16 h-40 w-40 rounded-full blur-3xl" />
 				<div className="relative">
-					<div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-muted">
+					<div className="bg-muted mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full">
 						<Icon
 							icon="ph:lock-simple"
-							className="h-8 w-8 text-muted-foreground"
+							className="text-muted-foreground h-8 w-8"
 						/>
 					</div>
 					<h1 className="mb-2 text-xl font-semibold">Access Restricted</h1>
-					<p className="mb-6 text-sm text-muted-foreground">
+					<p className="text-muted-foreground mb-6 text-sm">
 						The {type}{" "}
-						<span className="font-mono text-foreground">"{name}"</span> is not
+						<span className="text-foreground font-mono">"{name}"</span> is not
 						available in the admin panel. It may be hidden or you don't have
 						permission to access it.
 					</p>
 					<button
 						type="button"
 						onClick={() => navigate(basePath)}
-						className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+						className="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors"
 					>
 						<Icon icon="ph:arrow-left" className="h-4 w-4" />
 						Back to Dashboard
@@ -695,7 +696,7 @@ function LazyPageRenderer({ config }: { config: PageDefinition<string> }) {
 
 	if (loading) {
 		return (
-			<div className="flex h-64 items-center justify-center text-muted-foreground">
+			<div className="text-muted-foreground flex h-64 items-center justify-center">
 				<Icon icon="ph:spinner-gap" className="size-6 animate-spin" />
 			</div>
 		);
@@ -703,8 +704,8 @@ function LazyPageRenderer({ config }: { config: PageDefinition<string> }) {
 
 	if (error) {
 		return (
-			<div className="container ">
-				<h1 className="mb-4 text-2xl font-bold text-destructive">Error</h1>
+			<div className="container">
+				<h1 className="text-destructive mb-4 text-2xl font-bold">Error</h1>
 				<p className="text-muted-foreground">{error.message}</p>
 			</div>
 		);

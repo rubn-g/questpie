@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it } from "bun:test";
+
 import { collection } from "../../src/server/index.js";
 import {
 	createPgVectorSearchAdapter,

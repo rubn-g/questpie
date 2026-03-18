@@ -17,18 +17,18 @@ Collections can be indexed for full-text search:
 
 ```ts
 const results = await client.search.search({
-  query: "haircut styles",
-  collections: ["posts", "services"],
+	query: "haircut styles",
+	collections: ["posts", "services"],
 });
 ```
 
 ## Search Options
 
-| Option | Type | Description |
-|---|---|---|
-| `query` | `string` | Search query |
+| Option        | Type       | Description           |
+| ------------- | ---------- | --------------------- |
+| `query`       | `string`   | Search query          |
 | `collections` | `string[]` | Collections to search |
-| `limit` | `number` | Max results |
+| `limit`       | `number`   | Max results           |
 
 ## Related Pages
 

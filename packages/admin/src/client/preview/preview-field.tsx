@@ -8,6 +8,7 @@
 "use client";
 
 import * as React from "react";
+
 import { cn } from "../lib/utils.js";
 import { useBlockScope, useResolveFieldPath } from "./block-scope-context.js";
 
@@ -168,9 +169,9 @@ export function PreviewField({
 			className={cn(
 				className,
 				"group relative cursor-pointer transition-all duration-150",
-				"hover:outline hover:outline-2 hover:outline-dashed hover:outline-primary/60 hover:outline-offset-2 hover:rounded-sm",
+				"hover:outline-primary/60 hover:rounded-sm hover:outline hover:outline-2 hover:outline-offset-2 hover:outline-dashed",
 				isFocused &&
-					"outline outline-2 outline-primary outline-offset-2 rounded-sm",
+					"outline-primary rounded-sm outline outline-2 outline-offset-2",
 			)}
 		>
 			{children}
@@ -226,9 +227,9 @@ export function StandalonePreviewField({
 			className={cn(
 				className,
 				"group relative cursor-pointer transition-all duration-150",
-				"hover:outline hover:outline-2 hover:outline-dashed hover:outline-primary/60 hover:outline-offset-2 hover:rounded-sm",
+				"hover:outline-primary/60 hover:rounded-sm hover:outline hover:outline-2 hover:outline-offset-2 hover:outline-dashed",
 				isFocused &&
-					"outline outline-2 outline-primary outline-offset-2 rounded-sm",
+					"outline-primary rounded-sm outline outline-2 outline-offset-2",
 			)}
 		>
 			{children}

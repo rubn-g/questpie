@@ -6,6 +6,7 @@
  */
 
 import * as React from "react";
+
 import type { AnyWidgetConfig, WidgetComponentProps } from "../../builder";
 import { WidgetErrorBoundary } from "../../components/error-boundary";
 import { useTranslation } from "../../i18n/hooks";
@@ -49,7 +50,7 @@ function UnknownWidget({ type }: { type: string }) {
 			title={t("error.unknownWidget")}
 			className="border-warning/20 bg-warning/5"
 		>
-			<p className="text-xs text-muted-foreground">
+			<p className="text-muted-foreground text-xs">
 				{t("error.widgetTypeNotRecognized", { type })}
 			</p>
 		</WidgetCard>

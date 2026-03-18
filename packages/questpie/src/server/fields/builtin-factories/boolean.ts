@@ -7,8 +7,9 @@ import {
 	boolean as pgBoolean,
 } from "drizzle-orm/pg-core";
 import { z } from "zod";
-import { field } from "../field-class.js";
+
 import type { DefaultFieldState } from "../field-class-types.js";
+import { field } from "../field-class.js";
 import { booleanOps } from "../operators/builtin.js";
 
 declare global {

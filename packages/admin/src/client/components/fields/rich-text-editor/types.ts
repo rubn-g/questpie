@@ -3,6 +3,7 @@
  */
 
 import type { Editor, Extension as TiptapExtension } from "@tiptap/core";
+
 import type { FieldComponentProps } from "../../../builder";
 import type { RichTextPreset } from "./presets";
 

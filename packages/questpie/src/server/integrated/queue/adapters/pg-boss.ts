@@ -1,4 +1,5 @@
 import { type ConstructorOptions, PgBoss } from "pg-boss";
+
 import type {
 	QueueAdapter,
 	QueueHandlerMap,

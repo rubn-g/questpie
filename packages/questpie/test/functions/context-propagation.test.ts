@@ -8,15 +8,17 @@
  *    `{ accessMode: "user" }` inside a handler still carry the request session.
  */
 import { afterEach, beforeEach, describe, expect, it } from "bun:test";
+
 import { z } from "zod";
+
 import { createFetchHandler } from "../../src/server/adapters/http.js";
+import { normalizeContext } from "../../src/server/collection/crud/shared/context.js";
 import {
 	runWithContext,
 	tryGetContext,
 } from "../../src/server/config/context.js";
-import { normalizeContext } from "../../src/server/collection/crud/shared/context.js";
-import { executeJsonRoute } from "../../src/server/routes/execute.js";
 import { route } from "../../src/server/index.js";
+import { executeJsonRoute } from "../../src/server/routes/execute.js";
 import { buildMockApp } from "../utils/mocks/mock-app-builder.js";
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -63,14 +65,17 @@ describe("normalizeContext — ALS propagation", () => {
 	it("partial override { accessMode: 'user' } still inherits ALS session", async () => {
 		const fakeSession = { user: { id: "u1" }, session: { id: "s1" } } as any;
 
-		await runWithContext({ app: {}, session: fakeSession, locale: "de" }, async () => {
-			// Partial override — only accessMode changes
-			const ctx = normalizeContext({ accessMode: "user" });
-			expect(ctx.accessMode).toBe("user");
-			// session and locale should come from ALS
-			expect(ctx.session).toBe(fakeSession);
-			expect(ctx.locale).toBe("de");
-		});
+		await runWithContext(
+			{ app: {}, session: fakeSession, locale: "de" },
+			async () => {
+				// Partial override — only accessMode changes
+				const ctx = normalizeContext({ accessMode: "user" });
+				expect(ctx.accessMode).toBe("user");
+				// session and locale should come from ALS
+				expect(ctx.session).toBe(fakeSession);
+				expect(ctx.locale).toBe("de");
+			},
+		);
 	});
 
 	it("explicit locale overrides ALS locale", async () => {
@@ -116,10 +121,15 @@ describe("executeJsonRoute — context propagation via runWithContext", () => {
 				return {};
 			});
 
-		await executeJsonRoute(setup.app, getLocale, {}, {
-			locale: "sk",
-			accessMode: "system",
-		});
+		await executeJsonRoute(
+			setup.app,
+			getLocale,
+			{},
+			{
+				locale: "sk",
+				accessMode: "system",
+			},
+		);
 
 		expect(capturedLocale).toBe("sk");
 	});
@@ -138,10 +148,15 @@ describe("executeJsonRoute — context propagation via runWithContext", () => {
 				return {};
 			});
 
-		await executeJsonRoute(setup.app, getSession, {}, {
-			session: fakeSession,
-			accessMode: "system",
-		});
+		await executeJsonRoute(
+			setup.app,
+			getSession,
+			{},
+			{
+				session: fakeSession,
+				accessMode: "system",
+			},
+		);
 
 		expect(capturedSession).toBe(fakeSession);
 	});
@@ -159,9 +174,14 @@ describe("executeJsonRoute — context propagation via runWithContext", () => {
 			});
 
 		// Even though the request comes in as "user", handler body runs as "system"
-		await executeJsonRoute(setup.app, checkAccess, {}, {
-			accessMode: "user",
-		});
+		await executeJsonRoute(
+			setup.app,
+			checkAccess,
+			{},
+			{
+				accessMode: "user",
+			},
+		);
 
 		expect(capturedAccessMode).toBe("system");
 	});
@@ -178,10 +198,15 @@ describe("executeJsonRoute — context propagation via runWithContext", () => {
 				return {};
 			});
 
-		await executeJsonRoute(setup.app, checkStage, {}, {
-			stage: "draft",
-			accessMode: "system",
-		});
+		await executeJsonRoute(
+			setup.app,
+			checkStage,
+			{},
+			{
+				stage: "draft",
+				accessMode: "system",
+			},
+		);
 
 		expect(capturedStage).toBe("draft");
 	});
@@ -201,10 +226,15 @@ describe("executeJsonRoute — context propagation via runWithContext", () => {
 				return {};
 			});
 
-		await executeJsonRoute(setup.app, checkNestedSession, {}, {
-			session: fakeSession,
-			locale: "en",
-		});
+		await executeJsonRoute(
+			setup.app,
+			checkNestedSession,
+			{},
+			{
+				session: fakeSession,
+				locale: "en",
+			},
+		);
 
 		expect(capturedSession).toBe(fakeSession);
 	});
@@ -231,7 +261,12 @@ describe("Route via HTTP — locale propagates from request into handler ALS", (
 		setup = await buildMockApp({
 			routes: { echoLocale },
 			locale: {
-				locales: [{ code: "en" }, { code: "fr" }, { code: "sk" }, { code: "de" }],
+				locales: [
+					{ code: "en" },
+					{ code: "fr" },
+					{ code: "sk" },
+					{ code: "de" },
+				],
 				defaultLocale: "en",
 			},
 		});

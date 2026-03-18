@@ -195,6 +195,7 @@ Most of these were minor/partial fixes. The substantive content updates are stil
 For every `.mdx` file in the HIGH and MEDIUM lists:
 
 1. **Grep for stale patterns** — run these searches across `apps/docs/`:
+
    ```
    grep -rn "qb\." apps/docs/content/
    grep -rn "(f) =>" apps/docs/content/
@@ -296,6 +297,7 @@ The starter template — shows the minimal file convention setup.
 After updating docs, verify correctness:
 
 1. **Grep for remaining stale patterns:**
+
    ```bash
    # These should return zero results in docs content:
    grep -rn "QuestpieBuilder" apps/docs/content/
@@ -309,6 +311,7 @@ After updating docs, verify correctness:
    ```
 
 2. **Check callback style** — `(f) =>` in code blocks should be `({ f }) =>`:
+
    ```bash
    # Look for positional callbacks in code blocks:
    grep -n "\.fields((f)" apps/docs/content/
@@ -316,9 +319,11 @@ After updating docs, verify correctness:
    ```
 
 3. **Build the docs site:**
+
    ```bash
    cd apps/docs && bun run build
    ```
+
    Fix any broken links or build errors.
 
 4. **Spot-check code examples** — ensure imports use `#questpie` for `collection`/`global`/`block` and `"questpie"` for framework utilities like `fn`, `job`, `email`, `defineService`.

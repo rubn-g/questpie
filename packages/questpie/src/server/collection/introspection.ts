@@ -6,6 +6,7 @@
  */
 
 import { z } from "zod";
+
 import type { Collection } from "#questpie/server/collection/builder/collection.js";
 import { buildCollectionSchemas } from "#questpie/server/collection/builder/field-schema-builder.js";
 import type {
@@ -15,8 +16,8 @@ import type {
 	CollectionBuilderState,
 } from "#questpie/server/collection/builder/types.js";
 import type { CRUDContext } from "#questpie/server/collection/crud/types.js";
-import type { Field } from "#questpie/server/fields/field-class.js";
 import type { FieldState } from "#questpie/server/fields/field-class-types.js";
+import type { Field } from "#questpie/server/fields/field-class.js";
 import {
 	extractDependencies,
 	getDebounce,
@@ -648,7 +649,9 @@ export async function introspectCollection(
 	// Build field schemas — evaluate field access in parallel
 	const fieldEntries = Object.entries(fieldDefinitions);
 	const fieldAccessResults = await Promise.all(
-		fieldEntries.map(([, fieldDef]) => evaluateFieldAccess(fieldDef, context, app)),
+		fieldEntries.map(([, fieldDef]) =>
+			evaluateFieldAccess(fieldDef, context, app),
+		),
 	);
 
 	const fields: Record<string, FieldSchema> = {};
@@ -1013,9 +1016,8 @@ async function evaluateCollectionAccess(
 		app as { defaultAccess?: CollectionAccess } | undefined
 	)?.defaultAccess;
 
-	const { extractAppServices } = await import(
-		"#questpie/server/config/app-context.js"
-	);
+	const { extractAppServices } =
+		await import("#questpie/server/config/app-context.js");
 	const services = extractAppServices(app, {
 		db: context.db,
 		session: context.session,
@@ -1130,9 +1132,8 @@ async function evaluateFieldAccess(
 		return undefined;
 	}
 
-	const { extractAppServices } = await import(
-		"#questpie/server/config/app-context.js"
-	);
+	const { extractAppServices } =
+		await import("#questpie/server/config/app-context.js");
 	const services = extractAppServices(app, {
 		db: context.db,
 		session: context.session,

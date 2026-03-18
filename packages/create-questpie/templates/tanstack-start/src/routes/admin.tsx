@@ -1,4 +1,3 @@
-import { AdminLayoutProvider } from "@questpie/admin/client";
 import {
 	createFileRoute,
 	HeadContent,
@@ -7,6 +6,8 @@ import {
 	Scripts,
 	useLocation,
 } from "@tanstack/react-router";
+
+import { AdminLayoutProvider } from "@questpie/admin/client";
 import { authClient } from "~/lib/auth-client";
 import { client } from "~/lib/client";
 import { queryClient } from "~/lib/query-client";

@@ -2,6 +2,7 @@ import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import type { SerializedOptionsConfig } from "questpie";
 import * as React from "react";
 import { useFormContext, useWatch } from "react-hook-form";
+
 import { useAdminStore } from "../runtime/provider.js";
 import { useDebouncedValue } from "./use-search.js";
 
@@ -185,10 +186,7 @@ export function useFieldOptions({
 			depKey,
 		],
 		queryFn: async ({ pageParam = 0 }) => {
-			const currentFormValues = (form.getValues() ?? {}) as Record<
-				string,
-				any
-			>;
+			const currentFormValues = (form.getValues() ?? {}) as Record<string, any>;
 			const currentSiblingData = getSiblingData(currentFormValues, field);
 			const response = await (client!.routes as any).fieldOptions({
 				collection,

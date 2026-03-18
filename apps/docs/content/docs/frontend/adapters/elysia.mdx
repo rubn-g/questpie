@@ -21,8 +21,8 @@ import { app } from "#questpie";
 const handler = createFetchHandler(app, { basePath: "/api" });
 
 const server = new Elysia()
-  .all("/api/*", ({ request }) => handler(request))
-  .listen(3000);
+	.all("/api/*", ({ request }) => handler(request))
+	.listen(3000);
 
 console.log(`Running at ${server.server?.url}`);
 ```

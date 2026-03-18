@@ -1,5 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it } from "bun:test";
+
 import { z } from "zod";
+
 import { collection, job } from "../../src/server/index.js";
 import { buildMockApp } from "../utils/mocks/mock-app-builder";
 import { createTestContext } from "../utils/test-context";
@@ -54,7 +56,11 @@ const createTestDefinition = () => {
 			status: f.text(50),
 			viewCount: f.number(),
 			publishedAt: f.datetime(),
-			tags: f.relation("tags").manyToMany({ through: "article_tags", sourceField: "article", targetField: "tag" }),
+			tags: f.relation("tags").manyToMany({
+				through: "article_tags",
+				sourceField: "article",
+				targetField: "tag",
+			}),
 		}))
 		.title(({ f }) => f.title)
 		.options({
@@ -104,7 +110,11 @@ const createTestDefinition = () => {
 	const tags = collection("tags")
 		.fields(({ f }) => ({
 			name: f.textarea().required(),
-			articles: f.relation("articles").manyToMany({ through: "article_tags", sourceField: "tag", targetField: "article" }),
+			articles: f.relation("articles").manyToMany({
+				through: "article_tags",
+				sourceField: "tag",
+				targetField: "article",
+			}),
 		}))
 		.title(({ f }) => f.name);
 

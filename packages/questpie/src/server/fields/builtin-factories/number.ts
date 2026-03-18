@@ -12,8 +12,9 @@ import {
 	smallint,
 } from "drizzle-orm/pg-core";
 import { z } from "zod";
-import { field, Field } from "../field-class.js";
+
 import type { DefaultFieldState } from "../field-class-types.js";
+import { field, Field } from "../field-class.js";
 import { numberOps } from "../operators/builtin.js";
 
 declare global {

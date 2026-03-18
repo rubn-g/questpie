@@ -6,6 +6,7 @@ import {
 } from "@tanstack/react-query";
 import type { Questpie } from "questpie";
 import type { QuestpieClient } from "questpie/client";
+
 import type {
 	RegisteredCMS,
 	RegisteredCollectionNames,
@@ -23,8 +24,7 @@ type CollectionRealtimeOptions = {
 /**
  * Resolved app type (Questpie<any> if not registered)
  */
-type ResolvedCMS =
-	RegisteredCMS extends Questpie<any> ? RegisteredCMS : any;
+type ResolvedCMS = RegisteredCMS extends Questpie<any> ? RegisteredCMS : any;
 
 /**
  * Resolved collection names (string if not registered)
@@ -130,9 +130,7 @@ export function useCollectionItem<K extends ResolvedCollectionNames>(
 	collection: K,
 	id: string,
 	options?: Omit<
-		Parameters<
-			QuestpieClient<any>["collections"][K & string]["findOne"]
-		>[0],
+		Parameters<QuestpieClient<any>["collections"][K & string]["findOne"]>[0],
 		"where"
 	> & {
 		localeFallback?: boolean;
@@ -170,7 +168,9 @@ export function useCollectionCreate<K extends ResolvedCollectionNames>(
 ): any {
 	const { queryOpts, queryClient, locale } = useQuestpieQueryOptions();
 
-	const baseOptions = (queryOpts.collections as any)[collection as string].create();
+	const baseOptions = (queryOpts.collections as any)[
+		collection as string
+	].create();
 	const listQueryKey = queryOpts.key([
 		"collections",
 		collection as string,
@@ -220,7 +220,9 @@ export function useCollectionUpdate<K extends ResolvedCollectionNames>(
 ): any {
 	const { queryOpts, queryClient, locale } = useQuestpieQueryOptions();
 
-	const baseOptions = (queryOpts.collections as any)[collection as string].update();
+	const baseOptions = (queryOpts.collections as any)[
+		collection as string
+	].update();
 	const listQueryKey = queryOpts.key([
 		"collections",
 		collection as string,
@@ -279,7 +281,9 @@ export function useCollectionDelete<K extends ResolvedCollectionNames>(
 ): any {
 	const { queryOpts, queryClient, locale } = useQuestpieQueryOptions();
 
-	const baseOptions = (queryOpts.collections as any)[collection as string].delete();
+	const baseOptions = (queryOpts.collections as any)[
+		collection as string
+	].delete();
 	const listQueryKey = queryOpts.key([
 		"collections",
 		collection as string,
@@ -329,7 +333,9 @@ export function useCollectionRestore<K extends ResolvedCollectionNames>(
 ): any {
 	const { queryOpts, queryClient, locale } = useQuestpieQueryOptions();
 
-	const baseOptions = (queryOpts.collections as any)[collection as string].restore();
+	const baseOptions = (queryOpts.collections as any)[
+		collection as string
+	].restore();
 	const listQueryKey = queryOpts.key([
 		"collections",
 		collection as string,
@@ -399,8 +405,9 @@ export function useCollectionRevertVersion<K extends ResolvedCollectionNames>(
 ): any {
 	const { queryOpts, queryClient, locale } = useQuestpieQueryOptions();
 
-	const baseOptions =
-		(queryOpts.collections as any)[collection as string].revertToVersion();
+	const baseOptions = (queryOpts.collections as any)[
+		collection as string
+	].revertToVersion();
 	const listQueryKey = queryOpts.key([
 		"collections",
 		collection as string,

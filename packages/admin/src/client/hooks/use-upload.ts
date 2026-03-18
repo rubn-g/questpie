@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
+
 import { selectClient, useAdminStore } from "../runtime";
 import { useUploadCollection } from "./use-upload-collection";
 
@@ -95,7 +96,10 @@ export function useUpload(): UseUploadReturn {
 		mutationFn: async ({
 			file,
 			options,
-		}: { file: File; options?: UploadOptions }) => {
+		}: {
+			file: File;
+			options?: UploadOptions;
+		}) => {
 			const { to, onProgress, signal } = options ?? {};
 			const targetCollection = resolveTargetCollection(to);
 
@@ -134,7 +138,10 @@ export function useUpload(): UseUploadReturn {
 		mutationFn: async ({
 			files,
 			options,
-		}: { files: File[]; options?: UploadManyOptions }) => {
+		}: {
+			files: File[];
+			options?: UploadManyOptions;
+		}) => {
 			const { to, onProgress, signal } = options ?? {};
 			const targetCollection = resolveTargetCollection(to);
 
@@ -178,9 +185,7 @@ export function useUpload(): UseUploadReturn {
 		upload: (file, options) =>
 			uploadMutation.mutateAsync({ file, options }).then((r) => r.asset),
 		uploadMany: (files, options) =>
-			uploadManyMutation
-				.mutateAsync({ files, options })
-				.then((r) => r.assets),
+			uploadManyMutation.mutateAsync({ files, options }).then((r) => r.assets),
 		isUploading: uploadMutation.isPending || uploadManyMutation.isPending,
 		progress,
 		error: uploadMutation.error || uploadManyMutation.error || null,

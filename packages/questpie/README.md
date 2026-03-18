@@ -36,32 +36,37 @@ bun add questpie drizzle-orm@beta zod
 import { collection } from "questpie";
 
 export const posts = collection("posts")
-  .fields(({ f }) => ({
-    title: f.text({ label: "Title", required: true, maxLength: 255 }),
-    content: f.richText({ label: "Content", localized: true }),
-    published: f.boolean({ label: "Published", default: false }),
-    category: f.select({ label: "Category", options: ["news", "blog", "tutorial"] }),
-    cover: f.upload({ to: "assets", mimeTypes: ["image/*"] }),
-    author: f.relation({ to: "users", required: true }),
-    publishedAt: f.date(),
-  }))
-  .title(({ f }) => f.title)
-  .admin(({ c }) => ({
-    label: { en: "Posts" },
-    icon: c.icon("ph:article"),
-  }))
-  .list(({ v }) => v.collectionTable({}))
-  .form(({ v, f }) => v.collectionForm({
-    sidebar: { position: "right", fields: [f.published, f.cover] },
-    fields: [f.title, f.content, f.category, f.author, f.publishedAt],
-  }))
-  .hooks({
-    afterChange: async ({ data, operation, app }) => {
-      if (operation === "create") {
-        await app.queue.notifySubscribers.publish({ postId: data.id });
-      }
-    },
-  });
+	.fields(({ f }) => ({
+		title: f.text({ label: "Title", required: true, maxLength: 255 }),
+		content: f.richText({ label: "Content", localized: true }),
+		published: f.boolean({ label: "Published", default: false }),
+		category: f.select({
+			label: "Category",
+			options: ["news", "blog", "tutorial"],
+		}),
+		cover: f.upload({ to: "assets", mimeTypes: ["image/*"] }),
+		author: f.relation({ to: "users", required: true }),
+		publishedAt: f.date(),
+	}))
+	.title(({ f }) => f.title)
+	.admin(({ c }) => ({
+		label: { en: "Posts" },
+		icon: c.icon("ph:article"),
+	}))
+	.list(({ v }) => v.collectionTable({}))
+	.form(({ v, f }) =>
+		v.collectionForm({
+			sidebar: { position: "right", fields: [f.published, f.cover] },
+			fields: [f.title, f.content, f.category, f.author, f.publishedAt],
+		}),
+	)
+	.hooks({
+		afterChange: async ({ data, operation, app }) => {
+			if (operation === "create") {
+				await app.queue.notifySubscribers.publish({ postId: data.id });
+			}
+		},
+	});
 ```
 
 ### 2. Define Globals
@@ -71,15 +76,15 @@ export const posts = collection("posts")
 import { global } from "questpie";
 
 export const siteSettings = global("site_settings")
-  .fields(({ f }) => ({
-    siteName: f.text({ label: "Site Name", required: true }),
-    description: f.textarea({ label: "Description" }),
-    logo: f.upload({ to: "assets", mimeTypes: ["image/*"] }),
-  }))
-  .admin(({ c }) => ({
-    label: { en: "Site Settings" },
-    icon: c.icon("ph:gear-six"),
-  }));
+	.fields(({ f }) => ({
+		siteName: f.text({ label: "Site Name", required: true }),
+		description: f.textarea({ label: "Description" }),
+		logo: f.upload({ to: "assets", mimeTypes: ["image/*"] }),
+	}))
+	.admin(({ c }) => ({
+		label: { en: "Site Settings" },
+		icon: c.icon("ph:gear-six"),
+	}));
 ```
 
 ### 3. Configure the App
@@ -90,11 +95,11 @@ import { runtimeConfig } from "questpie";
 import { adminPlugin } from "@questpie/admin/plugin";
 
 export default runtimeConfig({
-  plugins: [adminPlugin()],
-  app: { url: process.env.APP_URL! },
-  db: { url: process.env.DATABASE_URL! },
-  secret: process.env.AUTH_SECRET!,
-  storage: { basePath: "/api" },
+	plugins: [adminPlugin()],
+	app: { url: process.env.APP_URL! },
+	db: { url: process.env.DATABASE_URL! },
+	secret: process.env.AUTH_SECRET!,
+	storage: { basePath: "/api" },
 });
 ```
 
@@ -114,10 +119,10 @@ export default [adminModule] as const;
 import type { AuthConfig } from "questpie";
 
 export default {
-  emailAndPassword: { enabled: true },
-  baseURL: process.env.APP_URL!,
-  basePath: "/api/auth",
-  secret: process.env.AUTH_SECRET!,
+	emailAndPassword: { enabled: true },
+	baseURL: process.env.APP_URL!,
+	basePath: "/api/auth",
+	secret: process.env.AUTH_SECRET!,
 } satisfies AuthConfig;
 ```
 
@@ -146,21 +151,21 @@ Fields are defined via the `f` proxy inside `.fields()`. Each field produces a D
 
 ```ts
 collection("products").fields(({ f }) => ({
-  name: f.text({ required: true, maxLength: 255 }),
-  price: f.number({ required: true }),
-  description: f.richText({ localized: true }),
-  sku: f.text({ required: true, input: "optional" }),   // auto-generated
-  inStock: f.boolean({ default: true }),
-  category: f.select({ options: ["electronics", "clothing", "food"] }),
-  tags: f.multiSelect({ options: ["featured", "sale", "new"] }),
-  image: f.upload({ to: "assets", mimeTypes: ["image/*"], maxSize: 5_000_000 }),
-  brand: f.relation({ to: "brands" }),
-  publishedAt: f.datetime(),
-  metadata: f.json(),
-  email: f.email({ required: true }),
-  website: f.url(),
-  color: f.color(),
-  slug: f.slug({ from: "name" }),
+	name: f.text({ required: true, maxLength: 255 }),
+	price: f.number({ required: true }),
+	description: f.richText({ localized: true }),
+	sku: f.text({ required: true, input: "optional" }), // auto-generated
+	inStock: f.boolean({ default: true }),
+	category: f.select({ options: ["electronics", "clothing", "food"] }),
+	tags: f.multiSelect({ options: ["featured", "sale", "new"] }),
+	image: f.upload({ to: "assets", mimeTypes: ["image/*"], maxSize: 5_000_000 }),
+	brand: f.relation({ to: "brands" }),
+	publishedAt: f.datetime(),
+	metadata: f.json(),
+	email: f.email({ required: true }),
+	website: f.url(),
+	color: f.color(),
+	slug: f.slug({ from: "name" }),
 }));
 ```
 
@@ -168,51 +173,51 @@ collection("products").fields(({ f }) => ({
 
 ```ts
 address: f.object({
-  label: "Address",
-  fields: () => ({
-    street: f.text({ required: true }),
-    city: f.text({ required: true }),
-    zip: f.text(),
-    country: f.select({ options: ["US", "UK", "DE"] }),
-  }),
-})
+	label: "Address",
+	fields: () => ({
+		street: f.text({ required: true }),
+		city: f.text({ required: true }),
+		zip: f.text(),
+		country: f.select({ options: ["US", "UK", "DE"] }),
+	}),
+});
 ```
 
 ### Array Fields
 
 ```ts
 socialLinks: f.array({
-  of: f.object({
-    fields: () => ({
-      platform: f.select({ options: ["twitter", "github", "linkedin"] }),
-      url: f.url({ required: true }),
-    }),
-  }),
-  maxItems: 5,
-  meta: { admin: { orderable: true } },
-})
+	of: f.object({
+		fields: () => ({
+			platform: f.select({ options: ["twitter", "github", "linkedin"] }),
+			url: f.url({ required: true }),
+		}),
+	}),
+	maxItems: 5,
+	meta: { admin: { orderable: true } },
+});
 ```
 
 ### Relations
 
 ```ts
 // Belongs-to
-author: f.relation({ to: "users", required: true, onDelete: "cascade" })
+author: f.relation({ to: "users", required: true, onDelete: "cascade" });
 
 // Has-many through junction
 services: f.relation({
-  to: "services",
-  hasMany: true,
-  through: "barberServices",
-  sourceField: "barber",
-  targetField: "service",
-})
+	to: "services",
+	hasMany: true,
+	through: "barberServices",
+	sourceField: "barber",
+	targetField: "service",
+});
 ```
 
 ### Blocks (Page Builder)
 
 ```ts
-body: f.blocks({ label: "Content", localized: true })
+body: f.blocks({ label: "Content", localized: true });
 ```
 
 ### Custom Fields
@@ -250,14 +255,14 @@ import { route } from "questpie";
 import z from "zod";
 
 export default route()
-  .post()
-  .schema(z.object({ period: z.enum(["day", "week", "month"]) }))
-  .handler(async ({ input, app }) => {
-    const count = await app.api.collections.posts.count({
-      where: { createdAt: { gte: startDate(input.period) } },
-    });
-    return { posts: count };
-  });
+	.post()
+	.schema(z.object({ period: z.enum(["day", "week", "month"]) }))
+	.handler(async ({ input, app }) => {
+		const count = await app.api.collections.posts.count({
+			where: { createdAt: { gte: startDate(input.period) } },
+		});
+		return { posts: count };
+	});
 ```
 
 Routes are auto-discovered by codegen and available at `/api/<name>`.
@@ -269,11 +274,13 @@ Routes are auto-discovered by codegen and available at `/api/<name>`.
 import { z } from "zod";
 
 export default {
-  schema: z.object({ userId: z.string() }),
-  handler: async ({ payload, app }) => {
-    const user = await app.api.collections.users.findById({ id: payload.userId });
-    await app.email.send({ to: user.email, subject: "Welcome!", text: "..." });
-  },
+	schema: z.object({ userId: z.string() }),
+	handler: async ({ payload, app }) => {
+		const user = await app.api.collections.users.findById({
+			id: payload.userId,
+		});
+		await app.email.send({ to: user.email, subject: "Welcome!", text: "..." });
+	},
 };
 
 // Dispatch (via the generated app instance)
@@ -288,27 +295,27 @@ await app.queue.listen();
 ```ts
 // Create
 const post = await app.api.collections.posts.create({
-  title: "Hello World",
-  content: "...",
+	title: "Hello World",
+	content: "...",
 });
 
 // Find many (paginated)
 const { docs, totalDocs } = await app.api.collections.posts.find({
-  where: { published: { eq: true } },
-  orderBy: { publishedAt: "desc" },
-  limit: 10,
-  with: { author: true },
+	where: { published: { eq: true } },
+	orderBy: { publishedAt: "desc" },
+	limit: 10,
+	with: { author: true },
 });
 
 // Find one
 const post = await app.api.collections.posts.findOne({
-  where: { slug: { eq: "hello-world" } },
+	where: { slug: { eq: "hello-world" } },
 });
 
 // Update
 await app.api.collections.posts.updateById({
-  id: post.id,
-  data: { title: "Updated" },
+	id: post.id,
+	data: { title: "Updated" },
 });
 
 // Delete
@@ -351,17 +358,17 @@ Dynamic options for select/relation:
 
 ```ts
 city: f.relation({
-  to: "cities",
-  options: {
-    handler: async ({ data, search, ctx }) => {
-      const cities = await ctx.db.query.cities.findMany({
-        where: { countryId: data.country },
-      });
-      return { options: cities.map((c) => ({ value: c.id, label: c.name })) };
-    },
-    deps: ({ data }) => [data.country],
-  },
-})
+	to: "cities",
+	options: {
+		handler: async ({ data, search, ctx }) => {
+			const cities = await ctx.db.query.cities.findMany({
+				where: { countryId: data.country },
+			});
+			return { options: cities.map((c) => ({ value: c.id, label: c.name })) };
+		},
+		deps: ({ data }) => [data.country],
+	},
+});
 ```
 
 ## CLI
@@ -389,19 +396,19 @@ CLI config (migrations directory etc.) is set inside `runtimeConfig()`:
 
 ```ts
 export default runtimeConfig({
-  plugins: [adminPlugin()],
-  db: { url: process.env.DATABASE_URL! },
-  cli: { migrations: { directory: "./src/migrations" } },
+	plugins: [adminPlugin()],
+	db: { url: process.env.DATABASE_URL! },
+	cli: { migrations: { directory: "./src/migrations" } },
 });
 ```
 
 ## Framework Adapters
 
-| Adapter | Package            | Server                                           |
-| ------- | ------------------ | ------------------------------------------------ |
-| Hono    | `@questpie/hono`   | `questpieHono(app, { basePath })`                |
-| Elysia  | `@questpie/elysia` | `questpieElysia(app, { basePath })`              |
-| Next.js | `@questpie/next`   | `questpieNextRouteHandlers(app, { basePath })`   |
+| Adapter | Package            | Server                                         |
+| ------- | ------------------ | ---------------------------------------------- |
+| Hono    | `@questpie/hono`   | `questpieHono(app, { basePath })`              |
+| Elysia  | `@questpie/elysia` | `questpieElysia(app, { basePath })`            |
+| Next.js | `@questpie/next`   | `questpieNextRouteHandlers(app, { basePath })` |
 
 Or use `createFetchHandler` directly with any framework that supports the Fetch API.
 

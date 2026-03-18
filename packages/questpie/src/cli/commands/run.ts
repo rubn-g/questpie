@@ -1,5 +1,6 @@
 import { existsSync } from "node:fs";
 import { join } from "node:path";
+
 import { MigrationRunner } from "../../server/migration/runner.js";
 import type { Migration } from "../../server/migration/types.js";
 import { SeedRunner } from "../../server/seed/runner.js";
@@ -39,11 +40,10 @@ export async function runMigrationCommand(
 
 	// Get migrations from Questpie config
 	// Supports both flat array (new codegen) and legacy nested format { migrations: [...] }
-	const migrations: Migration[] = (
-		Array.isArray(app.config.migrations)
+	const migrations: Migration[] =
+		(Array.isArray(app.config.migrations)
 			? app.config.migrations
-			: app.config.migrations?.migrations
-	) || [];
+			: app.config.migrations?.migrations) || [];
 
 	if (migrations.length === 0) {
 		console.log("ℹ️  No migrations found");

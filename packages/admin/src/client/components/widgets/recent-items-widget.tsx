@@ -105,7 +105,7 @@ export default function RecentItemsWidget({ config }: RecentItemsWidgetProps) {
 	// List content
 	const listContent =
 		items.length === 0 ? (
-			<p className="text-sm text-muted-foreground">No items yet</p>
+			<p className="text-muted-foreground text-sm">No items yet</p>
 		) : (
 			<div className="space-y-1">
 				{items.map((item: any) => {
@@ -117,13 +117,13 @@ export default function RecentItemsWidget({ config }: RecentItemsWidgetProps) {
 							type="button"
 							key={item.id}
 							onClick={() => handleItemClick(item)}
-							className="flex w-full items-center gap-3 rounded-md p-2 hover:bg-muted cursor-pointer transition-colors text-left"
+							className="hover:bg-muted flex w-full cursor-pointer items-center gap-3 rounded-md p-2 text-left transition-colors"
 						>
-							<div className="flex-1 min-w-0">
-								<p className="text-sm font-medium truncate">
+							<div className="min-w-0 flex-1">
+								<p className="truncate text-sm font-medium">
 									{getTitleValue(item)}
 								</p>
-								<div className="flex items-center gap-2 text-xs text-muted-foreground">
+								<div className="text-muted-foreground flex items-center gap-2 text-xs">
 									{dateValue && (
 										<span>{formatRelativeTime(new Date(dateValue))}</span>
 									)}

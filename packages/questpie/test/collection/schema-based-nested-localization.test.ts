@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it } from "bun:test";
+
 import { collection } from "../../src/server/index.js";
 import { buildMockApp } from "../utils/mocks/mock-app-builder";
 import { createTestContext } from "../utils/test-context";
@@ -59,12 +60,14 @@ const barbers = collection("barbers")
 			}),
 		}),
 		// Array with localized fields in items
-		socialLinks: f.object({
-			platform: f.text().required(),
-			url: f.text().required(),
-			// Localized description in array items
-			description: f.text().localized(),
-		}).array(),
+		socialLinks: f
+			.object({
+				platform: f.text().required(),
+				url: f.text().required(),
+				// Localized description in array items
+				description: f.text().localized(),
+			})
+			.array(),
 	}))
 	.options({
 		timestamps: true,

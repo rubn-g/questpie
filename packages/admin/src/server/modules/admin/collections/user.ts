@@ -12,6 +12,7 @@
  */
 
 import { starterModule } from "questpie";
+
 import { collection } from "../factories";
 
 const adminUserCollection = collection("user")

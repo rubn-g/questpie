@@ -9,10 +9,10 @@ Every collection and global form has a **History sidebar** — a slide-over pane
 
 Click the clock icon in the form toolbar to open the sidebar. It appears on the right and has two tabs:
 
-| Tab | Shows | Requires |
-|---|---|---|
-| **Activity** | Audit log entries (create, update, delete, transition) | `auditModule` in `modules.ts` |
-| **Versions** | Full document snapshots with restore | `.versioning()` on the collection |
+| Tab          | Shows                                                  | Requires                          |
+| ------------ | ------------------------------------------------------ | --------------------------------- |
+| **Activity** | Audit log entries (create, update, delete, transition) | `auditModule` in `modules.ts`     |
+| **Versions** | Full document snapshots with restore                   | `.versioning()` on the collection |
 
 If versioning is not enabled on the collection, only the Activity tab is shown.
 
@@ -26,6 +26,7 @@ The activity timeline shows every mutation to the current record:
 - **Transition** — workflow stage changed (amber dot)
 
 Each entry displays:
+
 - A human-readable title (e.g. "John updated Pages 'About Us'")
 - Relative timestamp
 - Expandable field-level diff showing `from → to` values
@@ -48,20 +49,20 @@ The audit module registers global hooks on **all** collections and globals. Ever
 import { collection } from "#questpie";
 
 export const logs = collection("logs")
-  .admin(() => ({ audit: false }))
-  .fields(({ f }) => ({
-    message: f.text(),
-  }));
+	.admin(() => ({ audit: false }))
+	.fields(({ f }) => ({
+		message: f.text(),
+	}));
 ```
 
 ### What Gets Tracked
 
-| Hook | Action | Changes |
-|---|---|---|
-| `afterChange` (create) | `create` | — |
-| `afterChange` (update) | `update` | Field-level diff `{ field: { from, to } }` |
-| `afterDelete` | `delete` | — |
-| `afterTransition` | `transition` | `{ stage: { from: "draft", to: "published" } }` |
+| Hook                   | Action       | Changes                                         |
+| ---------------------- | ------------ | ----------------------------------------------- |
+| `afterChange` (create) | `create`     | —                                               |
+| `afterChange` (update) | `update`     | Field-level diff `{ field: { from, to } }`      |
+| `afterDelete`          | `delete`     | —                                               |
+| `afterTransition`      | `transition` | `{ stage: { from: "draft", to: "published" } }` |
 
 Updates with no meaningful field changes (only `updatedAt`, `createdAt`, `id`, or `_`-prefixed fields) are skipped.
 
@@ -75,14 +76,15 @@ When a collection has versioning enabled, the Versions tab shows numbered snapsh
 import { collection } from "#questpie";
 
 export const pages = collection("pages")
-  .versioning({ drafts: true, maxVersions: 20 })
-  .fields(({ f }) => ({
-    title: f.text().required(),
-    content: f.blocks().localized(),
-  }));
+	.versioning({ drafts: true, maxVersions: 20 })
+	.fields(({ f }) => ({
+		title: f.text().required(),
+		content: f.blocks().localized(),
+	}));
 ```
 
 Each version shows:
+
 - Version number (e.g. "v3")
 - Operation that created it (create, update)
 - Timestamp
@@ -97,13 +99,13 @@ Click "Restore" on any version → a confirmation dialog appears → confirm →
 
 The admin fetches history data via built-in routes:
 
-| Route | Description |
-|---|---|
+| Route                                 | Description                |
+| ------------------------------------- | -------------------------- |
 | `GET /:collection/:id/audit?limit=50` | Audit entries for a record |
-| `GET /:collection/:id/versions` | Version snapshots |
-| `POST /:collection/:id/revert` | Restore a version |
-| `GET /globals/:name/audit` | Audit entries for a global |
-| `GET /globals/:name/versions` | Global version snapshots |
+| `GET /:collection/:id/versions`       | Version snapshots          |
+| `POST /:collection/:id/revert`        | Restore a version          |
+| `GET /globals/:name/audit`            | Audit entries for a global |
+| `GET /globals/:name/versions`         | Global version snapshots   |
 
 All audit queries use `accessMode: "system"` — no access control filtering.
 

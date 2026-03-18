@@ -10,6 +10,7 @@
  */
 
 import * as React from "react";
+
 import { SidebarInset, SidebarProvider } from "../../components/ui/sidebar";
 import { type AdminToasterProps, Toaster } from "../../components/ui/sonner";
 import {
@@ -237,12 +238,12 @@ export function AdminLayout({
 	return (
 		<BreadcrumbProvider>
 			<div
-				className={cn("qa-admin-layout min-h-screen bg-background ", className)}
+				className={cn("qa-admin-layout bg-background min-h-screen", className)}
 			>
 				{/* Skip to main content link — visible on focus for keyboard users */}
 				<a
 					href="#main-content"
-					className="qa-admin-layout__skip-link sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:text-sm focus:font-medium"
+					className="qa-admin-layout__skip-link focus:bg-primary focus:text-primary-foreground sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:px-4 focus:py-2 focus:text-sm focus:font-medium"
 				>
 					Skip to main content
 				</a>
@@ -259,7 +260,7 @@ export function AdminLayout({
 				{/* Max-width container for ultrawide monitors - centered with subtle side borders */}
 				<SidebarProvider
 					defaultOpen={!sidebarCollapsedProp}
-					className="qa-admin-layout__sidebar-wrapper mx-auto max-w-[1920px] h-svh overflow-hidden"
+					className="qa-admin-layout__sidebar-wrapper mx-auto h-svh max-w-[1920px] overflow-hidden"
 				>
 					{/* Sidebar */}
 					<AdminSidebar
@@ -288,14 +289,14 @@ export function AdminLayout({
 
 						<main
 							id="main-content"
-							className="qa-admin-layout__main flex-1 overflow-y-auto min-w-0"
+							className="qa-admin-layout__main min-w-0 flex-1 overflow-y-auto"
 							tabIndex={-1}
 						>
 							<div
 								className={cn(
 									"qa-admin-layout__main-content min-w-0",
 									layoutMode === "default" &&
-										"max-w-5xl mx-auto p-3 md:p-4 lg:p-6",
+										"mx-auto max-w-5xl p-3 md:p-4 lg:p-6",
 									layoutMode === "wide" && "p-3 md:p-4 lg:p-6",
 									layoutMode === "full" && "p-2 md:p-3",
 									layoutMode === "immersive" && "p-0",

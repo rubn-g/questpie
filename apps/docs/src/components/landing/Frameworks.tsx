@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { motion } from "motion/react";
+
 import { AnimOrbitArcs } from "@/components/landing/BrandVisuals";
 
 const frameworks = [
@@ -39,11 +40,11 @@ export function Frameworks() {
 	return (
 		<section
 			id="adapters"
-			className="relative border-t border-border/40 py-20 overflow-hidden"
+			className="border-border/40 relative overflow-hidden border-t py-20"
 		>
-			<div className="mx-auto w-full max-w-7xl px-4 relative z-10">
+			<div className="relative z-10 mx-auto w-full max-w-7xl px-4">
 				{/* L-R layout: heading LEFT, orbit visualization RIGHT */}
-				<div className="grid gap-12 lg:grid-cols-[1fr_1fr] items-center mb-12">
+				<div className="mb-12 grid items-center gap-12 lg:grid-cols-[1fr_1fr]">
 					{/* Left — heading + description + link */}
 					<motion.div
 						initial={{ opacity: 0, y: 20 }}
@@ -51,13 +52,13 @@ export function Frameworks() {
 						viewport={{ once: true, margin: "-80px" }}
 						transition={{ duration: 0.6 }}
 					>
-						<h2 className="font-mono text-sm uppercase tracking-[0.2em] text-primary text-balance">
+						<h2 className="text-primary font-mono text-sm tracking-[0.2em] text-balance uppercase">
 							Adapters
 						</h2>
 						<h3 className="mt-3 font-mono text-3xl font-bold tracking-[-0.02em] text-balance md:text-4xl">
 							Bring your own framework
 						</h3>
-						<p className="mt-3 text-muted-foreground text-balance max-w-lg">
+						<p className="text-muted-foreground mt-3 max-w-lg text-balance">
 							If it handles HTTP, it runs QUESTPIE. Write your own adapter in
 							under 50 lines.
 						</p>
@@ -65,7 +66,7 @@ export function Frameworks() {
 							<Link
 								to="/docs/$"
 								params={{ _splat: "frontend/adapters" }}
-								className="inline-flex items-center gap-2 font-mono text-xs text-primary transition-colors hover:text-primary/80"
+								className="text-primary hover:text-primary/80 inline-flex items-center gap-2 font-mono text-xs transition-colors"
 							>
 								Read the adapter docs →
 							</Link>
@@ -74,13 +75,13 @@ export function Frameworks() {
 
 					{/* Right — Orbit arcs visualization */}
 					<motion.div
-						className="flex items-center justify-center lg:justify-end order-last lg:order-none"
+						className="order-last flex items-center justify-center lg:order-none lg:justify-end"
 						initial={{ opacity: 0, x: 20 }}
 						whileInView={{ opacity: 1, x: 0 }}
 						viewport={{ once: true, margin: "-80px" }}
 						transition={{ duration: 0.6, delay: 0.15 }}
 					>
-						<AnimOrbitArcs className="w-full max-w-[400px] h-auto pointer-events-none opacity-90" />
+						<AnimOrbitArcs className="pointer-events-none h-auto w-full max-w-[400px] opacity-90" />
 					</motion.div>
 				</div>
 
@@ -89,7 +90,7 @@ export function Frameworks() {
 					{frameworks.map((fw, i) => (
 						<motion.div
 							key={fw.name}
-							className="group border border-border bg-card/20 backdrop-blur-sm p-6 text-center transition-colors hover:border-primary/30"
+							className="group border-border bg-card/20 hover:border-primary/30 border p-6 text-center backdrop-blur-sm transition-colors"
 							initial={{ opacity: 0, y: 20 }}
 							whileInView={{ opacity: 1, y: 0 }}
 							viewport={{ once: true }}
@@ -102,10 +103,10 @@ export function Frameworks() {
 								{fw.logo}
 							</div>
 							<h4 className="text-lg font-semibold">{fw.name}</h4>
-							<p className="mt-1 font-mono text-[10px] uppercase tracking-[0.18em] text-primary">
+							<p className="text-primary mt-1 font-mono text-[10px] tracking-[0.18em] uppercase">
 								{fw.tagline}
 							</p>
-							<p className="mt-2 text-xs text-muted-foreground">
+							<p className="text-muted-foreground mt-2 text-xs">
 								{fw.description}
 							</p>
 						</motion.div>

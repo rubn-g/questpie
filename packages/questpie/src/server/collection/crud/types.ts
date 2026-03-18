@@ -1,6 +1,7 @@
 // crud/types.ts - Type definitions for CRUD operations (Drizzle RQB v2-like)
 
 import type { SQL } from "drizzle-orm";
+
 import type {
 	CollectionOptions,
 	InferRelationConfigsFromFields,
@@ -136,7 +137,7 @@ type CollectionFieldDefinitions<TCollection> =
 			: TDefs
 		: CollectionStateFor<TCollection> extends {
 					fieldDefinitions: infer TDefs;
-				}
+			  }
 			? TDefs
 			: Record<string, never>;
 
@@ -272,7 +273,7 @@ type RelationTargetNameFromConfig<TConfig> = TConfig extends {
 								? TValue
 								: TValue extends () => {
 											name: infer TObjectName extends string;
-										}
+									  }
 									? TObjectName
 									: never)
 						| (keyof TTo & string)
@@ -411,7 +412,7 @@ type ResolveRelationsDeepFromApp<
 		: TRelations[K] extends {
 					type: "one";
 					collection: infer C;
-				}
+			  }
 			? ResolveCollectionRelationFromApp<AppCollections<TApp>, TApp, C, Depth>
 			: never;
 };
@@ -499,25 +500,26 @@ export type RelationFilter<
 	TRelations = any,
 	TCollection = unknown,
 	TApp = unknown,
-> = IsCollectionLike<TCollection> extends true
-	?
-			| Where<TCollection, TApp>
-			| {
-					some?: Where<TCollection, TApp>;
-					none?: Where<TCollection, TApp>;
-					every?: Where<TCollection, TApp>;
-					is?: Where<TCollection, TApp>;
-					isNot?: Where<TCollection, TApp>;
-			  }
-	:
-			| Where<TFields, TRelations>
-			| {
-					some?: Where<TFields, TRelations>;
-					none?: Where<TFields, TRelations>;
-					every?: Where<TFields, TRelations>;
-					is?: Where<TFields, TRelations>;
-					isNot?: Where<TFields, TRelations>;
-			  };
+> =
+	IsCollectionLike<TCollection> extends true
+		?
+				| Where<TCollection, TApp>
+				| {
+						some?: Where<TCollection, TApp>;
+						none?: Where<TCollection, TApp>;
+						every?: Where<TCollection, TApp>;
+						is?: Where<TCollection, TApp>;
+						isNot?: Where<TCollection, TApp>;
+				  }
+		:
+				| Where<TFields, TRelations>
+				| {
+						some?: Where<TFields, TRelations>;
+						none?: Where<TFields, TRelations>;
+						every?: Where<TFields, TRelations>;
+						is?: Where<TFields, TRelations>;
+						isNot?: Where<TFields, TRelations>;
+				  };
 
 /**
  * Helper type for extracting relation fields for Where clause
@@ -613,12 +615,10 @@ type WhereFromCollection<TCollection, TApp> =
 				CollectionRelationsFromApp<TCollection, TApp>
 			>;
 
-export type Where<
-	TFieldsOrCollection = any,
-	TRelationsOrApp = any,
-> = IsCollectionLike<TFieldsOrCollection> extends true
-	? WhereFromCollection<TFieldsOrCollection, TRelationsOrApp>
-	: WhereFromFields<TFieldsOrCollection, TRelationsOrApp>;
+export type Where<TFieldsOrCollection = any, TRelationsOrApp = any> =
+	IsCollectionLike<TFieldsOrCollection> extends true
+		? WhereFromCollection<TFieldsOrCollection, TRelationsOrApp>
+		: WhereFromFields<TFieldsOrCollection, TRelationsOrApp>;
 
 /**
  * Columns selection for partial field selection
@@ -913,9 +913,8 @@ type OptionalKeys<T> = {
 
 type RequiredKeys<T> = Exclude<keyof T, OptionalKeys<T>>;
 
-type IsRequiredKey<T, TK extends keyof T> = TK extends RequiredKeys<T>
-	? true
-	: false;
+type IsRequiredKey<T, TK extends keyof T> =
+	TK extends RequiredKeys<T> ? true : false;
 
 type OptionalizeKeys<T, TK extends keyof T> = Omit<T, TK> &
 	Partial<Pick<T, TK>>;
@@ -926,9 +925,7 @@ type OptionalizeRelationForeignKeys<TInsert, TRelations> =
 		: TInsert;
 
 type UnionToIntersection<U> = (
-	U extends any
-		? (value: U) => void
-		: never
+	U extends any ? (value: U) => void : never
 ) extends (value: infer I) => void
 	? I
 	: never;

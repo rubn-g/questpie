@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { Box, Layers, Palette, Plug } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useState } from "react";
+
 import { AnimFloatingPies } from "@/components/landing/BrandVisuals";
 import { cn } from "@/lib/utils";
 
@@ -54,14 +55,14 @@ export function Composability() {
 	return (
 		<section
 			id="composability"
-			className="border-t border-border/40 py-20 overflow-hidden relative"
+			className="border-border/40 relative overflow-hidden border-t py-20"
 		>
 			{/* Ambient background visuals */}
-			<AnimFloatingPies className="absolute inset-0 w-full h-full pointer-events-none opacity-40" />
+			<AnimFloatingPies className="pointer-events-none absolute inset-0 h-full w-full opacity-40" />
 			{/* Ambient glow */}
-			<div className="absolute hidden dark:block top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] pointer-events-none bg-[radial-gradient(circle,_oklch(0.5984_0.3015_310.74_/_0.08)_0%,_transparent_70%)]" />
+			<div className="pointer-events-none absolute top-1/2 left-1/2 hidden h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 bg-[radial-gradient(circle,_oklch(0.5984_0.3015_310.74_/_0.08)_0%,_transparent_70%)] dark:block" />
 
-			<div className="mx-auto w-full max-w-7xl px-4 relative z-10">
+			<div className="relative z-10 mx-auto w-full max-w-7xl px-4">
 				<motion.div
 					className="mx-auto mb-12 max-w-2xl space-y-3 text-center"
 					initial={{ opacity: 0, y: 20 }}
@@ -69,15 +70,15 @@ export function Composability() {
 					viewport={{ once: true, margin: "-80px" }}
 					transition={{ duration: 0.6 }}
 				>
-					<h2 className="font-mono text-sm uppercase tracking-[0.2em] text-primary">
+					<h2 className="text-primary font-mono text-sm tracking-[0.2em] uppercase">
 						Architecture
 					</h2>
-					<h3 className="text-3xl font-mono font-bold tracking-[-0.02em] text-balance md:text-4xl">
+					<h3 className="font-mono text-3xl font-bold tracking-[-0.02em] text-balance md:text-4xl">
 						Four layers.
 						<br />
 						Zero lock-in.
 					</h3>
-					<p className="mt-5 mx-auto text-muted-foreground text-balance max-w-2xl text-lg leading-relaxed">
+					<p className="text-muted-foreground mx-auto mt-5 max-w-2xl text-lg leading-relaxed text-balance">
 						Server defines <strong className="text-foreground">what</strong>.
 						Client defines <strong className="text-foreground">how</strong>.
 						Adapters define <strong className="text-foreground">where</strong>.
@@ -88,7 +89,7 @@ export function Composability() {
 						<Link
 							to="/docs/$"
 							params={{ _splat: "start-here" }}
-							className="inline-flex items-center gap-2 font-mono text-xs text-primary transition-colors hover:text-primary/80"
+							className="text-primary hover:text-primary/80 inline-flex items-center gap-2 font-mono text-xs transition-colors"
 						>
 							Read the architecture philosophy →
 						</Link>
@@ -97,7 +98,7 @@ export function Composability() {
 
 				{/* Interactive Pipeline visualization */}
 				<motion.div
-					className="relative flex flex-col items-center justify-center mx-auto w-full max-w-5xl"
+					className="relative mx-auto flex w-full max-w-5xl flex-col items-center justify-center"
 					initial={{ opacity: 0, y: 20 }}
 					whileInView={{ opacity: 1, y: 0 }}
 					viewport={{ once: true, margin: "-80px" }}
@@ -105,7 +106,7 @@ export function Composability() {
 				>
 					{/* Pipeline nodes — grid guarantees equal columns so lines align exactly */}
 					<div
-						className="relative grid grid-cols-4 w-full mb-4"
+						className="relative mb-4 grid w-full grid-cols-4"
 						onMouseEnter={() => setIsAutoPlaying(false)}
 						onMouseLeave={() => setIsAutoPlaying(true)}
 						role="group"
@@ -117,14 +118,14 @@ export function Composability() {
 						 */}
 
 						{/* Background connecting line */}
-						<div className="absolute left-[12.5%] right-[12.5%] top-6 md:top-7 h-[1px] bg-border/40 z-0" />
+						<div className="bg-border/40 absolute top-6 right-[12.5%] left-[12.5%] z-0 h-[1px] md:top-7" />
 
 						{/* Active glowing connection segments */}
-						<div className="absolute left-[12.5%] right-[12.5%] top-6 md:top-7 flex h-[1px] z-[1]">
+						<div className="absolute top-6 right-[12.5%] left-[12.5%] z-[1] flex h-[1px] md:top-7">
 							{[1, 2, 3].map((seg) => (
 								<motion.div
 									key={seg}
-									className="h-full bg-primary/70"
+									className="bg-primary/70 h-full"
 									style={{ width: "33.33%" }}
 									initial={{ scaleX: 0, originX: 0 }}
 									animate={{
@@ -136,9 +137,9 @@ export function Composability() {
 						</div>
 
 						{/* Traveling light pulse */}
-						<div className="absolute left-[12.5%] right-[12.5%] top-6 md:top-7 h-[1px] z-[5] pointer-events-none">
+						<div className="pointer-events-none absolute top-6 right-[12.5%] left-[12.5%] z-[5] h-[1px] md:top-7">
 							<motion.div
-								className="absolute top-1/2 h-[2px] w-10 md:w-12 -translate-y-1/2 -translate-x-1/2 rounded-full bg-primary shadow-[0_0_20px_4px_rgba(183,0,255,0.7)]"
+								className="bg-primary absolute top-1/2 h-[2px] w-10 -translate-x-1/2 -translate-y-1/2 rounded-full shadow-[0_0_20px_4px_rgba(183,0,255,0.7)] md:w-12"
 								initial={{ left: "0%" }}
 								animate={{ left: `${activeLayer * 33.333}%` }}
 								transition={{
@@ -158,7 +159,7 @@ export function Composability() {
 								<button
 									key={layer.label}
 									type="button"
-									className="relative z-20 flex flex-col items-center cursor-pointer bg-transparent border-0 p-0 group"
+									className="group relative z-20 flex cursor-pointer flex-col items-center border-0 bg-transparent p-0"
 									onClick={() => {
 										setActiveLayer(i);
 										setIsAutoPlaying(false);
@@ -172,9 +173,9 @@ export function Composability() {
 								>
 									<motion.div
 										className={cn(
-											"relative flex h-12 w-12 md:h-14 md:w-14 items-center justify-center border backdrop-blur-sm transition-all duration-300",
+											"relative flex h-12 w-12 items-center justify-center border backdrop-blur-sm transition-all duration-300 md:h-14 md:w-14",
 											isActive
-												? "border-primary bg-primary/20 shadow-[0_0_30px_-5px_rgba(183,0,255,0.5)] scale-110"
+												? "border-primary bg-primary/20 scale-110 shadow-[0_0_30px_-5px_rgba(183,0,255,0.5)]"
 												: isPassed
 													? "border-primary/50 bg-primary/5 hover:border-primary/80"
 													: "border-border bg-card/20 hover:border-primary/40",
@@ -182,7 +183,7 @@ export function Composability() {
 									>
 										<layer.icon
 											className={cn(
-												"h-5 w-5 md:h-6 md:w-6 transition-colors duration-300",
+												"h-5 w-5 transition-colors duration-300 md:h-6 md:w-6",
 												isActive
 													? "text-primary"
 													: isPassed
@@ -200,7 +201,7 @@ export function Composability() {
 									>
 										<span
 											className={cn(
-												"font-mono text-[10px] md:text-sm font-bold uppercase transition-colors duration-300",
+												"font-mono text-[10px] font-bold uppercase transition-colors duration-300 md:text-sm",
 												isActive ? "text-primary" : "text-foreground",
 											)}
 										>
@@ -208,7 +209,7 @@ export function Composability() {
 										</span>
 										<span
 											className={cn(
-												"mt-1 font-mono text-[8px] md:text-[10px] rounded-sm px-1.5 py-0.5 transition-colors duration-300 border whitespace-nowrap",
+												"mt-1 rounded-sm border px-1.5 py-0.5 font-mono text-[8px] whitespace-nowrap transition-colors duration-300 md:text-[10px]",
 												isActive
 													? "bg-primary/10 text-primary border-primary/30"
 													: "bg-muted/30 text-muted-foreground border-transparent",
@@ -223,7 +224,7 @@ export function Composability() {
 					</div>
 
 					{/* Description card below pipeline */}
-					<div className="w-full max-w-xl px-4 mt-8 sm:mt-6 md:mt-4">
+					<div className="mt-8 w-full max-w-xl px-4 sm:mt-6 md:mt-4">
 						<AnimatePresence mode="wait">
 							<motion.div
 								key={activeLayer}
@@ -231,20 +232,20 @@ export function Composability() {
 								animate={{ opacity: 1, y: 0, scale: 1 }}
 								exit={{ opacity: 0, y: -10, scale: 0.98 }}
 								transition={{ duration: 0.3 }}
-								className="w-full rounded-none border border-border bg-card/20 p-5 md:p-6 backdrop-blur-md transition-colors hover:border-primary/30"
+								className="border-border bg-card/20 hover:border-primary/30 w-full rounded-none border p-5 backdrop-blur-md transition-colors md:p-6"
 							>
 								<div className="flex flex-row items-center gap-4">
-									<div className="flex h-10 w-10 md:h-12 md:w-12 shrink-0 items-center justify-center border border-primary/20 bg-primary/10 text-primary transition-colors">
+									<div className="border-primary/20 bg-primary/10 text-primary flex h-10 w-10 shrink-0 items-center justify-center border transition-colors md:h-12 md:w-12">
 										{(() => {
 											const Icon = layers[activeLayer].icon;
 											return <Icon className="h-5 w-5 md:h-6 md:w-6" />;
 										})()}
 									</div>
 									<div>
-										<h4 className="text-sm md:text-lg font-semibold text-foreground mb-1">
+										<h4 className="text-foreground mb-1 text-sm font-semibold md:text-lg">
 											{layers[activeLayer].label} Layer
 										</h4>
-										<p className="text-xs md:text-sm text-muted-foreground leading-relaxed">
+										<p className="text-muted-foreground text-xs leading-relaxed md:text-sm">
 											{layers[activeLayer].description}
 										</p>
 									</div>

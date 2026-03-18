@@ -1,4 +1,8 @@
 import { convert } from "html-to-text";
+
+import { extractAppServices } from "#questpie/server/config/app-context.js";
+import { tryGetContext } from "#questpie/server/config/context.js";
+
 import type { MailAdapter } from "./adapter.js";
 import { ConsoleAdapter } from "./adapters/console.adapter.js";
 import type {
@@ -13,8 +17,6 @@ import type {
 	MailOptions,
 	SerializableMailOptions,
 } from "./types.js";
-import { tryGetContext } from "#questpie/server/config/context.js";
-import { extractAppServices } from "#questpie/server/config/app-context.js";
 
 const isDev = process.env.NODE_ENV !== "production";
 

@@ -12,15 +12,15 @@ This skill builds on questpie-core.
 
 QUESTPIE uses an adapter-based architecture for all infrastructure. Development defaults work out of the box; production requires explicit adapter configuration in `questpie.config.ts`.
 
-| Service | Dev Default | Production Adapter |
-|---|---|---|
-| Database | PostgreSQL (local) | PostgreSQL (remote, SSL) |
-| Storage | Local filesystem | S3-compatible (`s3` driver) |
-| Queue | None (jobs skip) | pg-boss (`pgBossAdapter`) |
-| Realtime | pgNotify | Redis Streams (`redisStreamsAdapter`) |
-| Email | Console (logs output) | SMTP (`SmtpAdapter`) |
-| KV Store | In-memory | Redis (`"redis"` adapter) |
-| Logger | Pino (console) | Pino (structured JSON) |
+| Service  | Dev Default           | Production Adapter                    |
+| -------- | --------------------- | ------------------------------------- |
+| Database | PostgreSQL (local)    | PostgreSQL (remote, SSL)              |
+| Storage  | Local filesystem      | S3-compatible (`s3` driver)           |
+| Queue    | None (jobs skip)      | pg-boss (`pgBossAdapter`)             |
+| Realtime | pgNotify              | Redis Streams (`redisStreamsAdapter`) |
+| Email    | Console (logs output) | SMTP (`SmtpAdapter`)                  |
+| KV Store | In-memory             | Redis (`"redis"` adapter)             |
+| Logger   | Pino (console)        | Pino (structured JSON)                |
 
 ## Authentication
 
@@ -31,25 +31,25 @@ QUESTPIE uses [Better Auth](https://www.better-auth.com/). Configure via the `au
 import type { AuthConfig } from "questpie";
 
 export default {
-  emailAndPassword: {
-    enabled: true,
-    requireEmailVerification: false,
-  },
-  baseURL: process.env.APP_URL || "http://localhost:3000",
-  basePath: "/api/auth",
-  secret: process.env.BETTER_AUTH_SECRET || "change-me",
+	emailAndPassword: {
+		enabled: true,
+		requireEmailVerification: false,
+	},
+	baseURL: process.env.APP_URL || "http://localhost:3000",
+	basePath: "/api/auth",
+	secret: process.env.BETTER_AUTH_SECRET || "change-me",
 } satisfies AuthConfig;
 ```
 
 ### Auth Options
 
-| Option | Type | Description |
-|---|---|---|
-| `emailAndPassword.enabled` | `boolean` | Enable email/password login |
-| `emailAndPassword.requireEmailVerification` | `boolean` | Require email verification |
-| `baseURL` | `string` | App public URL |
-| `basePath` | `string` | Auth API path prefix |
-| `secret` | `string` | Session signing secret (min 32 chars in production) |
+| Option                                      | Type      | Description                                         |
+| ------------------------------------------- | --------- | --------------------------------------------------- |
+| `emailAndPassword.enabled`                  | `boolean` | Enable email/password login                         |
+| `emailAndPassword.requireEmailVerification` | `boolean` | Require email verification                          |
+| `baseURL`                                   | `string`  | App public URL                                      |
+| `basePath`                                  | `string`  | Auth API path prefix                                |
+| `secret`                                    | `string`  | Session signing secret (min 32 chars in production) |
 
 ### Session in Handlers
 
@@ -57,10 +57,10 @@ Access the current session in functions, hooks, and access rules:
 
 ```ts
 handler: async ({ session }) => {
-  if (!session) throw new Error("Not authenticated");
-  const user = session.user;
-  // user.id, user.email, user.name
-}
+	if (!session) throw new Error("Not authenticated");
+	const user = session.user;
+	// user.id, user.email, user.name
+};
 ```
 
 ### Access Control with Session
@@ -82,9 +82,9 @@ PostgreSQL with Drizzle ORM. Schema is generated from your collection and global
 
 ```ts
 export default runtimeConfig({
-  db: {
-    url: process.env.DATABASE_URL || "postgres://localhost/myapp",
-  },
+	db: {
+		url: process.env.DATABASE_URL || "postgres://localhost/myapp",
+	},
 });
 ```
 
@@ -129,9 +129,9 @@ QUESTPIE uses [Flydrive](https://flydrive.dev/) for file storage.
 
 ```ts
 export default runtimeConfig({
-  storage: {
-    basePath: "/api",
-  },
+	storage: {
+		basePath: "/api",
+	},
 });
 ```
 
@@ -139,16 +139,16 @@ export default runtimeConfig({
 
 ```ts
 export default runtimeConfig({
-  storage: {
-    basePath: "/api",
-    driver: "s3",
-    s3: {
-      bucket: process.env.S3_BUCKET,
-      region: process.env.S3_REGION,
-      accessKeyId: process.env.S3_ACCESS_KEY,
-      secretAccessKey: process.env.S3_SECRET_KEY,
-    },
-  },
+	storage: {
+		basePath: "/api",
+		driver: "s3",
+		s3: {
+			bucket: process.env.S3_BUCKET,
+			region: process.env.S3_REGION,
+			accessKeyId: process.env.S3_ACCESS_KEY,
+			secretAccessKey: process.env.S3_SECRET_KEY,
+		},
+	},
 });
 ```
 
@@ -170,11 +170,11 @@ Background job processing with [pg-boss](https://github.com/timgit/pg-boss). Job
 import { pgBossAdapter, runtimeConfig } from "questpie";
 
 export default runtimeConfig({
-  queue: {
-    adapter: pgBossAdapter({
-      connectionString: process.env.DATABASE_URL,
-    }),
-  },
+	queue: {
+		adapter: pgBossAdapter({
+			connectionString: process.env.DATABASE_URL,
+		}),
+	},
 });
 ```
 
@@ -184,11 +184,11 @@ From hooks, functions, or other jobs:
 
 ```ts
 handler: async ({ queue }) => {
-  await queue.sendAppointmentConfirmation.publish({
-    appointmentId: "abc",
-    customerId: "def",
-  });
-}
+	await queue.sendAppointmentConfirmation.publish({
+		appointmentId: "abc",
+		customerId: "def",
+	});
+};
 ```
 
 The `queue` object is fully typed -- autocompletion shows all registered jobs and their payload schemas.
@@ -203,11 +203,11 @@ SSE-based live updates via `POST /realtime` multiplexed endpoint.
 import { pgNotifyAdapter, runtimeConfig } from "questpie";
 
 export default runtimeConfig({
-  realtime: {
-    adapter: pgNotifyAdapter({
-      connectionString: process.env.DATABASE_URL,
-    }),
-  },
+	realtime: {
+		adapter: pgNotifyAdapter({
+			connectionString: process.env.DATABASE_URL,
+		}),
+	},
 });
 ```
 
@@ -219,11 +219,11 @@ Required for horizontal scaling:
 import { redisStreamsAdapter } from "questpie";
 
 export default runtimeConfig({
-  realtime: {
-    adapter: redisStreamsAdapter({
-      url: process.env.REDIS_URL,
-    }),
-  },
+	realtime: {
+		adapter: redisStreamsAdapter({
+			url: process.env.REDIS_URL,
+		}),
+	},
 });
 ```
 
@@ -235,13 +235,14 @@ Transactional email with typed templates. Two adapters: `SmtpAdapter` (productio
 import { SmtpAdapter, ConsoleAdapter, runtimeConfig } from "questpie";
 
 export default runtimeConfig({
-  email: {
-    adapter: process.env.NODE_ENV === "development"
-      ? new ConsoleAdapter({ logHtml: false })
-      : new SmtpAdapter({
-          transport: { host: process.env.SMTP_HOST, port: 587, secure: true },
-        }),
-  },
+	email: {
+		adapter:
+			process.env.NODE_ENV === "development"
+				? new ConsoleAdapter({ logHtml: false })
+				: new SmtpAdapter({
+						transport: { host: process.env.SMTP_HOST, port: 587, secure: true },
+					}),
+	},
 });
 ```
 
@@ -259,9 +260,9 @@ Client usage:
 
 ```ts
 const results = await client.search.search({
-  query: "haircut styles",
-  collections: ["posts", "services"],
-  limit: 20,
+	query: "haircut styles",
+	collections: ["posts", "services"],
+	limit: 20,
 });
 ```
 
@@ -271,10 +272,10 @@ const results = await client.search.search({
 
 ```ts
 export default runtimeConfig({
-  kv: {
-    adapter: "redis",
-    url: process.env.REDIS_URL,
-  },
+	kv: {
+		adapter: "redis",
+		url: process.env.REDIS_URL,
+	},
 });
 ```
 
@@ -290,10 +291,10 @@ kv: {
 
 ```ts
 handler: async ({ kv }) => {
-  await kv.set("key", "value", { ttl: 3600 });
-  const value = await kv.get("key");
-  await kv.delete("key");
-}
+	await kv.set("key", "value", { ttl: 3600 });
+	const value = await kv.get("key");
+	await kv.delete("key");
+};
 ```
 
 ## Logger
@@ -302,10 +303,10 @@ Structured logging with [Pino](https://getpino.io):
 
 ```ts
 handler: async ({ logger }) => {
-  logger.info("Processing booking");
-  logger.error({ err: error }, "Booking failed");
-  logger.debug({ barberId, serviceId }, "Checking availability");
-}
+	logger.info("Processing booking");
+	logger.error({ err: error }, "Booking failed");
+	logger.debug({ barberId, serviceId }, "Checking availability");
+};
 ```
 
 Log levels: `trace`, `debug`, `info`, `warn`, `error`, `fatal`.
@@ -343,18 +344,18 @@ CMD ["bun", "run", ".output/server/index.mjs"]
 
 ### Environment Variables
 
-| Variable | Required | Description |
-|---|---|---|
-| `DATABASE_URL` | Yes | PostgreSQL connection string |
-| `APP_URL` | Yes | Public URL of the application |
-| `APP_SECRET` / `BETTER_AUTH_SECRET` | Yes | Session signing secret (min 32 chars) |
-| `SMTP_HOST` | No | Email SMTP host |
-| `SMTP_PORT` | No | Email SMTP port |
-| `REDIS_URL` | No | Redis URL (for KV, realtime) |
-| `S3_BUCKET` | No | S3 bucket name |
-| `S3_REGION` | No | S3 region |
-| `S3_ACCESS_KEY` | No | S3 access key |
-| `S3_SECRET_KEY` | No | S3 secret key |
+| Variable                            | Required | Description                           |
+| ----------------------------------- | -------- | ------------------------------------- |
+| `DATABASE_URL`                      | Yes      | PostgreSQL connection string          |
+| `APP_URL`                           | Yes      | Public URL of the application         |
+| `APP_SECRET` / `BETTER_AUTH_SECRET` | Yes      | Session signing secret (min 32 chars) |
+| `SMTP_HOST`                         | No       | Email SMTP host                       |
+| `SMTP_PORT`                         | No       | Email SMTP port                       |
+| `REDIS_URL`                         | No       | Redis URL (for KV, realtime)          |
+| `S3_BUCKET`                         | No       | S3 bucket name                        |
+| `S3_REGION`                         | No       | S3 region                             |
+| `S3_ACCESS_KEY`                     | No       | S3 access key                         |
+| `S3_SECRET_KEY`                     | No       | S3 secret key                         |
 
 ### Production Checklist
 
@@ -375,13 +376,13 @@ CMD ["bun", "run", ".output/server/index.mjs"]
 import { route } from "questpie";
 
 export default route({
-  method: "GET",
-  handler: async ({ db }) => {
-    await db.execute(sql`SELECT 1`);
-    return new Response(JSON.stringify({ status: "ok" }), {
-      headers: { "Content-Type": "application/json" },
-    });
-  },
+	method: "GET",
+	handler: async ({ db }) => {
+		await db.execute(sql`SELECT 1`);
+		return new Response(JSON.stringify({ status: "ok" }), {
+			headers: { "Content-Type": "application/json" },
+		});
+	},
 });
 ```
 
@@ -393,10 +394,10 @@ Without a strong secret, sessions can be forged. The default `"change-me"` is fo
 
 ```ts
 // WRONG -- in production
-secret: "change-me"
+secret: "change-me";
 
 // CORRECT -- strong random secret from environment
-secret: process.env.BETTER_AUTH_SECRET  // min 32 chars
+secret: process.env.BETTER_AUTH_SECRET; // min 32 chars
 ```
 
 ### HIGH: Not running migrations after schema changes

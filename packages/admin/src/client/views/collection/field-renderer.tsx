@@ -7,6 +7,7 @@
 
 import * as React from "react";
 import { useFormContext, useWatch } from "react-hook-form";
+
 import type { ComponentRegistry } from "../../builder";
 import type { FieldInstance } from "../../builder/field/field";
 import type { MaybeLazyComponent } from "../../builder/types/common";
@@ -66,7 +67,7 @@ interface FieldRendererProps {
 
 function renderConfigError(message: string) {
 	return (
-		<div className="border border-destructive/40 bg-destructive/5 p-3 text-sm text-destructive rounded">
+		<div className="border-destructive/40 bg-destructive/5 text-destructive rounded border p-3 text-sm">
 			{message}
 		</div>
 	);

@@ -12,11 +12,13 @@
  */
 
 import { Icon } from "@iconify/react";
-import { createQuestpieQueryOptions } from "@questpie/tanstack-query";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import type { QuestpieApp } from "questpie/client";
 import * as React from "react";
 import { toast } from "sonner";
+
+import { createQuestpieQueryOptions } from "@questpie/tanstack-query";
+
 import { useAdminConfig } from "../../hooks/use-admin-config";
 import { useResolveText, useTranslation } from "../../i18n/hooks";
 import { selectClient, useAdminStore } from "../../runtime";
@@ -219,14 +221,13 @@ export function RelationPicker<T extends QuestpieApp>({
 			...selectedIds,
 		],
 		queryFn: async () => {
-			if (!client || selectedIds.length === 0)
-				return new Map<string, any>();
-			const response = await (client as any).collections[
-				targetCollection
-			].find({
-				where: { id: { in: selectedIds } },
-				limit: selectedIds.length,
-			});
+			if (!client || selectedIds.length === 0) return new Map<string, any>();
+			const response = await (client as any).collections[targetCollection].find(
+				{
+					where: { id: { in: selectedIds } },
+					limit: selectedIds.length,
+				},
+			);
 			const map = new Map<string, any>();
 			if (response?.docs) {
 				for (const doc of response.docs) {
@@ -329,12 +330,7 @@ export function RelationPicker<T extends QuestpieApp>({
 
 	const refetch = React.useCallback(async () => {
 		queryClient.invalidateQueries({
-			queryKey: [
-				"questpie",
-				"collections",
-				targetCollection,
-				"relation-batch",
-			],
+			queryKey: ["questpie", "collections", targetCollection, "relation-batch"],
 		});
 		queryClient.invalidateQueries({
 			queryKey: queryOpts.key(["collections", targetCollection, "find"]),
@@ -407,7 +403,7 @@ export function RelationPicker<T extends QuestpieApp>({
 				<div className="flex items-center gap-2">
 					<label
 						htmlFor={name}
-						className="text-sm font-medium flex items-center gap-1.5"
+						className="flex items-center gap-1.5 text-sm font-medium"
 					>
 						{resolveIconElement(collectionIconRef, {
 							className: "size-3.5 text-muted-foreground",
@@ -415,7 +411,7 @@ export function RelationPicker<T extends QuestpieApp>({
 						{resolvedLabel}
 						{required && <span className="text-destructive">*</span>}
 						{maxItems && (
-							<span className="ml-2 text-xs text-muted-foreground">
+							<span className="text-muted-foreground ml-2 text-xs">
 								({selectedIds.length}/{maxItems})
 							</span>
 						)}
@@ -493,14 +489,14 @@ export function RelationPicker<T extends QuestpieApp>({
 			{/* Empty State - only show when not loading */}
 			{selectedIds.length === 0 && !isLoadingItems && (
 				<div className="rounded-lg border border-dashed p-4 text-center">
-					<p className="text-sm text-muted-foreground">
+					<p className="text-muted-foreground text-sm">
 						{resolvedPlaceholder || emptyLabel}
 					</p>
 				</div>
 			)}
 
 			{/* Error message */}
-			{error && <p className="text-sm text-destructive">{error}</p>}
+			{error && <p className="text-destructive text-sm">{error}</p>}
 
 			{/* Side Sheet for Create/Edit */}
 			<ResourceSheet

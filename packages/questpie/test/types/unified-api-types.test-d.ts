@@ -11,6 +11,7 @@ import { collection } from "#questpie/server/collection/builder/collection-build
 import type { Questpie } from "#questpie/server/config/questpie.js";
 import type { QuestpieConfig } from "#questpie/server/config/types.js";
 import { global as globalBuilder } from "#questpie/server/global/builder/global-builder.js";
+
 import type {
 	Equal,
 	Expect,
@@ -1029,16 +1030,14 @@ type _numberMetaNotEmpty = Expect<Not<Equal<keyof NumberFieldMeta, never>>>;
 import { datetime } from "#questpie/server/fields/builtin-factories/datetime.js";
 import { number } from "#questpie/server/fields/builtin-factories/number.js";
 import { text } from "#questpie/server/fields/builtin-factories/text.js";
-import type { FieldWhere } from "#questpie/server/fields/field-types.js";
-import type { OperatorsToWhereInput } from "#questpie/server/fields/types.js";
-
-// --- OperatorsToWhereInput works with concrete operator maps ---
-
 import type {
 	dateColumnOperators,
 	numberColumnOperators,
 	stringColumnOperators,
 } from "#questpie/server/fields/common-operators.js";
+import type { FieldWhere } from "#questpie/server/fields/field-types.js";
+// --- OperatorsToWhereInput works with concrete operator maps ---
+import type { OperatorsToWhereInput } from "#questpie/server/fields/types.js";
 import type { DateInput } from "#questpie/shared/type-utils.js";
 
 type StringOpsWhere = OperatorsToWhereInput<typeof stringColumnOperators>;

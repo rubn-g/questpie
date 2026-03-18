@@ -4,6 +4,7 @@
  */
 
 import type { BetterAuthOptions } from "better-auth";
+
 import { dedupeBy, deepMerge } from "#questpie/shared/utils/data-utils.js";
 
 /**

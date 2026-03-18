@@ -66,12 +66,12 @@ Register custom fields through modules:
 
 ```ts
 const myModule = module({
-  name: "custom-fields",
-  fields: {
-    color: colorField,
-    currency: currencyField,
-    phone: phoneField,
-  },
+	name: "custom-fields",
+	fields: {
+		color: colorField,
+		currency: currencyField,
+		phone: phoneField,
+	},
 });
 ```
 
@@ -92,19 +92,19 @@ Create a React component for the field's edit form:
 import { Icon } from "@iconify/react";
 
 function ColorFieldRenderer({ value, onChange }) {
-  return (
-    <div className="flex items-center gap-2">
-      <input
-        type="color"
-        value={value || "#000000"}
-        onChange={(e) => onChange(e.target.value)}
-        className="w-10 h-10 border border-border cursor-pointer"
-      />
-      <span className="font-mono text-sm text-muted-foreground">
-        {value || "#000000"}
-      </span>
-    </div>
-  );
+	return (
+		<div className="flex items-center gap-2">
+			<input
+				type="color"
+				value={value || "#000000"}
+				onChange={(e) => onChange(e.target.value)}
+				className="w-10 h-10 border border-border cursor-pointer"
+			/>
+			<span className="font-mono text-sm text-muted-foreground">
+				{value || "#000000"}
+			</span>
+		</div>
+	);
 }
 ```
 
@@ -115,15 +115,15 @@ For custom table column rendering, provide a `cell` component alongside the fiel
 ```tsx title="admin/fields/color.tsx"
 // Cell component for list view table
 export function ColorCell({ value }) {
-  return (
-    <div className="flex items-center gap-2">
-      <div
-        className="w-4 h-4 border border-border"
-        style={{ backgroundColor: value || "transparent" }}
-      />
-      <span className="text-xs font-mono">{value}</span>
-    </div>
-  );
+	return (
+		<div className="flex items-center gap-2">
+			<div
+				className="w-4 h-4 border border-border"
+				style={{ backgroundColor: value || "transparent" }}
+			/>
+			<span className="text-xs font-mono">{value}</span>
+		</div>
+	);
 }
 ```
 
@@ -135,11 +135,11 @@ Create view types beyond built-in table and form — kanban boards, calendars, g
 
 ```ts
 const myModule = module({
-  name: "custom-views",
-  views: {
-    kanban: kanbanViewDefinition,
-    calendar: calendarViewDefinition,
-  },
+	name: "custom-views",
+	views: {
+		kanban: kanbanViewDefinition,
+		calendar: calendarViewDefinition,
+	},
 });
 ```
 
@@ -156,22 +156,25 @@ const myModule = module({
 
 ```tsx title="admin/views/kanban.tsx"
 function KanbanView({ data, columns, onDrop }) {
-  return (
-    <div className="flex gap-4">
-      {columns.map((col) => (
-        <div key={col.id} className="flex-1">
-          <h3 className="font-mono text-sm font-semibold mb-2">{col.label}</h3>
-          {data
-            .filter((item) => item.status === col.id)
-            .map((item) => (
-              <div key={item.id} className="border border-border bg-card p-3 mb-2">
-                {item.title}
-              </div>
-            ))}
-        </div>
-      ))}
-    </div>
-  );
+	return (
+		<div className="flex gap-4">
+			{columns.map((col) => (
+				<div key={col.id} className="flex-1">
+					<h3 className="font-mono text-sm font-semibold mb-2">{col.label}</h3>
+					{data
+						.filter((item) => item.status === col.id)
+						.map((item) => (
+							<div
+								key={item.id}
+								className="border border-border bg-card p-3 mb-2"
+							>
+								{item.title}
+							</div>
+						))}
+				</div>
+			))}
+		</div>
+	);
 }
 ```
 
@@ -287,6 +290,7 @@ toast.error("Failed to save");
 3. **MEDIUM: Reactive field handlers running client-side** — `options.handler`, `compute.handler`, and other reactive handlers run **SERVER-SIDE** with access to `ctx.db`, `ctx.user`. Do not import client-side modules or use browser APIs in them.
 
 4. **MEDIUM: Using `onChange` wrong in field components** — the field renderer receives `onChange` that expects the **value directly**, not a DOM event.
+
    ```tsx
    // WRONG
    onChange={(e) => onChange(e)}

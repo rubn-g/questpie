@@ -4,13 +4,11 @@
 
 // ── Collections ────────────────────────────────────────────
 import { auditLogCollection as _coll_admin_audit_log } from "../collections/audit-log.collection";
-
-// ── Jobs ────────────────────────────────────────────
-import { auditCleanupJob as _job_auditCleanup_job } from "../jobs/audit-cleanup.job";
-
 // ── Singles ────────────────────────────────────────────────
 import _dashboard from "../dashboard";
 import _hooks from "../hooks";
+// ── Jobs ────────────────────────────────────────────
+import { auditCleanupJob as _job_auditCleanup_job } from "../jobs/audit-cleanup.job";
 import _sidebar from "../sidebar";
 
 // ════════════════════════════════════════════════════════════

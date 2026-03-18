@@ -4,8 +4,9 @@
 
 import { jsonb, type PgJsonbBuilder } from "drizzle-orm/pg-core";
 import { z } from "zod";
-import { field } from "../field-class.js";
+
 import type { DefaultFieldState, FieldState } from "../field-class-types.js";
+import { field } from "../field-class.js";
 import { objectOps } from "../operators/builtin.js";
 import type { NestedFieldMetadata } from "../types.js";
 

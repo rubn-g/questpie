@@ -21,10 +21,7 @@ export type MailOptions = {
 /**
  * Serializable mail options (after rendering)
  */
-export type SerializableMailOptions = Omit<
-	MailOptions,
-	"text" | "html"
-> & {
+export type SerializableMailOptions = Omit<MailOptions, "text" | "html"> & {
 	text: string;
 	html: string;
 	from: string;

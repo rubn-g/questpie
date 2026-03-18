@@ -2,8 +2,10 @@
 
 import { Dialog as DialogPrimitive } from "@base-ui/react/dialog";
 import * as React from "react";
+
 import { useIsMobile } from "#questpie/admin/client/hooks/use-media-query";
 import { cn } from "#questpie/admin/client/lib/utils";
+
 import { DialogContent, DialogFooter, DialogHeader } from "./dialog";
 import {
 	Drawer,

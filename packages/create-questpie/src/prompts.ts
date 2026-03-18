@@ -1,5 +1,6 @@
 import * as p from "@clack/prompts";
 import pc from "picocolors";
+
 import { templates } from "./templates.js";
 import { isValidPackageName, toDbName } from "./utils.js";
 

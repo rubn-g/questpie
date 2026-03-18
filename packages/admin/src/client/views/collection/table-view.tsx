@@ -17,6 +17,7 @@ import {
 } from "@tanstack/react-table";
 import * as React from "react";
 import { Suspense, useMemo, useState } from "react";
+
 import { createActionRegistryProxy } from "../../builder/types/action-registry";
 import type {
 	ActionDefinition,
@@ -94,7 +95,6 @@ import {
 	autoExpandFields,
 	hasFieldsToExpand,
 } from "../../utils/auto-expand-fields";
-
 import { BulkActionToolbar } from "./bulk-action-toolbar";
 import {
 	buildColumns,
@@ -833,13 +833,17 @@ function TableViewInner({
 		}
 
 		return orderedColumns;
-	}, [columns, viewState.config.visibleColumns, defaultColumns, collectionMeta]);
+	}, [
+		columns,
+		viewState.config.visibleColumns,
+		defaultColumns,
+		collectionMeta,
+	]);
 
 	// Table sorting state - cascade: saved prefs → list defaultSort → empty
 	const [sorting, setSorting] = React.useState<SortingState>(() => {
 		const sortSource =
-			viewState.config.sortConfig ??
-			(resolvedListConfig as any)?.defaultSort;
+			viewState.config.sortConfig ?? (resolvedListConfig as any)?.defaultSort;
 		if (sortSource?.field) {
 			return [
 				{
@@ -992,10 +996,12 @@ function TableViewInner({
 	if (listError && !isSearching) {
 		return (
 			<div className="container">
-				<div className="flex h-64 flex-col items-center justify-center gap-3 text-muted-foreground">
-					<Icon icon="ph:warning-circle" className="size-8 text-destructive" />
+				<div className="text-muted-foreground flex h-64 flex-col items-center justify-center gap-3">
+					<Icon icon="ph:warning-circle" className="text-destructive size-8" />
 					<p className="text-sm">
-						{listError instanceof Error ? listError.message : t("errors.failedToLoad")}
+						{listError instanceof Error
+							? listError.message
+							: t("errors.failedToLoad")}
 					</p>
 					<Button
 						variant="outline"
@@ -1013,7 +1019,7 @@ function TableViewInner({
 		return (
 			<div className="container" aria-busy="true">
 				<div
-					className="flex h-64 items-center justify-center text-muted-foreground"
+					className="text-muted-foreground flex h-64 items-center justify-center"
 					role="status"
 				>
 					<Icon
@@ -1029,12 +1035,12 @@ function TableViewInner({
 
 	return (
 		<div className="qa-table-view min-w-0">
-			<div className="qa-table-view__inner space-y-4 min-w-0">
+			<div className="qa-table-view__inner min-w-0 space-y-4">
 				{/* Header - Title & Actions */}
 				<div className="qa-table-view__header flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
 					<div className="min-w-0 flex-1">
 						<div className="flex items-center gap-3">
-							<h1 className="qa-table-view__title text-2xl md:text-3xl font-extrabold tracking-tight truncate">
+							<h1 className="qa-table-view__title truncate text-2xl font-extrabold tracking-tight md:text-3xl">
 								{resolveText(
 									(config as any)?.label ?? schema?.admin?.config?.label,
 									collection,
@@ -1050,7 +1056,7 @@ function TableViewInner({
 						</div>
 						{((config as any)?.description ??
 						schema?.admin?.config?.description) ? (
-							<p className="qa-table-view__description text-muted-foreground text-sm mt-1 line-clamp-2">
+							<p className="qa-table-view__description text-muted-foreground mt-1 line-clamp-2 text-sm">
 								{resolveText(
 									(config as any)?.description ??
 										schema?.admin?.config?.description,
@@ -1058,7 +1064,7 @@ function TableViewInner({
 							</p>
 						) : null}
 					</div>
-					<div className="flex items-center gap-2 shrink-0">
+					<div className="flex shrink-0 items-center gap-2">
 						{headerActions}
 						{((actions.header.primary?.length ?? 0) > 0 ||
 							(actions.header.secondary?.length ?? 0) > 0) && (
@@ -1133,7 +1139,7 @@ function TableViewInner({
 				/>
 
 				{/* Table */}
-				<div className="qa-table-view__table-wrapper bg-card border border-border overflow-x-auto min-w-0">
+				<div className="qa-table-view__table-wrapper bg-card border-border min-w-0 overflow-x-auto border">
 					<Table
 						aria-label={resolveText(
 							(config as any)?.label ?? schema?.admin?.config?.label,
@@ -1186,7 +1192,7 @@ function TableViewInner({
 														type="button"
 														className={
 															header.column.getCanSort()
-																? "cursor-pointer select-none flex items-center gap-2 hover:text-foreground transition-colors"
+																? "hover:text-foreground flex cursor-pointer items-center gap-2 transition-colors select-none"
 																: ""
 														}
 														onClick={header.column.getToggleSortingHandler()}
@@ -1255,7 +1261,7 @@ function TableViewInner({
 															<button
 																type="button"
 																onClick={() => handleRowClick(row.original)}
-																className="text-left underline underline-offset-2 decoration-muted-foreground/50 hover:decoration-foreground transition-colors cursor-pointer"
+																className="decoration-muted-foreground/50 hover:decoration-foreground cursor-pointer text-left underline underline-offset-2 transition-colors"
 															>
 																{flexRender(
 																	cell.column.columnDef.cell,
@@ -1263,7 +1269,7 @@ function TableViewInner({
 																)}
 															</button>
 															{isRowDeleted && (
-																<span className="inline-flex items-center gap-1 text-xs text-destructive bg-destructive/10 px-1.5 py-0.5 rounded-full">
+																<span className="text-destructive bg-destructive/10 inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-xs">
 																	<Icon icon="ph:trash" className="size-3" />
 																	{t("common.deleted")}
 																</span>
@@ -1274,7 +1280,7 @@ function TableViewInner({
 																	const user = lock ? getLockUser(lock) : null;
 																	return (
 																		<span
-																			className="inline-flex items-center gap-1 text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded-full"
+																			className="text-muted-foreground bg-muted inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-xs"
 																			title={
 																				user?.name ??
 																				user?.email ??
@@ -1294,7 +1300,8 @@ function TableViewInner({
 																				/>
 																			)}
 																			<span className="max-w-20 truncate">
-																				{user?.name?.split(" ")[0] ?? t("table.editing")}
+																				{user?.name?.split(" ")[0] ??
+																					t("table.editing")}
 																			</span>
 																		</span>
 																	);
@@ -1338,7 +1345,7 @@ function TableViewInner({
 					>
 						{/* Left side - item count and page size */}
 						<div
-							className="flex items-center gap-4 text-sm text-muted-foreground"
+							className="text-muted-foreground flex items-center gap-4 text-sm"
 							aria-live="polite"
 							aria-atomic="true"
 						>
@@ -1412,7 +1419,7 @@ function TableViewInner({
 											key={pageNum}
 											variant={currentPage === pageNum ? "secondary" : "ghost"}
 											size="sm"
-											className="size-8 p-0 min-w-[32px]"
+											className="size-8 min-w-[32px] p-0"
 											onClick={() => viewState.setPage(pageNum)}
 											aria-label={`Page ${pageNum}`}
 											aria-current={
@@ -1449,7 +1456,7 @@ function TableViewInner({
 				{/* Search mode footer */}
 				{isSearching && (
 					<div
-						className="text-sm text-muted-foreground flex items-center gap-2 py-2"
+						className="text-muted-foreground flex items-center gap-2 py-2 text-sm"
 						aria-live="polite"
 						aria-atomic="true"
 					>

@@ -25,11 +25,11 @@ import { createClient } from "questpie/client";
 import type { AppConfig } from "#questpie";
 
 export const client = createClient<AppConfig>({
-  baseURL:
-    typeof window !== "undefined"
-      ? window.location.origin
-      : process.env.APP_URL || "http://localhost:3000",
-  basePath: "/api",
+	baseURL:
+		typeof window !== "undefined"
+			? window.location.origin
+			: process.env.APP_URL || "http://localhost:3000",
+	basePath: "/api",
 });
 ```
 
@@ -40,9 +40,9 @@ import { createQuestpieQueryOptions } from "@questpie/tanstack-query";
 import { client } from "./client";
 
 export const q = createQuestpieQueryOptions(client, {
-  keyPrefix: ["questpie"],  // optional, default: ["questpie"]
-  locale: "en",             // optional, sets locale for all queries
-  stage: undefined,         // optional, workflow stage filter
+	keyPrefix: ["questpie"], // optional, default: ["questpie"]
+	locale: "en", // optional, sets locale for all queries
+	stage: undefined, // optional, workflow stage filter
 });
 ```
 
@@ -54,11 +54,11 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 const queryClient = new QueryClient();
 
 function App() {
-  return (
-    <QueryClientProvider client={queryClient}>
-      <YourApp />
-    </QueryClientProvider>
-  );
+	return (
+		<QueryClientProvider client={queryClient}>
+			<YourApp />
+		</QueryClientProvider>
+	);
 }
 ```
 
@@ -71,25 +71,25 @@ import { useQuery } from "@tanstack/react-query";
 import { q } from "@/lib/queries";
 
 function PostList() {
-  const { data, isLoading } = useQuery(
-    q.collections.posts.find({
-      where: { status: "published" },
-      orderBy: { createdAt: "desc" },
-      limit: 10,
-      offset: 0,
-    })
-  );
+	const { data, isLoading } = useQuery(
+		q.collections.posts.find({
+			where: { status: "published" },
+			orderBy: { createdAt: "desc" },
+			limit: 10,
+			offset: 0,
+		}),
+	);
 
-  if (isLoading) return <div>Loading...</div>;
+	if (isLoading) return <div>Loading...</div>;
 
-  return (
-    <ul>
-      {data?.docs.map((post) => (
-        <li key={post.id}>{post.title}</li>
-      ))}
-      <p>Total: {data?.totalDocs}</p>
-    </ul>
-  );
+	return (
+		<ul>
+			{data?.docs.map((post) => (
+				<li key={post.id}>{post.title}</li>
+			))}
+			<p>Total: {data?.totalDocs}</p>
+		</ul>
+	);
 }
 ```
 
@@ -99,14 +99,20 @@ Pass `{ realtime: true }` as the second argument to enable SSE-based live update
 
 ```tsx
 function LivePostList() {
-  const { data } = useQuery(
-    q.collections.posts.find(
-      { where: { status: "published" }, limit: 20 },
-      { realtime: true }
-    )
-  );
-  // data auto-updates when posts change on the server
-  return <ul>{data?.docs.map((p) => <li key={p.id}>{p.title}</li>)}</ul>;
+	const { data } = useQuery(
+		q.collections.posts.find(
+			{ where: { status: "published" }, limit: 20 },
+			{ realtime: true },
+		),
+	);
+	// data auto-updates when posts change on the server
+	return (
+		<ul>
+			{data?.docs.map((p) => (
+				<li key={p.id}>{p.title}</li>
+			))}
+		</ul>
+	);
 }
 ```
 
@@ -114,15 +120,15 @@ function LivePostList() {
 
 ```tsx
 function PostDetail({ id }: { id: string }) {
-  const { data: post } = useQuery(
-    q.collections.posts.findOne({
-      where: { id },
-      with: { author: true, categories: true },
-    })
-  );
+	const { data: post } = useQuery(
+		q.collections.posts.findOne({
+			where: { id },
+			with: { author: true, categories: true },
+		}),
+	);
 
-  if (!post) return null;
-  return <article>{post.title}</article>;
+	if (!post) return null;
+	return <article>{post.title}</article>;
 }
 ```
 
@@ -130,7 +136,7 @@ function PostDetail({ id }: { id: string }) {
 
 ```tsx
 const { data: count } = useQuery(
-  q.collections.posts.count({ where: { status: "draft" } })
+	q.collections.posts.count({ where: { status: "draft" } }),
 );
 ```
 
@@ -142,26 +148,30 @@ const { data: count } = useQuery(
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 function CreatePostForm() {
-  const queryClient = useQueryClient();
-  const create = useMutation({
-    ...q.collections.posts.create(),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["questpie", "collections", "posts"] });
-    },
-  });
+	const queryClient = useQueryClient();
+	const create = useMutation({
+		...q.collections.posts.create(),
+		onSuccess: () => {
+			queryClient.invalidateQueries({
+				queryKey: ["questpie", "collections", "posts"],
+			});
+		},
+	});
 
-  return (
-    <form onSubmit={(e) => {
-      e.preventDefault();
-      create.mutate({
-        title: "New Post",
-        body: "Content here",
-        status: "draft",
-      });
-    }}>
-      <button type="submit">Create</button>
-    </form>
-  );
+	return (
+		<form
+			onSubmit={(e) => {
+				e.preventDefault();
+				create.mutate({
+					title: "New Post",
+					body: "Content here",
+					status: "draft",
+				});
+			}}
+		>
+			<button type="submit">Create</button>
+		</form>
+	);
 }
 ```
 
@@ -196,7 +206,9 @@ deleteMany.mutate({ where: { status: "archived" } });
 ### Versioning and Workflow Stages
 
 ```tsx
-const { data: versions } = useQuery(q.collections.posts.findVersions({ id: "post-id", limit: 10 }));
+const { data: versions } = useQuery(
+	q.collections.posts.findVersions({ id: "post-id", limit: 10 }),
+);
 const revert = useMutation(q.collections.posts.revertToVersion());
 revert.mutate({ id: "post-id", version: 3 });
 const transition = useMutation(q.collections.posts.transitionStage());
@@ -207,24 +219,26 @@ transition.mutate({ id: "post-id", stage: "published" });
 
 ```tsx
 function SiteSettings() {
-  const { data: settings } = useQuery(q.globals.siteSettings.get());
-  const update = useMutation(q.globals.siteSettings.update());
+	const { data: settings } = useQuery(q.globals.siteSettings.get());
+	const update = useMutation(q.globals.siteSettings.update());
 
-  return (
-    <div>
-      <h1>{settings?.shopName}</h1>
-      <button onClick={() => update.mutate({ data: { shopName: "New Name" } })}>
-        Update
-      </button>
-    </div>
-  );
+	return (
+		<div>
+			<h1>{settings?.shopName}</h1>
+			<button onClick={() => update.mutate({ data: { shopName: "New Name" } })}>
+				Update
+			</button>
+		</div>
+	);
 }
 ```
 
 ### Globals with Realtime
 
 ```tsx
-const { data } = useQuery(q.globals.siteSettings.get(undefined, { realtime: true }));
+const { data } = useQuery(
+	q.globals.siteSettings.get(undefined, { realtime: true }),
+);
 ```
 
 ## Routes
@@ -233,17 +247,15 @@ Route calls support nested namespaces matching your `routes/` directory structur
 
 ```tsx
 // routes/get-stats.ts -> routes.getStats
-const { data: stats } = useQuery(
-  q.routes.getStats.query({ period: "week" })
-);
+const { data: stats } = useQuery(q.routes.getStats.query({ period: "week" }));
 
 // routes/booking/create.ts -> routes.booking.create
 const createBooking = useMutation(q.routes.booking.create.mutation());
 
 createBooking.mutate({
-  barberId: "abc",
-  serviceId: "def",
-  scheduledAt: "2025-03-15T10:00:00Z",
+	barberId: "abc",
+	serviceId: "def",
+	scheduledAt: "2025-03-15T10:00:00Z",
 });
 ```
 
@@ -265,17 +277,17 @@ For queries that don't fit the standard collection/global/route pattern:
 
 ```tsx
 const { data } = useQuery(
-  q.custom.query({
-    key: ["custom", "analytics"],
-    queryFn: () => fetch("/analytics").then((r) => r.json()),
-  })
+	q.custom.query({
+		key: ["custom", "analytics"],
+		queryFn: () => fetch("/analytics").then((r) => r.json()),
+	}),
 );
 
 const mutation = useMutation(
-  q.custom.mutation({
-    key: ["custom", "import"],
-    mutationFn: (file: File) => uploadFile(file),
-  })
+	q.custom.mutation({
+		key: ["custom", "import"],
+		mutationFn: (file: File) => uploadFile(file),
+	}),
 );
 ```
 
@@ -317,34 +329,34 @@ where: { author: "user-id-123" }
 
 ### Operators by Field Type
 
-| Field Type | Operators |
-|---|---|
-| `text` | `equals`, `contains`, `startsWith`, `endsWith`, `in` |
-| `number` | `equals`, `gt`, `gte`, `lt`, `lte`, `in` |
-| `boolean` | `equals` |
-| `date` / `datetime` | `equals`, `gt`, `gte`, `lt`, `lte` |
-| `select` | `equals`, `in` |
-| `relation` | `equals` (by ID) |
+| Field Type          | Operators                                            |
+| ------------------- | ---------------------------------------------------- |
+| `text`              | `equals`, `contains`, `startsWith`, `endsWith`, `in` |
+| `number`            | `equals`, `gt`, `gte`, `lt`, `lte`, `in`             |
+| `boolean`           | `equals`                                             |
+| `date` / `datetime` | `equals`, `gt`, `gte`, `lt`, `lte`                   |
+| `select`            | `equals`, `in`                                       |
+| `relation`          | `equals` (by ID)                                     |
 
 ### OrderBy, Pagination, Relations, Select
 
 ```ts
 // OrderBy
-q.collections.posts.find({ orderBy: { createdAt: "desc" } })
+q.collections.posts.find({ orderBy: { createdAt: "desc" } });
 
 // Pagination
-q.collections.posts.find({ limit: 10, offset: 20 })
+q.collections.posts.find({ limit: 10, offset: 20 });
 
 // Include relations
 q.collections.posts.findOne({
-  where: { id: "abc" },
-  with: { author: true, comments: { with: { user: true } } },
-})
+	where: { id: "abc" },
+	with: { author: true, comments: { with: { user: true } } },
+});
 
 // Select specific fields
 q.collections.posts.find({
-  select: { id: true, title: true, status: true },
-})
+	select: { id: true, title: true, status: true },
+});
 ```
 
 ## Type Inference
@@ -362,14 +374,17 @@ The generated `AppConfig` type includes collections, globals, and routes:
 
 ```ts
 export type AppConfig = {
-  collections: {
-    posts: {
-      select: { id: string; title: string; status: "draft" | "published" };
-      insert: { title: string; status?: "draft" | "published" };
-      where: { title?: string | { contains?: string }; status?: "draft" | "published" };
-      orderBy: { title?: "asc" | "desc"; createdAt?: "asc" | "desc" };
-    };
-  };
+	collections: {
+		posts: {
+			select: { id: string; title: string; status: "draft" | "published" };
+			insert: { title: string; status?: "draft" | "published" };
+			where: {
+				title?: string | { contains?: string };
+				status?: "draft" | "published";
+			};
+			orderBy: { title?: "asc" | "desc"; createdAt?: "asc" | "desc" };
+		};
+	};
 };
 ```
 
@@ -379,14 +394,25 @@ The client can be used directly without the query options proxy:
 
 ```ts
 const { docs, totalDocs } = await client.collections.posts.find({
-  where: { status: "published" }, orderBy: { createdAt: "desc" }, limit: 10,
+	where: { status: "published" },
+	orderBy: { createdAt: "desc" },
+	limit: 10,
 });
-const post = await client.collections.posts.findOne({ where: { id: "abc" }, with: { author: true } });
+const post = await client.collections.posts.findOne({
+	where: { id: "abc" },
+	with: { author: true },
+});
 await client.collections.posts.create({ title: "Hello", status: "draft" });
-await client.collections.posts.update({ id: "abc", data: { status: "published" } });
+await client.collections.posts.update({
+	id: "abc",
+	data: { status: "published" },
+});
 await client.collections.posts.delete({ id: "abc" });
 const settings = await client.globals.siteSettings.get();
-const result = await client.routes.createBooking({ barberId: "abc", serviceId: "def" });
+const result = await client.routes.createBooking({
+	barberId: "abc",
+	serviceId: "def",
+});
 client.setLocale("sk"); // Set locale for localized content
 ```
 
@@ -399,7 +425,9 @@ import { runtimeConfig } from "questpie";
 import { pgNotifyAdapter } from "questpie";
 
 export default runtimeConfig({
-  realtime: { adapter: pgNotifyAdapter({ connectionString: process.env.DATABASE_URL }) },
+	realtime: {
+		adapter: pgNotifyAdapter({ connectionString: process.env.DATABASE_URL }),
+	},
 });
 ```
 
@@ -410,14 +438,15 @@ For multi-instance deployments, use `redisStreamsAdapter({ url: process.env.REDI
 ## Framework Adapters
 
 **TanStack Start** (no adapter package needed):
+
 ```ts title="src/routes/api/$.ts"
 import { createAPIFileRoute } from "@tanstack/react-start/api";
 import { createFetchHandler } from "questpie";
 import { app } from "#questpie";
 const handler = createFetchHandler(app, { basePath: "/api" });
 export const Route = createAPIFileRoute("/api/$")({
-  GET: ({ request }) => handler(request),
-  POST: ({ request }) => handler(request),
+	GET: ({ request }) => handler(request),
+	POST: ({ request }) => handler(request),
 });
 ```
 
@@ -439,10 +468,11 @@ const client = createClient<AppConfig>({ baseURL: "http://localhost:3000" });
 
 // CORRECT -- environment-aware
 const client = createClient<AppConfig>({
-  baseURL: typeof window !== "undefined"
-    ? window.location.origin
-    : process.env.APP_URL || "http://localhost:3000",
-  basePath: "/api",
+	baseURL:
+		typeof window !== "undefined"
+			? window.location.origin
+			: process.env.APP_URL || "http://localhost:3000",
+	basePath: "/api",
 });
 ```
 
@@ -450,14 +480,13 @@ const client = createClient<AppConfig>({
 
 Hooks throw "No QueryClient set" error. Always wrap your root component with `<QueryClientProvider client={new QueryClient()}>`.
 
-
 ### MEDIUM: Using raw fetch instead of the typed client
 
 Loses type safety and auth handling:
 
 ```ts
 // WRONG -- no types, no auth token forwarding
-const posts = await fetch("/api/collections/posts").then(r => r.json());
+const posts = await fetch("/api/collections/posts").then((r) => r.json());
 
 // CORRECT -- fully typed, auth handled
 const { docs } = await client.collections.posts.find({ limit: 10 });
@@ -472,9 +501,9 @@ import { runtimeConfig } from "questpie";
 import { pgNotifyAdapter } from "questpie";
 
 export default runtimeConfig({
-  realtime: {
-    adapter: pgNotifyAdapter({ connectionString: process.env.DATABASE_URL }),
-  },
+	realtime: {
+		adapter: pgNotifyAdapter({ connectionString: process.env.DATABASE_URL }),
+	},
 });
 ```
 
@@ -488,6 +517,6 @@ import { createClient } from "questpie/client";
 
 // CORRECT -- server uses context-injected collections
 handler: async ({ collections }) => {
-  return await collections.posts.find({});
-}
+	return await collections.posts.find({});
+};
 ```

@@ -22,8 +22,7 @@ import { FieldWrapper } from "./field-wrapper";
 // ============================================================================
 
 interface ObjectFieldProps
-	extends BaseFieldProps,
-		Omit<ObjectFieldConfig, "fields"> {
+	extends BaseFieldProps, Omit<ObjectFieldConfig, "fields"> {
 	/**
 	 * Nested field definitions.
 	 * Can be a callback (evaluated at render time) or pre-evaluated record.
@@ -59,7 +58,7 @@ function NestedFieldRenderer({
 	if (!Component) {
 		// Fallback error display if no component found
 		return (
-			<div className="text-sm text-destructive">
+			<div className="text-destructive text-sm">
 				No component for field type: {fieldDef.name}
 			</div>
 		);
@@ -151,14 +150,14 @@ export function ObjectField({
 		return (
 			<div
 				className={cn(
-					"qa-object-field rounded-lg border border-border bg-card ",
+					"qa-object-field border-border bg-card rounded-lg border",
 					className,
 				)}
 			>
 				<button
 					type="button"
 					onClick={() => setIsCollapsed(!isCollapsed)}
-					className="flex w-full items-center justify-between p-3 text-left hover:bg-muted"
+					className="hover:bg-muted flex w-full items-center justify-between p-3 text-left"
 					disabled={disabled}
 				>
 					<div className="flex items-center gap-2">
@@ -174,7 +173,7 @@ export function ObjectField({
 				{!isCollapsed && (
 					<div className="border-t p-4">
 						{description && (
-							<p className="mb-4 text-sm text-muted-foreground">
+							<p className="text-muted-foreground mb-4 text-sm">
 								{resolveText(description)}
 							</p>
 						)}

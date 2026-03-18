@@ -25,16 +25,16 @@ Schema Files  -->  Codegen  -->  Typed Runtime  -->  Projections (Admin, SDK, Op
 
 ## Monorepo Packages
 
-| Package | Path | Purpose |
-|---|---|---|
-| `questpie` | `packages/questpie` | Core engine -- fields, CRUD, routes, introspection, CLI |
-| `@questpie/admin` | `packages/admin` | Config-driven admin UI (React + Tailwind v4 + shadcn) |
-| `@questpie/tanstack-query` | `packages/tanstack-query` | TanStack Query option builders, `streamedQuery`, batch helpers |
-| `@questpie/openapi` | `packages/openapi` | OpenAPI spec generation + Scalar UI middleware |
-| `@questpie/elysia` | `packages/elysia` | Elysia adapter |
-| `@questpie/hono` | `packages/hono` | Hono adapter |
-| `@questpie/next` | `packages/next` | Next.js adapter |
-| `create-questpie` | `packages/create-questpie` | CLI scaffolder (`bunx create-questpie`) |
+| Package                    | Path                       | Purpose                                                        |
+| -------------------------- | -------------------------- | -------------------------------------------------------------- |
+| `questpie`                 | `packages/questpie`        | Core engine -- fields, CRUD, routes, introspection, CLI        |
+| `@questpie/admin`          | `packages/admin`           | Config-driven admin UI (React + Tailwind v4 + shadcn)          |
+| `@questpie/tanstack-query` | `packages/tanstack-query`  | TanStack Query option builders, `streamedQuery`, batch helpers |
+| `@questpie/openapi`        | `packages/openapi`         | OpenAPI spec generation + Scalar UI middleware                 |
+| `@questpie/elysia`         | `packages/elysia`          | Elysia adapter                                                 |
+| `@questpie/hono`           | `packages/hono`            | Hono adapter                                                   |
+| `@questpie/next`           | `packages/next`            | Next.js adapter                                                |
+| `create-questpie`          | `packages/create-questpie` | CLI scaffolder (`bunx create-questpie`)                        |
 
 Runtime: **Bun** is the only package manager. TypeScript + ESM everywhere.
 
@@ -42,11 +42,11 @@ Runtime: **Bun** is the only package manager. TypeScript + ESM everywhere.
 
 ### Three Layers
 
-| Layer | Directory | Defines |
-|---|---|---|
+| Layer      | Directory              | Defines                                                                   |
+| ---------- | ---------------------- | ------------------------------------------------------------------------- |
 | **Server** | `src/questpie/server/` | Schema, fields, access control, hooks, routes, jobs -- WHAT the data does |
-| **Admin** | `src/questpie/admin/` | Branding, custom renderers, client config -- HOW it renders |
-| **Routes** | `src/routes/` | HTTP mounting only -- no business logic here |
+| **Admin**  | `src/questpie/admin/`  | Branding, custom renderers, client config -- HOW it renders               |
+| **Routes** | `src/routes/`          | HTTP mounting only -- no business logic here                              |
 
 ### Standalone Factories
 
@@ -57,9 +57,9 @@ User code uses standalone factories:
 import { collection } from "questpie";
 
 export default collection("posts").fields(({ f }) => ({
-  title: f.text({ label: "Title", required: true }),
-  content: f.richText({ label: "Content" }),
-  status: f.select({ label: "Status", options: ["draft", "published"] }),
+	title: f.text({ label: "Title", required: true }),
+	content: f.richText({ label: "Content" }),
+	status: f.select({ label: "Status", options: ["draft", "published"] }),
 }));
 ```
 
@@ -68,8 +68,8 @@ export default collection("posts").fields(({ f }) => ({
 import { global } from "questpie";
 
 export default global("site-settings").fields(({ f }) => ({
-  siteName: f.text({ label: "Site Name", required: true }),
-  description: f.textarea({ label: "Description" }),
+	siteName: f.text({ label: "Site Name", required: true }),
+	description: f.textarea({ label: "Description" }),
 }));
 ```
 
@@ -79,12 +79,12 @@ import { route } from "questpie";
 import z from "zod";
 
 export default route()
-  .post()
-  .schema(z.object({ period: z.enum(["day", "week", "month"]) }))
-  .handler(async ({ input, collections }) => {
-    const count = await collections.posts.count({});
-    return { posts: count };
-  });
+	.post()
+	.schema(z.object({ period: z.enum(["day", "week", "month"]) }))
+	.handler(async ({ input, collections }) => {
+		const count = await collections.posts.count({});
+		return { posts: count };
+	});
 ```
 
 ### Config
@@ -95,9 +95,9 @@ import { runtimeConfig } from "questpie";
 import { adminPlugin } from "@questpie/admin/plugin";
 
 export default runtimeConfig({
-  plugins: [adminPlugin()],
-  db: { url: process.env.DATABASE_URL! },
-  app: { url: process.env.APP_URL! },
+	plugins: [adminPlugin()],
+	db: { url: process.env.DATABASE_URL! },
+	app: { url: process.env.APP_URL! },
 });
 ```
 
@@ -107,8 +107,8 @@ import { adminModule } from "@questpie/admin/server";
 import { openApiModule } from "@questpie/openapi";
 
 export default [
-  adminModule,
-  openApiModule({ info: { title: "My API", version: "1.0.0" } }),
+	adminModule,
+	openApiModule({ info: { title: "My API", version: "1.0.0" } }),
 ] as const;
 ```
 
@@ -129,37 +129,37 @@ QUESTPIE uses your file system as the source of truth. Drop a file in the right 
 
 ### Directory Categories
 
-| Directory | Entity | Export Style | Key Derivation |
-|---|---|---|---|
-| `collections/` | Collections | Default or named | Filename to camelCase |
-| `globals/` | Globals | Default or named | Filename to camelCase |
-| `routes/` | Routes | Default | Filename to camelCase/slash path |
-| `jobs/` | Jobs | Default | Filename to camelCase |
-| `services/` | Services | Default | Filename to camelCase |
-| `emails/` | Email templates | Default | Filename to camelCase |
-| `blocks/` | Blocks | Named exports | Export name |
-| `messages/` | i18n messages | Default | Filename to locale key |
-| `migrations/` | DB migrations | Default | Array (ordered) |
-| `seeds/` | DB seeds | Default | Array (ordered) |
+| Directory      | Entity          | Export Style     | Key Derivation                   |
+| -------------- | --------------- | ---------------- | -------------------------------- |
+| `collections/` | Collections     | Default or named | Filename to camelCase            |
+| `globals/`     | Globals         | Default or named | Filename to camelCase            |
+| `routes/`      | Routes          | Default          | Filename to camelCase/slash path |
+| `jobs/`        | Jobs            | Default          | Filename to camelCase            |
+| `services/`    | Services        | Default          | Filename to camelCase            |
+| `emails/`      | Email templates | Default          | Filename to camelCase            |
+| `blocks/`      | Blocks          | Named exports    | Export name                      |
+| `messages/`    | i18n messages   | Default          | Filename to locale key           |
+| `migrations/`  | DB migrations   | Default          | Array (ordered)                  |
+| `seeds/`       | DB seeds        | Default          | Array (ordered)                  |
 
 Filenames are converted from kebab-case to camelCase: `blog-posts.ts` becomes `blogPosts`, `create-booking.ts` becomes `createBooking`.
 
 ### Single-File Conventions
 
-| File | Factory | Purpose |
-|---|---|---|
-| `questpie.config.ts` | `runtimeConfig({...})` | DB, plugins, adapters |
-| `modules.ts` | `export default [...]` | Module dependencies |
-| `auth.ts` | `satisfies AuthConfig` | Authentication config |
-| `locale.ts` | `locale({...})` | Content locales |
-| `hooks.ts` | `export default {...}` | Global lifecycle hooks |
-| `access.ts` | `export default {...}` | Default access rules |
-| `context.ts` | `context(async ({ request, session, db }) => ({ ... }))` | Custom context resolution (multi-tenant scope, see `questpie-core/multi-tenancy`) |
-| `fields.ts` | `export default {...}` | Custom field type definitions |
-| `sidebar.ts` | `sidebar({...})` | Admin sidebar |
-| `dashboard.ts` | `dashboard({...})` | Admin dashboard |
-| `branding.ts` | `branding({...})` | Admin branding |
-| `admin-locale.ts` | `adminLocale({...})` | Admin UI locale |
+| File                 | Factory                                                  | Purpose                                                                           |
+| -------------------- | -------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| `questpie.config.ts` | `runtimeConfig({...})`                                   | DB, plugins, adapters                                                             |
+| `modules.ts`         | `export default [...]`                                   | Module dependencies                                                               |
+| `auth.ts`            | `satisfies AuthConfig`                                   | Authentication config                                                             |
+| `locale.ts`          | `locale({...})`                                          | Content locales                                                                   |
+| `hooks.ts`           | `export default {...}`                                   | Global lifecycle hooks                                                            |
+| `access.ts`          | `export default {...}`                                   | Default access rules                                                              |
+| `context.ts`         | `context(async ({ request, session, db }) => ({ ... }))` | Custom context resolution (multi-tenant scope, see `questpie-core/multi-tenancy`) |
+| `fields.ts`          | `export default {...}`                                   | Custom field type definitions                                                     |
+| `sidebar.ts`         | `sidebar({...})`                                         | Admin sidebar                                                                     |
+| `dashboard.ts`       | `dashboard({...})`                                       | Admin dashboard                                                                   |
+| `branding.ts`        | `branding({...})`                                        | Admin branding                                                                    |
+| `admin-locale.ts`    | `adminLocale({...})`                                     | Admin UI locale                                                                   |
 
 ### Nested Namespacing
 
@@ -230,17 +230,22 @@ Run `questpie generate` (or `questpie dev` for watch mode) to scan file conventi
 ### Generated Types
 
 ```ts
-export type AppCollections = { posts: typeof posts; categories: typeof categories };
+export type AppCollections = {
+	posts: typeof posts;
+	categories: typeof categories;
+};
 export type AppGlobals = { siteSettings: typeof siteSettings };
 export type AppJobs = { sendEmail: typeof sendEmail };
 export type AppRoutes = { webhook: typeof webhookRoute };
 export type AppServices = { blog: BlogService };
-export type AppEmails = { appointmentConfirmation: typeof appointmentConfirmationEmail };
+export type AppEmails = {
+	appointmentConfirmation: typeof appointmentConfirmationEmail;
+};
 
 export type AppConfig = {
-  collections: AppCollections;
-  globals: AppGlobals;
-  routes: AppRoutes;
+	collections: AppCollections;
+	globals: AppGlobals;
+	routes: AppRoutes;
 };
 ```
 
@@ -250,17 +255,17 @@ Codegen augments `AppContext` so every handler gets typed DI:
 
 ```ts
 declare global {
-  namespace Questpie {
-    interface AppContext {
-      db: Database;
-      email: MailerService<AppEmailTemplates>;
-      queue: QueueClient<AppJobs>;
-      collections: AppCollections;
-      globals: AppGlobals;
-      session: Session | null;
-      blog: BlogService;
-    }
-  }
+	namespace Questpie {
+		interface AppContext {
+			db: Database;
+			email: MailerService<AppEmailTemplates>;
+			queue: QueueClient<AppJobs>;
+			collections: AppCollections;
+			globals: AppGlobals;
+			session: Session | null;
+			blog: BlogService;
+		}
+	}
 }
 ```
 
@@ -282,12 +287,12 @@ import { collection } from "#questpie";
 
 ## CLI Commands
 
-| Command | Purpose |
-|---|---|
-| `bunx questpie generate` | Run codegen, produce `.generated/` |
-| `bunx questpie dev` | Watch mode -- re-runs codegen on file changes |
-| `bunx questpie migrate` | Run pending database migrations |
-| `bunx questpie migrate:create` | Create a new migration file |
+| Command                        | Purpose                                       |
+| ------------------------------ | --------------------------------------------- |
+| `bunx questpie generate`       | Run codegen, produce `.generated/`            |
+| `bunx questpie dev`            | Watch mode -- re-runs codegen on file changes |
+| `bunx questpie migrate`        | Run pending database migrations               |
+| `bunx questpie migrate:create` | Create a new migration file                   |
 
 ## Built-in Field Types
 
@@ -301,16 +306,16 @@ Every handler receives dependencies through context -- no imports, no singletons
 
 ```ts
 export default route()
-  .post()
-  .schema(z.object({ barberId: z.string() }))
-  .handler(async ({ input, collections, queue }) => {
-    const appointment = await collections.appointments.create({
-      barber: input.barberId,
-      status: "pending",
-    });
-    await queue.sendConfirmation.publish({ appointmentId: appointment.id });
-    return { success: true };
-  });
+	.post()
+	.schema(z.object({ barberId: z.string() }))
+	.handler(async ({ input, collections, queue }) => {
+		const appointment = await collections.appointments.create({
+			barber: input.barberId,
+			status: "pending",
+		});
+		await queue.sendConfirmation.publish({ appointmentId: appointment.id });
+		return { success: true };
+	});
 ```
 
 `collections`, `queue`, `email`, `db`, `session` are all injected via `AppContext`. Codegen generates the type augmentation.
@@ -319,27 +324,27 @@ export default route()
 
 `packages/questpie/src/` layout:
 
-| Directory | Contents |
-|---|---|
-| `server/` | Collections, globals, fields, routes, adapters, integrated services (auth, storage, queue, mailer, realtime), migration |
-| `client/` | Client-side client, typed hooks |
-| `shared/` | Shared types and utilities |
-| `exports/` | Public entry points (`index.ts`, `client.ts`, `shared.ts`, `cli.ts`) |
-| `cli/` | CLI commands and codegen pipeline |
+| Directory  | Contents                                                                                                                |
+| ---------- | ----------------------------------------------------------------------------------------------------------------------- |
+| `server/`  | Collections, globals, fields, routes, adapters, integrated services (auth, storage, queue, mailer, realtime), migration |
+| `client/`  | Client-side client, typed hooks                                                                                         |
+| `shared/`  | Shared types and utilities                                                                                              |
+| `exports/` | Public entry points (`index.ts`, `client.ts`, `shared.ts`, `cli.ts`)                                                    |
+| `cli/`     | CLI commands and codegen pipeline                                                                                       |
 
 Internal imports use `#questpie/*` subpath alias (e.g., `#questpie/server/fields/field`).
 
 ## Sub-Skills
 
-| Need to... | Read |
-|---|---|
-| Define collections, fields, globals, relations | `questpie-core/data-modeling` |
-| Set up access control, hooks, validation | `questpie-core/rules` |
-| Add routes, jobs, services | `questpie-core/business-logic` |
-| Query data with the CRUD API | `questpie-core/crud-api` |
-| Configure auth, storage, queue, deploy | `questpie-core/production` |
-| Build plugins, modules, custom fields | `questpie-core/extend` |
-| Add multi-tenant scope isolation | `questpie-core/multi-tenancy` |
+| Need to...                                     | Read                           |
+| ---------------------------------------------- | ------------------------------ |
+| Define collections, fields, globals, relations | `questpie-core/data-modeling`  |
+| Set up access control, hooks, validation       | `questpie-core/rules`          |
+| Add routes, jobs, services                     | `questpie-core/business-logic` |
+| Query data with the CRUD API                   | `questpie-core/crud-api`       |
+| Configure auth, storage, queue, deploy         | `questpie-core/production`     |
+| Build plugins, modules, custom fields          | `questpie-core/extend`         |
+| Add multi-tenant scope isolation               | `questpie-core/multi-tenancy`  |
 
 ## Common Mistakes
 
@@ -375,21 +380,21 @@ Framework routes should only mount handlers. Business logic belongs in collectio
 // WRONG -- logic in route file
 // routes/api/$.ts
 app.post("/create-post", async (req) => {
-  const post = await db.insert(posts).values(req.body);
-  await sendEmail(post.author, "New post created");
-  return post;
+	const post = await db.insert(posts).values(req.body);
+	await sendEmail(post.author, "New post created");
+	return post;
 });
 
 // CORRECT -- logic in typed route, framework route just mounts
 // routes/create-post.ts
 export default route()
-  .post()
-  .schema(z.object({ title: z.string(), body: z.string() }))
-  .handler(async ({ input, collections, email }) => {
-    const post = await collections.posts.create(input);
-    await email.send("newPost", { to: post.author });
-    return post;
-  });
+	.post()
+	.schema(z.object({ title: z.string(), body: z.string() }))
+	.handler(async ({ input, collections, email }) => {
+		const post = await collections.posts.create(input);
+		await email.send("newPost", { to: post.author });
+		return post;
+	});
 ```
 
 ### MEDIUM: Using npm/yarn instead of Bun

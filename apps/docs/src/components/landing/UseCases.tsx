@@ -9,11 +9,11 @@ const dxPoints = [
 
 export function UseCases() {
 	return (
-		<section className="border-t border-border/40 py-24" id="type-safety">
+		<section className="border-border/40 border-t py-24" id="type-safety">
 			<div className="mx-auto w-full max-w-7xl px-4">
 				<div className="grid gap-8 lg:grid-cols-[1.05fr_1fr]">
 					<div className="space-y-4">
-						<h2 className="font-mono text-sm uppercase tracking-[0.2em] text-primary">
+						<h2 className="text-primary font-mono text-sm tracking-[0.2em] uppercase">
 							Developer experience
 						</h2>
 						<h3 className="text-3xl font-bold tracking-tight md:text-4xl">
@@ -25,13 +25,13 @@ export function UseCases() {
 							definitions.
 						</p>
 
-						<div className="space-y-2.5 text-sm text-muted-foreground">
+						<div className="text-muted-foreground space-y-2.5 text-sm">
 							{dxPoints.map((point) => (
 								<div
 									key={point}
-									className="inline-flex w-full items-center gap-2 border border-border bg-card/30 px-3 py-2"
+									className="border-border bg-card/30 inline-flex w-full items-center gap-2 border px-3 py-2"
 								>
-									<Check className="h-3.5 w-3.5 text-primary" />
+									<Check className="text-primary h-3.5 w-3.5" />
 									{point}
 								</div>
 							))}
@@ -39,26 +39,26 @@ export function UseCases() {
 					</div>
 
 					<div className="grid gap-4 sm:grid-cols-2">
-						<article className="border border-border bg-card/40 p-5">
-							<Code2 className="mb-3 h-5 w-5 text-primary" />
+						<article className="border-border bg-card/40 border p-5">
+							<Code2 className="text-primary mb-3 h-5 w-5" />
 							<h4 className="mb-1 font-semibold">End-to-end TS inference</h4>
-							<p className="text-sm text-muted-foreground">
+							<p className="text-muted-foreground text-sm">
 								Strong inference from `q` builders to runtime APIs and admin
 								registries.
 							</p>
 						</article>
-						<article className="border border-border bg-card/40 p-5">
-							<Waypoints className="mb-3 h-5 w-5 text-primary" />
+						<article className="border-border bg-card/40 border p-5">
+							<Waypoints className="text-primary mb-3 h-5 w-5" />
 							<h4 className="mb-1 font-semibold">One mental model</h4>
-							<p className="text-sm text-muted-foreground">
+							<p className="text-muted-foreground text-sm">
 								Same definitions drive schema, admin behavior, and business
 								workflows.
 							</p>
 						</article>
-						<article className="border border-border bg-card/40 p-5 sm:col-span-2">
-							<ShieldCheck className="mb-3 h-5 w-5 text-primary" />
+						<article className="border-border bg-card/40 border p-5 sm:col-span-2">
+							<ShieldCheck className="text-primary mb-3 h-5 w-5" />
 							<h4 className="mb-1 font-semibold">Safer refactors</h4>
-							<p className="text-sm text-muted-foreground">
+							<p className="text-muted-foreground text-sm">
 								Registry-first contracts and typed APIs reduce hidden coupling
 								and catch architecture regressions early.
 							</p>

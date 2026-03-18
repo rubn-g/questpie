@@ -240,7 +240,7 @@
 		@apply border-border outline-ring/50;
 	}
 	body {
-		@apply font-sans bg-background text-foreground;
+		@apply bg-background text-foreground font-sans;
 		background-image:
 			linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
 			linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
@@ -501,8 +501,10 @@ article p {
 	margin-bottom: 0.75em !important;
 }
 
-.prose ul, .prose ol,
-article ul, article ol {
+.prose ul,
+.prose ol,
+article ul,
+article ol {
 	margin-top: 0.5em !important;
 	margin-bottom: 0.5em !important;
 }
@@ -520,8 +522,14 @@ article hr {
 	margin-bottom: 1.5em !important;
 }
 
-.prose img, .prose figure, .prose video, .prose picture,
-article img, article figure, article video, article picture {
+.prose img,
+.prose figure,
+.prose video,
+.prose picture,
+article img,
+article figure,
+article video,
+article picture {
 	margin-top: 1em !important;
 	margin-bottom: 1em !important;
 }
@@ -553,8 +561,18 @@ article a:not(:has(> h1, > h2, > h3, > h4, > h5, > h6)):hover {
 }
 
 /* Heading anchors inherit heading color (must come AFTER general link rule) */
-.prose h1 a, .prose h2 a, .prose h3 a, .prose h4 a, .prose h5 a, .prose h6 a,
-article h1 a, article h2 a, article h3 a, article h4 a, article h5 a, article h6 a {
+.prose h1 a,
+.prose h2 a,
+.prose h3 a,
+.prose h4 a,
+.prose h5 a,
+.prose h6 a,
+article h1 a,
+article h2 a,
+article h3 a,
+article h4 a,
+article h5 a,
+article h6 a {
 	color: inherit !important;
 	text-decoration: none !important;
 }
@@ -608,7 +626,11 @@ pre:hover button[aria-label*="copy" i]:hover {
 
 /* Line numbers */
 .shiki [data-line-numbers] .line::after {
-	color: color-mix(in oklab, var(--muted-foreground) 40%, transparent) !important;
+	color: color-mix(
+		in oklab,
+		var(--muted-foreground) 40%,
+		transparent
+	) !important;
 }
 
 /* Remove fumadocs focus blur on code */
@@ -626,13 +648,21 @@ pre:hover button[aria-label*="copy" i]:hover {
 	font-size: 13px;
 }
 
-[data-callout="info"] { border-left-color: var(--color-fd-info) !important; }
+[data-callout="info"] {
+	border-left-color: var(--color-fd-info) !important;
+}
 [data-callout="warn"],
-[data-callout="warning"] { border-left-color: var(--color-fd-warning) !important; }
+[data-callout="warning"] {
+	border-left-color: var(--color-fd-warning) !important;
+}
 [data-callout="error"],
-[data-callout="danger"] { border-left-color: var(--color-fd-error) !important; }
+[data-callout="danger"] {
+	border-left-color: var(--color-fd-error) !important;
+}
 [data-callout="tip"],
-[data-callout="success"] { border-left-color: var(--color-fd-success) !important; }
+[data-callout="success"] {
+	border-left-color: var(--color-fd-success) !important;
+}
 
 /* --- Tables --- */
 .prose th,

@@ -6,6 +6,7 @@
  */
 
 import { DEFAULT_LOCALE } from "#questpie/shared/constants.js";
+
 import { validationMessagesEN } from "./messages/en.js";
 
 // ============================================================================

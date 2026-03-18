@@ -297,23 +297,23 @@ Comprehensive layout system with multiple modes:
 
 ```typescript
 sections: [
-  {
-    layout: "columns",
-    columns: 2,
-    fields: ["firstName", "lastName"],
-  },
-  {
-    layout: "grid",
-    grid: { columns: 4, gap: 4 },
-    fields: [
-      { field: "title", span: 4 },
-      { field: "price", span: 1 },
-    ],
-  },
-  {
-    visible: (values) => values.status === "cancelled",
-    fields: ["cancellationReason"],
-  },
+	{
+		layout: "columns",
+		columns: 2,
+		fields: ["firstName", "lastName"],
+	},
+	{
+		layout: "grid",
+		grid: { columns: 4, gap: 4 },
+		fields: [
+			{ field: "title", span: 4 },
+			{ field: "price", span: 1 },
+		],
+	},
+	{
+		visible: (values) => values.status === "cancelled",
+		fields: ["cancellationReason"],
+	},
 ];
 ```
 
@@ -423,9 +423,9 @@ app: {
 
 ```typescript
 app: {
-  dashboard: {
-    component: CustomDashboard; // Full control
-  }
+	dashboard: {
+		component: CustomDashboard; // Full control
+	}
 }
 ```
 
@@ -461,19 +461,19 @@ System for adding custom pages to admin:
 
 ```typescript
 app: {
-  pages: [
-    {
-      id: "settings",
-      label: "Settings",
-      icon: "settings",
-      path: "/admin/settings",
-      component: SettingsPage,
-      showInNav: true,
-      group: "system",
-      order: 100,
-      permissions: ["admin.settings.view"],
-    },
-  ];
+	pages: [
+		{
+			id: "settings",
+			label: "Settings",
+			icon: "settings",
+			path: "/admin/settings",
+			component: SettingsPage,
+			showInNav: true,
+			group: "system",
+			order: 100,
+			permissions: ["admin.settings.view"],
+		},
+	];
 }
 ```
 

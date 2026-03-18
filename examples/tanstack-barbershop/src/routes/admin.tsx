@@ -1,10 +1,3 @@
-/**
- * Admin Layout Route
- *
- * Uses AdminLayoutProvider for clean setup.
- * Child routes are rendered via <Outlet />.
- */
-import { AdminLayoutProvider } from "@questpie/admin/client";
 import { TanStackDevtools } from "@tanstack/react-devtools";
 import {
 	createFileRoute,
@@ -15,6 +8,14 @@ import {
 	useLocation,
 } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
+
+/**
+ * Admin Layout Route
+ *
+ * Uses AdminLayoutProvider for clean setup.
+ * Child routes are rendered via <Outlet />.
+ */
+import { AdminLayoutProvider } from "@questpie/admin/client";
 import { authClient } from "~/lib/auth-client";
 import { client } from "~/lib/client";
 import { queryClient } from "~/lib/query-client";

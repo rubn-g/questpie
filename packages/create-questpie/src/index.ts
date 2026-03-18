@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import { Command } from "commander";
+
 import { runPrompts } from "./prompts.js";
 import { scaffold } from "./scaffolder.js";
 import { getTemplate } from "./templates.js";

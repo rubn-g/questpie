@@ -11,6 +11,7 @@
  */
 
 import { starterModule } from "questpie";
+
 import { collection } from "../factories";
 
 const adminAssetsCollection = collection("assets")

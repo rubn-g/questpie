@@ -55,15 +55,15 @@ migrations/
 
 ## Scripts
 
-| Command | Description |
-| --- | --- |
-| `bun dev` | Start development server |
-| `bun build` | Build for production |
-| `bun start` | Start production server |
-| `bun check-types` | Type check |
-| `bun questpie migrate` | Run migrations |
-| `bun questpie migrate:create` | Create migration |
-| `bunx questpie generate` | Regenerate `src/questpie/server/.generated/*` |
+| Command                       | Description                                   |
+| ----------------------------- | --------------------------------------------- |
+| `bun dev`                     | Start development server                      |
+| `bun build`                   | Build for production                          |
+| `bun start`                   | Start production server                       |
+| `bun check-types`             | Type check                                    |
+| `bun questpie migrate`        | Run migrations                                |
+| `bun questpie migrate:create` | Create migration                              |
+| `bunx questpie generate`      | Regenerate `src/questpie/server/.generated/*` |
 
 ## Adding a Collection
 

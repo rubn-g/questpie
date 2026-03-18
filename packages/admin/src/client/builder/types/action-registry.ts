@@ -6,6 +6,7 @@
  */
 
 import type { ComponentReference } from "#questpie/admin/server/augmentation.js";
+
 import { buildPrefillUrl } from "../../hooks/use-prefill-params";
 import type {
 	ActionContext,
@@ -148,8 +149,15 @@ function createDeleteManyAction<TItem>(
 		} satisfies ComponentReference,
 		variant: "destructive",
 		confirmation: {
-			title: { key: "confirm.deleteSelectedTitle", fallback: "Delete selected items?" },
-			description: { key: "confirm.deleteSelectedDescription", fallback: "This action cannot be undone. All selected items will be permanently deleted." },
+			title: {
+				key: "confirm.deleteSelectedTitle",
+				fallback: "Delete selected items?",
+			},
+			description: {
+				key: "confirm.deleteSelectedDescription",
+				fallback:
+					"This action cannot be undone. All selected items will be permanently deleted.",
+			},
 			confirmLabel: { key: "confirm.deleteAll", fallback: "Delete All" },
 			destructive: true,
 		},
@@ -186,7 +194,10 @@ function createRestoreAction<TItem>(
 		},
 		confirmation: {
 			title: { key: "confirm.restoreItemTitle", fallback: "Restore item?" },
-			description: { key: "confirm.restoreItemDescription", fallback: "This item will become visible in normal list views again." },
+			description: {
+				key: "confirm.restoreItemDescription",
+				fallback: "This item will become visible in normal list views again.",
+			},
 			confirmLabel: { key: "action.restore", fallback: "Restore" },
 			destructive: false,
 		},
@@ -218,8 +229,14 @@ function createRestoreManyAction<TItem>(
 			return items.some((item) => !!item?.deletedAt);
 		},
 		confirmation: {
-			title: { key: "confirm.restoreSelectedTitle", fallback: "Restore selected items?" },
-			description: { key: "confirm.restoreSelectedDescription", fallback: "Selected items will be restored and visible again." },
+			title: {
+				key: "confirm.restoreSelectedTitle",
+				fallback: "Restore selected items?",
+			},
+			description: {
+				key: "confirm.restoreSelectedDescription",
+				fallback: "Selected items will be restored and visible again.",
+			},
 			confirmLabel: { key: "confirm.restoreAll", fallback: "Restore All" },
 			destructive: false,
 		},
@@ -249,7 +266,11 @@ function createDeleteAction<TItem>(
 		variant: "destructive",
 		confirmation: {
 			title: { key: "confirm.deleteItemTitle", fallback: "Delete item?" },
-			description: { key: "confirm.deleteItemDescription", fallback: "This action cannot be undone. The item will be permanently deleted." },
+			description: {
+				key: "confirm.deleteItemDescription",
+				fallback:
+					"This action cannot be undone. The item will be permanently deleted.",
+			},
 			confirmLabel: { key: "action.delete", fallback: "Delete" },
 			destructive: true,
 		},

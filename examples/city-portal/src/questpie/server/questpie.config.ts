@@ -6,13 +6,14 @@
  * Sidebar, dashboard, branding, locale, context are file conventions.
  */
 
-import { adminPlugin } from "@questpie/admin/plugin";
 import {
 	ConsoleAdapter,
 	pgBossAdapter,
 	runtimeConfig,
 	SmtpAdapter,
 } from "questpie";
+
+import { adminPlugin } from "@questpie/admin/plugin";
 
 const DATABASE_URL =
 	process.env.DATABASE_URL || "postgres://localhost/cityportal";

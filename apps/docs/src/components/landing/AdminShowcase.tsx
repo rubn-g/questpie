@@ -5,6 +5,7 @@ import { PrismLight as SyntaxHighlighter } from "react-syntax-highlighter";
 import typescript from "react-syntax-highlighter/dist/esm/languages/prism/typescript";
 import coldarkCold from "react-syntax-highlighter/dist/esm/styles/prism/coldark-cold";
 import coldarkDark from "react-syntax-highlighter/dist/esm/styles/prism/coldark-dark";
+
 import { AnimModuleGrid } from "@/components/landing/BrandVisuals";
 import { cn } from "@/lib/utils";
 
@@ -105,9 +106,9 @@ export function AdminShowcase() {
 	}, []);
 
 	return (
-		<section className="relative py-20 overflow-hidden">
+		<section className="relative overflow-hidden py-20">
 			{/* Dark mode glow */}
-			<div className="hidden dark:block absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1200px] h-[800px] pointer-events-none bg-[radial-gradient(ellipse,_oklch(0.5984_0.3015_310.74_/_0.05)_0%,_transparent_70%)]" />
+			<div className="pointer-events-none absolute top-1/2 left-1/2 hidden h-[800px] w-[1200px] -translate-x-1/2 -translate-y-1/2 bg-[radial-gradient(ellipse,_oklch(0.5984_0.3015_310.74_/_0.05)_0%,_transparent_70%)] dark:block" />
 
 			<div className="relative z-10 mx-auto w-full max-w-7xl px-4">
 				{/* Header */}
@@ -118,7 +119,7 @@ export function AdminShowcase() {
 					viewport={{ once: true, margin: "-80px" }}
 					transition={{ duration: 0.6 }}
 				>
-					<h2 className="font-mono text-sm uppercase tracking-[0.2em] text-primary text-balance">
+					<h2 className="text-primary font-mono text-sm tracking-[0.2em] text-balance uppercase">
 						Admin UI
 					</h2>
 					<h3 className="font-mono text-3xl font-bold tracking-[-0.02em] text-balance md:text-4xl">
@@ -131,19 +132,19 @@ export function AdminShowcase() {
 				</motion.div>
 
 				{/* Desktop: 3-column layout - Code | Admin | Tabs */}
-				<div className="hidden lg:grid lg:grid-cols-[280px_1fr_200px] gap-4">
+				<div className="hidden gap-4 lg:grid lg:grid-cols-[280px_1fr_200px]">
 					{/* Column 1: Code Panel */}
-					<div className="border border-border bg-card/30 backdrop-blur-sm flex flex-col">
-						<div className="flex items-center justify-between border-b border-border px-3 py-2 bg-background/50">
-							<span className="font-mono text-[10px] text-primary truncate max-w-[200px]">
+					<div className="border-border bg-card/30 flex flex-col border backdrop-blur-sm">
+						<div className="border-border bg-background/50 flex items-center justify-between border-b px-3 py-2">
+							<span className="text-primary max-w-[200px] truncate font-mono text-[10px]">
 								{snippets[active].filename}
 							</span>
 							<div className="flex gap-1">
-								<div className="h-1.5 w-1.5 bg-primary/40" />
-								<div className="h-1.5 w-1.5 bg-primary/20" />
+								<div className="bg-primary/40 h-1.5 w-1.5" />
+								<div className="bg-primary/20 h-1.5 w-1.5" />
 							</div>
 						</div>
-						<div className="flex-1 p-3 overflow-hidden">
+						<div className="flex-1 overflow-hidden p-3">
 							<AnimatePresence mode="wait">
 								<motion.div
 									key={active}
@@ -193,18 +194,18 @@ export function AdminShowcase() {
 					</div>
 
 					{/* Column 2: Admin Preview */}
-					<div className="relative border border-border bg-card/20 backdrop-blur-sm overflow-hidden">
-						<AnimModuleGrid className="absolute inset-0 w-full h-full pointer-events-none opacity-30" />
+					<div className="border-border bg-card/20 relative overflow-hidden border backdrop-blur-sm">
+						<AnimModuleGrid className="pointer-events-none absolute inset-0 h-full w-full opacity-30" />
 
 						{/* Browser chrome */}
-						<div className="relative flex items-center gap-2 border-b border-border px-4 py-2.5 bg-background/50">
+						<div className="border-border bg-background/50 relative flex items-center gap-2 border-b px-4 py-2.5">
 							<div className="flex gap-1.5">
 								<div className="h-2.5 w-2.5 bg-red-400/80" />
 								<div className="h-2.5 w-2.5 bg-yellow-400/80" />
 								<div className="h-2.5 w-2.5 bg-green-400/80" />
 							</div>
-							<div className="ml-2 flex-1 border border-border/50 bg-background/60 px-3 py-1">
-								<span className="font-mono text-[10px] text-muted-foreground">
+							<div className="border-border/50 bg-background/60 ml-2 flex-1 border px-3 py-1">
+								<span className="text-muted-foreground font-mono text-[10px]">
 									localhost:3000/admin
 								</span>
 							</div>
@@ -240,10 +241,10 @@ export function AdminShowcase() {
 								animate={{ opacity: 1, x: 0 }}
 								transition={{ delay: index * 0.1 }}
 								className={cn(
-									"text-left border p-4 transition-all cursor-pointer group min-h-[80px]",
+									"group min-h-[80px] cursor-pointer border p-4 text-left transition-all",
 									active === tab.id
-										? "border-primary bg-primary/[0.08] border-l-[3px] border-l-primary"
-										: "border-border bg-card/20 backdrop-blur-sm hover:border-primary/30 hover:bg-card/40",
+										? "border-primary bg-primary/[0.08] border-l-primary border-l-[3px]"
+										: "border-border bg-card/20 hover:border-primary/30 hover:bg-card/40 backdrop-blur-sm",
 								)}
 							>
 								<div className="flex items-center gap-2">
@@ -264,13 +265,13 @@ export function AdminShowcase() {
 										{tab.label}
 									</h4>
 								</div>
-								<p className="mt-2 text-[11px] text-muted-foreground leading-relaxed">
+								<p className="text-muted-foreground mt-2 text-[11px] leading-relaxed">
 									{tab.description}
 								</p>
 								{active === tab.id && (
 									<motion.div
 										layoutId="activeIndicator"
-										className="mt-3 h-0.5 bg-gradient-to-r from-primary to-transparent"
+										className="from-primary mt-3 h-0.5 bg-gradient-to-r to-transparent"
 									/>
 								)}
 							</motion.button>
@@ -279,7 +280,7 @@ export function AdminShowcase() {
 				</div>
 
 				{/* Mobile: Stacked layout */}
-				<div className="lg:hidden space-y-4">
+				<div className="space-y-4 lg:hidden">
 					{/* Tab switcher - horizontal */}
 					<div className="flex gap-2 overflow-x-auto pb-2">
 						{tabs.map((tab) => (
@@ -288,9 +289,9 @@ export function AdminShowcase() {
 								type="button"
 								onClick={() => handleClick(tab.id)}
 								className={cn(
-									"flex-shrink-0 border px-4 py-2 transition-all cursor-pointer",
+									"flex-shrink-0 cursor-pointer border px-4 py-2 transition-all",
 									active === tab.id
-										? "border-primary bg-primary/[0.06] border-b-2 border-b-primary"
+										? "border-primary bg-primary/[0.06] border-b-primary border-b-2"
 										: "border-border bg-card/20",
 								)}
 							>
@@ -307,15 +308,15 @@ export function AdminShowcase() {
 					</div>
 
 					{/* Admin preview */}
-					<div className="border border-border bg-card/20 backdrop-blur-sm overflow-hidden">
-						<div className="flex items-center gap-2 border-b border-border px-3 py-2 bg-background/50">
+					<div className="border-border bg-card/20 overflow-hidden border backdrop-blur-sm">
+						<div className="border-border bg-background/50 flex items-center gap-2 border-b px-3 py-2">
 							<div className="flex gap-1.5">
-								<div className="h-2 w-2 border border-border bg-muted" />
-								<div className="h-2 w-2 border border-border bg-muted" />
-								<div className="h-2 w-2 border border-border bg-muted" />
+								<div className="border-border bg-muted h-2 w-2 border" />
+								<div className="border-border bg-muted h-2 w-2 border" />
+								<div className="border-border bg-muted h-2 w-2 border" />
 							</div>
-							<div className="ml-1 flex-1 border border-border bg-background/60 px-2 py-0.5">
-								<span className="font-mono text-[9px] text-muted-foreground">
+							<div className="border-border bg-background/60 ml-1 flex-1 border px-2 py-0.5">
+								<span className="text-muted-foreground font-mono text-[9px]">
 									localhost:3000/admin
 								</span>
 							</div>
@@ -339,14 +340,14 @@ export function AdminShowcase() {
 					</div>
 
 					{/* Code panel - below on mobile */}
-					<div className="border border-border bg-card/30 backdrop-blur-sm overflow-hidden">
-						<div className="border-b border-border px-3 py-2 bg-background/50">
-							<span className="font-mono text-[10px] text-primary truncate max-w-[200px]">
+					<div className="border-border bg-card/30 overflow-hidden border backdrop-blur-sm">
+						<div className="border-border bg-background/50 border-b px-3 py-2">
+							<span className="text-primary max-w-[200px] truncate font-mono text-[10px]">
 								{snippets[active].filename}
 							</span>
 						</div>
-						<div className="p-3 overflow-hidden">
-							<div className="dark:hidden break-all">
+						<div className="overflow-hidden p-3">
+							<div className="break-all dark:hidden">
 								<SyntaxHighlighter
 									language="typescript"
 									style={coldarkCold}
@@ -363,7 +364,7 @@ export function AdminShowcase() {
 									{snippets[active].code}
 								</SyntaxHighlighter>
 							</div>
-							<div className="hidden dark:block break-all">
+							<div className="hidden break-all dark:block">
 								<SyntaxHighlighter
 									language="typescript"
 									style={coldarkDark}
@@ -395,7 +396,7 @@ export function AdminShowcase() {
 					<Link
 						to="/docs/$"
 						params={{ _splat: "workspace" }}
-						className="inline-flex items-center gap-2 font-mono text-xs text-primary transition-colors hover:text-primary/80 group"
+						className="text-primary hover:text-primary/80 group inline-flex items-center gap-2 font-mono text-xs transition-colors"
 					>
 						Explore the admin module
 						<span className="transition-transform group-hover:translate-x-1">
@@ -419,35 +420,35 @@ function DashboardMock() {
 				].map((stat) => (
 					<div
 						key={stat.label}
-						className="border border-border bg-background/60 backdrop-blur-sm p-3 hover:border-primary/20 transition-colors"
+						className="border-border bg-background/60 hover:border-primary/20 border p-3 backdrop-blur-sm transition-colors"
 					>
-						<p className="text-[10px] uppercase tracking-wider text-muted-foreground">
+						<p className="text-muted-foreground text-[10px] tracking-wider uppercase">
 							{stat.label}
 						</p>
 						<p className="mt-1 text-xl font-bold">{stat.value}</p>
-						<p className="mt-0.5 text-[10px] text-primary">{stat.change}</p>
+						<p className="text-primary mt-0.5 text-[10px]">{stat.change}</p>
 					</div>
 				))}
 			</div>
 			<div className="grid gap-3 md:grid-cols-[1.5fr_1fr]">
-				<div className="border border-border bg-background/60 backdrop-blur-sm p-3 hover:border-primary/20 transition-colors">
-					<p className="mb-2 text-[10px] uppercase tracking-wider text-muted-foreground">
+				<div className="border-border bg-background/60 hover:border-primary/20 border p-3 backdrop-blur-sm transition-colors">
+					<p className="text-muted-foreground mb-2 text-[10px] tracking-wider uppercase">
 						Content over time
 					</p>
-					<div className="flex items-end gap-1 h-20">
+					<div className="flex h-20 items-end gap-1">
 						{[40, 55, 35, 65, 80, 60, 75, 90, 70, 85, 95, 88].map((h, i) => (
 							<motion.div
 								key={`chart-${h}`}
 								initial={{ height: 0 }}
 								animate={{ height: `${h}%` }}
 								transition={{ delay: i * 0.05, duration: 0.3 }}
-								className="flex-1 bg-primary/20 hover:bg-primary/40 transition-colors"
+								className="bg-primary/20 hover:bg-primary/40 flex-1 transition-colors"
 							/>
 						))}
 					</div>
 				</div>
-				<div className="border border-border bg-background/60 backdrop-blur-sm p-3 hover:border-primary/20 transition-colors">
-					<p className="mb-2 text-[10px] uppercase tracking-wider text-muted-foreground">
+				<div className="border-border bg-background/60 hover:border-primary/20 border p-3 backdrop-blur-sm transition-colors">
+					<p className="text-muted-foreground mb-2 text-[10px] tracking-wider uppercase">
 						Recent items
 					</p>
 					<div className="space-y-1.5">
@@ -464,7 +465,7 @@ function DashboardMock() {
 								transition={{ delay: 0.2 + i * 0.1 }}
 								className="flex items-center gap-2 text-xs"
 							>
-								<div className="h-1.5 w-1.5 bg-primary/40" />
+								<div className="bg-primary/40 h-1.5 w-1.5" />
 								<span className="text-foreground truncate">{item}</span>
 							</motion.div>
 						))}
@@ -506,26 +507,26 @@ function TableMock() {
 	return (
 		<div className="space-y-3">
 			<div className="flex items-center gap-2">
-				<div className="flex-1 border border-border bg-background/60 backdrop-blur-sm px-3 py-1.5">
-					<span className="text-xs text-muted-foreground">Search posts...</span>
+				<div className="border-border bg-background/60 flex-1 border px-3 py-1.5 backdrop-blur-sm">
+					<span className="text-muted-foreground text-xs">Search posts...</span>
 				</div>
 				<div className="flex gap-1.5">
 					{["Status: All", "Author: All"].map((filter) => (
 						<span
 							key={filter}
-							className="border border-border bg-background/60 backdrop-blur-sm px-2 py-1 text-[10px] text-muted-foreground hover:border-primary/20 transition-colors cursor-pointer"
+							className="border-border bg-background/60 text-muted-foreground hover:border-primary/20 cursor-pointer border px-2 py-1 text-[10px] backdrop-blur-sm transition-colors"
 						>
 							{filter}
 						</span>
 					))}
 				</div>
 			</div>
-			<div className="border border-border overflow-hidden">
-				<div className="grid grid-cols-[1fr_0.5fr_0.4fr_0.3fr] gap-2 border-b border-border px-3 py-2 bg-muted/30">
+			<div className="border-border overflow-hidden border">
+				<div className="border-border bg-muted/30 grid grid-cols-[1fr_0.5fr_0.4fr_0.3fr] gap-2 border-b px-3 py-2">
 					{["Title", "Author", "Status", "Updated"].map((h) => (
 						<span
 							key={h}
-							className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground"
+							className="text-muted-foreground text-[9px] font-semibold tracking-wider uppercase"
 						>
 							{h}
 						</span>
@@ -537,36 +538,36 @@ function TableMock() {
 						initial={{ opacity: 0, y: 5 }}
 						animate={{ opacity: 1, y: 0 }}
 						transition={{ delay: i * 0.05 }}
-						className="grid grid-cols-[1fr_0.5fr_0.4fr_0.3fr] gap-2 border-b border-border/50 px-3 py-2 hover:bg-background/40 transition-colors"
+						className="border-border/50 hover:bg-background/40 grid grid-cols-[1fr_0.5fr_0.4fr_0.3fr] gap-2 border-b px-3 py-2 transition-colors"
 					>
-						<span className="text-xs text-foreground truncate">
+						<span className="text-foreground truncate text-xs">
 							{row.title}
 						</span>
-						<span className="text-xs text-muted-foreground">{row.author}</span>
+						<span className="text-muted-foreground text-xs">{row.author}</span>
 						<span
 							className={cn(
 								"inline-flex w-fit items-center px-1.5 py-0.5 text-[9px] font-medium",
 								row.status === "published"
-									? "bg-primary/10 text-primary border border-primary/20"
-									: "bg-muted text-muted-foreground border border-border",
+									? "bg-primary/10 text-primary border-primary/20 border"
+									: "bg-muted text-muted-foreground border-border border",
 							)}
 						>
 							{row.status}
 						</span>
-						<span className="text-[10px] text-muted-foreground">
+						<span className="text-muted-foreground text-[10px]">
 							{row.updated}
 						</span>
 					</motion.div>
 				))}
 			</div>
-			<div className="flex items-center justify-between text-[10px] text-muted-foreground">
+			<div className="text-muted-foreground flex items-center justify-between text-[10px]">
 				<span>Showing 1-4 of 248</span>
 				<div className="flex gap-1">
 					{["1", "2", "3"].map((p) => (
 						<span
 							key={p}
 							className={cn(
-								"inline-flex h-5 w-5 items-center justify-center border transition-colors cursor-pointer",
+								"inline-flex h-5 w-5 cursor-pointer items-center justify-center border transition-colors",
 								p === "1"
 									? "border-primary text-primary"
 									: "border-border hover:border-primary/30",
@@ -586,63 +587,63 @@ function FormMock() {
 		<div className="grid gap-4 md:grid-cols-[1.5fr_0.8fr]">
 			<div className="space-y-3">
 				<div className="space-y-1.5">
-					<div className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+					<div className="text-muted-foreground text-[10px] font-medium tracking-wider uppercase">
 						Title
 					</div>
-					<div className="border border-border bg-background/60 backdrop-blur-sm px-3 py-2 hover:border-primary/20 transition-colors">
-						<span className="text-sm text-foreground">
+					<div className="border-border bg-background/60 hover:border-primary/20 border px-3 py-2 backdrop-blur-sm transition-colors">
+						<span className="text-foreground text-sm">
 							Getting Started with QUESTPIE
 						</span>
 					</div>
 				</div>
 				<div className="space-y-1.5">
-					<div className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+					<div className="text-muted-foreground text-[10px] font-medium tracking-wider uppercase">
 						Content
 					</div>
-					<div className="border border-border bg-background/60 backdrop-blur-sm p-3 min-h-[120px]">
-						<div className="flex gap-1 border-b border-border/50 pb-2 mb-2">
+					<div className="border-border bg-background/60 min-h-[120px] border p-3 backdrop-blur-sm">
+						<div className="border-border/50 mb-2 flex gap-1 border-b pb-2">
 							{["B", "I", "U", "H1", "H2"].map((btn) => (
 								<span
 									key={btn}
-									className="inline-flex h-5 w-5 items-center justify-center border border-border/50 text-[9px] text-muted-foreground hover:border-primary/30 hover:text-primary transition-colors cursor-pointer"
+									className="border-border/50 text-muted-foreground hover:border-primary/30 hover:text-primary inline-flex h-5 w-5 cursor-pointer items-center justify-center border text-[9px] transition-colors"
 								>
 									{btn}
 								</span>
 							))}
 						</div>
 						<div className="space-y-1.5">
-							<div className="h-2 w-full bg-muted/40" />
-							<div className="h-2 w-4/5 bg-muted/40" />
-							<div className="h-2 w-full bg-muted/40" />
-							<div className="h-2 w-3/5 bg-muted/40" />
+							<div className="bg-muted/40 h-2 w-full" />
+							<div className="bg-muted/40 h-2 w-4/5" />
+							<div className="bg-muted/40 h-2 w-full" />
+							<div className="bg-muted/40 h-2 w-3/5" />
 						</div>
 					</div>
 				</div>
 			</div>
 			<div className="space-y-3">
 				<div className="space-y-1.5">
-					<div className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+					<div className="text-muted-foreground text-[10px] font-medium tracking-wider uppercase">
 						Author
 					</div>
-					<div className="flex items-center gap-2 border border-border bg-background/60 backdrop-blur-sm px-3 py-2 hover:border-primary/20 transition-colors">
-						<div className="h-4 w-4 bg-primary/20" />
-						<span className="text-xs text-foreground">Alex K.</span>
+					<div className="border-border bg-background/60 hover:border-primary/20 flex items-center gap-2 border px-3 py-2 backdrop-blur-sm transition-colors">
+						<div className="bg-primary/20 h-4 w-4" />
+						<span className="text-foreground text-xs">Alex K.</span>
 					</div>
 				</div>
 				<div className="space-y-1.5">
-					<div className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+					<div className="text-muted-foreground text-[10px] font-medium tracking-wider uppercase">
 						Status
 					</div>
-					<div className="border border-border bg-background/60 backdrop-blur-sm px-3 py-2 hover:border-primary/20 transition-colors">
+					<div className="border-border bg-background/60 hover:border-primary/20 border px-3 py-2 backdrop-blur-sm transition-colors">
 						<span className="inline-flex items-center gap-1 text-xs">
-							<span className="h-1.5 w-1.5 bg-primary" />
+							<span className="bg-primary h-1.5 w-1.5" />
 							Published
 						</span>
 					</div>
 				</div>
 				<button
 					type="button"
-					className="w-full bg-primary px-4 py-2 text-xs font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
+					className="bg-primary text-primary-foreground hover:bg-primary/90 w-full px-4 py-2 text-xs font-medium transition-colors"
 				>
 					Save Changes
 				</button>
@@ -674,15 +675,15 @@ function SidebarMock() {
 
 	return (
 		<div className="grid gap-4 md:grid-cols-[0.8fr_1.2fr]">
-			<div className="border border-border bg-background/60 backdrop-blur-sm p-3 hover:border-primary/20 transition-colors">
+			<div className="border-border bg-background/60 hover:border-primary/20 border p-3 backdrop-blur-sm transition-colors">
 				<div className="mb-3 flex items-center gap-2">
-					<div className="h-4 w-4 bg-primary" />
+					<div className="bg-primary h-4 w-4" />
 					<span className="text-xs font-bold">My App</span>
 				</div>
 				<div className="space-y-3">
 					{sections.map((section, si) => (
 						<div key={section.title}>
-							<p className="mb-1 text-[9px] font-medium uppercase tracking-wider text-muted-foreground">
+							<p className="text-muted-foreground mb-1 text-[9px] font-medium tracking-wider uppercase">
 								{section.title}
 							</p>
 							<div className="space-y-0.5">
@@ -693,24 +694,24 @@ function SidebarMock() {
 										animate={{ opacity: 1, x: 0 }}
 										transition={{ duration: 0.4, delay: si * 0.25 + ii * 0.12 }}
 										className={cn(
-											"flex items-center justify-between px-2 py-1.5 cursor-pointer transition-colors",
+											"flex cursor-pointer items-center justify-between px-2 py-1.5 transition-colors",
 											"active" in item && item.active
-												? "border-l-2 border-primary bg-primary/[0.06]"
-												: "border-l-2 border-transparent hover:bg-background/40",
+												? "border-primary bg-primary/[0.06] border-l-2"
+												: "hover:bg-background/40 border-l-2 border-transparent",
 										)}
 									>
 										<span
 											className={cn(
 												"text-xs",
 												"active" in item && item.active
-													? "font-medium text-primary"
+													? "text-primary font-medium"
 													: "text-foreground",
 											)}
 										>
 											{item.name}
 										</span>
 										{"count" in item && (
-											<span className="text-[9px] text-muted-foreground bg-muted/50 px-1.5 py-0.5">
+											<span className="text-muted-foreground bg-muted/50 px-1.5 py-0.5 text-[9px]">
 												{item.count}
 											</span>
 										)}
@@ -722,23 +723,23 @@ function SidebarMock() {
 				</div>
 			</div>
 			<div className="space-y-3">
-				<div className="border border-border bg-background/60 backdrop-blur-sm p-4 hover:border-primary/20 transition-colors">
-					<p className="mb-2 font-mono text-[10px] uppercase tracking-[0.18em] text-primary">
+				<div className="border-border bg-background/60 hover:border-primary/20 border p-4 backdrop-blur-sm transition-colors">
+					<p className="text-primary mb-2 font-mono text-[10px] tracking-[0.18em] uppercase">
 						Server-defined
 					</p>
-					<p className="text-sm text-muted-foreground">
+					<p className="text-muted-foreground text-sm">
 						Sidebar sections, grouping, and item counts — all from{" "}
-						<code className="text-xs text-foreground bg-muted/50 px-1 py-0.5">
+						<code className="text-foreground bg-muted/50 px-1 py-0.5 text-xs">
 							.sidebar()
 						</code>{" "}
 						in your builder config.
 					</p>
 				</div>
-				<div className="border border-border bg-background/60 backdrop-blur-sm p-4 hover:border-primary/20 transition-colors">
-					<p className="mb-2 font-mono text-[10px] uppercase tracking-[0.18em] text-primary">
+				<div className="border-border bg-background/60 hover:border-primary/20 border p-4 backdrop-blur-sm transition-colors">
+					<p className="text-primary mb-2 font-mono text-[10px] tracking-[0.18em] uppercase">
 						Client-rendered
 					</p>
-					<p className="text-sm text-muted-foreground">
+					<p className="text-muted-foreground text-sm">
 						Swap the sidebar component via the client registry to match your
 						product&apos;s design system.
 					</p>

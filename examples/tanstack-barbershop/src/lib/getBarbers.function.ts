@@ -1,9 +1,10 @@
-import { isDraftMode } from "@questpie/admin/shared";
 import { notFound } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 import { getRequestHeaders } from "@tanstack/react-start/server";
+
 import { app } from "#questpie";
 import { createRequestContext } from "@/lib/server-helpers";
+import { isDraftMode } from "@questpie/admin/shared";
 
 export const getBarber = createServerFn({ method: "GET" })
 	.inputValidator((data: { slug: string; locale?: string }) => data)

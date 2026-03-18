@@ -68,11 +68,12 @@ export function ToolbarButton({
 	className,
 	...rest
 }: ToolbarButtonProps) {
-	const tooltipText = !title && !shortcut
-		? undefined
-		: shortcut
-			? `${title || ""} (${shortcut})`.trim()
-			: title;
+	const tooltipText =
+		!title && !shortcut
+			? undefined
+			: shortcut
+				? `${title || ""} (${shortcut})`.trim()
+				: title;
 
 	const iconSuffix = active ? "-fill" : "";
 	const buttonSize = iconName ? "icon-xs" : "xs";
@@ -140,7 +141,7 @@ export function RichTextToolbar({
 	const isEditable = !disabled;
 
 	return (
-		<div className="flex flex-wrap items-center gap-1.5 border-b bg-muted p-1.5">
+		<div className="bg-muted flex flex-wrap items-center gap-1.5 border-b p-1.5">
 			{/* History Controls */}
 			{features.history && (
 				<ToolbarGroup>
@@ -165,7 +166,7 @@ export function RichTextToolbar({
 			{features.heading && (
 				<ToolbarGroup>
 					<select
-						className="h-6 rounded-sm border border-border bg-input px-2 text-xs"
+						className="border-border bg-input h-6 rounded-sm border px-2 text-xs"
 						value={headingValue}
 						onChange={(event) => onHeadingChange(event.target.value)}
 						disabled={!isEditable}

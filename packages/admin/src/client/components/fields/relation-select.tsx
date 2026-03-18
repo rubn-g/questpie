@@ -9,11 +9,13 @@
  */
 
 import { Icon } from "@iconify/react";
-import { createQuestpieQueryOptions } from "@questpie/tanstack-query";
 import { useQueryClient } from "@tanstack/react-query";
 import type { QuestpieApp } from "questpie/client";
 import * as React from "react";
 import { toast } from "sonner";
+
+import { createQuestpieQueryOptions } from "@questpie/tanstack-query";
+
 import { useAdminConfig } from "../../hooks/use-admin-config";
 import { useCollectionItem } from "../../hooks/use-collection";
 import { useResolveText, useTranslation } from "../../i18n/hooks";
@@ -202,7 +204,15 @@ export function RelationSelect<T extends QuestpieApp>({
 				return [];
 			}
 		},
-		[client, targetCollection, filter, renderOption, collectionIconRef, locale, t],
+		[
+			client,
+			targetCollection,
+			filter,
+			renderOption,
+			collectionIconRef,
+			locale,
+			t,
+		],
 	);
 
 	const queryClient = useQueryClient();
@@ -288,7 +298,7 @@ export function RelationSelect<T extends QuestpieApp>({
 				<div className="flex items-center gap-2">
 					<label
 						htmlFor={name}
-						className="text-sm font-medium flex items-center gap-1.5"
+						className="flex items-center gap-1.5 text-sm font-medium"
 					>
 						{resolveIconElement(collectionIconRef, {
 							className: "size-3.5 text-muted-foreground",
@@ -364,7 +374,7 @@ export function RelationSelect<T extends QuestpieApp>({
 							disabled={disabled}
 							title={createLabel}
 							aria-label={createLabel}
-							className="border-l-0 rounded-l-none"
+							className="rounded-l-none border-l-0"
 						>
 							<Icon icon="ph:plus" className="h-4 w-4" />
 						</Button>
@@ -373,7 +383,7 @@ export function RelationSelect<T extends QuestpieApp>({
 			</div>
 
 			{/* Error message */}
-			{error && <p className="text-sm text-destructive">{error}</p>}
+			{error && <p className="text-destructive text-sm">{error}</p>}
 
 			{/* Side Sheet for Create/Edit */}
 			<ResourceSheet

@@ -12,6 +12,7 @@
  * 8. Routes — flat record with slash-separated keys
  */
 import { describe, expect, it } from "bun:test";
+
 import {
 	coreCodegenPlugin,
 	resolveTargetGraph,

@@ -1,4 +1,5 @@
 import type { z } from "zod";
+
 import type { AppContext } from "#questpie/server/config/app-context.js";
 
 /**
@@ -44,7 +45,9 @@ export interface EmailTemplateDefinition<
 	 * Receives validated input + AppContext (db, collections, etc.).
 	 * Must return `{ subject, html, text? }`.
 	 */
-	handler: (args: EmailHandlerArgs<TInput>) => EmailResult | Promise<EmailResult>;
+	handler: (
+		args: EmailHandlerArgs<TInput>,
+	) => EmailResult | Promise<EmailResult>;
 }
 
 /**

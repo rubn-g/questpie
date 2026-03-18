@@ -1,4 +1,5 @@
 import type { Client, ClientConfig } from "pg";
+
 import type { RealtimeAdapter } from "../adapter.js";
 import type { RealtimeChangeEvent, RealtimeNotice } from "../types.js";
 

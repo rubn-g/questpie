@@ -63,16 +63,14 @@ export type OptionalKeys<T> = {
 /**
  * Checks if a key is required in T.
  */
-export type IsRequired<T, K extends keyof T> = K extends RequiredKeys<T>
-	? true
-	: false;
+export type IsRequired<T, K extends keyof T> =
+	K extends RequiredKeys<T> ? true : false;
 
 /**
  * Checks if a key is optional in T.
  */
-export type IsOptional<T, K extends keyof T> = K extends OptionalKeys<T>
-	? true
-	: false;
+export type IsOptional<T, K extends keyof T> =
+	K extends OptionalKeys<T> ? true : false;
 
 /**
  * Checks if type T has key K.

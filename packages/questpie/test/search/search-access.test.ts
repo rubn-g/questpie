@@ -12,7 +12,9 @@ import {
 	it,
 	setDefaultTimeout,
 } from "bun:test";
+
 import { sql } from "drizzle-orm";
+
 import { collection } from "../../src/server/index.js";
 import {
 	createPostgresSearchAdapter,
@@ -42,10 +44,7 @@ describe("Search Access Filtering", () => {
 	beforeEach(async () => {
 		adapter = createPostgresSearchAdapter();
 
-		setup = await buildMockApp(
-			{ collections: { posts } },
-			{ search: adapter },
-		);
+		setup = await buildMockApp({ collections: { posts } }, { search: adapter });
 
 		await runTestDbMigrations(setup.app);
 		await runSearchMigrations(setup.app.db);

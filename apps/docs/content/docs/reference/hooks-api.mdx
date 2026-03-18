@@ -19,37 +19,39 @@ description: Lifecycle hooks reference — beforeValidate, beforeChange, afterCh
 
 ### `beforeValidate` / `beforeChange` / `afterChange`
 
-| Property | Type | Description |
-|---|---|---|
-| `data` | `Record` | Record data (mutable in `before*`) |
-| `operation` | `"create" \| "update"` | Current operation |
-| `original` | `Record \| undefined` | Previous state (update only) |
-| `collections` | `AppCollections` | Collection API |
-| `globals` | `AppGlobals` | Globals API |
-| `db` | `Database` | Drizzle instance |
-| `session` | `Session \| null` | Auth session |
-| `queue` | `QueueClient` | Job queue |
-| `email` | `MailerService` | Email service |
-| Custom services | — | Services from `services/` |
+| Property        | Type                   | Description                        |
+| --------------- | ---------------------- | ---------------------------------- |
+| `data`          | `Record`               | Record data (mutable in `before*`) |
+| `operation`     | `"create" \| "update"` | Current operation                  |
+| `original`      | `Record \| undefined`  | Previous state (update only)       |
+| `collections`   | `AppCollections`       | Collection API                     |
+| `globals`       | `AppGlobals`           | Globals API                        |
+| `db`            | `Database`             | Drizzle instance                   |
+| `session`       | `Session \| null`      | Auth session                       |
+| `queue`         | `QueueClient`          | Job queue                          |
+| `email`         | `MailerService`        | Email service                      |
+| Custom services | —                      | Services from `services/`          |
 
 ### `beforeDelete` / `afterDelete`
 
-| Property | Type | Description |
-|---|---|---|
-| `id` | `string` | Record ID |
-| `collections` | `AppCollections` | Collection API |
-| `db` | `Database` | Drizzle instance |
-| `session` | `Session \| null` | Auth session |
-| `queue` | `QueueClient` | Job queue |
+| Property      | Type              | Description      |
+| ------------- | ----------------- | ---------------- |
+| `id`          | `string`          | Record ID        |
+| `collections` | `AppCollections`  | Collection API   |
+| `db`          | `Database`        | Drizzle instance |
+| `session`     | `Session \| null` | Auth session     |
+| `queue`       | `QueueClient`     | Job queue        |
 
 ## Lifecycle Order
 
 ### Create / Update
+
 ```text
 beforeValidate → Schema Validation → beforeChange → DB Write → afterChange
 ```
 
 ### Delete
+
 ```text
 beforeDelete → DB Delete → afterDelete
 ```

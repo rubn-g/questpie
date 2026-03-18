@@ -2,6 +2,7 @@ import { Icon } from "@iconify/react";
 import { Link } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
+
 import { AnimDotGrid } from "@/components/landing/BrandVisuals";
 import { cn } from "@/lib/utils";
 
@@ -232,12 +233,12 @@ export function RealtimeDemo() {
 	return (
 		<section
 			ref={sectionRef}
-			className="relative border-t border-border/40 py-20 overflow-hidden"
+			className="border-border/40 relative overflow-hidden border-t py-20"
 		>
 			{/* Brand dot grid — data streaming motif */}
-			<AnimDotGrid className="absolute inset-0 w-full h-full pointer-events-none opacity-60" />
-			<div className="mx-auto w-full max-w-7xl px-4 relative z-10">
-				<div className="grid gap-12 lg:grid-cols-[1fr_1.2fr] items-center mb-12">
+			<AnimDotGrid className="pointer-events-none absolute inset-0 h-full w-full opacity-60" />
+			<div className="relative z-10 mx-auto w-full max-w-7xl px-4">
+				<div className="mb-12 grid items-center gap-12 lg:grid-cols-[1fr_1.2fr]">
 					{/* Left Column — Text */}
 					<motion.div
 						className="space-y-3"
@@ -246,13 +247,13 @@ export function RealtimeDemo() {
 						viewport={{ once: true, margin: "-80px" }}
 						transition={{ duration: 0.6 }}
 					>
-						<h2 className="font-mono text-sm uppercase tracking-[0.2em] text-primary text-balance">
+						<h2 className="text-primary font-mono text-sm tracking-[0.2em] text-balance uppercase">
 							Realtime
 						</h2>
 						<h3 className="font-mono text-3xl font-bold tracking-[-0.02em] text-balance md:text-4xl">
 							Every change, everywhere, instantly
 						</h3>
-						<p className="text-muted-foreground text-balance mt-3">
+						<p className="text-muted-foreground mt-3 text-balance">
 							SSE-powered live queries, document locks, and change highlighting
 							ship out of the box. No WebSocket setup, no polling.
 						</p>
@@ -260,24 +261,24 @@ export function RealtimeDemo() {
 
 					{/* Right Column — Live demo */}
 					<motion.div
-						className="grid gap-4 sm:grid-cols-[1fr_180px] w-full"
+						className="grid w-full gap-4 sm:grid-cols-[1fr_180px]"
 						initial={{ opacity: 0, x: 20 }}
 						whileInView={{ opacity: 1, x: 0 }}
 						viewport={{ once: true }}
 						transition={{ duration: 0.5, delay: 0.2 }}
 					>
 						{/* Animated admin table */}
-						<div className="border border-border bg-card/20 backdrop-blur-sm overflow-hidden flex flex-col h-full">
+						<div className="border-border bg-card/20 flex h-full flex-col overflow-hidden border backdrop-blur-sm">
 							{/* Table header with live badge and presence */}
-							<div className="flex items-center justify-between border-b border-border px-3 py-2 bg-background/50">
+							<div className="border-border bg-background/50 flex items-center justify-between border-b px-3 py-2">
 								<div className="flex items-center gap-2">
 									<span className="text-xs font-semibold">Posts</span>
-									<span className="inline-flex items-center gap-1 border border-primary/20 bg-primary/10 px-1.5 py-0.5">
+									<span className="border-primary/20 bg-primary/10 inline-flex items-center gap-1 border px-1.5 py-0.5">
 										<span className="relative flex h-1.5 w-1.5">
-											<span className="absolute inline-flex h-full w-full animate-ping bg-primary opacity-75" />
-											<span className="relative inline-flex h-1.5 w-1.5 bg-primary" />
+											<span className="bg-primary absolute inline-flex h-full w-full animate-ping opacity-75" />
+											<span className="bg-primary relative inline-flex h-1.5 w-1.5" />
 										</span>
-										<span className="text-[8px] font-medium text-primary">
+										<span className="text-primary text-[8px] font-medium">
 											LIVE
 										</span>
 									</span>
@@ -285,15 +286,18 @@ export function RealtimeDemo() {
 
 								{/* Presence dots */}
 								<div className="flex items-center gap-1">
-									<Icon icon="ph:users" className="h-3 w-3 text-muted-foreground mr-1" />
+									<Icon
+										icon="ph:users"
+										className="text-muted-foreground mr-1 h-3 w-3"
+									/>
 									{["AK", "MJ", "JT"].map((user, i) => (
 										<span
 											key={user}
 											className={cn(
-												"inline-flex h-5 w-5 items-center justify-center text-[8px] font-mono transition-all duration-300",
+												"inline-flex h-5 w-5 items-center justify-center font-mono text-[8px] transition-all duration-300",
 												presenceVisible[i]
-													? "bg-primary/15 text-primary border border-primary/20 scale-100 opacity-100"
-													: "bg-transparent text-transparent scale-0 opacity-0 border border-transparent",
+													? "bg-primary/15 text-primary border-primary/20 scale-100 border opacity-100"
+													: "scale-0 border border-transparent bg-transparent text-transparent opacity-0",
 											)}
 										>
 											{user}
@@ -303,11 +307,11 @@ export function RealtimeDemo() {
 							</div>
 
 							{/* Column headers */}
-							<div className="grid grid-cols-[1fr_0.5fr_0.4fr_auto] gap-2 border-b border-border px-3 py-1.5 bg-muted/20">
+							<div className="border-border bg-muted/20 grid grid-cols-[1fr_0.5fr_0.4fr_auto] gap-2 border-b px-3 py-1.5">
 								{["Title", "Author", "Status", ""].map((h) => (
 									<span
 										key={h || "lock"}
-										className="text-[8px] font-medium uppercase tracking-wider text-muted-foreground"
+										className="text-muted-foreground text-[8px] font-medium tracking-wider uppercase"
 									>
 										{h}
 									</span>
@@ -315,11 +319,11 @@ export function RealtimeDemo() {
 							</div>
 
 							{/* Rows */}
-							<div className="flex-1 flex flex-col justify-center">
+							<div className="flex flex-1 flex-col justify-center">
 								{rows.map((row, i) => (
 									<div
 										key={row.id}
-										className="grid grid-cols-[1fr_0.5fr_0.4fr_auto] gap-2 border-b border-border/50 px-3 py-2 transition-all"
+										className="border-border/50 grid grid-cols-[1fr_0.5fr_0.4fr_auto] gap-2 border-b px-3 py-2 transition-all"
 										style={{
 											animation:
 												pulsingRow === i
@@ -327,27 +331,30 @@ export function RealtimeDemo() {
 													: undefined,
 										}}
 									>
-										<span className="text-[10px] text-foreground truncate">
+										<span className="text-foreground truncate text-[10px]">
 											{row.title}
 										</span>
-										<span className="text-[10px] text-muted-foreground">
+										<span className="text-muted-foreground text-[10px]">
 											{row.author}
 										</span>
 										<span
 											className={cn(
 												"inline-flex w-fit items-center px-1 py-0.5 text-[8px] font-medium transition-colors",
 												row.status === "published"
-													? "bg-primary/10 text-primary border border-primary/20"
-													: "bg-muted text-muted-foreground border border-border",
+													? "bg-primary/10 text-primary border-primary/20 border"
+													: "bg-muted text-muted-foreground border-border border",
 											)}
 										>
 											{row.status}
 										</span>
-										<div className="flex items-center justify-end w-10">
+										<div className="flex w-10 items-center justify-end">
 											{row.locked && (
 												<span className="inline-flex items-center gap-0.5">
-													<Icon icon="ph:lock" className="h-2.5 w-2.5 text-muted-foreground" />
-													<span className="inline-flex h-4 w-4 items-center justify-center bg-primary/10 text-[7px] font-mono text-primary">
+													<Icon
+														icon="ph:lock"
+														className="text-muted-foreground h-2.5 w-2.5"
+													/>
+													<span className="bg-primary/10 text-primary inline-flex h-4 w-4 items-center justify-center font-mono text-[7px]">
 														{row.lockedBy}
 													</span>
 												</span>
@@ -361,57 +368,57 @@ export function RealtimeDemo() {
 						{/* Dashboard stats sidebar */}
 						<div className="flex flex-col gap-3">
 							{/* Event counter */}
-							<div className="border border-border bg-card/20 backdrop-blur-sm p-3">
-								<div className="flex items-center gap-2 mb-2">
+							<div className="border-border bg-card/20 border p-3 backdrop-blur-sm">
+								<div className="mb-2 flex items-center gap-2">
 									<span className="relative flex h-1.5 w-1.5">
-										<span className="absolute inline-flex h-full w-full animate-ping bg-primary opacity-75" />
-										<span className="relative inline-flex h-1.5 w-1.5 bg-primary" />
+										<span className="bg-primary absolute inline-flex h-full w-full animate-ping opacity-75" />
+										<span className="bg-primary relative inline-flex h-1.5 w-1.5" />
 									</span>
-									<span className="text-[9px] font-medium uppercase tracking-wider text-muted-foreground">
+									<span className="text-muted-foreground text-[9px] font-medium tracking-wider uppercase">
 										Events
 									</span>
 								</div>
-								<span className="block text-2xl font-bold tabular-nums text-foreground">
+								<span className="text-foreground block text-2xl font-bold tabular-nums">
 									{eventCounter}
 								</span>
-								<span className="text-[9px] text-muted-foreground">
+								<span className="text-muted-foreground text-[9px]">
 									streamed via SSE
 								</span>
 							</div>
 
 							{/* Published / Draft stats */}
-							<div className="border border-border bg-card/20 backdrop-blur-sm p-3">
-								<span className="text-[9px] font-medium uppercase tracking-wider text-muted-foreground mb-2 block">
+							<div className="border-border bg-card/20 border p-3 backdrop-blur-sm">
+								<span className="text-muted-foreground mb-2 block text-[9px] font-medium tracking-wider uppercase">
 									Status
 								</span>
 								<div className="space-y-2">
 									<div className="flex items-center justify-between">
-										<span className="text-[9px] text-muted-foreground">
+										<span className="text-muted-foreground text-[9px]">
 											Published
 										</span>
-										<span className="text-xs font-semibold tabular-nums text-primary">
+										<span className="text-primary text-xs font-semibold tabular-nums">
 											{stats.published}
 										</span>
 									</div>
-									<div className="h-1 bg-muted/30">
+									<div className="bg-muted/30 h-1">
 										<div
-											className="h-full bg-primary transition-all duration-500"
+											className="bg-primary h-full transition-all duration-500"
 											style={{
 												width: `${(stats.published / stats.total) * 100}%`,
 											}}
 										/>
 									</div>
 									<div className="flex items-center justify-between">
-										<span className="text-[9px] text-muted-foreground">
+										<span className="text-muted-foreground text-[9px]">
 											Draft
 										</span>
-										<span className="text-xs font-semibold tabular-nums text-foreground">
+										<span className="text-foreground text-xs font-semibold tabular-nums">
 											{stats.draft}
 										</span>
 									</div>
-									<div className="h-1 bg-muted/30">
+									<div className="bg-muted/30 h-1">
 										<div
-											className="h-full bg-muted-foreground/30 transition-all duration-500"
+											className="bg-muted-foreground/30 h-full transition-all duration-500"
 											style={{
 												width: `${(stats.draft / stats.total) * 100}%`,
 											}}
@@ -421,8 +428,8 @@ export function RealtimeDemo() {
 							</div>
 
 							{/* Latest event */}
-							<div className="border border-border bg-card/20 backdrop-blur-sm p-3 flex-1 flex flex-col justify-end">
-								<span className="text-[9px] font-medium uppercase tracking-wider text-muted-foreground mb-2 block">
+							<div className="border-border bg-card/20 flex flex-1 flex-col justify-end border p-3 backdrop-blur-sm">
+								<span className="text-muted-foreground mb-2 block text-[9px] font-medium tracking-wider uppercase">
 									Latest
 								</span>
 								<AnimatePresence mode="wait">
@@ -437,12 +444,12 @@ export function RealtimeDemo() {
 										>
 											<EventIcon type={eventFeed[0].type} />
 											<div className="min-w-0 flex-1">
-												<span className="block text-[9px] text-foreground truncate">
+												<span className="text-foreground block truncate text-[9px]">
 													{eventFeed[0].label}
 												</span>
 												<span
 													className={cn(
-														"text-[8px] font-mono uppercase",
+														"font-mono text-[8px] uppercase",
 														eventFeed[0].type === "create" && "text-primary",
 														eventFeed[0].type === "update" &&
 															"text-muted-foreground",
@@ -455,7 +462,7 @@ export function RealtimeDemo() {
 											</div>
 										</motion.div>
 									) : (
-										<span className="text-[9px] text-muted-foreground">
+										<span className="text-muted-foreground text-[9px]">
 											Waiting...
 										</span>
 									)}
@@ -466,21 +473,21 @@ export function RealtimeDemo() {
 				</div>
 
 				{/* Feature cards — Full width below the Header/Demo layout */}
-				<div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-10 w-full">
+				<div className="mb-10 grid w-full gap-4 sm:grid-cols-2 lg:grid-cols-4">
 					{features.map((feature, i) => (
 						<motion.div
 							key={feature.title}
-							className="border border-border bg-card/20 backdrop-blur-sm p-4 group transition-colors hover:border-primary/30"
+							className="border-border bg-card/20 group hover:border-primary/30 border p-4 backdrop-blur-sm transition-colors"
 							initial={{ opacity: 0, y: 16 }}
 							whileInView={{ opacity: 1, y: 0 }}
 							viewport={{ once: true }}
 							transition={{ duration: 0.4, delay: i * 0.08 }}
 						>
-							<div className="mb-3 flex h-9 w-9 items-center justify-center border border-primary/20 bg-primary/10 text-primary transition-colors group-hover:bg-primary/20">
+							<div className="border-primary/20 bg-primary/10 text-primary group-hover:bg-primary/20 mb-3 flex h-9 w-9 items-center justify-center border transition-colors">
 								<Icon icon={feature.icon} className="h-4 w-4" />
 							</div>
-							<h4 className="text-sm font-semibold mb-1">{feature.title}</h4>
-							<p className="text-xs text-muted-foreground leading-relaxed">
+							<h4 className="mb-1 text-sm font-semibold">{feature.title}</h4>
+							<p className="text-muted-foreground text-xs leading-relaxed">
 								{feature.description}
 							</p>
 						</motion.div>
@@ -492,7 +499,7 @@ export function RealtimeDemo() {
 					<Link
 						to="/docs/$"
 						params={{ _splat: "production/realtime" }}
-						className="inline-flex items-center gap-2 font-mono text-xs text-primary transition-colors hover:text-primary/80"
+						className="text-primary hover:text-primary/80 inline-flex items-center gap-2 font-mono text-xs transition-colors"
 					>
 						Read the realtime docs →
 					</Link>
@@ -505,16 +512,25 @@ export function RealtimeDemo() {
 function EventIcon({ type }: { type: EventType }) {
 	if (type === "create")
 		return (
-			<Icon icon="ph:file-plus" className="h-3 w-3 shrink-0 text-primary" aria-hidden="true" />
+			<Icon
+				icon="ph:file-plus"
+				className="text-primary h-3 w-3 shrink-0"
+				aria-hidden="true"
+			/>
 		);
 	if (type === "delete")
 		return (
-			<Icon icon="ph:trash" className="h-3 w-3 shrink-0 text-destructive" aria-hidden="true" />
+			<Icon
+				icon="ph:trash"
+				className="text-destructive h-3 w-3 shrink-0"
+				aria-hidden="true"
+			/>
 		);
 	return (
-		<Icon icon="ph:sparkle"
-			className="h-3 w-3 shrink-0 text-muted-foreground"
+		<Icon
+			icon="ph:sparkle"
+			className="text-muted-foreground h-3 w-3 shrink-0"
 			aria-hidden="true"
-		 />
+		/>
 	);
 }

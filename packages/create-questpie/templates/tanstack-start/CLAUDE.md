@@ -16,6 +16,7 @@ This is a [QUESTPIE](https://questpie.com) project scaffolded with `create-quest
 ## Project Architecture
 
 This project follows QUESTPIE's **server-first** philosophy:
+
 - **Server** defines WHAT (schema, validation, access, hooks, jobs)
 - **Client** defines HOW (rendering, themes, custom components)
 
@@ -53,9 +54,11 @@ src/questpie/
 Defined in `src/lib/env.ts` with runtime validation. See `.env.example` for all available variables.
 
 Required:
+
 - `DATABASE_URL` — PostgreSQL connection string
 
 Optional (with defaults):
+
 - `APP_URL` — Application URL (default: `http://localhost:3000`)
 - `BETTER_AUTH_SECRET` — Auth secret key
 - `MAIL_ADAPTER` — `console` or `smtp`
@@ -83,18 +86,20 @@ Collections are auto-discovered by codegen — no manual registration needed.
 ### Add a server route (end-to-end type-safe)
 
 1. Create `src/questpie/server/routes/my-function.ts`:
+
    ```ts
    import { route } from "questpie";
    import { z } from "zod";
 
    export default route()
-     .post()
-     .schema(z.object({ id: z.string() }))
-     .handler(async ({ input, collections }) => {
-       // input: typed from Zod schema; collections, db, session, etc. from AppContext
-       return { name: "result" };
-     });
+   	.post()
+   	.schema(z.object({ id: z.string() }))
+   	.handler(async ({ input, collections }) => {
+   		// input: typed from Zod schema; collections, db, session, etc. from AppContext
+   		return { name: "result" };
+   	});
    ```
+
 2. Run `bunx questpie generate` — route is auto-discovered and available at `/api/my-function`
 
 See AGENTS.md for detailed route patterns, access control, and TanStack Query integration.

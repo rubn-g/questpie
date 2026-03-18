@@ -7,6 +7,7 @@
  */
 
 import type * as React from "react";
+
 import { useResolveText } from "../../../../i18n/hooks";
 import { cn } from "../../../../lib/utils";
 import {
@@ -76,7 +77,7 @@ export function RelationChip({
 			<img
 				src={avatarUrl}
 				alt={label}
-				className="size-4 rounded-full object-cover border border-border"
+				className="border-border size-4 rounded-full border object-cover"
 			/>
 		) : null;
 
@@ -91,10 +92,10 @@ export function RelationChip({
 	if (canInteract) {
 		const href = `/admin/collections/${targetCollection}/${id}`;
 		const chipClassName = cn(
-			"qa-relation-chip inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs",
+			"qa-relation-chip inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-xs",
 			"bg-primary/10 text-primary hover:bg-primary/20",
-			"transition-colors cursor-pointer",
-			"border border-primary/20 hover:border-primary/40",
+			"cursor-pointer transition-colors",
+			"border-primary/20 hover:border-primary/40 border",
 			className,
 		);
 
@@ -116,9 +117,9 @@ export function RelationChip({
 	return (
 		<span
 			className={cn(
-				"qa-relation-chip inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs",
+				"qa-relation-chip inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-xs",
 				"bg-muted text-muted-foreground",
-				"border border-border",
+				"border-border border",
 				className,
 			)}
 		>

@@ -12,17 +12,17 @@ import { Admin } from "@questpie/admin/client";
 import { admin } from "./admin";
 
 function App() {
-  return (
-    <AdminLayoutProvider
-      admin={Admin.normalize(admin)}
-      client={client}
-      queryClient={queryClient}
-      LinkComponent={Link}
-      basePath="/admin"
-    >
-      {children}
-    </AdminLayoutProvider>
-  );
+	return (
+		<AdminLayoutProvider
+			admin={Admin.normalize(admin)}
+			client={client}
+			queryClient={queryClient}
+			LinkComponent={Link}
+			basePath="/admin"
+		>
+			{children}
+		</AdminLayoutProvider>
+	);
 }
 ```
 
@@ -36,7 +36,7 @@ function App() {
 
 ```tsx
 const { data } = useCollectionList("posts", { limit: 10 }, undefined, {
-  realtime: false,
+	realtime: false,
 });
 ```
 
@@ -50,24 +50,24 @@ Fetch paginated list with filters and sorting:
 import { useCollectionList } from "@questpie/admin/hooks";
 
 function PostsList() {
-  const { data, isLoading, error } = useCollectionList("posts", {
-    limit: 10,
-    offset: 0,
-    where: { status: { eq: "published" } },
-    orderBy: { createdAt: "desc" },
-    with: { author: true },
-  });
+	const { data, isLoading, error } = useCollectionList("posts", {
+		limit: 10,
+		offset: 0,
+		where: { status: { eq: "published" } },
+		orderBy: { createdAt: "desc" },
+		with: { author: true },
+	});
 
-  if (isLoading) return <Spinner />;
-  if (error) return <Error message={error.message} />;
+	if (isLoading) return <Spinner />;
+	if (error) return <Error message={error.message} />;
 
-  return (
-    <ul>
-      {data?.docs.map((post) => (
-        <li key={post.id}>{post.title}</li>
-      ))}
-    </ul>
-  );
+	return (
+		<ul>
+			{data?.docs.map((post) => (
+				<li key={post.id}>{post.title}</li>
+			))}
+		</ul>
+	);
 }
 ```
 
@@ -79,19 +79,19 @@ Fetch single item by ID:
 import { useCollectionItem } from "@questpie/admin/hooks";
 
 function PostDetail({ id }: { id: string }) {
-  const { data: post, isLoading } = useCollectionItem("posts", id, {
-    with: { author: true, tags: true },
-  });
+	const { data: post, isLoading } = useCollectionItem("posts", id, {
+		with: { author: true, tags: true },
+	});
 
-  if (isLoading) return <Spinner />;
-  if (!post) return <NotFound />;
+	if (isLoading) return <Spinner />;
+	if (!post) return <NotFound />;
 
-  return (
-    <article>
-      <h1>{post.title}</h1>
-      <p>By {post.author?.name}</p>
-    </article>
-  );
+	return (
+		<article>
+			<h1>{post.title}</h1>
+			<p>By {post.author?.name}</p>
+		</article>
+	);
 }
 ```
 
@@ -103,24 +103,24 @@ Create new items:
 import { useCollectionCreate } from "@questpie/admin/hooks";
 
 function CreatePost() {
-  const createPost = useCollectionCreate("posts", {
-    onSuccess: (data) => {
-      console.log("Created:", data);
-    },
-  });
+	const createPost = useCollectionCreate("posts", {
+		onSuccess: (data) => {
+			console.log("Created:", data);
+		},
+	});
 
-  const handleSubmit = (data) => {
-    createPost.mutate(data);
-  };
+	const handleSubmit = (data) => {
+		createPost.mutate(data);
+	};
 
-  return (
-    <form onSubmit={handleSubmit}>
-      {/* form fields */}
-      <button disabled={createPost.isPending}>
-        {createPost.isPending ? "Creating..." : "Create"}
-      </button>
-    </form>
-  );
+	return (
+		<form onSubmit={handleSubmit}>
+			{/* form fields */}
+			<button disabled={createPost.isPending}>
+				{createPost.isPending ? "Creating..." : "Create"}
+			</button>
+		</form>
+	);
 }
 ```
 
@@ -132,24 +132,24 @@ Update existing items:
 import { useCollectionUpdate } from "@questpie/admin/hooks";
 
 function EditPost({ id }: { id: string }) {
-  const updatePost = useCollectionUpdate("posts", {
-    onSuccess: () => {
-      console.log("Updated!");
-    },
-  });
+	const updatePost = useCollectionUpdate("posts", {
+		onSuccess: () => {
+			console.log("Updated!");
+		},
+	});
 
-  const handleSave = (data) => {
-    updatePost.mutate({ id, data });
-  };
+	const handleSave = (data) => {
+		updatePost.mutate({ id, data });
+	};
 
-  return (
-    <form onSubmit={handleSave}>
-      {/* form fields */}
-      <button disabled={updatePost.isPending}>
-        {updatePost.isPending ? "Saving..." : "Save"}
-      </button>
-    </form>
-  );
+	return (
+		<form onSubmit={handleSave}>
+			{/* form fields */}
+			<button disabled={updatePost.isPending}>
+				{updatePost.isPending ? "Saving..." : "Save"}
+			</button>
+		</form>
+	);
 }
 ```
 
@@ -161,20 +161,20 @@ Delete items:
 import { useCollectionDelete } from "@questpie/admin/hooks";
 
 function DeleteButton({ id }: { id: string }) {
-  const deletePost = useCollectionDelete("posts", {
-    onSuccess: () => {
-      console.log("Deleted!");
-    },
-  });
+	const deletePost = useCollectionDelete("posts", {
+		onSuccess: () => {
+			console.log("Deleted!");
+		},
+	});
 
-  return (
-    <button
-      onClick={() => deletePost.mutate(id)}
-      disabled={deletePost.isPending}
-    >
-      {deletePost.isPending ? "Deleting..." : "Delete"}
-    </button>
-  );
+	return (
+		<button
+			onClick={() => deletePost.mutate(id)}
+			disabled={deletePost.isPending}
+		>
+			{deletePost.isPending ? "Deleting..." : "Delete"}
+		</button>
+	);
 }
 ```
 
@@ -188,15 +188,15 @@ Fetch global settings:
 import { useGlobal } from "@questpie/admin/hooks";
 
 function Settings() {
-  const { data: settings, isLoading } = useGlobal("siteSettings");
+	const { data: settings, isLoading } = useGlobal("siteSettings");
 
-  if (isLoading) return <Spinner />;
+	if (isLoading) return <Spinner />;
 
-  return (
-    <div>
-      <h1>{settings?.siteName}</h1>
-    </div>
-  );
+	return (
+		<div>
+			<h1>{settings?.siteName}</h1>
+		</div>
+	);
 }
 ```
 
@@ -208,13 +208,13 @@ Update global settings:
 import { useGlobalUpdate } from "@questpie/admin/hooks";
 
 function SettingsForm() {
-  const updateSettings = useGlobalUpdate("siteSettings");
+	const updateSettings = useGlobalUpdate("siteSettings");
 
-  const handleSave = (data) => {
-    updateSettings.mutate(data);
-  };
+	const handleSave = (data) => {
+		updateSettings.mutate(data);
+	};
 
-  return <form onSubmit={handleSave}>{/* form fields */}</form>;
+	return <form onSubmit={handleSave}>{/* form fields */}</form>;
 }
 ```
 
@@ -226,20 +226,20 @@ Access admin store state with selectors:
 
 ```tsx
 import {
-  useAdminStore,
-  selectClient,
-  selectBasePath,
+	useAdminStore,
+	selectClient,
+	selectBasePath,
 } from "@questpie/admin/hooks";
 
 function MyComponent() {
-  const client = useAdminStore(selectClient);
-  const basePath = useAdminStore(selectBasePath);
+	const client = useAdminStore(selectClient);
+	const basePath = useAdminStore(selectBasePath);
 
-  // Multiple selectors
-  const { admin, locale } = useAdminStore((s) => ({
-    admin: s.admin,
-    locale: s.locale,
-  }));
+	// Multiple selectors
+	const { admin, locale } = useAdminStore((s) => ({
+		admin: s.admin,
+		locale: s.locale,
+	}));
 }
 ```
 
@@ -262,7 +262,7 @@ Get full admin context (legacy, prefer `useAdminStore`):
 import { useAdminContext } from "@questpie/admin/hooks";
 
 function MyComponent() {
-  const { admin, client, queryClient } = useAdminContext();
+	const { admin, client, queryClient } = useAdminContext();
 }
 ```
 
@@ -276,19 +276,19 @@ Access Better Auth client:
 import { useAuthClient } from "@questpie/admin/hooks";
 
 function UserMenu() {
-  const authClient = useAuthClient();
-  const session = authClient.useSession();
+	const authClient = useAuthClient();
+	const session = authClient.useSession();
 
-  if (!session.data?.user) {
-    return <LoginButton />;
-  }
+	if (!session.data?.user) {
+		return <LoginButton />;
+	}
 
-  return (
-    <div>
-      <span>{session.data.user.email}</span>
-      <button onClick={() => authClient.signOut()}>Sign Out</button>
-    </div>
-  );
+	return (
+		<div>
+			<span>{session.data.user.email}</span>
+			<button onClick={() => authClient.signOut()}>Sign Out</button>
+		</div>
+	);
 }
 ```
 
@@ -300,8 +300,8 @@ Create auth client instance:
 import { createAdminAuthClient } from "@questpie/admin/hooks";
 
 const authClient = createAdminAuthClient({
-  baseURL: "http://localhost:3000",
-  basePath: "/api/auth",
+	baseURL: "http://localhost:3000",
+	basePath: "/api/auth",
 });
 ```
 
@@ -315,25 +315,25 @@ Type-safe navigation helpers:
 import { useAdminRoutes } from "@questpie/admin/hooks";
 
 function Navigation() {
-  const { routes, navigate } = useAdminRoutes();
+	const { routes, navigate } = useAdminRoutes();
 
-  // Get URLs
-  const postsUrl = routes.collection("posts");
-  const newPostUrl = routes.collectionCreate("posts");
-  const editPostUrl = routes.collectionEdit("posts", "123");
-  const settingsUrl = routes.global("siteSettings");
+	// Get URLs
+	const postsUrl = routes.collection("posts");
+	const newPostUrl = routes.collectionCreate("posts");
+	const editPostUrl = routes.collectionEdit("posts", "123");
+	const settingsUrl = routes.global("siteSettings");
 
-  // Navigate programmatically
-  const goToPost = () => {
-    navigate({ collection: "posts", action: "edit", id: "123" });
-  };
+	// Navigate programmatically
+	const goToPost = () => {
+		navigate({ collection: "posts", action: "edit", id: "123" });
+	};
 
-  return (
-    <nav>
-      <a href={postsUrl}>Posts</a>
-      <button onClick={goToPost}>Edit Post</button>
-    </nav>
-  );
+	return (
+		<nav>
+			<a href={postsUrl}>Posts</a>
+			<button onClick={goToPost}>Edit Post</button>
+		</nav>
+	);
 }
 ```
 
@@ -345,12 +345,12 @@ Get href for admin routes:
 import { getAdminLinkHref } from "@questpie/admin/hooks";
 
 const href = getAdminLinkHref(
-  {
-    collection: "posts",
-    action: "edit",
-    id: "123",
-  },
-  "/admin",
+	{
+		collection: "posts",
+		action: "edit",
+		id: "123",
+	},
+	"/admin",
 );
 // => "/admin/collections/posts/123"
 ```
@@ -364,10 +364,10 @@ For full type inference, register your app types:
 import type { App } from "./server/app";
 
 declare module "@questpie/admin/builder" {
-  interface AdminTypeRegistry {
-    app: App;
-    admin: typeof admin;
-  }
+	interface AdminTypeRegistry {
+		app: App;
+		admin: typeof admin;
+	}
 }
 ```
 

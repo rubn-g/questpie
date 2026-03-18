@@ -12,11 +12,11 @@ Custom views are registered through modules and the admin client:
 ```ts
 // Server: declare the view type
 const myModule = module({
-  name: "custom-views",
-  views: {
-    kanban: kanbanViewDefinition,
-    calendar: calendarViewDefinition,
-  },
+	name: "custom-views",
+	views: {
+		kanban: kanbanViewDefinition,
+		calendar: calendarViewDefinition,
+	},
 });
 ```
 
@@ -37,20 +37,22 @@ Register the React component that renders the view:
 
 ```tsx
 function KanbanView({ data, columns, onDrop }) {
-  return (
-    <div className="flex gap-4">
-      {columns.map((col) => (
-        <div key={col.id} className="flex-1">
-          <h3>{col.label}</h3>
-          {data
-            .filter((item) => item.status === col.id)
-            .map((item) => (
-              <div key={item.id} className="card">{item.title}</div>
-            ))}
-        </div>
-      ))}
-    </div>
-  );
+	return (
+		<div className="flex gap-4">
+			{columns.map((col) => (
+				<div key={col.id} className="flex-1">
+					<h3>{col.label}</h3>
+					{data
+						.filter((item) => item.status === col.id)
+						.map((item) => (
+							<div key={item.id} className="card">
+								{item.title}
+							</div>
+						))}
+				</div>
+			))}
+		</div>
+	);
 }
 ```
 

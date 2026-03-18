@@ -245,8 +245,7 @@ export default {
 	"auth.sendingInvitation": "Sending invitation...",
 	"auth.sendInvitation": "Send Invitation",
 	"auth.inviteSentSuccess": "Invitation sent successfully",
-	"auth.signInDescription":
-		"Enter your credentials to access the admin panel",
+	"auth.signInDescription": "Enter your credentials to access the admin panel",
 	"auth.inviteUser": "Invite User",
 	"auth.inviteUserDescription": "Send an invitation to add a new user",
 	"auth.inviteSentTo": "Invitation sent to {{email}}",
@@ -282,13 +281,11 @@ export default {
 	"error.failedToLoadViewFor": "Failed to load {{viewType}} for {{collection}}",
 	"error.widgetError": "Widget Error",
 	"error.unknownWidget": "Unknown Widget",
-	"error.widgetTypeNotRecognized":
-		'Widget type "{{type}}" is not recognized.',
+	"error.widgetTypeNotRecognized": 'Widget type "{{type}}" is not recognized.',
 	"error.componentNotFound": "Component not found",
 	"error.failedToLoadComponent": "Failed to load component",
 	"error.pageNotFound": "Page Not Found",
-	"error.pageNotFoundDescription":
-		"The page you're looking for doesn't exist.",
+	"error.pageNotFoundDescription": "The page you're looking for doesn't exist.",
 	"error.accessRestricted": "Access Restricted",
 	"error.accessRestrictedDescription":
 		"You don't have permission to access this page. Contact your administrator if you believe this is an error.",
@@ -792,8 +789,7 @@ export default {
 	// Dropzone
 	"dropzone.label": "Drop files here or click to browse",
 	"dropzone.invalidType": '"{{name}}" is not an accepted file type',
-	"dropzone.tooLarge":
-		'"{{name}}" exceeds maximum size of {{maxSize}}',
+	"dropzone.tooLarge": '"{{name}}" exceeds maximum size of {{maxSize}}',
 	"dropzone.uploading": "Uploading...",
 	"dropzone.typeImages": "Images",
 	"dropzone.typeVideos": "Videos",

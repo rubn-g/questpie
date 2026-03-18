@@ -1,4 +1,5 @@
 import type * as React from "react";
+
 import { useResolveText } from "../../i18n/hooks";
 import type { I18nText } from "../../i18n/types";
 import { useSafeContentLocales, useScopedLocale } from "../../runtime";

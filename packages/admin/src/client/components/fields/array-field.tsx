@@ -8,6 +8,7 @@
 import { Icon } from "@iconify/react";
 import * as React from "react";
 import { useFieldArray, useFormContext, useWatch } from "react-hook-form";
+
 import type { FieldComponentProps } from "../../builder";
 import { useResolveText, useTranslation } from "../../i18n/hooks";
 import { Button } from "../ui/button";
@@ -21,7 +22,8 @@ import { ObjectArrayField } from "./object-array-field";
 type ArrayFieldItemType = "text" | "number" | "email" | "textarea" | "select";
 
 interface ArrayFieldProps
-	extends FieldComponentProps<any[]>,
+	extends
+		FieldComponentProps<any[]>,
 		Pick<
 			ArrayFieldConfig,
 			"item" | "mode" | "layout" | "columns" | "itemLabel"
@@ -225,7 +227,7 @@ export function ArrayField({
 						{resolvedLabel}
 						{required && <span className="text-destructive">*</span>}
 						{maxItems && (
-							<span className="ml-2 text-xs text-muted-foreground">
+							<span className="text-muted-foreground ml-2 text-xs">
 								({fields.length}/{maxItems})
 							</span>
 						)}
@@ -234,13 +236,13 @@ export function ArrayField({
 				</div>
 			)}
 			{resolvedDescription && (
-				<p className="text-sm text-muted-foreground">{resolvedDescription}</p>
+				<p className="text-muted-foreground text-sm">{resolvedDescription}</p>
 			)}
 
 			<div className="space-y-2">
 				{fields.length === 0 ? (
 					<div className="rounded-lg border border-dashed p-4 text-center">
-						<p className="text-sm text-muted-foreground">
+						<p className="text-muted-foreground text-sm">
 							{resolvedPlaceholder || emptyLabel}
 						</p>
 					</div>
@@ -323,7 +325,7 @@ export function ArrayField({
 				</Button>
 			)}
 
-			{error && <p className="text-sm text-destructive">{error}</p>}
+			{error && <p className="text-destructive text-sm">{error}</p>}
 		</div>
 	);
 }

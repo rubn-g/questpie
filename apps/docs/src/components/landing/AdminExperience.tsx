@@ -25,15 +25,15 @@ export function AdminExperience() {
 	return (
 		<section
 			id="architecture"
-			className="relative overflow-hidden border-t border-border/40 py-24"
+			className="border-border/40 relative overflow-hidden border-t py-24"
 		>
 			<div className="pointer-events-none absolute inset-0">
-				<div className="ambient-beam absolute left-1/3 top-20 h-[320px] w-[320px]" />
+				<div className="ambient-beam absolute top-20 left-1/3 h-[320px] w-[320px]" />
 			</div>
 
 			<div className="relative z-10 mx-auto w-full max-w-7xl px-4">
 				<div className="mx-auto mb-14 max-w-3xl space-y-4 text-center">
-					<h2 className="font-mono text-sm uppercase tracking-[0.2em] text-primary">
+					<h2 className="text-primary font-mono text-sm tracking-[0.2em] uppercase">
 						One system, clear responsibility split
 					</h2>
 					<h3 className="text-3xl font-bold tracking-tight md:text-4xl">
@@ -49,19 +49,19 @@ export function AdminExperience() {
 					{cards.map((card, i) => (
 						<article
 							key={card.title}
-							className="animate-in fade-in slide-in-from-bottom-4 border border-border bg-card/40 p-6 backdrop-blur-sm duration-700"
+							className="animate-in fade-in slide-in-from-bottom-4 border-border bg-card/40 border p-6 backdrop-blur-sm duration-700"
 							style={{ animationDelay: `${120 + i * 80}ms` }}
 						>
 							<div className="mb-5 flex items-start justify-between gap-4">
-								<div className="inline-flex border border-primary/30 bg-primary/10 p-2">
-									<card.icon className="h-5 w-5 text-primary" />
+								<div className="border-primary/30 bg-primary/10 inline-flex border p-2">
+									<card.icon className="text-primary h-5 w-5" />
 								</div>
-								<span className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+								<span className="text-muted-foreground font-mono text-[10px] tracking-[0.2em] uppercase">
 									{card.accent}
 								</span>
 							</div>
 							<h4 className="mb-2 text-lg font-semibold">{card.title}</h4>
-							<p className="text-sm leading-relaxed text-muted-foreground">
+							<p className="text-muted-foreground text-sm leading-relaxed">
 								{card.body}
 							</p>
 						</article>

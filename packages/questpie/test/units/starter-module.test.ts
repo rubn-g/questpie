@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test";
+
 import starterModule from "../../src/server/modules/starter/.generated/module.js";
 
 describe("starterModule", () => {

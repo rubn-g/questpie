@@ -17,30 +17,30 @@ export default route()
 
 ### Builder Methods
 
-| Method | Description |
-|---|---|
-| `.post()` | Set HTTP method to POST |
-| `.get()` | Set HTTP method to GET |
-| `.schema(zodSchema)` | Set input validation schema |
-| `.handler(fn)` | Set handler function |
-| `.raw()` | Raw mode — handler receives `{ request }` and returns `Response` |
-| `.access(boolean \| fn)` | Access control |
+| Method                   | Description                                                      |
+| ------------------------ | ---------------------------------------------------------------- |
+| `.post()`                | Set HTTP method to POST                                          |
+| `.get()`                 | Set HTTP method to GET                                           |
+| `.schema(zodSchema)`     | Set input validation schema                                      |
+| `.handler(fn)`           | Set handler function                                             |
+| `.raw()`                 | Raw mode — handler receives `{ request }` and returns `Response` |
+| `.access(boolean \| fn)` | Access control                                                   |
 
 ### Handler Context
 
-| Property | Type | Description |
-|---|---|---|
-| `input` | `z.infer<schema>` | Validated input |
-| `collections` | `AppCollections` | Collection API |
-| `globals` | `AppGlobals` | Globals API |
-| `db` | `Database` | Drizzle instance |
-| `session` | `Session \| null` | Auth session |
-| `queue` | `QueueClient` | Job queue |
-| `email` | `MailerService` | Email service |
-| `logger` | `Logger` | Logger |
-| `kv` | `KVStore` | Key-value store |
-| `app` | `QuestpieApp` | App instance |
-| Custom services | — | Services from `services/` |
+| Property        | Type              | Description               |
+| --------------- | ----------------- | ------------------------- |
+| `input`         | `z.infer<schema>` | Validated input           |
+| `collections`   | `AppCollections`  | Collection API            |
+| `globals`       | `AppGlobals`      | Globals API               |
+| `db`            | `Database`        | Drizzle instance          |
+| `session`       | `Session \| null` | Auth session              |
+| `queue`         | `QueueClient`     | Job queue                 |
+| `email`         | `MailerService`   | Email service             |
+| `logger`        | `Logger`          | Logger                    |
+| `kv`            | `KVStore`         | Key-value store           |
+| `app`           | `QuestpieApp`     | App instance              |
+| Custom services | —                 | Services from `services/` |
 
 ## `job(options)`
 
@@ -56,12 +56,12 @@ export default job({
 
 ### Job Options
 
-| Option | Type | Description |
-|---|---|---|
-| `name` | `string` | Job identifier |
-| `schema` | `ZodSchema` | Payload schema |
-| `handler` | `(ctx) => Promise<void>` | Handler function |
-| `options` | `{ retryLimit, retryDelay }` | Retry config |
+| Option    | Type                         | Description      |
+| --------- | ---------------------------- | ---------------- |
+| `name`    | `string`                     | Job identifier   |
+| `schema`  | `ZodSchema`                  | Payload schema   |
+| `handler` | `(ctx) => Promise<void>`     | Handler function |
+| `options` | `{ retryLimit, retryDelay }` | Retry config     |
 
 ### Job Context
 
@@ -73,16 +73,16 @@ Same as route handler context, but `input` is replaced by `payload`.
 import { service } from "questpie";
 
 export default service({
-  lifecycle: "singleton",
-  create: () => new MyService(),
+	lifecycle: "singleton",
+	create: () => new MyService(),
 });
 ```
 
-| Option | Type | Description |
-|---|---|---|
+| Option      | Type                       | Description        |
+| ----------- | -------------------------- | ------------------ |
 | `lifecycle` | `"singleton" \| "request"` | Instance lifecycle |
-| `create` | `() => T` | Factory function |
-| `dispose` | `(instance) => void` | Cleanup function |
+| `create`    | `() => T`                  | Factory function   |
+| `dispose`   | `(instance) => void`       | Cleanup function   |
 
 ## Raw Routes
 
@@ -92,9 +92,9 @@ Use `.raw()` for handlers that need direct `Request`/`Response` control:
 import { route } from "questpie";
 
 export default route()
-  .get()
-  .raw()
-  .handler(async ({ request, db }) => new Response("OK"));
+	.get()
+	.raw()
+	.handler(async ({ request, db }) => new Response("OK"));
 ```
 
 ## `email(options)`
@@ -109,8 +109,8 @@ export default email({
 });
 ```
 
-| Option | Type | Description |
-|---|---|---|
-| `name` | `string` | Template identifier |
-| `schema` | `ZodSchema` | Input schema |
-| `handler` | `(ctx) => { subject, html }` | Template renderer |
+| Option    | Type                         | Description         |
+| --------- | ---------------------------- | ------------------- |
+| `name`    | `string`                     | Template identifier |
+| `schema`  | `ZodSchema`                  | Input schema        |
+| `handler` | `(ctx) => { subject, html }` | Template renderer   |

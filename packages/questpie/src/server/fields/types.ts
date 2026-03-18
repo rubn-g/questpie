@@ -12,6 +12,7 @@
 import type { SQL } from "drizzle-orm";
 import type { AnyPgColumn } from "drizzle-orm/pg-core";
 import type { ZodType } from "zod";
+
 import type { I18nText } from "#questpie/shared/i18n/types.js";
 
 // ============================================================================
@@ -539,7 +540,7 @@ export type ExtractFieldsByLocation<
 			: TFields[K] extends {
 						readonly _: infer TState extends
 							import("./field-class-types.js").FieldState;
-					}
+				  }
 				? InferLocationFromFieldState<TState> extends TLocation
 					? K
 					: never

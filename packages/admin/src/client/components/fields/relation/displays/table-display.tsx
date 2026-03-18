@@ -6,6 +6,7 @@
 
 import { Icon } from "@iconify/react";
 import * as React from "react";
+
 import { useTranslation } from "../../../../i18n/hooks";
 import { CollectionEditLink } from "../../../admin-link";
 import { Button } from "../../../ui/button";
@@ -34,13 +35,13 @@ function TableSkeleton({
 		<div className="rounded-md border">
 			<table className="w-full text-sm">
 				<thead>
-					<tr className="border-b border-border bg-card ">
+					<tr className="border-border bg-card border-b">
 						{columns.map((col) => (
 							<th key={col} className="px-3 py-2 text-left font-medium">
 								{formatColumnHeader(col)}
 							</th>
 						))}
-						{hasActions && <th className="px-3 py-2 w-20" />}
+						{hasActions && <th className="w-20 px-3 py-2" />}
 					</tr>
 				</thead>
 				<tbody>
@@ -122,13 +123,13 @@ export function TableDisplay({
 		<div className="rounded-md border">
 			<table className="w-full text-sm">
 				<thead>
-					<tr className="border-b border-border bg-card ">
+					<tr className="border-border bg-card border-b">
 						{columns.map((col) => (
 							<th key={col} className="px-3 py-2 text-left font-medium">
 								{formatColumnHeader(col)}
 							</th>
 						))}
-						{hasActions && <th className="px-3 py-2 w-20" />}
+						{hasActions && <th className="w-20 px-3 py-2" />}
 					</tr>
 				</thead>
 				<tbody>

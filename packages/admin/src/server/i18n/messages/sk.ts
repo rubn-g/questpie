@@ -141,7 +141,7 @@ export default {
 	"blocks.addTo": "Pridať do {{parent}}",
 	"blocks.addFirst": "Pridajte svoj prvý blok",
 	"blocks.unknownType":
-		"Neznámy typ bloku \"{{type}}\". Tento typ bloku nie je zaregistrovaný.",
+		'Neznámy typ bloku "{{type}}". Tento typ bloku nie je zaregistrovaný.',
 	"blocks.searchPlaceholder": "Hľadať bloky...",
 	"blocks.uncategorized": "Ostatné",
 	"blocks.noEditableFields": "Tento blok nemá editovateľné polia.",
@@ -240,15 +240,13 @@ export default {
 	"auth.enterNewPassword": "Zadajte nové heslo nižšie.",
 	"auth.createAccountDescription": "Vytvorte si účet a začnite",
 	"auth.inviteEmailLabel": "Emailová adresa",
-	"auth.inviteEmailDescription":
-		"Na tento email bude odoslaný pozývací odkaz",
+	"auth.inviteEmailDescription": "Na tento email bude odoslaný pozývací odkaz",
 	"auth.inviteRole": "Rola",
 	"auth.inviteSelectRole": "Vyberte rolu",
 	"auth.inviteRoleDescription":
 		"Rola určuje, aké oprávnenia bude mať používateľ",
 	"auth.inviteMessage": "Osobná správa (voliteľné)",
-	"auth.inviteMessagePlaceholder":
-		"Pridajte osobnú správu k pozvánke...",
+	"auth.inviteMessagePlaceholder": "Pridajte osobnú správu k pozvánke...",
 	"auth.inviteMessageDescription":
 		"Táto správa bude zahrnutá v emailovej pozvánke",
 	"auth.sendingInvitation": "Odosielam pozvánku...",
@@ -264,8 +262,7 @@ export default {
 	"auth.validatingInvitation": "Overovanie pozvánky",
 	"auth.pleaseWait": "Prosím čakajte...",
 	"auth.invalidInvitation": "Neplatná pozvánka",
-	"auth.invalidInvitationDescription":
-		"Tento pozývací odkaz už nie je platný",
+	"auth.invalidInvitationDescription": "Tento pozývací odkaz už nie je platný",
 	"auth.invalidOrExpiredInvitation": "Neplatná alebo expirovaná pozvánka",
 	"auth.invitationExpiredMessage":
 		"Pozvánka mohla expirovať alebo už bola použitá. Kontaktujte svojho administrátora pre novú pozvánku.",
@@ -294,20 +291,17 @@ export default {
 		"Nepodarilo sa načítať {{viewType}} pre {{collection}}",
 	"error.widgetError": "Chyba widgetu",
 	"error.unknownWidget": "Neznámy widget",
-	"error.widgetTypeNotRecognized":
-		"Typ widgetu \"{{type}}\" nie je rozpoznaný.",
+	"error.widgetTypeNotRecognized": 'Typ widgetu "{{type}}" nie je rozpoznaný.',
 	"error.componentNotFound": "Komponent sa nenašiel",
 	"error.failedToLoadComponent": "Nepodarilo sa načítať komponent",
 	"error.pageNotFound": "Stránka sa nenašla",
-	"error.pageNotFoundDescription":
-		"Stránka, ktorú hľadáte, neexistuje.",
+	"error.pageNotFoundDescription": "Stránka, ktorú hľadáte, neexistuje.",
 	"error.accessRestricted": "Prístup zamietnutý",
 	"error.accessRestrictedDescription":
 		"Nemáte oprávnenie na prístup k tejto stránke. Ak si myslíte, že ide o chybu, kontaktujte administrátora.",
 	"error.tryAgain": "Skúsiť znova",
 	"error.backToDashboard": "Späť na dashboard",
-	"error.noUploadCollection":
-		"Nie je nakonfigurovaná kolekcia pre nahrávanie.",
+	"error.noUploadCollection": "Nie je nakonfigurovaná kolekcia pre nahrávanie.",
 	"error.multipleUploadCollections":
 		"K dispozícii je viacero kolekcií pre nahrávanie ({{collections}}). Špecifikujte, ktorú kolekciu použiť.",
 	"error.autosaveFailed": "Automatické uloženie zlyhalo",
@@ -315,11 +309,9 @@ export default {
 	"error.serverActionFailed": "Serverová akcia zlyhala",
 	"error.failedToLoadOptions": "Nepodarilo sa načítať možnosti",
 	"error.failedToLoadAssets": "Nepodarilo sa načítať súbory",
-	"error.failedToLoadSelectedItems":
-		"Nepodarilo sa načítať vybrané položky",
+	"error.failedToLoadSelectedItems": "Nepodarilo sa načítať vybrané položky",
 	"error.invalidCredentials": "Neplatné prihlasovacie údaje",
-	"error.failedToSendResetEmail":
-		"Nepodarilo sa odoslať email na reset hesla",
+	"error.failedToSendResetEmail": "Nepodarilo sa odoslať email na reset hesla",
 	"error.failedToResetPassword": "Nepodarilo sa resetovať heslo",
 	"error.failedToCreateAccount": "Nepodarilo sa vytvoriť účet",
 	"error.failedToSendInvitation": "Nepodarilo sa odoslať pozvánku",
@@ -349,8 +341,7 @@ export default {
 	"table.columns": "Stĺpce",
 	"table.hideColumn": "Skryť stĺpec",
 	"table.showColumn": "Zobraziť stĺpec",
-	"table.noItemsInCollection":
-		"V tejto kolekcii sa nenašli žiadne položky",
+	"table.noItemsInCollection": "V tejto kolekcii sa nenašli žiadne položky",
 	"table.pagination": "Stránkovanie",
 	"table.editing": "Upravuje",
 
@@ -722,8 +713,7 @@ export default {
 	"preview.close": "Zavrieť náhľad",
 	"preview.loading": "Načítava sa náhľad...",
 	"preview.exitPreview": "Ukončiť náhľad",
-	"preview.exitTooltip":
-		"Ukončiť režim náhľadu a vymazať draft cookie",
+	"preview.exitTooltip": "Ukončiť režim náhľadu a vymazať draft cookie",
 	"preview.loadingPreview": "Načítava sa náhľad...",
 	"preview.previewError": "Chyba náhľadu",
 	"preview.refreshing": "Obnovuje sa...",
@@ -775,12 +765,9 @@ export default {
 	"ui.themeSystem": "Systémová",
 
 	// Dropzone
-	"dropzone.label":
-		"Presuňte súbory sem alebo kliknite na prehľadávanie",
-	"dropzone.invalidType":
-		"\"{{name}}\" nie je povolený typ súboru",
-	"dropzone.tooLarge":
-		"\"{{name}}\" presahuje maximálnu veľkosť {{maxSize}}",
+	"dropzone.label": "Presuňte súbory sem alebo kliknite na prehľadávanie",
+	"dropzone.invalidType": '"{{name}}" nie je povolený typ súboru',
+	"dropzone.tooLarge": '"{{name}}" presahuje maximálnu veľkosť {{maxSize}}',
 	"dropzone.uploading": "Nahráva sa...",
 	"dropzone.typeImages": "Obrázky",
 	"dropzone.typeVideos": "Videá",

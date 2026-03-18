@@ -20,8 +20,8 @@ import type {
 import { datetime } from "#questpie/server/fields/builtin-factories/datetime.js";
 import { number } from "#questpie/server/fields/builtin-factories/number.js";
 import { text } from "#questpie/server/fields/builtin-factories/text.js";
-import type { Field } from "#questpie/server/fields/field-class.js";
 import type { FieldState } from "#questpie/server/fields/field-class-types.js";
+import type { Field } from "#questpie/server/fields/field-class.js";
 import type {
 	ExtractOperatorParamType,
 	OperatorMap,

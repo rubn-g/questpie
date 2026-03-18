@@ -11,6 +11,7 @@
 import { type UseQueryOptions, useQuery } from "@tanstack/react-query";
 import type { Questpie } from "questpie";
 import type { CollectionSchema } from "questpie/client";
+
 import type {
 	RegisteredCMS,
 	RegisteredCollectionNames,

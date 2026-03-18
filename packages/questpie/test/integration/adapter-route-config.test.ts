@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it } from "bun:test";
+
 import { createFetchHandler } from "../../src/server/adapters/http.js";
 import { collection } from "../../src/server/index.js";
 import type { SearchAdapter } from "../../src/server/integrated/search/types.js";

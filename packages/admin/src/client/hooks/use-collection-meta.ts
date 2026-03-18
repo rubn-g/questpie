@@ -16,6 +16,7 @@ import {
 } from "@tanstack/react-query";
 import type { Questpie } from "questpie";
 import type { CollectionMeta } from "questpie/client";
+
 import type {
 	RegisteredCMS,
 	RegisteredCollectionNames,

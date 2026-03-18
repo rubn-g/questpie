@@ -1,5 +1,6 @@
 import { index } from "drizzle-orm/pg-core";
 import { collection } from "questpie";
+
 import type {
 	AdminCollectionConfig,
 	FormViewConfig,

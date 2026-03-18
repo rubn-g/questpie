@@ -15,6 +15,7 @@ When your collections have localized fields, the admin panel shows a **locale sw
 ## Locale Switcher
 
 The switcher appears automatically when localized fields exist. It shows:
+
 - Country flag (auto-detected from locale code, or custom mapped)
 - Locale code (e.g. "EN", "SK")
 - Locale name (if configured)
@@ -23,11 +24,11 @@ The switcher appears automatically when localized fields exist. It shows:
 
 The switcher adapts based on the number of locales:
 
-| Locales | UI |
-|---|---|
-| 1 | Hidden (no switching needed) |
-| 2-3 | Inline toggle buttons |
-| 4+ | Dropdown menu |
+| Locales | UI                           |
+| ------- | ---------------------------- |
+| 1       | Hidden (no switching needed) |
+| 2-3     | Inline toggle buttons        |
+| 4+      | Dropdown menu                |
 
 ### Custom Flag Mapping
 
@@ -35,14 +36,14 @@ By default, flags are resolved from locale codes (e.g. `en` â†’ US flag, `sk` â†
 
 ```ts title="questpie.config.ts"
 export default runtimeConfig({
-  localization: {
-    defaultLocale: "en",
-    locales: [
-      { code: "en", label: { en: "English" }, flagCountryCode: "gb" },
-      { code: "sk", label: { en: "Slovak" } },
-      { code: "cs", label: { en: "Czech" }, flagCountryCode: "cz" },
-    ],
-  },
+	localization: {
+		defaultLocale: "en",
+		locales: [
+			{ code: "en", label: { en: "English" }, flagCountryCode: "gb" },
+			{ code: "sk", label: { en: "Slovak" } },
+			{ code: "cs", label: { en: "Czech" }, flagCountryCode: "cz" },
+		],
+	},
 });
 ```
 
@@ -53,18 +54,18 @@ Only fields marked with `.localized()` change when switching locales. Non-locali
 ```ts title="collections/pages.ts"
 import { collection } from "#questpie";
 
-export const pages = collection("pages")
-  .fields(({ f }) => ({
-    title: f.text().required().localized(),     // Changes per locale
-    slug: f.text().required(),                   // Same across locales
-    content: f.blocks().localized(),             // Changes per locale
-    publishedAt: f.datetime(),                   // Same across locales
-  }));
+export const pages = collection("pages").fields(({ f }) => ({
+	title: f.text().required().localized(), // Changes per locale
+	slug: f.text().required(), // Same across locales
+	content: f.blocks().localized(), // Changes per locale
+	publishedAt: f.datetime(), // Same across locales
+}));
 ```
 
 ## Locale Scope
 
 The admin tracks the current content locale separately from the UI locale. When an editor switches from "EN" to "SK":
+
 - Only the localized field values change
 - The admin UI language stays the same
 - API calls include the `locale` parameter automatically

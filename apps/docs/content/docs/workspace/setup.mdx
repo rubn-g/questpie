@@ -20,10 +20,10 @@ import { adminPlugin } from "@questpie/admin/plugin";
 import { runtimeConfig } from "questpie";
 
 export default runtimeConfig({
-  plugins: [adminPlugin()],
-  app: { url: process.env.APP_URL || "http://localhost:3000" },
-  db: { url: process.env.DATABASE_URL },
-  secret: process.env.APP_SECRET,
+	plugins: [adminPlugin()],
+	app: { url: process.env.APP_URL || "http://localhost:3000" },
+	db: { url: process.env.DATABASE_URL },
+	secret: process.env.APP_SECRET,
 });
 ```
 
@@ -39,8 +39,8 @@ import { adminModule, auditModule } from "@questpie/admin/server";
 export default [adminModule, auditModule] as const;
 ```
 
-| Module | Provides |
-|---|---|
+| Module        | Provides                              |
+| ------------- | ------------------------------------- |
 | `adminModule` | User collection, auth pages, admin UI |
 | `auditModule` | Audit log collection, timeline widget |
 
@@ -52,24 +52,24 @@ Create the admin convention files:
 import { sidebar } from "#questpie/factories";
 
 export default sidebar({
-  sections: [
-    { id: "overview", title: { en: "Overview" } },
-    { id: "content", title: { en: "Content" } },
-  ],
-  items: [
-    {
-      sectionId: "overview",
-      type: "link",
-      label: { en: "Dashboard" },
-      href: "/admin",
-      icon: { type: "icon", props: { name: "ph:house" } },
-    },
-    {
-      sectionId: "content",
-      type: "collection",
-      collection: "posts",
-    },
-  ],
+	sections: [
+		{ id: "overview", title: { en: "Overview" } },
+		{ id: "content", title: { en: "Content" } },
+	],
+	items: [
+		{
+			sectionId: "overview",
+			type: "link",
+			label: { en: "Dashboard" },
+			href: "/admin",
+			icon: { type: "icon", props: { name: "ph:house" } },
+		},
+		{
+			sectionId: "content",
+			type: "collection",
+			collection: "posts",
+		},
+	],
 });
 ```
 
@@ -77,7 +77,7 @@ export default sidebar({
 import { branding } from "#questpie/factories";
 
 export default branding({
-  name: { en: "My App Admin" },
+	name: { en: "My App Admin" },
 });
 ```
 

@@ -7,6 +7,7 @@
 
 import { createZodErrorMap, type ZodErrorMapFn } from "questpie/shared";
 import { useMemo } from "react";
+
 import { useSafeI18n } from "../i18n/hooks";
 
 /**
@@ -58,4 +59,3 @@ export function useValidationErrorMap(): ZodErrorMapFn {
 		return createZodErrorMap(translate);
 	}, [i18n]);
 }
-

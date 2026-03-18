@@ -77,9 +77,7 @@ Drop all tables and re-run all migrations:
 bunx questpie migrate:fresh
 ```
 
-<Callout type="warn">
-This destroys all data. Use only in development.
-</Callout>
+<Callout type="warn">This destroys all data. Use only in development.</Callout>
 
 ### `migrate:reset`
 
@@ -113,15 +111,15 @@ bunx questpie add <module>
 import { runtimeConfig } from "questpie";
 
 export default runtimeConfig({
-  // ...
-  cli: {
-    migrations: {
-      directory: "./src/migrations",
-    },
-    seeds: {
-      directory: "./src/seeds",
-    },
-  },
+	// ...
+	cli: {
+		migrations: {
+			directory: "./src/migrations",
+		},
+		seeds: {
+			directory: "./src/seeds",
+		},
+	},
 });
 ```
 

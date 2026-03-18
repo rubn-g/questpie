@@ -8,6 +8,7 @@
 import { Icon } from "@iconify/react";
 import { useQuery } from "@tanstack/react-query";
 import * as React from "react";
+
 import { Alert, AlertDescription } from "../../components/ui/alert";
 import { Button } from "../../components/ui/button";
 import { Spinner } from "../../components/ui/spinner";
@@ -97,12 +98,18 @@ export function AcceptInvitePage({
 	const basePath = useAdminStore(selectBasePath);
 	const brandName = useAdminStore(selectBrandName);
 
-	const { data: invitationData, isLoading: isValidating, error: invitationError } = useQuery({
+	const {
+		data: invitationData,
+		isLoading: isValidating,
+		error: invitationError,
+	} = useQuery({
 		queryKey: ["questpie", "invitation", token],
 		queryFn: async () => {
 			const result = await authClient.admin.getInvitation({ query: { token } });
 			if (result.error) {
-				throw new Error(result.error.message || t("auth.invalidOrExpiredInvitation"));
+				throw new Error(
+					result.error.message || t("auth.invalidOrExpiredInvitation"),
+				);
 			}
 			if (!result.data) {
 				throw new Error(t("auth.invalidOrExpiredInvitation"));
@@ -174,7 +181,9 @@ export function AcceptInvitePage({
 				<div className="space-y-4">
 					<Alert variant="destructive">
 						<Icon icon="ph:warning-circle" />
-						<AlertDescription>{invitationError?.message || t("auth.invalidOrExpiredInvitation")}</AlertDescription>
+						<AlertDescription>
+							{invitationError?.message || t("auth.invalidOrExpiredInvitation")}
+						</AlertDescription>
 					</Alert>
 					<p className="text-muted-foreground text-center text-sm">
 						{t("auth.invitationExpiredMessage")}

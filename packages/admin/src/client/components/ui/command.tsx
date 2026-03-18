@@ -3,6 +3,7 @@
 import { Icon } from "@iconify/react";
 import { Command as CommandPrimitive } from "cmdk";
 import type * as React from "react";
+
 import {
 	Dialog,
 	DialogContent,
@@ -24,7 +25,7 @@ function Command({
 		<CommandPrimitive
 			data-slot="command"
 			className={cn(
-				"qa-command bg-popover text-popover-foreground p-1 flex size-full flex-col overflow-hidden",
+				"qa-command bg-popover text-popover-foreground flex size-full flex-col overflow-hidden p-1",
 				className,
 			)}
 			{...props}
@@ -53,7 +54,7 @@ function CommandDialog({
 				<DialogDescription>{description}</DialogDescription>
 			</DialogHeader>
 			<DialogContent
-				className={cn("p-0 overflow-hidden", className)}
+				className={cn("overflow-hidden p-0", className)}
 				showCloseButton={showCloseButton}
 			>
 				{children}
@@ -68,7 +69,7 @@ function CommandInput({
 }: React.ComponentProps<typeof CommandPrimitive.Input>) {
 	return (
 		<div data-slot="command-input-wrapper" className="p-1 pb-0">
-			<InputGroup className="bg-input  h-8!">
+			<InputGroup className="bg-input h-8!">
 				<CommandPrimitive.Input
 					data-slot="command-input"
 					className={cn(
@@ -96,7 +97,7 @@ function CommandList({
 		<CommandPrimitive.List
 			data-slot="command-list"
 			className={cn(
-				"qa-command__list no-scrollbar max-h-72 scroll-py-1 outline-none overflow-x-hidden overflow-y-auto",
+				"qa-command__list no-scrollbar max-h-72 scroll-py-1 overflow-x-hidden overflow-y-auto outline-none",
 				className,
 			)}
 			{...props}
@@ -161,7 +162,7 @@ function CommandItem({
 		<CommandPrimitive.Item
 			data-slot="command-item"
 			className={cn(
-				"qa-command__item data-selected:bg-current/5 data-selected:text-foreground data-selected:*:[svg]:text-foreground relative flex min-h-7 cursor-pointer items-center gap-2 px-2.5 py-1.5 text-xs/relaxed outline-hidden select-none [&_svg:not([class*='size-'])]:size-3.5 group/command-item data-[disabled=true]:pointer-events-none data-[disabled=true]:cursor-not-allowed data-[disabled=true]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
+				"qa-command__item data-selected:text-foreground data-selected:*:[svg]:text-foreground group/command-item relative flex min-h-7 cursor-pointer items-center gap-2 px-2.5 py-1.5 text-xs/relaxed outline-hidden select-none data-selected:bg-current/5 data-[disabled=true]:pointer-events-none data-[disabled=true]:cursor-not-allowed data-[disabled=true]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-3.5",
 				className,
 			)}
 			{...props}

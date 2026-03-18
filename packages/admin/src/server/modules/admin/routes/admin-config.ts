@@ -16,6 +16,7 @@
 
 import { executeAccessRule, type Questpie, route } from "questpie";
 import { z } from "zod";
+
 import type {
 	AdminCollectionConfig,
 	AdminGlobalConfig,

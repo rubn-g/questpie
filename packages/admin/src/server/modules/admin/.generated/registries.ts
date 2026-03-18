@@ -4,8 +4,8 @@
 // IMPORTANT: This file must NOT import from module.ts to avoid circular imports.
 
 import type _view_collectionForm from "../views/form";
-import type _view_collectionTable from "../views/table";
 import type _view_globalForm from "../views/global-form";
+import type _view_collectionTable from "../views/table";
 
 interface _RegViews {
 	collectionForm: typeof _view_collectionForm;

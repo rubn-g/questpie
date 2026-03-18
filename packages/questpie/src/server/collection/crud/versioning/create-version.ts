@@ -6,6 +6,7 @@
 
 import { and, eq, inArray, sql } from "drizzle-orm";
 import type { PgTable } from "drizzle-orm/pg-core";
+
 import type {
 	CollectionBuilderState,
 	CollectionOptions,

@@ -155,7 +155,10 @@ export function getAllAvailableFields(
 		// For virtual titles, show the virtual field's label instead of generic "Title"
 		if (titleType === "virtual" && titleFieldName && fields?.[titleFieldName]) {
 			const titleFieldDef = fields[titleFieldName];
-			const titleFieldOptions = (titleFieldDef?.["~options"] ?? {}) as Record<string, any>;
+			const titleFieldOptions = (titleFieldDef?.["~options"] ?? {}) as Record<
+				string,
+				any
+			>;
 			const titleLabel =
 				titleFieldOptions.label ?? formatFieldLabel(titleFieldName);
 			availableFields.push({

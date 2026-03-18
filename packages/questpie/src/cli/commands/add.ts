@@ -11,12 +11,14 @@
 
 import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
-import {
-	coreCodegenPlugin,
-	resolveTargetGraph,
-} from "../codegen/index.js";
+
+import { coreCodegenPlugin, resolveTargetGraph } from "../codegen/index.js";
 import type { ResolvedTarget, ScaffoldConfig } from "../codegen/types.js";
-import { generateCommand, loadConfigForCodegen, resolveEntityRoot } from "./codegen.js";
+import {
+	generateCommand,
+	loadConfigForCodegen,
+	resolveEntityRoot,
+} from "./codegen.js";
 
 // ============================================================================
 // Types
@@ -104,9 +106,10 @@ export async function addCommand(options: AddOptions): Promise<void> {
 		const outDir = join(targetRootDir, entry.scaffold.dir);
 		const filePath = join(outDir, `${kebab}${ext}`);
 
-		const label = filteredEntries.length > 1
-			? `[${entry.targetId}] ${options.type}: ${options.name}`
-			: `${options.type}: ${options.name}`;
+		const label =
+			filteredEntries.length > 1
+				? `[${entry.targetId}] ${options.type}: ${options.name}`
+				: `${options.type}: ${options.name}`;
 
 		console.log(`Adding ${label}`);
 		console.log(`  File: ${filePath}`);

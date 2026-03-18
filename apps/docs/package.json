@@ -1,8 +1,8 @@
 {
 	"name": "@questpie/docs",
 	"private": true,
-	"sideEffects": false,
 	"type": "module",
+	"sideEffects": false,
 	"scripts": {
 		"dev": "vite dev",
 		"build": "NODE_OPTIONS='--max-old-space-size=8192' vite build",
@@ -43,9 +43,9 @@
 		"@types/react-syntax-highlighter": "^15.5.13",
 		"@vitejs/plugin-react": "^5.1.2",
 		"nitro": "3.0.1-alpha.1",
+		"shadcn": "^3.6.3",
 		"tailwindcss": "^4.1.18",
 		"typescript": "^5.9.3",
-		"shadcn": "^3.6.3",
 		"vite-tsconfig-paths": "^6.0.0"
 	}
 }

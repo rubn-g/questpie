@@ -23,9 +23,10 @@ import {
 	useMemo,
 	useState,
 } from "react";
+
 import { I18nProvider } from "../i18n/hooks";
-import { getCookie } from "../lib/cookies.js";
 import { createSimpleI18n, type SimpleMessages } from "../i18n/simple";
+import { getCookie } from "../lib/cookies.js";
 import { selectClient, useAdminStore } from "./provider";
 
 // ============================================================================

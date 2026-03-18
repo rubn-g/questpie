@@ -19,53 +19,58 @@ import type { AppConfig } from "#questpie";
 
 // List with filters
 function ServiceList() {
-  const { data, isLoading } = useCollectionList<AppConfig>("services", {
-    where: { isActive: true },
-    orderBy: { name: "asc" },
-    limit: 20,
-  });
+	const { data, isLoading } = useCollectionList<AppConfig>("services", {
+		where: { isActive: true },
+		orderBy: { name: "asc" },
+		limit: 20,
+	});
 
-  if (isLoading) return <div>Loading...</div>;
+	if (isLoading) return <div>Loading...</div>;
 
-  return (
-    <ul>
-      {data?.docs.map((service) => (
-        <li key={service.id}>{service.name} — {service.price}¢</li>
-      ))}
-    </ul>
-  );
+	return (
+		<ul>
+			{data?.docs.map((service) => (
+				<li key={service.id}>
+					{service.name} — {service.price}¢
+				</li>
+			))}
+		</ul>
+	);
 }
 
 // Single item
 function ServiceDetail({ id }: { id: string }) {
-  const { data: service } = useCollectionItem<AppConfig>("services", {
-    where: { id },
-    with: { barbers: true },
-  });
+	const { data: service } = useCollectionItem<AppConfig>("services", {
+		where: { id },
+		with: { barbers: true },
+	});
 
-  if (!service) return null;
-  return <div>{service.name}</div>;
+	if (!service) return null;
+	return <div>{service.name}</div>;
 }
 ```
 
 ## Mutation Hooks
 
 ```tsx
-import { useCollectionCreate, useCollectionUpdate } from "@questpie/tanstack-query";
+import {
+	useCollectionCreate,
+	useCollectionUpdate,
+} from "@questpie/tanstack-query";
 
 function CreateServiceForm() {
-  const create = useCollectionCreate<AppConfig>("services");
+	const create = useCollectionCreate<AppConfig>("services");
 
-  const handleSubmit = (data) => {
-    create.mutate({
-      name: data.name,
-      duration: data.duration,
-      price: data.price,
-      isActive: true,
-    });
-  };
+	const handleSubmit = (data) => {
+		create.mutate({
+			name: data.name,
+			duration: data.duration,
+			price: data.price,
+			isActive: true,
+		});
+	};
 
-  return <form onSubmit={handleSubmit}>...</form>;
+	return <form onSubmit={handleSubmit}>...</form>;
 }
 ```
 
@@ -75,17 +80,17 @@ function CreateServiceForm() {
 import { useGlobal, useGlobalUpdate } from "@questpie/tanstack-query";
 
 function SiteSettings() {
-  const { data: settings } = useGlobal<AppConfig>("siteSettings");
-  const update = useGlobalUpdate<AppConfig>("siteSettings");
+	const { data: settings } = useGlobal<AppConfig>("siteSettings");
+	const update = useGlobalUpdate<AppConfig>("siteSettings");
 
-  return (
-    <div>
-      <h1>{settings?.shopName}</h1>
-      <button onClick={() => update.mutate({ shopName: "New Name" })}>
-        Update
-      </button>
-    </div>
-  );
+	return (
+		<div>
+			<h1>{settings?.shopName}</h1>
+			<button onClick={() => update.mutate({ shopName: "New Name" })}>
+				Update
+			</button>
+		</div>
+	);
 }
 ```
 

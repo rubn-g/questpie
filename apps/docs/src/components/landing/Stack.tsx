@@ -1,6 +1,8 @@
 import { Eye, Palette, Puzzle, Sparkles } from "lucide-react";
 import { useMemo, useState } from "react";
+
 import { cn } from "@/lib/utils";
+
 import { CodeWindow } from "./CodeWindow";
 
 type PresetId = "renderers" | "views" | "components" | "realtime";
@@ -129,11 +131,11 @@ export function Stack() {
 	);
 
 	return (
-		<section id="design-system" className="border-t border-border/40 py-24">
+		<section id="design-system" className="border-border/40 border-t py-24">
 			<div className="mx-auto w-full max-w-7xl px-4">
 				<div className="grid items-start gap-10 lg:grid-cols-[1fr_1.2fr]">
 					<div className="space-y-5">
-						<h2 className="font-mono text-sm uppercase tracking-[0.2em] text-primary">
+						<h2 className="text-primary font-mono text-sm tracking-[0.2em] uppercase">
 							Design system integration
 						</h2>
 						<h3 className="text-3xl font-bold tracking-tight md:text-4xl">
@@ -146,7 +148,7 @@ export function Stack() {
 						</p>
 
 						<div className="space-y-2">
-							<p className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
+							<p className="text-muted-foreground font-mono text-[11px] tracking-[0.18em] uppercase">
 								Click a mode to preview code + UI output
 							</p>
 							<div className="grid gap-2 sm:grid-cols-2">
@@ -163,10 +165,10 @@ export function Stack() {
 												: "border-border bg-card/30 hover:border-primary/35",
 										)}
 									>
-										<span className="block font-mono text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
+										<span className="text-muted-foreground block font-mono text-[10px] tracking-[0.16em] uppercase">
 											{preset.kicker}
 										</span>
-										<span className="block text-sm font-medium text-foreground">
+										<span className="text-foreground block text-sm font-medium">
 											{preset.label}
 										</span>
 									</button>
@@ -174,13 +176,13 @@ export function Stack() {
 							</div>
 						</div>
 
-						<div className="space-y-2.5 text-sm text-muted-foreground">
+						<div className="text-muted-foreground space-y-2.5 text-sm">
 							{activePreset.points.map((item) => (
 								<div
 									key={item}
-									className="inline-flex w-full items-center gap-2 border border-border bg-card/30 px-3 py-2"
+									className="border-border bg-card/30 inline-flex w-full items-center gap-2 border px-3 py-2"
 								>
-									<Sparkles className="h-3.5 w-3.5 text-primary" />
+									<Sparkles className="text-primary h-3.5 w-3.5" />
 									{item}
 								</div>
 							))}
@@ -190,9 +192,9 @@ export function Stack() {
 							{pillars.map((pillar) => (
 								<div
 									key={pillar.label}
-									className="border border-border bg-card/30 p-3 text-center text-xs text-muted-foreground"
+									className="border-border bg-card/30 text-muted-foreground border p-3 text-center text-xs"
 								>
-									<pillar.icon className="mx-auto mb-2 h-4 w-4 text-primary" />
+									<pillar.icon className="text-primary mx-auto mb-2 h-4 w-4" />
 									{pillar.label}
 								</div>
 							))}
@@ -204,15 +206,15 @@ export function Stack() {
 							{activePreset.code}
 						</CodeWindow>
 
-						<div className="border border-border bg-card/30 p-4">
+						<div className="border-border bg-card/30 border p-4">
 							<div className="mb-4 space-y-1">
-								<p className="font-mono text-[10px] uppercase tracking-[0.2em] text-primary">
+								<p className="text-primary font-mono text-[10px] tracking-[0.2em] uppercase">
 									Visual output
 								</p>
-								<h4 className="text-sm font-semibold text-foreground">
+								<h4 className="text-foreground text-sm font-semibold">
 									{activePreset.previewTitle}
 								</h4>
-								<p className="text-xs leading-relaxed text-muted-foreground">
+								<p className="text-muted-foreground text-xs leading-relaxed">
 									{activePreset.previewBody}
 								</p>
 							</div>
@@ -230,28 +232,28 @@ function StackVisualization({ preset }: { preset: PresetId }) {
 	if (preset === "renderers") {
 		return (
 			<div className="grid gap-3 md:grid-cols-2">
-				<div className="border border-border bg-background/60 p-3">
-					<p className="font-mono text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
+				<div className="border-border bg-background/60 border p-3">
+					<p className="text-muted-foreground font-mono text-[10px] tracking-[0.16em] uppercase">
 						Point field renderer
 					</p>
-					<div className="mt-2 border border-border bg-gradient-to-br from-primary/15 via-primary/5 to-transparent p-3">
+					<div className="border-border from-primary/15 via-primary/5 mt-2 border bg-gradient-to-br to-transparent p-3">
 						<p className="text-xs font-medium">Pickup point</p>
-						<p className="mt-1 text-[11px] text-muted-foreground">
+						<p className="text-muted-foreground mt-1 text-[11px]">
 							Map + coordinates with branded controls
 						</p>
-						<div className="mt-3 h-20 border border-primary/30 bg-primary/10" />
+						<div className="border-primary/30 bg-primary/10 mt-3 h-20 border" />
 					</div>
 				</div>
 
-				<div className="border border-border bg-background/60 p-3">
-					<p className="font-mono text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
+				<div className="border-border bg-background/60 border p-3">
+					<p className="text-muted-foreground font-mono text-[10px] tracking-[0.16em] uppercase">
 						Smart editor chrome
 					</p>
-					<div className="mt-2 space-y-2 border border-border bg-card/40 p-3">
-						<div className="h-2 w-2/5 bg-muted" />
-						<div className="h-2 w-full bg-muted" />
-						<div className="h-2 w-4/5 bg-muted" />
-						<div className="inline-flex items-center gap-2 border border-primary/30 bg-primary/10 px-2 py-1 text-[11px] text-primary">
+					<div className="border-border bg-card/40 mt-2 space-y-2 border p-3">
+						<div className="bg-muted h-2 w-2/5" />
+						<div className="bg-muted h-2 w-full" />
+						<div className="bg-muted h-2 w-4/5" />
+						<div className="border-primary/30 bg-primary/10 text-primary inline-flex items-center gap-2 border px-2 py-1 text-[11px]">
 							<Sparkles className="h-3 w-3" />
 							Generated from registry config
 						</div>
@@ -271,16 +273,16 @@ function StackVisualization({ preset }: { preset: PresetId }) {
 				].map((column) => (
 					<div
 						key={column.title}
-						className="border border-border bg-background/60 p-3"
+						className="border-border bg-background/60 border p-3"
 					>
-						<p className="font-mono text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
+						<p className="text-muted-foreground font-mono text-[10px] tracking-[0.16em] uppercase">
 							{column.title}
 						</p>
 						<div className="mt-2 space-y-2">
 							{column.items.map((item) => (
 								<div
 									key={item}
-									className="border border-border bg-card/40 px-2 py-1.5 text-xs"
+									className="border-border bg-card/40 border px-2 py-1.5 text-xs"
 								>
 									{item}
 								</div>
@@ -294,7 +296,7 @@ function StackVisualization({ preset }: { preset: PresetId }) {
 
 	if (preset === "components") {
 		return (
-			<div className="space-y-2 border border-border bg-background/60 p-3">
+			<div className="border-border bg-background/60 space-y-2 border p-3">
 				{[
 					{ name: "Appointment #A-102", status: "Confirmed" },
 					{ name: "Appointment #A-103", status: "Pending" },
@@ -302,13 +304,13 @@ function StackVisualization({ preset }: { preset: PresetId }) {
 				].map((item) => (
 					<div
 						key={item.name}
-						className="flex items-center justify-between border border-border bg-card/40 px-3 py-2"
+						className="border-border bg-card/40 flex items-center justify-between border px-3 py-2"
 					>
 						<div className="flex items-center gap-2">
-							<div className="h-2.5 w-2.5 bg-primary" />
+							<div className="bg-primary h-2.5 w-2.5" />
 							<span className="text-xs font-medium">{item.name}</span>
 						</div>
-						<span className="inline-flex items-center gap-1 border border-primary/30 bg-primary/10 px-2 py-0.5 text-[11px] text-primary">
+						<span className="border-primary/30 bg-primary/10 text-primary inline-flex items-center gap-1 border px-2 py-0.5 text-[11px]">
 							<Puzzle className="h-3 w-3" />
 							{item.status}
 						</span>
@@ -319,17 +321,17 @@ function StackVisualization({ preset }: { preset: PresetId }) {
 	}
 
 	return (
-		<div className="space-y-3 border border-border bg-background/60 p-3">
-			<div className="flex items-center justify-between border border-border bg-card/40 px-3 py-2">
+		<div className="border-border bg-background/60 space-y-3 border p-3">
+			<div className="border-border bg-card/40 flex items-center justify-between border px-3 py-2">
 				<div className="flex items-center gap-2">
-					<Eye className="h-4 w-4 text-primary" />
+					<Eye className="text-primary h-4 w-4" />
 					<span className="text-xs font-medium">Live presence</span>
 				</div>
 				<div className="flex -space-x-1.5">
 					{["AK", "ML", "JR"].map((user) => (
 						<span
 							key={user}
-							className="inline-flex h-6 w-6 items-center justify-center border border-background bg-primary/20 text-[10px] font-mono text-primary"
+							className="border-background bg-primary/20 text-primary inline-flex h-6 w-6 items-center justify-center border font-mono text-[10px]"
 						>
 							{user}
 						</span>
@@ -345,10 +347,10 @@ function StackVisualization({ preset }: { preset: PresetId }) {
 				].map((event, index) => (
 					<div
 						key={event}
-						className="flex items-center gap-2 border border-border bg-card/40 px-3 py-2 text-xs"
+						className="border-border bg-card/40 flex items-center gap-2 border px-3 py-2 text-xs"
 					>
 						<span
-							className="h-2 w-2 animate-pulse bg-primary"
+							className="bg-primary h-2 w-2 animate-pulse"
 							style={{ animationDelay: `${index * 220}ms` }}
 						/>
 						<span className="text-foreground">{event}</span>
@@ -357,10 +359,10 @@ function StackVisualization({ preset }: { preset: PresetId }) {
 			</div>
 
 			<div className="grid gap-2 sm:grid-cols-2">
-				<div className="border border-primary/30 bg-primary/10 px-2 py-1.5 text-[11px] text-primary">
+				<div className="border-primary/30 bg-primary/10 text-primary border px-2 py-1.5 text-[11px]">
 					Row highlight pulse
 				</div>
-				<div className="border border-border bg-card/40 px-2 py-1.5 text-[11px] text-muted-foreground">
+				<div className="border-border bg-card/40 text-muted-foreground border px-2 py-1.5 text-[11px]">
 					Lock-aware editing cues
 				</div>
 			</div>

@@ -1,4 +1,5 @@
 import { uniqueIndex } from "questpie/drizzle-pg-core";
+
 import { collection } from "#questpie/factories";
 import { slugify } from "@/questpie/server/utils";
 

@@ -3,6 +3,7 @@
 import { Dialog as DialogPrimitive } from "@base-ui/react/dialog";
 import { Icon } from "@iconify/react";
 import type * as React from "react";
+
 import { cn } from "../../lib/utils";
 import { Button } from "./button";
 
@@ -30,7 +31,7 @@ function DialogOverlay({
 		<DialogPrimitive.Backdrop
 			data-slot="dialog-overlay"
 			className={cn(
-				"qa-dialog__overlay data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 bg-black/80 duration-100 fixed inset-0 isolate z-50",
+				"qa-dialog__overlay data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 fixed inset-0 isolate z-50 bg-black/80 duration-100",
 				className,
 			)}
 			{...props}
@@ -52,7 +53,7 @@ function DialogContent({
 			<DialogPrimitive.Popup
 				data-slot="dialog-content"
 				className={cn(
-					"qa-dialog__content bg-background data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 border border-border grid max-w-[calc(100%-2rem)] gap-4 p-4 text-sm duration-100 sm:max-w-md fixed top-1/2 left-1/2 z-50 w-full -translate-x-1/2 -translate-y-1/2 outline-none",
+					"qa-dialog__content bg-background data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 border-border fixed top-1/2 left-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 gap-4 border p-4 text-sm duration-100 outline-none sm:max-w-md",
 					className,
 				)}
 				{...props}
@@ -82,7 +83,7 @@ function DialogHeader({ className, ...props }: React.ComponentProps<"div">) {
 	return (
 		<div
 			data-slot="dialog-header"
-			className={cn("qa-dialog__header gap-1 flex flex-col", className)}
+			className={cn("qa-dialog__header flex flex-col gap-1", className)}
 			{...props}
 		/>
 	);
@@ -100,7 +101,7 @@ function DialogFooter({
 		<div
 			data-slot="dialog-footer"
 			className={cn(
-				"qa-dialog__footer gap-2 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end",
+				"qa-dialog__footer flex flex-col-reverse gap-2 sm:flex-row sm:justify-end",
 				className,
 			)}
 			{...props}

@@ -7,6 +7,7 @@
  */
 
 import { describe, expect, it } from "bun:test";
+
 import type {
 	CategoryDeclaration,
 	CodegenResult,
@@ -15,6 +16,7 @@ import type {
 	DiscoveryResult,
 	ResolvedTarget,
 } from "questpie";
+
 import { generateAdminClientTemplate } from "#questpie/admin/server/codegen/admin-client-template";
 import { createAdminProjectionValidator } from "#questpie/admin/server/codegen/projection-validator";
 
@@ -208,9 +210,7 @@ describe("generateAdminClientTemplate", () => {
 		// Imports
 		expect(output.code).toContain('import _mod from "../modules";');
 		expect(output.code).toContain('import _block_cta from "../blocks/cta";');
-		expect(output.code).toContain(
-			'import _block_hero from "../blocks/hero";',
-		);
+		expect(output.code).toContain('import _block_hero from "../blocks/hero";');
 		// Merged object with module spread
 		expect(output.code).toContain("blocks: { ..._mod.blocks,");
 		expect(output.code).toContain('"cta": _block_cta');

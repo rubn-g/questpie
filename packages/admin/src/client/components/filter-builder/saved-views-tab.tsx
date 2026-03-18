@@ -1,5 +1,6 @@
 import { Icon } from "@iconify/react";
 import { useState } from "react";
+
 import { useTranslation } from "../../i18n/hooks.js";
 import { Button } from "../ui/button.js";
 import { Input } from "../ui/input.js";
@@ -44,13 +45,13 @@ export function SavedViewsTab({
 	return (
 		<div className="space-y-6 py-4">
 			{/* Save Current Configuration */}
-			<div className="bg-primary/5 p-4 border border-primary/20 rounded-lg">
-				<p className="block text-xs font-semibold uppercase text-primary mb-2">
+			<div className="bg-primary/5 border-primary/20 rounded-lg border p-4">
+				<p className="text-primary mb-2 block text-xs font-semibold uppercase">
 					{t("viewOptions.saveCurrentConfig")}
 				</p>
 				<div className="flex gap-2">
 					<Input
-						className="flex-1 h-9 rounded-md"
+						className="h-9 flex-1 rounded-md"
 						placeholder={t("viewOptions.viewNamePlaceholder")}
 						value={viewName}
 						onChange={(e) => setViewName(e.target.value)}
@@ -60,16 +61,16 @@ export function SavedViewsTab({
 						onClick={handleSave}
 						disabled={!viewName.trim()}
 						size="sm"
-						className="h-9 px-3 rounded-md"
+						className="h-9 rounded-md px-3"
 					>
 						<Icon icon="ph:floppy-disk" width={16} height={16} />
 					</Button>
 				</div>
-				<p className="text-xs text-muted-foreground mt-2">
+				<p className="text-muted-foreground mt-2 text-xs">
 					{t("viewOptions.saveDescription")}
 				</p>
 				{!hasActiveConfig && (
-					<p className="text-xs text-warning mt-1">
+					<p className="text-warning mt-1 text-xs">
 						{t("viewOptions.noChangesToSave")}
 					</p>
 				)}
@@ -77,18 +78,18 @@ export function SavedViewsTab({
 
 			{/* Saved Views List */}
 			<div className="space-y-2">
-				<p className="text-xs font-semibold uppercase text-muted-foreground mb-2">
+				<p className="text-muted-foreground mb-2 text-xs font-semibold uppercase">
 					{t("viewOptions.savedViews")}
 				</p>
 
 				{isLoading && (
-					<div className="flex justify-center p-4 text-muted-foreground">
+					<div className="text-muted-foreground flex justify-center p-4">
 						<Icon icon="ph:spinner-gap" className="size-5 animate-spin" />
 					</div>
 				)}
 
 				{!isLoading && savedViews.length === 0 && (
-					<div className="text-center p-4 text-muted-foreground text-xs italic">
+					<div className="text-muted-foreground p-4 text-center text-xs italic">
 						{t("viewOptions.noSavedViews")}
 					</div>
 				)}
@@ -98,14 +99,14 @@ export function SavedViewsTab({
 						<button
 							type="button"
 							key={view.id}
-							className="flex w-full items-center justify-between p-3 border border-border hover:border-primary/50 hover:shadow-sm bg-background group cursor-pointer transition-all rounded-lg text-left"
+							className="border-border hover:border-primary/50 bg-background group flex w-full cursor-pointer items-center justify-between rounded-lg border p-3 text-left transition-all hover:shadow-sm"
 							onClick={() => onLoadView(view)}
 						>
-							<div className="flex-1 min-w-0">
-								<p className="text-sm font-medium truncate group-hover:text-primary transition-colors">
+							<div className="min-w-0 flex-1">
+								<p className="group-hover:text-primary truncate text-sm font-medium transition-colors">
 									{view.name}
 								</p>
-								<p className="text-xs text-muted-foreground flex gap-2">
+								<p className="text-muted-foreground flex gap-2 text-xs">
 									<span>
 										{t("viewOptions.filtersCount", {
 											count: view.configuration.filters.length,
@@ -135,7 +136,7 @@ export function SavedViewsTab({
 										e.stopPropagation();
 										onDeleteView(view.id);
 									}}
-									className="opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive"
+									className="text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100"
 								>
 									<Icon icon="ph:trash" width={14} height={14} />
 								</Button>
@@ -143,7 +144,7 @@ export function SavedViewsTab({
 									icon="ph:arrow-right"
 									width={14}
 									height={14}
-									className="opacity-0 group-hover:opacity-100 text-primary transition-opacity"
+									className="text-primary opacity-0 transition-opacity group-hover:opacity-100"
 								/>
 							</div>
 						</button>

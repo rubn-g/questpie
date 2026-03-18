@@ -10,6 +10,7 @@
 import { Icon } from "@iconify/react";
 import { useQuery } from "@tanstack/react-query";
 import * as React from "react";
+
 import { useTranslation } from "../../i18n/hooks.js";
 import { cn } from "../../lib/utils.js";
 import type {
@@ -297,12 +298,12 @@ export const PreviewPane = React.forwardRef<PreviewPaneRef, PreviewPaneProps>(
 			<div className={cn("relative h-full w-full", className)}>
 				{/* Loading overlay */}
 				{isLoading && (
-					<div className="absolute inset-0 z-10 flex items-center justify-center bg-muted">
+					<div className="bg-muted absolute inset-0 z-10 flex items-center justify-center">
 						<Icon
 							icon="ph:spinner"
-							className="h-6 w-6 animate-spin text-muted-foreground"
+							className="text-muted-foreground h-6 w-6 animate-spin"
 						/>
-						<span className="ml-2 text-sm text-muted-foreground">
+						<span className="text-muted-foreground ml-2 text-sm">
 							{t("preview.loadingPreview")}
 						</span>
 					</div>
@@ -310,8 +311,8 @@ export const PreviewPane = React.forwardRef<PreviewPaneRef, PreviewPaneProps>(
 
 				{/* Error overlay */}
 				{tokenError && (
-					<div className="absolute inset-0 z-10 flex items-center justify-center bg-muted">
-						<div className="rounded-md bg-destructive/10 border border-destructive px-4 py-3 text-sm text-destructive">
+					<div className="bg-muted absolute inset-0 z-10 flex items-center justify-center">
+						<div className="bg-destructive/10 border-destructive text-destructive rounded-md border px-4 py-3 text-sm">
 							<p className="font-medium">{t("preview.previewError")}</p>
 							<p>{tokenError}</p>
 						</div>
@@ -320,12 +321,12 @@ export const PreviewPane = React.forwardRef<PreviewPaneRef, PreviewPaneProps>(
 
 				{/* Refreshing indicator */}
 				{isRefreshing && !isLoading && (
-					<div className="absolute top-4 right-4 z-10 flex items-center gap-2 rounded-md bg-background px-3 py-2 shadow-md border">
+					<div className="bg-background absolute top-4 right-4 z-10 flex items-center gap-2 rounded-md border px-3 py-2 shadow-md">
 						<Icon
 							icon="ph:spinner"
-							className="h-4 w-4 animate-spin text-muted-foreground"
+							className="text-muted-foreground h-4 w-4 animate-spin"
 						/>
-						<span className="text-sm text-muted-foreground">
+						<span className="text-muted-foreground text-sm">
 							{t("preview.refreshing")}
 						</span>
 					</div>

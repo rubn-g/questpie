@@ -22,13 +22,13 @@ import { route } from "questpie";
 import z from "zod";
 
 export default route()
-  .post()
-  .schema(z.object({}))
-  .handler(async ({ collections }) => {
-    return await collections.barbers.find({
-      where: { isActive: true },
-    });
-  });
+	.post()
+	.schema(z.object({}))
+	.handler(async ({ collections }) => {
+		return await collections.barbers.find({
+			where: { isActive: true },
+		});
+	});
 ```
 
 Place files in `routes/`. The filename becomes the route key: `get-active-barbers.ts` maps to `getActiveBarbers`. Files **must** use `export default`.
@@ -43,49 +43,51 @@ import { route } from "questpie";
 import z from "zod";
 
 export default route()
-  .post()
-  .schema(z.object({
-    barberId: z.string(),
-    serviceId: z.string(),
-    scheduledAt: z.string().datetime(),
-    customerName: z.string().min(2),
-    customerEmail: z.string().email(),
-    notes: z.string().optional(),
-  }))
-  .handler(async ({ input, collections }) => {
-    const service = await collections.services.findOne({
-      where: { id: input.serviceId },
-    });
-    if (!service) throw new Error("Service not found");
+	.post()
+	.schema(
+		z.object({
+			barberId: z.string(),
+			serviceId: z.string(),
+			scheduledAt: z.string().datetime(),
+			customerName: z.string().min(2),
+			customerEmail: z.string().email(),
+			notes: z.string().optional(),
+		}),
+	)
+	.handler(async ({ input, collections }) => {
+		const service = await collections.services.findOne({
+			where: { id: input.serviceId },
+		});
+		if (!service) throw new Error("Service not found");
 
-    const appointment = await collections.appointments.create({
-      barber: input.barberId,
-      service: input.serviceId,
-      scheduledAt: new Date(input.scheduledAt),
-      status: "pending",
-      notes: input.notes || null,
-    });
+		const appointment = await collections.appointments.create({
+			barber: input.barberId,
+			service: input.serviceId,
+			scheduledAt: new Date(input.scheduledAt),
+			status: "pending",
+			notes: input.notes || null,
+		});
 
-    return {
-      success: true,
-      appointmentId: appointment.id,
-    };
-  });
+		return {
+			success: true,
+			appointmentId: appointment.id,
+		};
+	});
 ```
 
 ### Handler Context
 
 Route handlers receive the full `AppContext`:
 
-| Property      | Description                           |
-|---------------|---------------------------------------|
+| Property      | Description                            |
+| ------------- | -------------------------------------- |
 | `input`       | Validated data matching the Zod schema |
-| `collections` | Typed collection API                  |
-| `queue`       | Publish background jobs               |
-| `email`       | Send emails                           |
-| `db`          | Raw database access                   |
-| `session`     | Current auth session                  |
-| `services`    | Custom services from `services/`      |
+| `collections` | Typed collection API                   |
+| `queue`       | Publish background jobs                |
+| `email`       | Send emails                            |
+| `db`          | Raw database access                    |
+| `session`     | Current auth session                   |
+| `services`    | Custom services from `services/`       |
 
 ### Calling Routes
 
@@ -95,11 +97,11 @@ From the client SDK:
 import { client } from "@/lib/client";
 
 const result = await client.routes.createBooking({
-  barberId: "abc",
-  serviceId: "def",
-  scheduledAt: "2025-03-15T10:00:00Z",
-  customerName: "John",
-  customerEmail: "john@example.com",
+	barberId: "abc",
+	serviceId: "def",
+	scheduledAt: "2025-03-15T10:00:00Z",
+	customerName: "John",
+	customerEmail: "john@example.com",
 });
 ```
 
@@ -129,35 +131,35 @@ import { job } from "questpie";
 import z from "zod";
 
 export default job({
-  name: "sendAppointmentConfirmation",
-  schema: z.object({
-    appointmentId: z.string(),
-    customerId: z.string(),
-  }),
-  handler: async ({ payload, email, collections }) => {
-    const customer = await collections.user.findOne({
-      where: { id: payload.customerId },
-    });
-    if (!customer) return;
+	name: "sendAppointmentConfirmation",
+	schema: z.object({
+		appointmentId: z.string(),
+		customerId: z.string(),
+	}),
+	handler: async ({ payload, email, collections }) => {
+		const customer = await collections.user.findOne({
+			where: { id: payload.customerId },
+		});
+		if (!customer) return;
 
-    const appointment = await collections.appointments.findOne({
-      where: { id: payload.appointmentId },
-      with: { barber: true, service: true },
-    });
-    if (!appointment) return;
+		const appointment = await collections.appointments.findOne({
+			where: { id: payload.appointmentId },
+			with: { barber: true, service: true },
+		});
+		if (!appointment) return;
 
-    await email.sendTemplate({
-      template: "appointmentConfirmation",
-      input: {
-        customerName: customer.name,
-        appointmentId: appointment.id,
-        barberName: appointment.barber.name,
-        serviceName: appointment.service.name,
-        scheduledAt: appointment.scheduledAt.toISOString(),
-      },
-      to: customer.email,
-    });
-  },
+		await email.sendTemplate({
+			template: "appointmentConfirmation",
+			input: {
+				customerName: customer.name,
+				appointmentId: appointment.id,
+				barberName: appointment.barber.name,
+				serviceName: appointment.service.name,
+				scheduledAt: appointment.scheduledAt.toISOString(),
+			},
+			to: customer.email,
+		});
+	},
 });
 ```
 
@@ -184,13 +186,13 @@ The `queue` object provides full autocompletion for all jobs and their payloads.
 
 ### Job Handler Context
 
-| Property      | Description                           |
-|---------------|---------------------------------------|
+| Property      | Description                            |
+| ------------- | -------------------------------------- |
 | `payload`     | Validated data matching the Zod schema |
-| `collections` | Typed collection API                  |
-| `email`       | Email service                         |
-| `queue`       | Publish other jobs                    |
-| `db`          | Database instance                     |
+| `collections` | Typed collection API                   |
+| `email`       | Email service                          |
+| `queue`       | Publish other jobs                     |
+| `db`          | Database instance                      |
 
 ### Queue Adapter Configuration
 
@@ -201,11 +203,11 @@ Configure the queue adapter in your runtime config:
 import { pgBossAdapter, runtimeConfig } from "questpie";
 
 export default runtimeConfig({
-  queue: {
-    adapter: pgBossAdapter({
-      connectionString: process.env.DATABASE_URL,
-    }),
-  },
+	queue: {
+		adapter: pgBossAdapter({
+			connectionString: process.env.DATABASE_URL,
+		}),
+	},
 });
 ```
 
@@ -220,11 +222,14 @@ Routes give raw HTTP request/response handling for webhooks, OAuth callbacks, he
 import { route } from "questpie";
 
 export default route({
-  method: "GET",
-  handler: async ({ db }) => {
-    const healthy = await db.execute(sql`SELECT 1`).then(() => true).catch(() => false);
-    return Response.json({ status: healthy ? "ok" : "degraded" });
-  },
+	method: "GET",
+	handler: async ({ db }) => {
+		const healthy = await db
+			.execute(sql`SELECT 1`)
+			.then(() => true)
+			.catch(() => false);
+		return Response.json({ status: healthy ? "ok" : "degraded" });
+	},
 });
 ```
 
@@ -250,29 +255,29 @@ Supported: `GET`, `POST`, `PUT`, `DELETE`, `PATCH`, `HEAD`, `OPTIONS`.
 
 ### Route Handler Context
 
-| Property      | Type                      | Description                    |
-|---------------|---------------------------|--------------------------------|
-| `request`     | `Request`                 | Standard Web API Request       |
-| `params`      | `Record<string, string>`  | URL path parameters            |
-| `locale`      | `string`                  | Current locale                 |
-| `db`          | `Database`                | Database instance              |
-| `session`     | `Session \| null`         | Current auth session           |
-| `collections` | `CollectionsAPI`          | Typed collection API           |
-| `queue`       | `QueueClient`             | Queue client                   |
-| `email`       | `MailerService`           | Email service                  |
-| `services`    |                           | User-defined services          |
+| Property      | Type                     | Description              |
+| ------------- | ------------------------ | ------------------------ |
+| `request`     | `Request`                | Standard Web API Request |
+| `params`      | `Record<string, string>` | URL path parameters      |
+| `locale`      | `string`                 | Current locale           |
+| `db`          | `Database`               | Database instance        |
+| `session`     | `Session \| null`        | Current auth session     |
+| `collections` | `CollectionsAPI`         | Typed collection API     |
+| `queue`       | `QueueClient`            | Queue client             |
+| `email`       | `MailerService`          | Email service            |
+| `services`    |                          | User-defined services    |
 
 Route handlers must return a `Response` object.
 
 ### JSON Routes vs Raw Routes
 
-| Aspect        | JSON route                        | Raw route                           |
-|---------------|----------------------------------|-------------------------------------|
-| **Transport** | HTTP JSON (`/api/{path}`)        | Raw HTTP (`/api/{path}`)            |
-| **Input**     | Zod-validated, auto-parsed       | Manual: `request.json()`            |
-| **Output**    | Auto-serialized to JSON          | Raw `Response` object               |
-| **Client**    | `client.routes.name(input)`      | `client.routes["name"]()`          |
-| **Use for**   | Business logic, data operations  | Webhooks, file uploads, streaming   |
+| Aspect        | JSON route                      | Raw route                         |
+| ------------- | ------------------------------- | --------------------------------- |
+| **Transport** | HTTP JSON (`/api/{path}`)       | Raw HTTP (`/api/{path}`)          |
+| **Input**     | Zod-validated, auto-parsed      | Manual: `request.json()`          |
+| **Output**    | Auto-serialized to JSON         | Raw `Response` object             |
+| **Client**    | `client.routes.name(input)`     | `client.routes["name"]()`         |
+| **Use for**   | Business logic, data operations | Webhooks, file uploads, streaming |
 
 **Rule of thumb**: Use JSON routes for typed input/output with automatic validation. Use raw routes for HTTP-level control (custom headers, binary data, streams, signature verification).
 
@@ -283,19 +288,19 @@ Route handlers must return a `Response` object.
 import { route } from "questpie";
 
 export default route({
-  method: "POST",
-  handler: async ({ request, db }) => {
-    const body = await request.text();
-    const signature = request.headers.get("stripe-signature");
-    const event = verifyStripeWebhook(body, signature);
+	method: "POST",
+	handler: async ({ request, db }) => {
+		const body = await request.text();
+		const signature = request.headers.get("stripe-signature");
+		const event = verifyStripeWebhook(body, signature);
 
-    await db.insert(webhookEvents).values({
-      type: event.type,
-      payload: body,
-    });
+		await db.insert(webhookEvents).values({
+			type: event.type,
+			payload: body,
+		});
 
-    return new Response("OK", { status: 200 });
-  },
+		return new Response("OK", { status: 200 });
+	},
 });
 ```
 
@@ -312,26 +317,29 @@ import { service } from "questpie";
 const WORDS_PER_MINUTE = 200;
 
 function stripHtml(html: string): string {
-  return html.replace(/<[^>]*>/g, " ");
+	return html.replace(/<[^>]*>/g, " ");
 }
 
 export default service({
-  lifecycle: "singleton",
-  create: () => ({
-    computeReadingTime(content: string): number {
-      const text = stripHtml(content);
-      const words = text.trim().split(/\s+/).filter((w) => w.length > 0).length;
-      return Math.max(1, Math.ceil(words / WORDS_PER_MINUTE));
-    },
+	lifecycle: "singleton",
+	create: () => ({
+		computeReadingTime(content: string): number {
+			const text = stripHtml(content);
+			const words = text
+				.trim()
+				.split(/\s+/)
+				.filter((w) => w.length > 0).length;
+			return Math.max(1, Math.ceil(words / WORDS_PER_MINUTE));
+		},
 
-    generateSlug(title: string): string {
-      return title
-        .toLowerCase()
-        .replace(/[^a-z0-9\s-]/g, "")
-        .trim()
-        .replace(/\s+/g, "-");
-    },
-  }),
+		generateSlug(title: string): string {
+			return title
+				.toLowerCase()
+				.replace(/[^a-z0-9\s-]/g, "")
+				.trim()
+				.replace(/\s+/g, "-");
+		},
+	}),
 });
 ```
 
@@ -357,10 +365,10 @@ Services are available via `services` destructuring in any handler:
 
 ### Lifecycle
 
-| Lifecycle     | Created            | Destroyed         | Use for                                    |
-|---------------|--------------------|-------------------|--------------------------------------------|
-| `"singleton"` | Once at app startup | App shutdown     | External clients, SDKs, connection pools   |
-| `"request"`   | Per request        | End of request    | Tenant-scoped DB, user-specific config     |
+| Lifecycle     | Created             | Destroyed      | Use for                                  |
+| ------------- | ------------------- | -------------- | ---------------------------------------- |
+| `"singleton"` | Once at app startup | App shutdown   | External clients, SDKs, connection pools |
+| `"request"`   | Per request         | End of request | Tenant-scoped DB, user-specific config   |
 
 ### Singleton Service
 
@@ -370,8 +378,8 @@ import { service } from "questpie";
 import Stripe from "stripe";
 
 export default service({
-  lifecycle: "singleton",
-  create: () => new Stripe(process.env.STRIPE_SECRET_KEY!),
+	lifecycle: "singleton",
+	create: () => new Stripe(process.env.STRIPE_SECRET_KEY!),
 });
 ```
 
@@ -382,12 +390,12 @@ export default service({
 import { service } from "questpie";
 
 export default service({
-  lifecycle: "request",
-  deps: ["db", "session"] as const,
-  create: ({ db, session }) => {
-    return createScopedDb(db, session?.user?.tenantId);
-  },
-  dispose: (scopedDb) => scopedDb.release(),
+	lifecycle: "request",
+	deps: ["db", "session"] as const,
+	create: ({ db, session }) => {
+		return createScopedDb(db, session?.user?.tenantId);
+	},
+	dispose: (scopedDb) => scopedDb.release(),
 });
 ```
 
@@ -400,11 +408,11 @@ Services can depend on other services and infrastructure via `deps`. Use `as con
 import { service } from "questpie";
 
 export default service({
-  deps: ["db", "logger"] as const,
-  create: ({ db, logger }) => {
-    logger.info("Analytics service initialized");
-    return new AnalyticsService(db);
-  },
+	deps: ["db", "logger"] as const,
+	create: ({ db, logger }) => {
+		logger.info("Analytics service initialized");
+		return new AnalyticsService(db);
+	},
 });
 ```
 
@@ -416,11 +424,11 @@ Optional `dispose` for cleanup (singleton: at shutdown, request: at end of reque
 
 ```ts
 export default service({
-  lifecycle: "singleton",
-  create: () => createConnectionPool(),
-  dispose: async (pool) => {
-    await pool.close();
-  },
+	lifecycle: "singleton",
+	create: () => createConnectionPool(),
+	dispose: async (pool) => {
+		await pool.close();
+	},
 });
 ```
 
@@ -447,24 +455,24 @@ import { email } from "questpie";
 import { z } from "zod";
 
 export default email({
-  name: "appointment-confirmation",
-  schema: z.object({
-    customerName: z.string(),
-    appointmentId: z.string(),
-    barberName: z.string(),
-    serviceName: z.string(),
-    scheduledAt: z.string(),
-  }),
-  handler: ({ input }) => ({
-    subject: "Appointment Confirmed",
-    html: `
+	name: "appointment-confirmation",
+	schema: z.object({
+		customerName: z.string(),
+		appointmentId: z.string(),
+		barberName: z.string(),
+		serviceName: z.string(),
+		scheduledAt: z.string(),
+	}),
+	handler: ({ input }) => ({
+		subject: "Appointment Confirmed",
+		html: `
       <h1>Appointment Confirmed</h1>
       <p>Hi ${input.customerName}, your appointment is confirmed!</p>
       <p><strong>Service:</strong> ${input.serviceName}</p>
       <p><strong>Barber:</strong> ${input.barberName}</p>
       <p><strong>Date:</strong> ${input.scheduledAt}</p>
     `,
-  }),
+	}),
 });
 ```
 
@@ -476,15 +484,15 @@ Use `email.sendTemplate()` from any handler:
 
 ```ts
 await email.sendTemplate({
-  template: "appointmentConfirmation",
-  to: customer.email,
-  input: {
-    customerName: customer.name,
-    appointmentId: appointment.id,
-    barberName: appointment.barber.name,
-    serviceName: appointment.service.name,
-    scheduledAt: appointment.scheduledAt.toISOString(),
-  },
+	template: "appointmentConfirmation",
+	to: customer.email,
+	input: {
+		customerName: customer.name,
+		appointmentId: appointment.id,
+		barberName: appointment.barber.name,
+		serviceName: appointment.service.name,
+		scheduledAt: appointment.scheduledAt.toISOString(),
+	},
 });
 ```
 
@@ -498,28 +506,30 @@ import { email } from "questpie";
 import { z } from "zod";
 
 export default email({
-  name: "weekly-digest",
-  schema: z.object({ userId: z.string() }),
-  handler: async ({ input, collections }) => {
-    const user = await collections.users.findOne({ where: { id: input.userId } });
-    const recentPosts = await collections.posts.find({
-      where: { createdAt: { gte: oneWeekAgo() } },
-      limit: 5,
-    });
+	name: "weekly-digest",
+	schema: z.object({ userId: z.string() }),
+	handler: async ({ input, collections }) => {
+		const user = await collections.users.findOne({
+			where: { id: input.userId },
+		});
+		const recentPosts = await collections.posts.find({
+			where: { createdAt: { gte: oneWeekAgo() } },
+			limit: 5,
+		});
 
-    return {
-      subject: `Weekly digest for ${user.name}`,
-      html: renderDigestHtml(user, recentPosts.docs),
-      text: renderDigestText(user, recentPosts.docs),
-    };
-  },
+		return {
+			subject: `Weekly digest for ${user.name}`,
+			html: renderDigestHtml(user, recentPosts.docs),
+			text: renderDigestText(user, recentPosts.docs),
+		};
+	},
 });
 ```
 
 ### Email Result
 
 | Property  | Type     | Required | Description         |
-|-----------|----------|----------|---------------------|
+| --------- | -------- | -------- | ------------------- |
 | `subject` | `string` | Yes      | Email subject line  |
 | `html`    | `string` | Yes      | HTML body           |
 | `text`    | `string` | No       | Plain text fallback |

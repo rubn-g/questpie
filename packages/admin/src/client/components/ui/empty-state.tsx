@@ -1,4 +1,5 @@
 import type * as React from "react";
+
 import { cn } from "../../lib/utils";
 
 // ============================================================================
@@ -73,7 +74,7 @@ export function EmptyState({
 			data-slot="empty-state"
 			className={cn(
 				"qa-empty-state relative flex flex-col items-center justify-center",
-				"border border-dashed border-border bg-card",
+				"border-border bg-card border border-dashed",
 				height,
 				className,
 			)}
@@ -81,19 +82,19 @@ export function EmptyState({
 			<div className="text-center">
 				{/* Glow dot or icon */}
 				{Icon ? (
-					<Icon className="mx-auto mb-4 size-8 text-muted-foreground/50" />
+					<Icon className="text-muted-foreground/50 mx-auto mb-4 size-8" />
 				) : (
-					<div className="mx-auto mb-4 size-1.5 bg-primary" />
+					<div className="bg-primary mx-auto mb-4 size-1.5" />
 				)}
 
 				{/* Title */}
-				<p className="font-mono text-sm uppercase tracking-wider text-muted-foreground">
+				<p className="text-muted-foreground font-mono text-sm tracking-wider uppercase">
 					{title}
 				</p>
 
 				{/* Description */}
 				{description && (
-					<p className="mt-2 text-xs text-muted-foreground/60">{description}</p>
+					<p className="text-muted-foreground/60 mt-2 text-xs">{description}</p>
 				)}
 
 				{/* Action */}

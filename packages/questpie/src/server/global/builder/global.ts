@@ -19,6 +19,7 @@ import {
 	uuid,
 	varchar,
 } from "drizzle-orm/pg-core";
+
 import { Collection } from "#questpie/server/collection/builder/collection.js";
 import type {
 	ExtractFieldsByLocation,
@@ -36,6 +37,7 @@ import {
 } from "#questpie/server/workflow/config.js";
 import { DEFAULT_LOCALE } from "#questpie/shared/constants.js";
 import type { GlobalMeta } from "#questpie/shared/global-meta.js";
+
 import { GlobalCRUDGenerator } from "../crud/global-crud-generator.js";
 import type { GlobalCRUD } from "../crud/types.js";
 
@@ -43,7 +45,9 @@ import type { GlobalCRUD } from "../crud/types.js";
  * Default ID column factory for globals
  */
 const defaultIdColumn = () =>
-	text("id").primaryKey().default(sql`gen_random_uuid()`);
+	text("id")
+		.primaryKey()
+		.default(sql`gen_random_uuid()`);
 
 /**
  * Helper to get column config from a Drizzle column
@@ -321,7 +325,9 @@ export class Global<TState extends GlobalBuilderState> {
 		const parentIdColumn = (this.table as any).id as PgColumn;
 
 		const columns: Record<string, any> = {
-			id: text("id").primaryKey().default(sql`gen_random_uuid()`),
+			id: text("id")
+				.primaryKey()
+				.default(sql`gen_random_uuid()`),
 			parentId: cloneColumnType(parentIdColumn, "parent_id")
 				.notNull()
 				.references(() => (this.table as any).id, { onDelete: "cascade" }),
@@ -403,7 +409,9 @@ export class Global<TState extends GlobalBuilderState> {
 		const parentIdColumn = (this.table as any).id as PgColumn;
 
 		const columns: Record<string, any> = {
-			id: text("id").primaryKey().default(sql`gen_random_uuid()`),
+			id: text("id")
+				.primaryKey()
+				.default(sql`gen_random_uuid()`),
 			parentId: cloneColumnType(parentIdColumn, "parent_id").notNull(),
 			versionNumber: integer("version_number").notNull(),
 			locale: text("locale").notNull(),

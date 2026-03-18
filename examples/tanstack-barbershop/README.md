@@ -102,8 +102,8 @@ app.config.ts               # CLI configuration for migrations
 
 ```typescript
 export default {
-  app: "./src/questpie/server/.generated/index.ts",
-  migrations: { directory: "./src/migrations" },
+	app: "./src/questpie/server/.generated/index.ts",
+	migrations: { directory: "./src/migrations" },
 };
 ```
 
@@ -114,9 +114,9 @@ import { runtimeConfig } from "questpie";
 import { adminPlugin } from "@questpie/admin/plugin";
 
 export default runtimeConfig({
-  plugins: [adminPlugin()],
-  db: { url: process.env.DATABASE_URL! },
-  app: { url: process.env.APP_URL! },
+	plugins: [adminPlugin()],
+	db: { url: process.env.DATABASE_URL! },
+	app: { url: process.env.APP_URL! },
 });
 ```
 
@@ -215,11 +215,11 @@ The entire admin UI is generated from `src/configs/admin.ts`:
 
 ```typescript
 export const adminConfig = defineAdminConfig<App>()({
-  collections: {
-    barbers: {
-      label: "Barbers", // That's it! Rest is auto-generated
-    },
-  },
+	collections: {
+		barbers: {
+			label: "Barbers", // That's it! Rest is auto-generated
+		},
+	},
 });
 ```
 
@@ -298,20 +298,20 @@ Queue jobs are automatically set up with pg-boss (uses Postgres - no Redis neede
 ```typescript
 // Jobs defined in app.ts
 -send -
-  appointment -
-  confirmation -
-  send -
-  appointment -
-  cancellation -
-  send -
-  appointment -
-  reminder;
+	appointment -
+	confirmation -
+	send -
+	appointment -
+	cancellation -
+	send -
+	appointment -
+	reminder;
 
 // Triggered via hooks
 afterCreate: async ({ data }) => {
-  await app.queue.sendAppointmentConfirmation.publish({
-    appointmentId: data.id,
-  });
+	await app.queue.sendAppointmentConfirmation.publish({
+		appointmentId: data.id,
+	});
 };
 ```
 

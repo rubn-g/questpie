@@ -3,7 +3,9 @@
  */
 
 import { beforeEach, describe, expect, test } from "bun:test";
+
 import type { Redis } from "ioredis";
+
 import { IORedisKVAdapter } from "../../src/server/integrated/kv/adapters/ioredis.js";
 import { MemoryKVAdapter } from "../../src/server/integrated/kv/adapters/memory.js";
 

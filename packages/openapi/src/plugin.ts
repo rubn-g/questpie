@@ -30,9 +30,7 @@ export function openApiPlugin(): CodegenPlugin {
 
 					const keys = [...routes.keys()];
 					const union = keys.map((k) => `"${k}"`).join(" | ");
-					ctx.addTypeDeclaration(
-						`export type AppRouteKeys = ${union};`,
-					);
+					ctx.addTypeDeclaration(`export type AppRouteKeys = ${union};`);
 				},
 			},
 		},

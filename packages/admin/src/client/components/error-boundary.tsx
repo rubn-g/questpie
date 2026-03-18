@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+
 import { useTranslation } from "../i18n/hooks";
 
 interface ErrorBoundaryProps {
@@ -20,13 +21,11 @@ interface ErrorBoundaryState {
 function DefaultErrorFallback({ error }: { error: Error }) {
 	const { t } = useTranslation();
 	return (
-		<div className="rounded-lg border border-destructive/20 bg-destructive/5 p-4">
-			<p className="text-sm font-medium text-destructive">
+		<div className="border-destructive/20 bg-destructive/5 rounded-lg border p-4">
+			<p className="text-destructive text-sm font-medium">
 				{t("error.somethingWentWrong")}
 			</p>
-			<p className="mt-1 text-xs text-muted-foreground">
-				{error.message}
-			</p>
+			<p className="text-muted-foreground mt-1 text-xs">{error.message}</p>
 		</div>
 	);
 }
@@ -103,12 +102,14 @@ export function WidgetErrorBoundary({
 	return (
 		<ErrorBoundary
 			fallback={(error) => (
-				<div className="rounded-lg border border-destructive/20 bg-destructive/5 p-4">
-					<p className="text-sm font-medium text-destructive">{t("error.widgetError")}</p>
+				<div className="border-destructive/20 bg-destructive/5 rounded-lg border p-4">
+					<p className="text-destructive text-sm font-medium">
+						{t("error.widgetError")}
+					</p>
 					{widgetType && (
-						<p className="text-xs text-muted-foreground">Type: {widgetType}</p>
+						<p className="text-muted-foreground text-xs">Type: {widgetType}</p>
 					)}
-					<p className="mt-1 text-xs text-muted-foreground">{error.message}</p>
+					<p className="text-muted-foreground mt-1 text-xs">{error.message}</p>
 				</div>
 			)}
 		>
@@ -147,12 +148,12 @@ function ViewErrorBoundary({
 		<ErrorBoundary
 			fallback={(error) => (
 				<div className="container">
-					<div className="rounded-lg border border-destructive/20 bg-destructive/5 p-6 my-8">
+					<div className="border-destructive/20 bg-destructive/5 my-8 rounded-lg border p-6">
 						<div className="flex items-start gap-4">
-							<div className="rounded-full bg-destructive/10 p-2">
+							<div className="bg-destructive/10 rounded-full p-2">
 								<svg
 									xmlns="http://www.w3.org/2000/svg"
-									className="size-5 text-destructive"
+									className="text-destructive size-5"
 									viewBox="0 0 24 24"
 									fill="none"
 									stroke="currentColor"
@@ -167,19 +168,24 @@ function ViewErrorBoundary({
 								</svg>
 							</div>
 							<div className="flex-1">
-								<h3 className="text-sm font-semibold text-destructive">
+								<h3 className="text-destructive text-sm font-semibold">
 									{collection
-										? t("error.failedToLoadViewFor", { viewType: viewType ?? "view", collection })
-										: t("error.failedToLoadView", { viewType: viewType ?? "view" })}
+										? t("error.failedToLoadViewFor", {
+												viewType: viewType ?? "view",
+												collection,
+											})
+										: t("error.failedToLoadView", {
+												viewType: viewType ?? "view",
+											})}
 								</h3>
-								<p className="mt-1 text-sm text-muted-foreground">
+								<p className="text-muted-foreground mt-1 text-sm">
 									{error.message || t("error.unexpectedError")}
 								</p>
 								{onRetry && (
 									<button
 										type="button"
 										onClick={onRetry}
-										className="mt-3 text-sm font-medium text-primary hover:underline"
+										className="text-primary mt-3 text-sm font-medium hover:underline"
 									>
 										{t("error.tryAgain")}
 									</button>

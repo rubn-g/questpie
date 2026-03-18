@@ -6,9 +6,10 @@
  */
 
 import { z, type ZodType } from "zod";
-import { basicOps } from "../operators/builtin.js";
-import { field } from "../field-class.js";
+
 import type { DefaultFieldState } from "../field-class-types.js";
+import { field } from "../field-class.js";
+import { basicOps } from "../operators/builtin.js";
 
 export type CustomFieldState = DefaultFieldState & {
 	type: "custom";

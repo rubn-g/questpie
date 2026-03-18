@@ -13,20 +13,20 @@ collection(name: string)
 
 ### Builder Methods
 
-| Method | Signature | Description |
-|---|---|---|
-| `.fields()` | `(({ f }) => Record<string, Field>)` | Define data fields |
-| `.title()` | `(({ f }) => FieldRef)` | Record display title |
-| `.admin()` | `(({ c }) => AdminConfig)` | Admin UI metadata |
-| `.indexes()` | `(({ table }) => Index[])` | Database indexes |
-| `.list()` | `(({ v, f }) => ListView)` | List view config |
-| `.form()` | `(({ v, f }) => FormView)` | Form view config |
-| `.hooks()` | `(HooksConfig)` | Lifecycle hooks |
-| `.access()` | `(AccessConfig)` | Access control |
-| `.preview()` | `(PreviewConfig)` | Live preview |
-| `.options()` | `(OptionsConfig)` | Timestamps, versioning |
-| `.search()` | `(SearchConfig)` | Search indexing |
-| `.searchable()` | `(string[])` | Searchable fields |
+| Method          | Signature                            | Description            |
+| --------------- | ------------------------------------ | ---------------------- |
+| `.fields()`     | `(({ f }) => Record<string, Field>)` | Define data fields     |
+| `.title()`      | `(({ f }) => FieldRef)`              | Record display title   |
+| `.admin()`      | `(({ c }) => AdminConfig)`           | Admin UI metadata      |
+| `.indexes()`    | `(({ table }) => Index[])`           | Database indexes       |
+| `.list()`       | `(({ v, f }) => ListView)`           | List view config       |
+| `.form()`       | `(({ v, f }) => FormView)`           | Form view config       |
+| `.hooks()`      | `(HooksConfig)`                      | Lifecycle hooks        |
+| `.access()`     | `(AccessConfig)`                     | Access control         |
+| `.preview()`    | `(PreviewConfig)`                    | Live preview           |
+| `.options()`    | `(OptionsConfig)`                    | Timestamps, versioning |
+| `.search()`     | `(SearchConfig)`                     | Search indexing        |
+| `.searchable()` | `(string[])`                         | Searchable fields      |
 
 ### `.admin()` Options
 

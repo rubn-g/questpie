@@ -6,6 +6,7 @@
  */
 
 import { useQuery } from "@tanstack/react-query";
+
 import { selectClient, useAdminStore } from "../runtime/provider";
 
 export interface SetupStatus {

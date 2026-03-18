@@ -6,13 +6,15 @@
  */
 
 import { Icon } from "@iconify/react";
-import { createQuestpieQueryOptions } from "@questpie/tanstack-query";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import type { CollectionSchema, FieldReactiveSchema } from "questpie/client";
 import { QuestpieClientError } from "questpie/client";
 import * as React from "react";
 import { FormProvider, useForm, useFormState } from "react-hook-form";
 import { toast } from "sonner";
+
+import { createQuestpieQueryOptions } from "@questpie/tanstack-query";
+
 import { getDefaultFormActions } from "../../builder/types/action-registry";
 import type {
 	ActionContext,
@@ -89,7 +91,6 @@ import {
 	detectManyToManyRelations,
 	hasManyToManyRelations,
 } from "../../utils/detect-relations";
-
 import { AutoFormFields } from "./auto-form-fields";
 import { FormViewSkeleton } from "./view-skeletons";
 
@@ -382,7 +383,7 @@ const AutosaveIndicator = React.memo(function AutosaveIndicator({
 
 	if (lastSaved) {
 		return (
-			<Badge variant="secondary" className="gap-1.5 text-muted-foreground">
+			<Badge variant="secondary" className="text-muted-foreground gap-1.5">
 				<Icon icon="ph:check" className="size-3" />
 				{t("autosave.saved")} {formatTimeAgo(lastSaved)}
 			</Badge>
@@ -1578,10 +1579,10 @@ export default function FormView({
 			"status" in itemError &&
 			(itemError as any).status === 404;
 		return (
-			<div className="flex h-64 flex-col items-center justify-center gap-3 text-muted-foreground">
+			<div className="text-muted-foreground flex h-64 flex-col items-center justify-center gap-3">
 				<Icon
 					icon={is404 ? "ph:file-dashed" : "ph:warning-circle"}
-					className="size-8 text-destructive"
+					className="text-destructive size-8"
 				/>
 				<p className="text-sm">
 					{is404
@@ -1625,7 +1626,7 @@ export default function FormView({
 		<>
 			{/* Lock banner - show when someone else is editing */}
 			{isBlocked && blockedByUser && (
-				<div className="qa-form-view__lock-banner flex items-center gap-3 p-3 mb-4 rounded-lg bg-warning/10 border border-warning/30">
+				<div className="qa-form-view__lock-banner bg-warning/10 border-warning/30 mb-4 flex items-center gap-3 rounded-lg border p-3">
 					{blockedByUser.image ? (
 						<img
 							src={blockedByUser.image}
@@ -1633,29 +1634,29 @@ export default function FormView({
 							className="size-8 rounded-full"
 						/>
 					) : (
-						<div className="size-8 rounded-full bg-warning/20 flex items-center justify-center">
-							<Icon icon="ph:user" className="size-4 text-warning" />
+						<div className="bg-warning/20 flex size-8 items-center justify-center rounded-full">
+							<Icon icon="ph:user" className="text-warning size-4" />
 						</div>
 					)}
-					<div className="flex-1 min-w-0">
-						<p className="text-sm font-medium text-warning">
+					<div className="min-w-0 flex-1">
+						<p className="text-warning text-sm font-medium">
 							{t("lock.blockedTitle", {
 								name: blockedByUser.name ?? blockedByUser.email,
 							})}
 						</p>
-						<p className="text-xs text-warning/80">
+						<p className="text-warning/80 text-xs">
 							{t("lock.blockedDescription")}
 						</p>
 					</div>
-					<Icon icon="ph:lock-simple" className="size-5 text-warning" />
+					<Icon icon="ph:lock-simple" className="text-warning size-5" />
 				</div>
 			)}
 
 			{/* Warning banner - show when same user has document open elsewhere */}
 			{isOpenElsewhere && (
-				<div className="flex items-center gap-3 p-3 mb-4 rounded-lg bg-info/10 border border-info/30">
-					<Icon icon="ph:browser" className="size-5 text-info" />
-					<p className="text-sm text-info">{t("lock.openElsewhere")}</p>
+				<div className="bg-info/10 border-info/30 mb-4 flex items-center gap-3 rounded-lg border p-3">
+					<Icon icon="ph:browser" className="text-info size-5" />
+					<p className="text-info text-sm">{t("lock.openElsewhere")}</p>
 				</div>
 			)}
 
@@ -1707,8 +1708,8 @@ export default function FormView({
 						{/* Header - Title, Meta & Actions */}
 						<div className="qa-form-view__header flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
 							<div className="min-w-0 flex-1">
-								<div className="flex items-center gap-3 flex-wrap">
-									<h1 className="qa-form-view__title text-2xl md:text-3xl font-extrabold tracking-tight truncate">
+								<div className="flex flex-wrap items-center gap-3">
+									<h1 className="qa-form-view__title truncate text-2xl font-extrabold tracking-tight md:text-3xl">
 										{title}
 									</h1>
 									{localeOptions.length > 0 && (
@@ -1741,12 +1742,12 @@ export default function FormView({
 								</div>
 								{/* Metadata - horizontal scroll on mobile */}
 								{showMeta && item && (
-									<div className="qa-form-view__meta mt-1 overflow-x-auto no-scrollbar">
-										<p className="text-xs text-muted-foreground font-mono flex items-center gap-2 whitespace-nowrap">
+									<div className="qa-form-view__meta no-scrollbar mt-1 overflow-x-auto">
+										<p className="text-muted-foreground flex items-center gap-2 font-mono text-xs whitespace-nowrap">
 											<span className="opacity-60">{t("form.id")}:</span>
 											<button
 												type="button"
-												className="hover:text-foreground transition-colors cursor-pointer"
+												className="hover:text-foreground cursor-pointer transition-colors"
 												onClick={() => {
 													navigator.clipboard.writeText(String(item.id)).then(
 														() => toast.success(t("toast.idCopied")),
@@ -1784,7 +1785,7 @@ export default function FormView({
 								)}
 							</div>
 
-							<div className="qa-form-view__actions flex items-center gap-2 shrink-0 w-auto">
+							<div className="qa-form-view__actions flex w-auto shrink-0 items-center gap-2">
 								{headerActions}
 
 								{/* Live Preview button */}
@@ -1939,7 +1940,7 @@ export default function FormView({
 
 						{/* Soft-deleted banner */}
 						{item?.deletedAt && (
-							<div className="qa-form-view__deleted-banner flex items-center gap-2 rounded-md border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
+							<div className="qa-form-view__deleted-banner border-destructive/30 bg-destructive/5 text-destructive flex items-center gap-2 rounded-md border px-4 py-3 text-sm">
 								<Icon icon="ph:trash" className="size-4 shrink-0" />
 								<span>
 									{t("form.deletedBanner", {
@@ -1971,7 +1972,7 @@ export default function FormView({
 				<DialogContent showCloseButton={false}>
 					<DialogHeader>
 						<DialogTitle className="flex items-center gap-2">
-							<Icon icon="ph:warning-fill" className="size-5 text-warning" />
+							<Icon icon="ph:warning-fill" className="text-warning size-5" />
 							{t("confirm.localeChange")}
 						</DialogTitle>
 						<DialogDescription>
@@ -2087,7 +2088,7 @@ export default function FormView({
 							/>
 							<Label
 								htmlFor="transition-schedule"
-								className="text-sm cursor-pointer"
+								className="cursor-pointer text-sm"
 							>
 								{t("workflow.scheduleLabel")}
 							</Label>
@@ -2095,7 +2096,7 @@ export default function FormView({
 
 						{transitionSchedule && (
 							<div className="space-y-1.5 pl-6">
-								<Label className="text-xs text-muted-foreground">
+								<Label className="text-muted-foreground text-xs">
 									{t("workflow.scheduledAt")}
 								</Label>
 								<DateTimeInput
@@ -2103,7 +2104,7 @@ export default function FormView({
 									onChange={setTransitionScheduledAt}
 									minDate={new Date()}
 								/>
-								<p className="text-xs text-muted-foreground">
+								<p className="text-muted-foreground text-xs">
 									{t("workflow.scheduledDescription")}
 								</p>
 							</div>

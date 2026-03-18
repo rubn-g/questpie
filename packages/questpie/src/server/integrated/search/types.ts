@@ -35,17 +35,17 @@ export type FacetFieldConfig =
 	| true // Simple string facet
 	| { type: "array" } // Multi-value facet (e.g., tags)
 	| {
-		type: "range";
-		buckets: Array<{
-			label: string;
-			min?: number;
-			max?: number;
-		}>;
-	}
+			type: "range";
+			buckets: Array<{
+				label: string;
+				min?: number;
+				max?: number;
+			}>;
+	  }
 	| {
-		type: "hierarchy";
-		separator?: string; // Default: " > "
-	};
+			type: "hierarchy";
+			separator?: string; // Default: " > "
+	  };
 
 /**
  * Facets configuration object

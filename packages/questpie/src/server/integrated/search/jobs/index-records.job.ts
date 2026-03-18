@@ -17,6 +17,7 @@
  */
 
 import { z } from "zod";
+
 import type { Questpie } from "#questpie/server/config/questpie.js";
 import { job } from "#questpie/server/integrated/queue/job.js";
 
@@ -84,7 +85,9 @@ export const indexRecordsJob = job({
 		// Core-internal: cast to access services populated by extractAppServices at runtime
 		const { payload } = ctx;
 		const search = (ctx as any).search as Questpie<any>["search"] | undefined;
-		const collections = (ctx as any).collections as Record<string, any> | undefined;
+		const collections = (ctx as any).collections as
+			| Record<string, any>
+			| undefined;
 
 		if (!search) {
 			console.warn("[index-records] Search service not configured, skipping");

@@ -7,6 +7,7 @@
 import { DEFAULT_LOCALE } from "questpie/shared";
 import * as React from "react";
 import { createContext, useCallback, useContext } from "react";
+
 import type {
 	I18nAdapter,
 	I18nContext as I18nContextType,

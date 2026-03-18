@@ -1,5 +1,6 @@
 import { Icon } from "@iconify/react";
 import * as React from "react";
+
 import { useResolveText, useTranslation } from "../../i18n/hooks";
 import { selectClient, useAdminStore, useScopedLocale } from "../../runtime";
 import { SelectMulti } from "../primitives/select-multi";
@@ -511,7 +512,7 @@ export function FiltersTab({
 
 	return (
 		<div className="space-y-4 py-4">
-			<p className="text-xs text-muted-foreground">
+			<p className="text-muted-foreground text-xs">
 				{t("viewOptions.filtersDescription")}
 			</p>
 
@@ -529,10 +530,10 @@ export function FiltersTab({
 				return (
 					<div
 						key={filter.id}
-						className="p-3 bg-muted border border-border rounded-lg space-y-2"
+						className="bg-muted border-border space-y-2 rounded-lg border p-3"
 					>
-						<div className="flex justify-between items-center">
-							<span className="text-xs font-semibold text-muted-foreground uppercase">
+						<div className="flex items-center justify-between">
+							<span className="text-muted-foreground text-xs font-semibold uppercase">
 								{t("viewOptions.filterNumber", { number: idx + 1 })}
 							</span>
 							<Button
@@ -623,7 +624,7 @@ export function FiltersTab({
 			})}
 
 			{filters.length === 0 && (
-				<div className="text-center p-8 border border-dashed border-border rounded-lg text-muted-foreground text-sm">
+				<div className="border-border text-muted-foreground rounded-lg border border-dashed p-8 text-center text-sm">
 					{t("viewOptions.noActiveFilters")}
 				</div>
 			)}

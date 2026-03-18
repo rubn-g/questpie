@@ -1,5 +1,6 @@
 import { Icon } from "@iconify/react";
 import type * as React from "react";
+
 import { cn } from "../../lib/utils";
 import {
 	InputGroup,
@@ -84,12 +85,12 @@ export function SearchInput({
 				{isLoading ? (
 					<Icon
 						icon="ph:spinner-gap"
-						className="size-4 animate-spin text-muted-foreground"
+						className="text-muted-foreground size-4 animate-spin"
 					/>
 				) : (
 					<Icon
 						icon="ph:magnifying-glass"
-						className="size-4 text-muted-foreground"
+						className="text-muted-foreground size-4"
 					/>
 				)}
 			</InputGroupAddon>

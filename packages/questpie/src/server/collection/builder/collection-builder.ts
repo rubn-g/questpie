@@ -2,6 +2,7 @@ import type { Prettify } from "better-auth";
 import type { SQL } from "drizzle-orm";
 import type { AnyPgColumn, PgTableExtraConfigValue } from "drizzle-orm/pg-core";
 import type { z } from "zod";
+
 import type {
 	CollectionInsert,
 	CollectionSelect,

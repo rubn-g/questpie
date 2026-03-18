@@ -23,30 +23,30 @@ Add `.preview()` to your collection:
 import { collection } from "#questpie";
 
 export const pages = collection("pages")
-  .preview({
-    enabled: true,
-    position: "right",
-    defaultWidth: 50,
-    url: ({ record }) => {
-      const slug = record.slug as string;
-      return slug === "home" ? "/?preview=true" : `/${slug}?preview=true`;
-    },
-  })
-  .fields(({ f }) => ({
-    title: f.text().required().localized(),
-    slug: f.text().required(),
-    content: f.blocks().localized(),
-  }));
+	.preview({
+		enabled: true,
+		position: "right",
+		defaultWidth: 50,
+		url: ({ record }) => {
+			const slug = record.slug as string;
+			return slug === "home" ? "/?preview=true" : `/${slug}?preview=true`;
+		},
+	})
+	.fields(({ f }) => ({
+		title: f.text().required().localized(),
+		slug: f.text().required(),
+		content: f.blocks().localized(),
+	}));
 ```
 
 ### Preview Options
 
-| Option | Type | Default | Description |
-|---|---|---|---|
-| `enabled` | `boolean` | `true` | Enable/disable preview |
-| `url` | `(ctx) => string` | — | URL builder function (receives `{ record, locale? }`) |
-| `position` | `"left" \| "right" \| "bottom"` | `"right"` | Preview panel position |
-| `defaultWidth` | `number` | `50` | Panel width as percentage |
+| Option         | Type                            | Default   | Description                                           |
+| -------------- | ------------------------------- | --------- | ----------------------------------------------------- |
+| `enabled`      | `boolean`                       | `true`    | Enable/disable preview                                |
+| `url`          | `(ctx) => string`               | —         | URL builder function (receives `{ record, locale? }`) |
+| `position`     | `"left" \| "right" \| "bottom"` | `"right"` | Preview panel position                                |
+| `defaultWidth` | `number`                        | `50`      | Panel width as percentage                             |
 
 ## Draft Mode & Token Security
 
@@ -67,10 +67,13 @@ Clicking a field in the form highlights it in the preview, and vice versa. This 
 When you focus a field in the form, the admin sends:
 
 ```ts
-iframe.postMessage({
-  type: "questpie:focus",
-  fieldPath: "title"          // or "content._values.blockId.fieldName"
-}, "*");
+iframe.postMessage(
+	{
+		type: "questpie:focus",
+		fieldPath: "title", // or "content._values.blockId.fieldName"
+	},
+	"*",
+);
 ```
 
 ### Preview to Admin
@@ -78,10 +81,13 @@ iframe.postMessage({
 Add click handlers in your frontend that send messages back:
 
 ```ts
-window.parent.postMessage({
-  type: "questpie:preview:field-click",
-  fieldPath: "title"
-}, "*");
+window.parent.postMessage(
+	{
+		type: "questpie:preview:field-click",
+		fieldPath: "title",
+	},
+	"*",
+);
 ```
 
 The admin will scroll to and focus the corresponding form field.
@@ -92,10 +98,13 @@ For block content, the field path includes the block ID:
 
 ```ts
 // Clicking a specific block's field
-window.parent.postMessage({
-  type: "questpie:preview:block-click",
-  blockId: "abc-123"
-}, "*");
+window.parent.postMessage(
+	{
+		type: "questpie:preview:block-click",
+		blockId: "abc-123",
+	},
+	"*",
+);
 ```
 
 ## Frontend Integration
@@ -106,30 +115,28 @@ Use the `useCollectionPreview` hook in your frontend pages to detect preview mod
 import { useCollectionPreview } from "@questpie/admin/client";
 
 function PageComponent({ initialData }) {
-  const {
-    data,               // Current data (refreshes on admin save)
-    isPreviewMode,      // Whether running inside the preview iframe
-    selectedBlockId,    // Currently selected block
-    focusedField,       // Currently focused field path
-    handleFieldClick,   // Attach to clickable field elements
-    handleBlockClick,   // Attach to clickable block elements
-  } = useCollectionPreview({
-    initialData,
-    onRefresh: () => router.invalidate(),
-  });
+	const {
+		data, // Current data (refreshes on admin save)
+		isPreviewMode, // Whether running inside the preview iframe
+		selectedBlockId, // Currently selected block
+		focusedField, // Currently focused field path
+		handleFieldClick, // Attach to clickable field elements
+		handleBlockClick, // Attach to clickable block elements
+	} = useCollectionPreview({
+		initialData,
+		onRefresh: () => router.invalidate(),
+	});
 
-  return (
-    <h1
-      data-preview-field="title"
-      onClick={() => handleFieldClick("title")}
-    >
-      {data.title}
-    </h1>
-  );
+	return (
+		<h1 data-preview-field="title" onClick={() => handleFieldClick("title")}>
+			{data.title}
+		</h1>
+	);
 }
 ```
 
 The hook:
+
 - Detects preview mode via `window.self !== window.top`
 - Listens for `PREVIEW_REFRESH` messages and calls `onRefresh`
 - Tracks `selectedBlockId` and `focusedField` from admin focus events

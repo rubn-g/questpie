@@ -11,11 +11,11 @@ QUESTPIE uses [pg-boss](https://github.com/timgit/pg-boss) for background job pr
 import { pgBossAdapter, runtimeConfig } from "questpie";
 
 export default runtimeConfig({
-  queue: {
-    adapter: pgBossAdapter({
-      connectionString: process.env.DATABASE_URL,
-    }),
-  },
+	queue: {
+		adapter: pgBossAdapter({
+			connectionString: process.env.DATABASE_URL,
+		}),
+	},
 });
 ```
 
@@ -25,11 +25,11 @@ From hooks, routes, or other jobs:
 
 ```ts
 handler: async ({ queue }) => {
-  await queue.sendAppointmentConfirmation.publish({
-    appointmentId: "abc",
-    customerId: "def",
-  });
-}
+	await queue.sendAppointmentConfirmation.publish({
+		appointmentId: "abc",
+		customerId: "def",
+	});
+};
 ```
 
 The `queue` object is fully typed — autocompletion shows all registered jobs and their payload schemas.

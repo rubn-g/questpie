@@ -15,15 +15,15 @@
   ```ts
   // Before
   collection("posts").fields({
-    title: varchar("title", { length: 255 }),
-    content: text("content"),
+  	title: varchar("title", { length: 255 }),
+  	content: text("content"),
   });
 
   // After
   q.collection("posts").fields((f) => ({
-    title: f.text({ required: true }),
-    content: f.textarea({ localized: true }),
-    publishedAt: f.datetime(),
+  	title: f.text({ required: true }),
+  	content: f.textarea({ localized: true }),
+  	publishedAt: f.datetime(),
   }));
   ```
 
@@ -33,22 +33,22 @@
 
   ```ts
   const slugField = field<SlugFieldConfig, string>()({
-    type: "slug",
-    _value: undefined as unknown as string,
-    toColumn: (name, config) => varchar(name, { length: 255 }),
-    toZodSchema: (config) => z.string().regex(/^[a-z0-9-]+$/),
-    getOperators: (config) => ({
-      column: stringColumnOperators,
-      jsonb: stringJsonbOperators,
-    }),
-    getMetadata: (config) => ({
-      type: "slug",
-      label: config.label,
-      required: config.required ?? false,
-      localized: false,
-      readOnly: false,
-      writeOnly: false,
-    }),
+  	type: "slug",
+  	_value: undefined as unknown as string,
+  	toColumn: (name, config) => varchar(name, { length: 255 }),
+  	toZodSchema: (config) => z.string().regex(/^[a-z0-9-]+$/),
+  	getOperators: (config) => ({
+  		column: stringColumnOperators,
+  		jsonb: stringJsonbOperators,
+  	}),
+  	getMetadata: (config) => ({
+  		type: "slug",
+  		label: config.label,
+  		required: config.required ?? false,
+  		localized: false,
+  		readOnly: false,
+  		writeOnly: false,
+  	}),
   });
 
   // Register:
@@ -75,11 +75,11 @@
   ```ts
   const r = q.rpc<typeof app>();
   export const dashboardRouter = r.router({
-    stats: r.fn({
-      handler: async ({ app }) => {
-        /* ... */
-      },
-    }),
+  	stats: r.fn({
+  		handler: async ({ app }) => {
+  			/* ... */
+  		},
+  	}),
   });
   ```
 

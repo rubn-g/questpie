@@ -21,4 +21,5 @@ export default sidebar(({ s, c }) =>
 				],
 			}),
 		],
-	}));
+	}),
+);

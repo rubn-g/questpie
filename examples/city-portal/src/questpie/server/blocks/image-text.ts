@@ -1,4 +1,5 @@
 import { block } from "@questpie/admin/server";
+
 import { content } from "./_categories";
 
 export const imageTextBlock = block("image-text")

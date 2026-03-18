@@ -12,17 +12,17 @@ import { createClient } from "questpie/client";
 import type { AppConfig } from "#questpie";
 
 export const client = createClient<AppConfig>({
-  baseURL:
-    typeof window !== "undefined"
-      ? window.location.origin
-      : process.env.APP_URL || "http://localhost:3000",
-  basePath: "/api",
+	baseURL:
+		typeof window !== "undefined"
+			? window.location.origin
+			: process.env.APP_URL || "http://localhost:3000",
+	basePath: "/api",
 });
 ```
 
-| Option | Type | Description |
-|---|---|---|
-| `baseURL` | `string` | Server URL |
+| Option     | Type     | Description                      |
+| ---------- | -------- | -------------------------------- |
+| `baseURL`  | `string` | Server URL                       |
 | `basePath` | `string` | API path prefix (e.g., `"/api"`) |
 
 ## Collections API
@@ -30,28 +30,28 @@ export const client = createClient<AppConfig>({
 ```ts
 // Find many
 const { docs, totalDocs } = await client.collections.posts.find({
-  where: { status: "published" },
-  orderBy: { createdAt: "desc" },
-  limit: 10,
+	where: { status: "published" },
+	orderBy: { createdAt: "desc" },
+	limit: 10,
 });
 
 // Find one
 const post = await client.collections.posts.findOne({
-  where: { slug: "hello-world" },
-  with: { author: true },
+	where: { slug: "hello-world" },
+	with: { author: true },
 });
 
 // Create
 const newPost = await client.collections.posts.create({
-  title: "Hello",
-  body: "World",
-  status: "draft",
+	title: "Hello",
+	body: "World",
+	status: "draft",
 });
 
 // Update
 const updated = await client.collections.posts.update({
-  id: "abc",
-  data: { status: "published" },
+	id: "abc",
+	data: { status: "published" },
 });
 
 // Delete
@@ -59,7 +59,7 @@ await client.collections.posts.delete({ id: "abc" });
 
 // Count
 const count = await client.collections.posts.count({
-  where: { status: "draft" },
+	where: { status: "draft" },
 });
 ```
 
@@ -71,7 +71,7 @@ const settings = await client.globals.siteSettings.get();
 
 // Update
 await client.globals.siteSettings.update({
-  shopName: "New Name",
+	shopName: "New Name",
 });
 ```
 
@@ -80,11 +80,11 @@ await client.globals.siteSettings.update({
 ```ts
 // Call a JSON route
 const result = await client.routes.createBooking({
-  barberId: "abc",
-  serviceId: "def",
-  scheduledAt: "2025-03-15T10:00:00Z",
-  customerName: "John",
-  customerEmail: "john@example.com",
+	barberId: "abc",
+	serviceId: "def",
+	scheduledAt: "2025-03-15T10:00:00Z",
+	customerName: "John",
+	customerEmail: "john@example.com",
 });
 ```
 
@@ -95,9 +95,9 @@ Call custom HTTP routes defined in `routes/`:
 ```ts
 // Call a route — returns raw Response
 const response = await client.routes["webhooks/stripe"]({
-  method: "POST",
-  body: JSON.stringify(payload),
-  headers: { "stripe-signature": sig },
+	method: "POST",
+	body: JSON.stringify(payload),
+	headers: { "stripe-signature": sig },
 });
 
 // Get the URL for a route (useful for forms, links)
@@ -113,7 +113,7 @@ Unlike collections and JSON routes, raw routes return `Response` objects - you h
 client.setLocale("sk");
 
 const services = await client.collections.services.find({
-  where: { isActive: true },
+	where: { isActive: true },
 });
 // Returns Slovak translations for localized fields
 ```

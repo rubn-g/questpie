@@ -7,6 +7,7 @@
 
 import type { ColumnDef } from "@tanstack/react-table";
 import type * as React from "react";
+
 import type { FieldInstance } from "../../../builder/field/field";
 import {
 	type ColumnConfig,
@@ -126,7 +127,10 @@ export function buildColumns<TData extends Record<string, unknown>>(
 		field: string,
 		definition?: FieldInstance,
 	): boolean => {
-		const fieldOptions = (definition?.["~options"] ?? {}) as Record<string, any>;
+		const fieldOptions = (definition?.["~options"] ?? {}) as Record<
+			string,
+			any
+		>;
 		return fieldOptions.localized !== undefined
 			? !!fieldOptions.localized
 			: (meta?.localizedFields?.includes(field) ?? false);

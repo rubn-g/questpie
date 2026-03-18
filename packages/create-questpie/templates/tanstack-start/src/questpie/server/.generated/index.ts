@@ -9,26 +9,24 @@ import {
 	type Questpie,
 	type QuestpieConfig,
 } from "questpie";
+// ── Module type extraction (inline, no recursive types) ───
+import type { UnionToIntersection } from "questpie";
+
 // ── Plugin Singles ─────────────────────────────────────────
 import _branding from "../branding";
 // ── Collections ────────────────────────────────────────────
 import { posts as _coll_posts_collection } from "../collections/posts.collection";
 import _dashboard from "../dashboard";
-
 // ── Globals ────────────────────────────────────────────────
 import { siteSettings as _glob_siteSettings_global } from "../globals/site-settings.global";
 // ── Modules ────────────────────────────────────────────────
 import _modules from "../modules";
 // ── Runtime ────────────────────────────────────────────────
 import _runtime from "../questpie.config";
-import _sidebar from "../sidebar";
-
 // ════════════════════════════════════════════════════════════
 // TYPES — composed from typeof references (zero inference cost)
 // ════════════════════════════════════════════════════════════
-
-// ── Module type extraction (inline, no recursive types) ───
-import type { UnionToIntersection } from "questpie";
+import _sidebar from "../sidebar";
 
 type _Module = (typeof _modules)[number];
 type _MPRaw<K extends string> = UnionToIntersection<

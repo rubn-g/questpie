@@ -18,6 +18,7 @@
  */
 
 import type { z } from "zod";
+
 import type {
 	HttpMethod,
 	JsonRouteDefinition,
@@ -107,7 +108,12 @@ export class RouteBuilder<
 	 * Cannot be combined with `.schema()`.
 	 */
 	raw(): RouteBuilder<_TMethod, RawMode, NoSchema> {
-		return new RouteBuilder({ ...this._config, mode: "raw", schema: undefined, outputSchema: undefined });
+		return new RouteBuilder({
+			...this._config,
+			mode: "raw",
+			schema: undefined,
+			outputSchema: undefined,
+		});
 	}
 
 	// ── Schema ──────────────────────────────────────────────────
@@ -136,9 +142,7 @@ export class RouteBuilder<
 	/**
 	 * Set access control for this route.
 	 */
-	access(
-		access: RouteAccess,
-	): RouteBuilder<_TMethod, _TMode, _TSchema> {
+	access(access: RouteAccess): RouteBuilder<_TMethod, _TMode, _TSchema> {
 		return new RouteBuilder({ ...this._config, access }) as any;
 	}
 

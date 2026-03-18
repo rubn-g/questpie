@@ -25,24 +25,24 @@ Blocks are defined in `blocks/` using the `block()` factory:
 import { block } from "#questpie";
 
 export const heroBlock = block("hero")
-  .admin(({ c }) => ({
-    label: { en: "Hero Section", sk: "Hero sekcia" },
-    icon: c.icon("ph:image"),
-    category: "sections",
-  }))
-  .fields(({ f }) => ({
-    title: f.text({ localized: true, required: true }),
-    subtitle: f.textarea({ localized: true }),
-    backgroundImage: f.upload({ to: "assets" }),
-    overlayOpacity: f.number({ defaultValue: 60 }),
-    alignment: f.select({
-      options: ["left", "center", "right"],
-      defaultValue: "center",
-    }),
-    ctaText: f.text({ localized: true }),
-    ctaLink: f.text(),
-  }))
-  .prefetch({ with: { backgroundImage: true } });
+	.admin(({ c }) => ({
+		label: { en: "Hero Section", sk: "Hero sekcia" },
+		icon: c.icon("ph:image"),
+		category: "sections",
+	}))
+	.fields(({ f }) => ({
+		title: f.text({ localized: true, required: true }),
+		subtitle: f.textarea({ localized: true }),
+		backgroundImage: f.upload({ to: "assets" }),
+		overlayOpacity: f.number({ defaultValue: 60 }),
+		alignment: f.select({
+			options: ["left", "center", "right"],
+			defaultValue: "center",
+		}),
+		ctaText: f.text({ localized: true }),
+		ctaLink: f.text(),
+	}))
+	.prefetch({ with: { backgroundImage: true } });
 ```
 
 ### Admin Metadata
@@ -63,28 +63,28 @@ Export multiple named blocks from one file:
 import { block } from "#questpie";
 
 export const twoColumnBlock = block("twoColumn")
-  .admin(({ c }) => ({
-    label: { en: "Two Columns" },
-    icon: c.icon("ph:columns"),
-    category: "layout",
-  }))
-  .fields(({ f }) => ({
-    left: f.blocks(),
-    right: f.blocks(),
-  }));
+	.admin(({ c }) => ({
+		label: { en: "Two Columns" },
+		icon: c.icon("ph:columns"),
+		category: "layout",
+	}))
+	.fields(({ f }) => ({
+		left: f.blocks(),
+		right: f.blocks(),
+	}));
 
 export const spacerBlock = block("spacer")
-  .admin(({ c }) => ({
-    label: { en: "Spacer" },
-    icon: c.icon("ph:arrows-out-line-vertical"),
-    category: "layout",
-  }))
-  .fields(({ f }) => ({
-    height: f.select({
-      options: ["sm", "md", "lg", "xl"],
-      defaultValue: "md",
-    }),
-  }));
+	.admin(({ c }) => ({
+		label: { en: "Spacer" },
+		icon: c.icon("ph:arrows-out-line-vertical"),
+		category: "layout",
+	}))
+	.fields(({ f }) => ({
+		height: f.select({
+			options: ["sm", "md", "lg", "xl"],
+			defaultValue: "md",
+		}),
+	}));
 ```
 
 ## Using Blocks in Collections
@@ -94,12 +94,11 @@ Add a `blocks` field to any collection:
 ```ts title="collections/pages.ts"
 import { collection } from "#questpie";
 
-export const pages = collection("pages")
-  .fields(({ f }) => ({
-    title: f.text({ required: true, localized: true }),
-    slug: f.text({ required: true }),
-    content: f.blocks({ localized: true }),
-  }));
+export const pages = collection("pages").fields(({ f }) => ({
+	title: f.text({ required: true, localized: true }),
+	slug: f.text({ required: true }),
+	content: f.blocks({ localized: true }),
+}));
 ```
 
 The admin renders a visual block editor for this field.
@@ -141,31 +140,31 @@ For complex queries, use a function. The `ctx` parameter provides fully typed `c
 import { block } from "#questpie";
 
 export const featuredBlock = block("featured")
-  .fields(({ f }) => ({
-    heading: f.text({ required: true }),
-  }))
-  .prefetch(async ({ values, ctx }) => {
-    return {
-      posts: (await ctx.collections.posts.find({ limit: 5 })).docs,
-    };
-  });
+	.fields(({ f }) => ({
+		heading: f.text({ required: true }),
+	}))
+	.prefetch(async ({ values, ctx }) => {
+		return {
+			posts: (await ctx.collections.posts.find({ limit: 5 })).docs,
+		};
+	});
 ```
 
 ### Using Prefetched Data in Renderers
 
 ```tsx
 function HeroRenderer({ values, data }: BlockProps<"hero">) {
-  // values.backgroundImage = "asset-id-123" (just the ID)
-  // data.backgroundImage = { url: "/api/assets/...", filename: "hero.jpg", ... }
+	// values.backgroundImage = "asset-id-123" (just the ID)
+	// data.backgroundImage = { url: "/api/assets/...", filename: "hero.jpg", ... }
 
-  return (
-    <section>
-      {data?.backgroundImage?.url && (
-        <img src={data.backgroundImage.url} alt="" />
-      )}
-      <h1>{values.title}</h1>
-    </section>
-  );
+	return (
+		<section>
+			{data?.backgroundImage?.url && (
+				<img src={data.backgroundImage.url} alt="" />
+			)}
+			<h1>{values.title}</h1>
+		</section>
+	);
 }
 ```
 
@@ -179,39 +178,39 @@ React components that receive block data and return JSX.
 import type { BlockProps } from "@questpie/admin/client";
 
 export function HeroRenderer({ values, data }: BlockProps<"hero">) {
-  return (
-    <section
-      className="relative flex items-center justify-center"
-      style={{ minHeight: "60vh" }}
-    >
-      {data?.backgroundImage?.url && (
-        <img
-          src={data.backgroundImage.url}
-          alt=""
-          className="absolute inset-0 w-full h-full object-cover"
-        />
-      )}
-      <div className="relative text-center">
-        <h1 className="text-5xl font-bold">{values.title}</h1>
-        {values.subtitle && <p className="text-xl mt-4">{values.subtitle}</p>}
-        {values.ctaText && (
-          <a href={values.ctaLink} className="mt-6 inline-block btn">
-            {values.ctaText}
-          </a>
-        )}
-      </div>
-    </section>
-  );
+	return (
+		<section
+			className="relative flex items-center justify-center"
+			style={{ minHeight: "60vh" }}
+		>
+			{data?.backgroundImage?.url && (
+				<img
+					src={data.backgroundImage.url}
+					alt=""
+					className="absolute inset-0 w-full h-full object-cover"
+				/>
+			)}
+			<div className="relative text-center">
+				<h1 className="text-5xl font-bold">{values.title}</h1>
+				{values.subtitle && <p className="text-xl mt-4">{values.subtitle}</p>}
+				{values.ctaText && (
+					<a href={values.ctaLink} className="mt-6 inline-block btn">
+						{values.ctaText}
+					</a>
+				)}
+			</div>
+		</section>
+	);
 }
 ```
 
 ### BlockProps
 
-| Property | Type | Description |
-|---|---|---|
-| `values` | `object` | Block field values (title, subtitle, etc.) |
-| `data` | `object` | Prefetched relation data (images, related records) |
-| `children` | `ReactNode` | Nested block content |
+| Property   | Type        | Description                                        |
+| ---------- | ----------- | -------------------------------------------------- |
+| `values`   | `object`    | Block field values (title, subtitle, etc.)         |
+| `data`     | `object`    | Prefetched relation data (images, related records) |
+| `children` | `ReactNode` | Nested block content                               |
 
 ### Registering Renderers
 
@@ -221,9 +220,9 @@ import { GalleryRenderer } from "./gallery";
 import { CTARenderer } from "./cta";
 
 export const renderers = {
-  hero: HeroRenderer,
-  gallery: GalleryRenderer,
-  cta: CTARenderer,
+	hero: HeroRenderer,
+	gallery: GalleryRenderer,
+	cta: CTARenderer,
 };
 ```
 
@@ -235,21 +234,22 @@ Use block renderers on the public frontend:
 import { renderers } from "@/questpie/admin/blocks";
 
 function PageRenderer({ page }) {
-  return (
-    <div>
-      {page.content?.map((block, i) => {
-        const Renderer = renderers[block.type];
-        if (!Renderer) return null;
-        return <Renderer key={i} values={block.values} data={block.data} />;
-      })}
-    </div>
-  );
+	return (
+		<div>
+			{page.content?.map((block, i) => {
+				const Renderer = renderers[block.type];
+				if (!Renderer) return null;
+				return <Renderer key={i} values={block.values} data={block.data} />;
+			})}
+		</div>
+	);
 }
 ```
 
 ## Common Mistakes
 
 1. **HIGH: Not using `ctx.collections.*` in functional prefetch** — use the context-injected collections directly. Do NOT import `app` from `#questpie` inside block files (causes circular dependencies).
+
    ```ts
    // WRONG — importing app creates circular dependency
    import { app } from "#questpie";

@@ -7,6 +7,7 @@
 
 import { Icon } from "@iconify/react";
 import type * as React from "react";
+
 import type { QuickActionsWidgetConfig } from "../../builder/types/widget-types";
 import { resolveIconElement } from "../../components/component-renderer";
 import { useResolveText } from "../../i18n/hooks";
@@ -89,7 +90,7 @@ export default function QuickActionsWidget({
 	if (parsedActions.length === 0) {
 		return (
 			<WidgetCard title={title}>
-				<p className="text-sm text-muted-foreground">No actions configured</p>
+				<p className="text-muted-foreground text-sm">No actions configured</p>
 			</WidgetCard>
 		);
 	}
@@ -136,7 +137,7 @@ export default function QuickActionsWidget({
 	// List layout (default) - matches recent-items style
 	return (
 		<WidgetCard title={title}>
-			<div className="space-y-1 -mx-1">
+			<div className="-mx-1 space-y-1">
 				{parsedActions.map((action) => {
 					const iconElement = resolveIconElement(action.icon, {
 						className: "h-4 w-4",
@@ -162,12 +163,12 @@ export default function QuickActionsWidget({
 									{iconElement}
 								</div>
 							)}
-							<span className="flex-1 text-sm font-medium truncate">
+							<span className="flex-1 truncate text-sm font-medium">
 								{action.label}
 							</span>
 							<Icon
 								icon="ph:arrow-right"
-								className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity"
+								className="text-muted-foreground h-4 w-4 opacity-0 transition-opacity group-hover:opacity-100"
 							/>
 						</button>
 					);

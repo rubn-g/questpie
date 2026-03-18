@@ -12,6 +12,7 @@
 
 import { Icon } from "@iconify/react";
 import type * as React from "react";
+
 import type {
 	AnyWidgetConfig,
 	DashboardAction,
@@ -229,18 +230,18 @@ function DashboardHeader({
 		<div className="qa-dashboard__header mb-8 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
 			<div className="min-w-0 flex-1">
 				{title && (
-					<h1 className="qa-dashboard__title text-2xl md:text-3xl font-extrabold tracking-tight">
+					<h1 className="qa-dashboard__title text-2xl font-extrabold tracking-tight md:text-3xl">
 						{title}
 					</h1>
 				)}
 				{description && (
-					<p className="qa-dashboard__description mt-1 text-muted-foreground">
+					<p className="qa-dashboard__description text-muted-foreground mt-1">
 						{description}
 					</p>
 				)}
 			</div>
 			{actions && actions.length > 0 && (
-				<div className="flex items-center gap-2 shrink-0">
+				<div className="flex shrink-0 items-center gap-2">
 					{/* Primary action always visible */}
 					{primaryAction && (
 						<Button
@@ -343,7 +344,7 @@ function LayoutItemRenderer({
 				? ({ ...item, realtime: dashboardRealtime } as AnyWidgetConfig)
 				: item;
 		return (
-			<div className={cn("min-h-0 h-full", spanClass, item.className)}>
+			<div className={cn("h-full min-h-0", spanClass, item.className)}>
 				<DashboardWidget
 					config={widgetConfig}
 					basePath={basePath}
@@ -426,7 +427,7 @@ function SectionRenderer({
 		<div
 			className={cn(
 				"@container",
-				layout === "grid" && "grid gap-4 items-stretch",
+				layout === "grid" && "grid items-stretch gap-4",
 				layout === "grid" && getGridClass(columns),
 				layout === "stack" && "flex flex-col gap-4",
 			)}
@@ -458,7 +459,7 @@ function SectionRenderer({
 							<h2 className="text-lg font-semibold">{sectionLabel}</h2>
 						)}
 						{sectionDescription && (
-							<p className="text-sm text-muted-foreground mt-1">
+							<p className="text-muted-foreground mt-1 text-sm">
 								{sectionDescription}
 							</p>
 						)}
@@ -477,7 +478,7 @@ function SectionRenderer({
 					<CardHeader>
 						{sectionLabel && <CardTitle>{sectionLabel}</CardTitle>}
 						{sectionDescription && (
-							<p className="text-sm text-muted-foreground">
+							<p className="text-muted-foreground text-sm">
 								{sectionDescription}
 							</p>
 						)}
@@ -496,13 +497,13 @@ function SectionRenderer({
 				className={cn("col-span-full", className)}
 			>
 				<AccordionItem className="border-none">
-					<AccordionTrigger className="hover:no-underline py-2">
+					<AccordionTrigger className="py-2 hover:no-underline">
 						<div className="text-left">
 							{sectionLabel && (
 								<span className="text-lg font-semibold">{sectionLabel}</span>
 							)}
 							{sectionDescription && (
-								<p className="text-sm text-muted-foreground font-normal">
+								<p className="text-muted-foreground text-sm font-normal">
 									{sectionDescription}
 								</p>
 							)}
@@ -555,7 +556,7 @@ function TabsRenderer({
 						})}
 						{resolveText(tab.label)}
 						{tab.badge !== undefined && (
-							<span className="ml-2 rounded-full bg-muted px-2 py-0.5 text-xs">
+							<span className="bg-muted ml-2 rounded-full px-2 py-0.5 text-xs">
 								{tab.badge}
 							</span>
 						)}
@@ -602,7 +603,7 @@ function TabContentRenderer({
 	return (
 		<div
 			className={cn(
-				"@container grid gap-4 items-stretch",
+				"@container grid items-stretch gap-4",
 				getGridClass(columns),
 			)}
 		>
@@ -695,12 +696,12 @@ export function DashboardGrid({
 					navigate={navigate}
 					resolveText={resolveText}
 				/>
-				<div className="flex h-64 items-center justify-center border border-dashed border-border bg-card rounded-lg">
+				<div className="border-border bg-card flex h-64 items-center justify-center rounded-lg border border-dashed">
 					<div className="text-center">
 						<p className="text-muted-foreground font-medium">
 							{t("dashboard.noWidgets")}
 						</p>
-						<p className="mt-1 text-sm text-muted-foreground">
+						<p className="text-muted-foreground mt-1 text-sm">
 							{t("dashboard.noWidgetsDescription")}
 						</p>
 					</div>
@@ -721,7 +722,7 @@ export function DashboardGrid({
 
 			<div
 				className={cn(
-					"qa-dashboard__grid grid gap-4 items-stretch",
+					"qa-dashboard__grid grid items-stretch gap-4",
 					getGridClass(columns),
 				)}
 			>

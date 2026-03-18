@@ -1,4 +1,5 @@
 import { execSync } from "node:child_process";
+
 import pc from "picocolors";
 
 export function slugify(str: string): string {

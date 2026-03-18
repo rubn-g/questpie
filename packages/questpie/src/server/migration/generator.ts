@@ -1,6 +1,8 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+
 import type { generateDrizzleJson } from "drizzle-kit/api-postgres";
+
 import { OperationSnapshotManager } from "./operation-snapshot.js";
 import type { GenerateMigrationResult, OperationSnapshot } from "./types.js";
 
@@ -54,9 +56,8 @@ export class DrizzleMigrationGenerator {
 		options: DrizzleMigrationGeneratorOptions,
 	): Promise<GenerateMigrationResult> {
 		// Import drizzle-kit API dynamically
-		const { generateDrizzleJson, generateMigration } = await import(
-			"drizzle-kit/api-postgres"
-		);
+		const { generateDrizzleJson, generateMigration } =
+			await import("drizzle-kit/api-postgres");
 
 		// Create migrations directory if it doesn't exist
 		if (!existsSync(options.migrationDir)) {

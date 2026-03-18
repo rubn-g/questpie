@@ -18,11 +18,11 @@ import { adminModule } from "@questpie/admin/server";
 import { openApiModule } from "@questpie/openapi";
 
 export default [
-  adminModule,
-  openApiModule({
-    info: { title: "My API", version: "1.0.0" },
-    scalar: { theme: "purple" },
-  }),
+	adminModule,
+	openApiModule({
+		info: { title: "My API", version: "1.0.0" },
+		scalar: { theme: "purple" },
+	}),
 ] as const;
 ```
 
@@ -45,13 +45,13 @@ GET /api/docs         → Scalar UI
 
 ## What Gets Documented
 
-| Category        | Endpoints                                                                               |
-| --------------- | --------------------------------------------------------------------------------------- |
+| Category        | Endpoints                                                                                                 |
+| --------------- | --------------------------------------------------------------------------------------------------------- |
 | **Collections** | List, create, findOne, update, delete, count, deleteMany, restore, versions, revert, upload, schema, meta |
-| **Globals**     | Get, update, versions, revert, schema                                                   |
-| **Routes**      | All standalone routes, with input/output from Zod schemas                               |
-| **Auth**        | Better Auth endpoints (sign-in, sign-up, session, sign-out)                             |
-| **Search**      | Full-text search and reindex                                                            |
+| **Globals**     | Get, update, versions, revert, schema                                                                     |
+| **Routes**      | All standalone routes, with input/output from Zod schemas                                                 |
+| **Auth**        | Better Auth endpoints (sign-in, sign-up, session, sign-out)                                               |
+| **Search**      | Full-text search and reindex                                                                              |
 
 Routes with an explicit `outputSchema` get full request/response documentation. Routes without it fall back to `{ type: "object" }`.
 
@@ -63,8 +63,8 @@ Generate the spec without mounting routes:
 import { generateOpenApiSpec } from "@questpie/openapi";
 
 const spec = generateOpenApiSpec(app, {
-  basePath: "/api",
-  info: { title: "My API", version: "1.0.0" },
+	basePath: "/api",
+	info: { title: "My API", version: "1.0.0" },
 });
 ```
 

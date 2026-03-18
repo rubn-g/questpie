@@ -1,5 +1,6 @@
 import { Icon } from "@iconify/react";
 import * as React from "react";
+
 import type { AuditEntry } from "../hooks/use-audit-history";
 import { useTranslation } from "../i18n/hooks";
 import { Badge } from "./ui/badge";
@@ -119,7 +120,7 @@ function ChangeDiff({
 		<div className="mt-2">
 			<button
 				type="button"
-				className="text-xs text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1 cursor-pointer"
+				className="text-muted-foreground hover:text-foreground flex cursor-pointer items-center gap-1 text-xs transition-colors"
 				onClick={() => setExpanded(!expanded)}
 			>
 				<Icon
@@ -133,8 +134,8 @@ function ChangeDiff({
 			{expanded && (
 				<div className="mt-1.5 space-y-1.5 text-xs">
 					{entries.map(([field, { from, to }]) => (
-						<div key={field} className="rounded border px-2 py-1.5 bg-muted">
-							<span className="font-medium text-foreground">{field}</span>
+						<div key={field} className="bg-muted rounded border px-2 py-1.5">
+							<span className="text-foreground font-medium">{field}</span>
 							<div className="mt-0.5 flex flex-col gap-0.5">
 								<span className="text-red-600 dark:text-red-400">
 									<span className="opacity-50">- </span>
@@ -168,7 +169,7 @@ function ActivityTimeline({
 
 	if (isLoading) {
 		return (
-			<div className="flex items-center justify-center py-12 text-muted-foreground">
+			<div className="text-muted-foreground flex items-center justify-center py-12">
 				<Icon icon="ph:spinner-gap" className="size-5 animate-spin" />
 			</div>
 		);
@@ -176,7 +177,7 @@ function ActivityTimeline({
 
 	if (entries.length === 0) {
 		return (
-			<p className="text-sm text-muted-foreground py-6 text-center">
+			<p className="text-muted-foreground py-6 text-center text-sm">
 				{t("history.empty")}
 			</p>
 		);
@@ -194,16 +195,16 @@ function ActivityTimeline({
 						{/* Timeline line + dot */}
 						<div className="flex flex-col items-center">
 							<div
-								className={`size-2.5 rounded-full mt-1.5 shrink-0 ${config.color}`}
+								className={`mt-1.5 size-2.5 shrink-0 rounded-full ${config.color}`}
 							/>
-							{!isLast && <div className="w-px flex-1 bg-border min-h-4" />}
+							{!isLast && <div className="bg-border min-h-4 w-px flex-1" />}
 						</div>
 
 						{/* Content */}
-						<div className="pb-4 min-w-0 flex-1">
+						<div className="min-w-0 flex-1 pb-4">
 							<div className="flex items-start justify-between gap-2">
 								<p className="text-sm leading-snug">{entry.title}</p>
-								<span className="text-xs text-muted-foreground whitespace-nowrap shrink-0">
+								<span className="text-muted-foreground shrink-0 text-xs whitespace-nowrap">
 									{formatRelativeTime(date)}
 								</span>
 							</div>
@@ -265,7 +266,7 @@ function VersionsList({
 
 	if (isLoading) {
 		return (
-			<div className="flex items-center justify-center py-12 text-muted-foreground">
+			<div className="text-muted-foreground flex items-center justify-center py-12">
 				<Icon icon="ph:spinner-gap" className="size-5 animate-spin" />
 			</div>
 		);
@@ -273,7 +274,7 @@ function VersionsList({
 
 	if (sortedVersions.length === 0) {
 		return (
-			<p className="text-sm text-muted-foreground py-6 text-center">
+			<p className="text-muted-foreground py-6 text-center text-sm">
 				{t("version.empty")}
 			</p>
 		);
@@ -302,15 +303,15 @@ function VersionsList({
 											number: version.versionNumber ?? "-",
 										})}
 									</Badge>
-									<span className="text-sm text-muted-foreground">
+									<span className="text-muted-foreground text-sm">
 										{operationLabel(version.versionOperation)}
 									</span>
 								</div>
-								<p className="text-xs text-muted-foreground mt-1">
+								<p className="text-muted-foreground mt-1 text-xs">
 									{t("version.createdAt")}:{" "}
 									{formatDate(version.versionCreatedAt)}
 								</p>
-								<p className="text-xs text-muted-foreground">
+								<p className="text-muted-foreground text-xs">
 									{t("version.user")}: {version.versionUserId || "-"}
 								</p>
 							</div>
@@ -355,9 +356,9 @@ export function HistorySidebar({
 		<Sheet open={open} onOpenChange={onOpenChange}>
 			<SheetContent
 				side="right"
-				className="qa-history-sidebar sm:max-w-xl flex flex-col p-0"
+				className="qa-history-sidebar flex flex-col p-0 sm:max-w-xl"
 			>
-				<SheetHeader className="px-6 py-5 border-b">
+				<SheetHeader className="border-b px-6 py-5">
 					<SheetTitle>{t("history.title")}</SheetTitle>
 					<SheetDescription>{t("history.description")}</SheetDescription>
 				</SheetHeader>
@@ -365,7 +366,7 @@ export function HistorySidebar({
 				{showVersionsTab ? (
 					<Tabs
 						defaultValue="activity"
-						className="flex-1 flex flex-col min-h-0"
+						className="flex min-h-0 flex-1 flex-col"
 					>
 						<div className="px-6 pt-3">
 							<TabsList variant="line">

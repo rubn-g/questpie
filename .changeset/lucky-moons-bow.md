@@ -8,6 +8,7 @@
 Remove deprecated collection/global scoped `.functions()` RPC from builders and runtime routes. RPC is now app-level only via `rpc().router(...)` on `/rpc/:path...`.
 
 Update docs to match current behavior:
+
 - runtime install baseline is `questpie` (add `zod`/`drizzle-orm` only when imported directly)
 - explicit sidebar items are automatically excluded from the auto-generated section
 - `where.RAW` now documents and supports object args with optional i18n aliases via `({ table, i18nCurrentTable, i18nFallbackTable })`
@@ -23,11 +24,13 @@ Add upload/system field introspection (including synthetic `preview`) so assets 
 Update default assets admin config to show preview in list and form sidebar.
 
 Add real user admin actions in defaults:
+
 - header `createUser` (name/email/password/role)
 - single-item `resetPassword` (new + confirm)
 - wired to Better Auth admin API calls with session bearer token
 
 Polish user form behavior:
+
 - email becomes read-only on existing records
 - ban reason/expiry only show when banned
 
@@ -36,12 +39,14 @@ Improve server action client mapping/execution with real form field mapping, RPC
 Fix action form fields missing labels, options, and broken validation. Server introspection now properly serializes `FieldDefinition` objects (from `f.text()`, `f.select()`, etc.) into the flat format the client expects, so action forms render with correct labels, field types, required indicators, and select options. Also fix server-side `isFieldRequired()` to check `state.config.required`.
 
 Add full versions/revert parity across the stack:
+
 - new collection/global adapter routes for versions and revert
 - questpie client methods (`findVersions`, `revertToVersion`)
 - tanstack-query option builders for versions/revert queries and mutations
 - OpenAPI generation for versions/revert on collections and globals
 
 Expand soft-delete and admin action UX:
+
 - built-in admin actions now include `restore` and `restoreMany`
 - list view supports persisted `includeDeleted` state and passes it to queries
 - bulk toolbar supports restore-many flows
@@ -49,6 +54,7 @@ Expand soft-delete and admin action UX:
 Add version history UI in admin forms with revert confirmations for collections and globals.
 
 Panel state is now URL-driven for better shareability and navigation:
+
 - side panels use `sidebar=...` (`history`, `view-options`, `block-library`)
 - live preview mode uses `preview=true`
 - legacy params remain supported for backward compatibility
@@ -58,6 +64,7 @@ Add integration test coverage for adapter versioning routes and extend package d
 Workflow configuration is nested under `versioning` in collection/global options — `.options({ versioning: { workflow: true } })`. This makes the dependency explicit in the type system since workflow uses the versions table for stage snapshots. `CollectionVersioningOptions.enabled` defaults to `true` when the object form is used, so `versioning: { workflow: true }` enables both.
 
 Add workflow stage transitions:
+
 - `transitionStage()` CRUD method for collections and globals — validates stage, enforces transition guards, creates version snapshot without data mutation
 - `access.transition` permission rule (falls back to `access.update` when not defined)
 - `beforeTransition` / `afterTransition` hooks with `fromStage` and `toStage` context
@@ -68,10 +75,12 @@ Add workflow stage transitions:
 - Scheduled transitions via queue job (`scheduledAt` parameter — future dates enqueue, past dates execute immediately)
 
 Add audit logging for workflow transitions:
+
 - `afterTransition` hooks on both collection and global audit modules
 - Transitions appear in the audit timeline with action `"transition"`, recording `fromStage` and `toStage` in changes and metadata
 
 Add workflow admin UI in collection and global form views:
+
 - Stage badge in form header showing current workflow stage (reads `versionStage` from latest version)
 - Transition dropdown button listing allowed target stages from current stage's `transitions` config
 - Confirmation dialog with optional "Schedule for later" date/time picker
@@ -83,6 +92,7 @@ Add workflow admin UI in collection and global form views:
 **Admin field meta augmentation** — The admin package now properly augments all questpie field meta interfaces (`TextFieldMeta`, `BooleanFieldMeta`, `SelectFieldMeta`, etc.) with `admin?: *FieldAdminMeta` via `declare module "questpie"`. Previously, using `meta: { admin: { ... } }` in field definitions caused TS2353 errors because no augmentation existed. Rich text and blocks field metas are augmented via `declare module "@questpie/admin/server"`.
 
 **Unify admin meta types with renderer implementations** — `ObjectFieldAdminMeta`, `ArrayFieldAdminMeta`, and `UploadFieldAdminMeta` now match the properties that admin renderers actually consume:
+
 - `ObjectFieldAdminMeta`: `wrapper`, `layout`, `columns`, `defaultCollapsed`
 - `ArrayFieldAdminMeta`: `orderable`, `mode`, `layout`, `columns`, `itemLabel`, `minItems`, `maxItems`
 - `UploadFieldAdminMeta`: adds `showPreview`, `editable`, `previewVariant`, `multiple`, `maxItems`, `orderable`, `layout`

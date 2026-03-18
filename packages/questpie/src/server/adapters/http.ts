@@ -341,7 +341,8 @@ export const createFetchHandler = (
 
 		// 1. Health check — public endpoint, no auth required
 		if (segments[0] === "health") {
-			const checks: Record<string, { status: string; latency_ms?: number }> = {};
+			const checks: Record<string, { status: string; latency_ms?: number }> =
+				{};
 			let overall: "ok" | "degraded" | "unhealthy" = "ok";
 
 			// Database check
@@ -359,8 +360,11 @@ export const createFetchHandler = (
 
 			// Search check
 			if ((_app as any).search) {
-				checks.search = { status: (_app as any).search.isInitialized?.() ? "ok" : "degraded" };
-				if (checks.search.status === "degraded" && overall === "ok") overall = "degraded";
+				checks.search = {
+					status: (_app as any).search.isInitialized?.() ? "ok" : "degraded",
+				};
+				if (checks.search.status === "degraded" && overall === "ok")
+					overall = "degraded";
 			}
 
 			// Storage check

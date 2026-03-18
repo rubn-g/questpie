@@ -57,6 +57,7 @@ import type { QueryClient } from "@tanstack/react-query";
 import { QueryClientProvider } from "@tanstack/react-query";
 import type { QuestpieClient } from "questpie/client";
 import type * as React from "react";
+
 import { Admin, type AdminInput } from "../../builder/admin";
 import { AuthGuard } from "../../components/auth";
 import { AdminProvider } from "../../runtime/provider";
@@ -207,7 +208,9 @@ function handleSessionExpiredError(error: unknown) {
 		if (DEFAULT_PUBLIC_PATHS.some((p) => path.endsWith(p))) return;
 
 		sessionExpiredRedirectPending = true;
-		const returnUrl = encodeURIComponent(window.location.pathname + window.location.search);
+		const returnUrl = encodeURIComponent(
+			window.location.pathname + window.location.search,
+		);
 		window.location.href = `${path.replace(/\/[^/]*$/, "")}/login?returnUrl=${returnUrl}`;
 	}
 }
@@ -237,7 +240,8 @@ function getDefaultQueryClient(): QueryClient {
 		});
 
 		// Use global query cache error handler for queries
-		cachedQueryClient.getQueryCache().config.onError = handleSessionExpiredError;
+		cachedQueryClient.getQueryCache().config.onError =
+			handleSessionExpiredError;
 	}
 	return cachedQueryClient;
 }

@@ -13,6 +13,7 @@ import type {
 	ServiceNamespace,
 	ServiceNamespaceOf,
 } from "#questpie/server/services/define-service.js";
+
 import type { Registry } from "./app-context.js";
 
 /**
@@ -23,9 +24,7 @@ import type { Registry } from "./app-context.js";
  */
 // biome-ignore lint/suspicious/noExplicitAny: Required for distributive conditional type
 export type UnionToIntersection<U> = (
-	U extends any
-		? (x: U) => void
-		: never
+	U extends any ? (x: U) => void : never
 ) extends (x: infer I) => void
 	? I
 	: never;

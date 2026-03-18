@@ -5,18 +5,18 @@ description: All QUESTPIE CLI commands.
 
 ## Commands
 
-| Command | Description |
-|---|---|
-| `questpie generate` | Scan file conventions, generate types |
-| `questpie dev` | Watch mode — auto-regenerate on changes |
-| `questpie push` | Push schema to database (no migrations) |
-| `questpie migrate:generate` | Generate migration from schema diff |
-| `questpie migrate:up` | Run pending migrations |
-| `questpie migrate:down` | Rollback last migration |
-| `questpie migrate:fresh` | Drop all + re-run migrations |
-| `questpie migrate:reset` | Reset migration tracking |
-| `questpie seed:run` | Run seed files |
-| `questpie add <module>` | Add a module or starter |
+| Command                     | Description                             |
+| --------------------------- | --------------------------------------- |
+| `questpie generate`         | Scan file conventions, generate types   |
+| `questpie dev`              | Watch mode — auto-regenerate on changes |
+| `questpie push`             | Push schema to database (no migrations) |
+| `questpie migrate:generate` | Generate migration from schema diff     |
+| `questpie migrate:up`       | Run pending migrations                  |
+| `questpie migrate:down`     | Rollback last migration                 |
+| `questpie migrate:fresh`    | Drop all + re-run migrations            |
+| `questpie migrate:reset`    | Reset migration tracking                |
+| `questpie seed:run`         | Run seed files                          |
+| `questpie add <module>`     | Add a module or starter                 |
 
 ## Usage
 
@@ -40,13 +40,13 @@ export { default } from "./src/questpie/server/questpie.config";
 
 ```ts
 runtimeConfig({
-  cli: {
-    migrations: {
-      directory: "./src/migrations",
-    },
-    seeds: {
-      directory: "./src/seeds",
-    },
-  },
+	cli: {
+		migrations: {
+			directory: "./src/migrations",
+		},
+		seeds: {
+			directory: "./src/seeds",
+		},
+	},
 });
 ```

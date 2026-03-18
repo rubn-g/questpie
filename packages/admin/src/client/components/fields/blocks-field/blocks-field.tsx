@@ -9,11 +9,12 @@
 
 import * as React from "react";
 import { useFormContext, useWatch } from "react-hook-form";
+
 import type { BlockSchema } from "#questpie/admin/server/block/index.js";
+
 import type { BlockContent } from "../../../blocks/types.js";
 import { EMPTY_BLOCK_CONTENT, isBlockContent } from "../../../blocks/types.js";
 import type { BaseFieldProps } from "../../../builder/types/common.js";
-import { useTranslation } from "../../../i18n/hooks.js";
 import {
 	Card,
 	CardContent,
@@ -21,6 +22,7 @@ import {
 	CardTitle,
 } from "../../../components/ui/card.js";
 import { useAdminConfig } from "../../../hooks/use-admin-config.js";
+import { useTranslation } from "../../../i18n/hooks.js";
 import { BlockEditorLayout } from "../../blocks/block-editor-layout.js";
 import { BlockEditorProvider } from "../../blocks/block-editor-provider.js";
 import { countBlocks } from "../../blocks/utils/tree-utils.js";
@@ -125,11 +127,9 @@ export function BlocksField({
 							</CardTitle>
 						</CardHeader>
 						<CardContent>
-							<div className="py-8 text-center text-muted-foreground">
+							<div className="text-muted-foreground py-8 text-center">
 								<p className="text-sm">{t("blocks.noDefinitions")}</p>
-								<p className="mt-1 text-xs">
-									{t("blocks.noDefinitionsHint")}
-								</p>
+								<p className="mt-1 text-xs">{t("blocks.noDefinitionsHint")}</p>
 							</div>
 						</CardContent>
 					</Card>
@@ -137,7 +137,7 @@ export function BlocksField({
 
 				{/* Constraints info */}
 				{(minBlocks || maxBlocks) && (
-					<div className="mt-2 text-xs text-muted-foreground">
+					<div className="text-muted-foreground mt-2 text-xs">
 						{minBlocks && <span>Min: {minBlocks} blocks </span>}
 						{maxBlocks && <span>Max: {maxBlocks} blocks</span>}
 						<span className="ml-2">Current: {blockCount}</span>

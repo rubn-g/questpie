@@ -8,7 +8,9 @@
 "use client";
 
 import * as React from "react";
+
 import type { BlockSchema } from "#questpie/admin/server/block/index.js";
+
 import type { FieldInstance } from "../../builder/field/field.js";
 import { useResolveText, useTranslation } from "../../i18n/hooks.js";
 import { selectAdmin, useAdminStore } from "../../runtime/provider.js";
@@ -50,7 +52,7 @@ export function BlockFieldsRenderer({
 
 	if (Object.keys(blockFields).length === 0) {
 		return (
-			<div className="text-center text-sm text-muted-foreground py-4">
+			<div className="text-muted-foreground py-4 text-center text-sm">
 				{t("blocks.noEditableFields")}
 			</div>
 		);
@@ -103,7 +105,7 @@ function BlockField({ name, blockId, definition }: BlockFieldProps) {
 	// All fields should have a registered component (registry-first)
 	if (!FieldComponent) {
 		return (
-			<div className="text-sm text-destructive">
+			<div className="text-destructive text-sm">
 				No component registered for field type: {fieldType}
 			</div>
 		);

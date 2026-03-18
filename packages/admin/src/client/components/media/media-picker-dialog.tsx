@@ -25,10 +25,11 @@
 import { Icon } from "@iconify/react";
 import * as React from "react";
 import { toast } from "sonner";
-import { useTranslation } from "../../i18n/hooks";
+
 import { useCollectionList } from "../../hooks/use-collection";
 import type { Asset } from "../../hooks/use-upload";
 import { useUploadCollection } from "../../hooks/use-upload-collection";
+import { useTranslation } from "../../i18n/hooks";
 import { AssetPreview } from "../primitives/asset-preview";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
@@ -101,7 +102,11 @@ const MIME_TYPE_FILTERS = [
 	{ value: "images", labelKey: "media.images" as const, mimePattern: "image/" },
 	{ value: "videos", labelKey: "media.videos" as const, mimePattern: "video/" },
 	{ value: "audio", labelKey: "media.audio" as const, mimePattern: "audio/" },
-	{ value: "documents", labelKey: "media.documents" as const, mimePattern: "application/pdf" },
+	{
+		value: "documents",
+		labelKey: "media.documents" as const,
+		mimePattern: "application/pdf",
+	},
 ];
 
 // ============================================================================
@@ -268,7 +273,7 @@ export function MediaPickerDialog({
 		<Sheet open={open} onOpenChange={onOpenChange}>
 			<SheetContent
 				side="right"
-				className="qa-media-picker data-[side=right]:sm:max-w-6xl w-full p-0"
+				className="qa-media-picker w-full p-0 data-[side=right]:sm:max-w-6xl"
 			>
 				<SheetHeader className="px-6 pt-6">
 					<SheetTitle>{t("media.browseLibrary")}</SheetTitle>
@@ -281,7 +286,7 @@ export function MediaPickerDialog({
 
 				<div className="flex flex-1 flex-col gap-4 overflow-hidden px-6 pb-6">
 					{!resolvedCollection && (
-						<div className="rounded-lg border border-warning/40 bg-warning/5 p-3 text-sm text-warning">
+						<div className="border-warning/40 bg-warning/5 text-warning rounded-lg border p-3 text-sm">
 							{availableUploadCollections.length > 1
 								? `Multiple upload collections are available (${availableUploadCollections.join(", ")}). Pass the collection prop to choose one.`
 								: "No upload collection is configured for media library."}
@@ -294,7 +299,7 @@ export function MediaPickerDialog({
 						<div className="relative flex-1">
 							<Icon
 								icon="ph:magnifying-glass-bold"
-								className="text-muted-foreground absolute left-3 top-1/2 size-4 -translate-y-1/2"
+								className="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2"
 							/>
 							<Input
 								type="text"
@@ -342,25 +347,25 @@ export function MediaPickerDialog({
 								onAssetClick={(asset) => setPreviewAssetId(asset.id)}
 							/>
 						</div>
-						<div className="hidden lg:flex w-80 xl:w-96 shrink-0 flex-col gap-3 border-l pl-4">
-							<p className="text-muted-foreground text-xs uppercase tracking-wide">
+						<div className="hidden w-80 shrink-0 flex-col gap-3 border-l pl-4 lg:flex xl:w-96">
+							<p className="text-muted-foreground text-xs tracking-wide uppercase">
 								Preview
 							</p>
 							{previewAsset ? (
 								<AssetPreview asset={previewAsset} variant="card" />
 							) : (
-								<div className="flex items-center justify-center rounded-lg border border-dashed p-6 text-xs text-muted-foreground">
+								<div className="text-muted-foreground flex items-center justify-center rounded-lg border border-dashed p-6 text-xs">
 									Select an asset to preview
 								</div>
 							)}
 						</div>
 					</div>
 
-					<div className="lg:hidden border-t pt-4">
+					<div className="border-t pt-4 lg:hidden">
 						{previewAsset ? (
 							<AssetPreview asset={previewAsset} variant="compact" />
 						) : (
-							<div className="flex items-center justify-center rounded-lg border border-dashed p-4 text-xs text-muted-foreground">
+							<div className="text-muted-foreground flex items-center justify-center rounded-lg border border-dashed p-4 text-xs">
 								Select an asset to preview
 							</div>
 						)}

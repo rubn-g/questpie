@@ -20,43 +20,43 @@ Running `questpie generate` scans your file conventions and produces the `.gener
 
 // Entity type maps
 export type AppCollections = {
-  appointments: typeof appointments;
-  barbers: typeof barbers;
-  services: typeof services;
-  // ...
+	appointments: typeof appointments;
+	barbers: typeof barbers;
+	services: typeof services;
+	// ...
 };
 
 export type AppGlobals = {
-  siteSettings: typeof siteSettings;
+	siteSettings: typeof siteSettings;
 };
 
 export type AppRoutes = {
-  createBooking: typeof createBooking;
-  getActiveBarbers: typeof getActiveBarbers;
-  // ...
+	createBooking: typeof createBooking;
+	getActiveBarbers: typeof getActiveBarbers;
+	// ...
 };
 
 export type AppJobs = {
-  sendAppointmentConfirmation: typeof sendAppointmentConfirmation;
-  notifyBlogSubscribers: typeof notifyBlogSubscribers;
-  // ...
+	sendAppointmentConfirmation: typeof sendAppointmentConfirmation;
+	notifyBlogSubscribers: typeof notifyBlogSubscribers;
+	// ...
 };
 
 export type AppServices = {
-  blog: BlogService;
+	blog: BlogService;
 };
 
 export type AppEmails = {
-  appointmentConfirmation: typeof appointmentConfirmationEmail;
-  // ...
+	appointmentConfirmation: typeof appointmentConfirmationEmail;
+	// ...
 };
 
 // Flat config type for client SDK
 export type AppConfig = {
-  collections: AppCollections;
-  globals: AppGlobals;
-  routes: AppRoutes;
-  // auth, locales, etc.
+	collections: AppCollections;
+	globals: AppGlobals;
+	routes: AppRoutes;
+	// auth, locales, etc.
 };
 ```
 
@@ -65,18 +65,20 @@ export type AppConfig = {
 Codegen augments `AppContext` so every handler gets typed DI:
 
 ```ts
-declare global { namespace Questpie {
-  interface AppContext {
-    db: Database;
-    email: MailerService<AppEmailTemplates>;
-    queue: QueueClient<AppJobs>;
-    collections: AppCollections;
-    globals: AppGlobals;
-    session: Session | null;
-    blog: BlogService;   // Custom service
-    // ... all services
-  }
-}}
+declare global {
+	namespace Questpie {
+		interface AppContext {
+			db: Database;
+			email: MailerService<AppEmailTemplates>;
+			queue: QueueClient<AppJobs>;
+			collections: AppCollections;
+			globals: AppGlobals;
+			session: Session | null;
+			blog: BlogService; // Custom service
+			// ... all services
+		}
+	}
+}
 ```
 
 This is why you can destructure `{ collections, queue, email, blog }` in any handler — codegen generates the type augmentation from your file structure.
@@ -87,10 +89,10 @@ This is why you can destructure `{ collections, queue, email, blog }` in any han
 export const app = createApp(mergedModule, runtimeConfig);
 
 export async function createContext(options?: {
-  accessMode?: "system" | "user";
-  locale?: string;
+	accessMode?: "system" | "user";
+	locale?: string;
 }) {
-  return app.createContext(options);
+	return app.createContext(options);
 }
 ```
 
@@ -102,8 +104,8 @@ export async function createContext(options?: {
 import type { AppConfig } from "#questpie";
 
 export const client = createClient<AppConfig>({
-  baseURL: "http://localhost:3000",
-  basePath: "/api",
+	baseURL: "http://localhost:3000",
+	basePath: "/api",
 });
 ```
 
@@ -123,13 +125,13 @@ import { createTypedHooks } from "@questpie/admin/client";
 import type { AppConfig } from "#questpie";
 
 export const {
-  useCollectionList,
-  useCollectionItem,
-  useCollectionCreate,
-  useCollectionUpdate,
-  useCollectionDelete,
-  useGlobal,
-  useGlobalUpdate,
+	useCollectionList,
+	useCollectionItem,
+	useCollectionCreate,
+	useCollectionUpdate,
+	useCollectionDelete,
+	useGlobal,
+	useGlobalUpdate,
 } = createTypedHooks<AppConfig>();
 ```
 

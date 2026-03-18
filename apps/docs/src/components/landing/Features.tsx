@@ -1,6 +1,7 @@
 import { Icon } from "@iconify/react";
 import { Link } from "@tanstack/react-router";
 import { motion } from "motion/react";
+
 import {
 	AnimModuleGrid,
 	CornerPie,
@@ -70,11 +71,11 @@ export function Features() {
 	return (
 		<section
 			id="features"
-			className="relative border-border/40 py-20 overflow-hidden"
+			className="border-border/40 relative overflow-hidden py-20"
 		>
-			<div className="mx-auto w-full max-w-7xl px-4 relative z-10">
+			<div className="relative z-10 mx-auto w-full max-w-7xl px-4">
 				{/* L-R layout: heading LEFT, module grid viz RIGHT */}
-				<div className="grid gap-12 lg:grid-cols-[1fr_1fr] items-center mb-12">
+				<div className="mb-12 grid items-center gap-12 lg:grid-cols-[1fr_1fr]">
 					{/* Left — heading + description + link */}
 					<motion.div
 						initial={{ opacity: 0, y: 20 }}
@@ -82,13 +83,13 @@ export function Features() {
 						viewport={{ once: true, margin: "-80px" }}
 						transition={{ duration: 0.6 }}
 					>
-						<h2 className="font-mono text-sm uppercase tracking-[0.2em] text-primary text-balance">
+						<h2 className="text-primary font-mono text-sm tracking-[0.2em] text-balance uppercase">
 							Platform Capabilities
 						</h2>
 						<h3 className="mt-3 font-mono text-3xl font-bold tracking-[-0.02em] text-balance md:text-4xl">
 							Built-in platform capabilities
 						</h3>
-						<p className="mt-3 text-muted-foreground text-balance max-w-lg">
+						<p className="text-muted-foreground mt-3 max-w-lg text-balance">
 							Search, i18n, jobs, auth, multitenancy, and blocks are all built
 							in. Configure once in backend, use everywhere.
 						</p>
@@ -96,7 +97,7 @@ export function Features() {
 							<Link
 								to="/docs/$"
 								params={{ _splat: "production" }}
-								className="inline-flex items-center gap-2 font-mono text-xs text-primary transition-colors hover:text-primary/80"
+								className="text-primary hover:text-primary/80 inline-flex items-center gap-2 font-mono text-xs transition-colors"
 							>
 								Explore platform infrastructure →
 							</Link>
@@ -105,13 +106,13 @@ export function Features() {
 
 					{/* Right — Module grid visualization */}
 					<motion.div
-						className="flex items-center justify-center lg:justify-end order-last lg:order-none"
+						className="order-last flex items-center justify-center lg:order-none lg:justify-end"
 						initial={{ opacity: 0, x: 20 }}
 						whileInView={{ opacity: 1, x: 0 }}
 						viewport={{ once: true, margin: "-80px" }}
 						transition={{ duration: 0.6, delay: 0.15 }}
 					>
-						<AnimModuleGrid className="w-full max-w-[320px] h-auto pointer-events-none opacity-80" />
+						<AnimModuleGrid className="pointer-events-none h-auto w-full max-w-[320px] opacity-80" />
 					</motion.div>
 				</div>
 
@@ -120,7 +121,7 @@ export function Features() {
 					{features.map((feature, i) => (
 						<motion.div
 							key={feature.title}
-							className="group relative border border-border bg-card/20 backdrop-blur-sm p-4 transition-colors hover:border-primary/30"
+							className="group border-border bg-card/20 hover:border-primary/30 relative border p-4 backdrop-blur-sm transition-colors"
 							initial={{ opacity: 0, y: 16 }}
 							whileInView={{ opacity: 1, y: 0 }}
 							viewport={{ once: true }}
@@ -130,13 +131,17 @@ export function Features() {
 							}}
 						>
 							<CardDecoration index={i} />
-							<div className="mb-3 flex h-9 w-9 items-center justify-center border border-primary/20 bg-primary/10 text-primary transition-colors group-hover:bg-primary/20">
-								<Icon icon={feature.icon} className="h-4 w-4" aria-hidden="true" />
+							<div className="border-primary/20 bg-primary/10 text-primary group-hover:bg-primary/20 mb-3 flex h-9 w-9 items-center justify-center border transition-colors">
+								<Icon
+									icon={feature.icon}
+									className="h-4 w-4"
+									aria-hidden="true"
+								/>
 							</div>
-							<h4 className="font-mono text-sm font-semibold mb-1">
+							<h4 className="mb-1 font-mono text-sm font-semibold">
 								{feature.title}
 							</h4>
-							<p className="text-xs text-muted-foreground leading-relaxed">
+							<p className="text-muted-foreground text-xs leading-relaxed">
 								{feature.description}
 							</p>
 						</motion.div>
@@ -167,7 +172,7 @@ function CardDecoration({ index }: { index: number }) {
 			return (
 				<CornerSquare
 					size={20}
-					className="absolute bottom-0 right-0 rotate-90"
+					className="absolute right-0 bottom-0 rotate-90"
 				/>
 			);
 		case 4:

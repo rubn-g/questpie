@@ -1,4 +1,5 @@
 import { describe, expect, it } from "bun:test";
+
 import {
 	ServiceBuilder,
 	createApp,
@@ -167,7 +168,9 @@ describe("service system", () => {
 
 	it("places services by namespace in extracted AppContext", async () => {
 		const blog = service().create(() => ({ kind: "blog" }));
-		const workflows = service().namespace(null).create(() => ({ kind: "workflows" }));
+		const workflows = service()
+			.namespace(null)
+			.create(() => ({ kind: "workflows" }));
 		const tracker = service()
 			.namespace("analytics")
 			.create(() => ({ kind: "tracker" }));

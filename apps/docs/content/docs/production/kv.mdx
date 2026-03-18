@@ -11,10 +11,10 @@ QUESTPIE provides a KV store for caching, rate limiting, and ephemeral data.
 
 ```ts title="questpie.config.ts"
 export default runtimeConfig({
-  kv: {
-    adapter: "redis",
-    url: process.env.REDIS_URL,
-  },
+	kv: {
+		adapter: "redis",
+		url: process.env.REDIS_URL,
+	},
 });
 ```
 
@@ -34,15 +34,15 @@ Access through the `kv` context:
 
 ```ts
 handler: async ({ kv }) => {
-  // Set
-  await kv.set("key", "value", { ttl: 3600 });
+	// Set
+	await kv.set("key", "value", { ttl: 3600 });
 
-  // Get
-  const value = await kv.get("key");
+	// Get
+	const value = await kv.get("key");
 
-  // Delete
-  await kv.delete("key");
-}
+	// Delete
+	await kv.delete("key");
+};
 ```
 
 ## Related Pages

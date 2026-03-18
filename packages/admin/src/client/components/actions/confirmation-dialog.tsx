@@ -9,6 +9,7 @@
 
 import { Icon } from "@iconify/react";
 import * as React from "react";
+
 import type { ConfirmationConfig } from "../../builder/types/action-types";
 import { useResolveText, useTranslation } from "../../i18n/hooks";
 import { Button } from "../ui/button";
@@ -82,14 +83,16 @@ export function ConfirmationDialog({
 				<DialogHeader>
 					<div className="flex items-start gap-3">
 						{config.destructive && (
-							<div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-destructive/10">
-								<Icon icon="ph:warning" className="size-5 text-destructive" />
+							<div className="bg-destructive/10 flex size-10 shrink-0 items-center justify-center rounded-full">
+								<Icon icon="ph:warning" className="text-destructive size-5" />
 							</div>
 						)}
 						<div className="space-y-1">
 							<DialogTitle>{resolveText(config.title)}</DialogTitle>
 							{config.description && (
-								<DialogDescription>{resolveText(config.description)}</DialogDescription>
+								<DialogDescription>
+									{resolveText(config.description)}
+								</DialogDescription>
 							)}
 						</div>
 					</div>
@@ -107,7 +110,9 @@ export function ConfirmationDialog({
 						onClick={handleConfirm}
 						disabled={isLoading}
 					>
-						{isLoading ? t("ui.processing") : resolveText(config.confirmLabel) || t("common.confirm")}
+						{isLoading
+							? t("ui.processing")
+							: resolveText(config.confirmLabel) || t("common.confirm")}
 					</Button>
 				</DialogFooter>
 			</DialogContent>

@@ -53,27 +53,26 @@ New projects use **standalone factories** and **file convention** with codegen:
 // collections/posts.collection.ts
 import { collection } from "#questpie/factories";
 
-export const posts = collection("posts")
-  .fields(({ f }) => ({
-    title: f.text(255).label("Title").required(),
-    content: f.richText().label("Content"),
-  }));
+export const posts = collection("posts").fields(({ f }) => ({
+	title: f.text(255).label("Title").required(),
+	content: f.richText().label("Content"),
+}));
 
 // routes/healthcheck.ts
 import { route } from "#questpie/factories";
 
 export default route()
-  .get()
-  .handler(async () => ({ status: "ok" }));
+	.get()
+	.handler(async () => ({ status: "ok" }));
 
 // questpie.config.ts
 import { runtimeConfig } from "questpie";
 import { adminPlugin } from "@questpie/admin/plugin";
 
 export default runtimeConfig({
-  plugins: [adminPlugin()],
-  db: { url: process.env.DATABASE_URL! },
-  app: { url: process.env.APP_URL! },
+	plugins: [adminPlugin()],
+	db: { url: process.env.DATABASE_URL! },
+	app: { url: process.env.APP_URL! },
 });
 
 // modules.ts
@@ -81,8 +80,8 @@ import { adminModule } from "@questpie/admin/server";
 import { openApiModule } from "@questpie/openapi";
 
 export default [
-  adminModule,
-  openApiModule({ info: { title: "My API", version: "1.0.0" } }),
+	adminModule,
+	openApiModule({ info: { title: "My API", version: "1.0.0" } }),
 ] as const;
 ```
 
@@ -103,12 +102,12 @@ Fields are defined via a proxy-based `f` factory inside `.fields()`. Fields use 
 
 ```ts
 const posts = collection("posts").fields(({ f }) => ({
-  title: f.text(255).label("Title").required(),
-  content: f.richText().label("Content"),
-  published: f.boolean().label("Published").default(false),
-  category: f.select().label("Category").options(["news", "blog"]),
-  author: f.relation().label("Author").to("users"),
-  image: f.upload().label("Cover Image"),
+	title: f.text(255).label("Title").required(),
+	content: f.richText().label("Content"),
+	published: f.boolean().label("Published").default(false),
+	category: f.select().label("Category").options(["news", "blog"]),
+	author: f.relation().label("Author").to("users"),
+	image: f.upload().label("Cover Image"),
 }));
 ```
 
@@ -130,13 +129,13 @@ import { route } from "#questpie/factories";
 import { z } from "zod";
 
 export default route()
-  .post()
-  .schema(z.object({ period: z.enum(["day", "week", "month"]) }))
-  .handler(async ({ input, collections }) => {
-    // handler receives AppContext & { input } — destructure what you need
-    const count = await collections.posts.count({});
-    return { posts: count, period: input.period };
-  });
+	.post()
+	.schema(z.object({ period: z.enum(["day", "week", "month"]) }))
+	.handler(async ({ input, collections }) => {
+		// handler receives AppContext & { input } — destructure what you need
+		const count = await collections.posts.count({});
+		return { posts: count, period: input.period };
+	});
 ```
 
 Routes are auto-discovered by codegen and available at `/api/<name>`.
@@ -167,6 +166,7 @@ The codegen pipeline is fully plugin-driven. Nothing is hardcoded in the CLI —
 ### Core Plugin (`coreCodegenPlugin()`)
 
 Lives in `packages/questpie/src/cli/codegen/index.ts`. Always auto-prepended by `runCodegen()`. Declares:
+
 - **10 category declarations**: collections, globals, jobs, routes, messages, services, emails, migrations, seeds, and admin/plugin declarations — each with full `CategoryDeclaration` metadata (dirs, prefix, emit strategy, type emission, registry key).
 - **4 singleton factories**: locale, hooks, access, context.
 - **1 callback param**: `f` (field ref proxy: `f.title` → `"title"`).
@@ -174,6 +174,7 @@ Lives in `packages/questpie/src/cli/codegen/index.ts`. Always auto-prepended by 
 ### Admin Plugin (`adminPlugin()`)
 
 Lives in `packages/admin/src/server/plugin.ts`. User registers in `questpie.config.ts` via `plugins: [adminPlugin()]`. Declares:
+
 - **7 discover patterns**: views, components, blocks, sidebar, dashboard, branding, adminLocale.
 - **2 module registries**: views, components — with placeholder tokens for type extraction.
 - **5 collection extensions**: admin, list, form, preview, actions.
@@ -245,7 +246,10 @@ Used as the **2nd argument** to CRUD methods:
 
 ```ts
 const ctx = await app.createContext({ accessMode: "system", locale: "en" });
-const posts = await app.api.collections.posts.find({ where: { published: true } }, ctx);
+const posts = await app.api.collections.posts.find(
+	{ where: { published: true } },
+	ctx,
+);
 ```
 
 ### `AppContext` (rich — flat services for handlers)
@@ -253,6 +257,7 @@ const posts = await app.api.collections.posts.find({ where: { published: true } 
 Provided automatically to framework handlers via `declare global { namespace Questpie { interface AppContext } }` augmentation. Contains **everything**: `db`, `collections`, `globals`, `queue`, `storage`, `email`, `kv`, `session`, `services`, `t`, etc.
 
 You get this in:
+
 - **Route handlers**: `route().handler(async ({ collections, db, input }) => ...)`
 - **Hooks**: `beforeCreate: [async ({ data, collections, db }) => ...]`
 - **Block prefetch**: `.prefetch(async ({ values, ctx }) => ctx.collections.*)`
@@ -293,10 +298,10 @@ const posts = await ctx.collections.posts.find({});
 | `bun run build`        | Build all packages                                   |
 | `bun run check-types`  | TypeScript type checking across the monorepo         |
 | `bun test`             | Run tests (Bun test runner, migrations silenced)     |
-| `bun run lint`         | Biome lint check                                     |
-| `bun run lint:fix`     | Biome lint with auto-fix                             |
-| `bun run format`       | Prettier format (writes)                             |
-| `bun run format:check` | Prettier format check                                |
+| `bun run lint`         | Oxlint lint check                                    |
+| `bun run lint:fix`     | Oxlint lint with auto-fix                            |
+| `bun run format`       | Oxfmt format (writes)                                |
+| `bun run format:check` | Oxfmt format check                                   |
 | `bun run clean`        | Remove lock files, node_modules, and build artifacts |
 
 ### Package-Specific Commands
@@ -310,9 +315,9 @@ Inside `packages/questpie`:
 
 ### Formatting & Linting
 
-- **Biome** (`biome.json`): tabs for indentation, double quotes for JS/TS.
-- Organize imports via Biome assist.
-- Run `bunx @biomejs/biome check --write .` to fix all issues.
+- **Oxlint** (`.oxlintrc.json`): linting with correctness + suspicious categories.
+- **Oxfmt** (`.oxfmtrc.json`): tabs for indentation, double quotes for JS/TS, import sorting, Tailwind class sorting.
+- Run `bunx oxlint --fix` to fix lint issues, `bunx oxfmt` to format.
 
 ### Testing
 
@@ -390,17 +395,17 @@ Use `ctx.collections.*` directly — no app import needed:
 import { block } from "@questpie/admin/server";
 
 export const teamBlock = block("team")
-  .fields(({ f }) => ({
-    limit: f.number().label("Limit").default(4),
-  }))
-  .prefetch(async ({ values, ctx }) => {
-    const res = await ctx.collections.barbers.find({
-      limit: values.limit || 4,
-      where: { isActive: true },
-      with: { avatar: true },
-    });
-    return { members: res.docs };
-  });
+	.fields(({ f }) => ({
+		limit: f.number().label("Limit").default(4),
+	}))
+	.prefetch(async ({ values, ctx }) => {
+		const res = await ctx.collections.barbers.find({
+			limit: values.limit || 4,
+			where: { isActive: true },
+			with: { avatar: true },
+		});
+		return { members: res.docs };
+	});
 ```
 
 Blocks with only declarative prefetch (`{ with: { field: true } }`) don't need a function at all.

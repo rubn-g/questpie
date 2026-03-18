@@ -8,6 +8,7 @@
 import { Icon as IconifyIcon } from "@iconify/react";
 import { useQuery } from "@tanstack/react-query";
 import type * as React from "react";
+
 import type {
 	TimelineItem,
 	TimelineWidgetConfig,
@@ -141,7 +142,7 @@ export default function TimelineWidget({
 
 	// Empty state
 	const emptyContent = (
-		<div className="flex h-24 items-center justify-center text-muted-foreground">
+		<div className="text-muted-foreground flex h-24 items-center justify-center">
 			<p className="text-sm">
 				{emptyMessage ? resolveText(emptyMessage) : "No activity yet"}
 			</p>
@@ -166,7 +167,7 @@ export default function TimelineWidget({
 						<>
 							{/* Timeline line */}
 							{!isLast && (
-								<div className="absolute left-[11px] top-6 bottom-0 w-px bg-border" />
+								<div className="bg-border absolute top-6 bottom-0 left-[11px] w-px" />
 							)}
 
 							{/* Icon dot */}
@@ -185,15 +186,15 @@ export default function TimelineWidget({
 							</div>
 
 							{/* Content */}
-							<div className="flex-1 min-w-0 pt-0.5 text-left">
-								<p className="text-sm font-medium truncate">{item.title}</p>
+							<div className="min-w-0 flex-1 pt-0.5 text-left">
+								<p className="truncate text-sm font-medium">{item.title}</p>
 								{item.description && (
-									<p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">
+									<p className="text-muted-foreground mt-0.5 line-clamp-2 text-xs">
 										{item.description}
 									</p>
 								)}
 								{showTimestamps && item.timestamp && (
-									<p className="text-xs text-muted-foreground mt-1">
+									<p className="text-muted-foreground mt-1 text-xs">
 										{formatTimestamp(item.timestamp, timestampFormat)}
 									</p>
 								)}
@@ -207,8 +208,8 @@ export default function TimelineWidget({
 								key={item.id}
 								type="button"
 								className={cn(
-									"relative flex gap-3 pb-4 w-full",
-									"cursor-pointer hover:bg-muted -mx-2 px-2 rounded-md transition-colors",
+									"relative flex w-full gap-3 pb-4",
+									"hover:bg-muted -mx-2 cursor-pointer rounded-md px-2 transition-colors",
 									isLast && "pb-0",
 								)}
 								onClick={() => handleItemClick(item)}

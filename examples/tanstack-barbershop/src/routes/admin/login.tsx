@@ -4,8 +4,9 @@
  * Login page for admin authentication.
  */
 
-import { LoginPage } from "@questpie/admin/client";
 import { createFileRoute } from "@tanstack/react-router";
+
+import { LoginPage } from "@questpie/admin/client";
 
 export const Route = createFileRoute("/admin/login")({
 	component: AdminLoginPage,

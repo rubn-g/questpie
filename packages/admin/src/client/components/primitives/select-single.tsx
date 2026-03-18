@@ -4,6 +4,7 @@ import { Icon } from "@iconify/react";
 import { useQuery } from "@tanstack/react-query";
 import type * as React from "react";
 import { useCallback, useDeferredValue, useId, useMemo, useState } from "react";
+
 import { useIsMobile } from "../../hooks/use-media-query";
 import { useResolveText } from "../../i18n/hooks";
 import { cn } from "../../lib/utils";
@@ -30,8 +31,9 @@ import { flattenOptions } from "./types";
 // Module-level constant for empty options to avoid recreating on each render
 const EMPTY_OPTIONS: SelectOptions<string> = [];
 
-interface SelectSingleProps<TValue extends string = string>
-	extends BasePrimitiveProps {
+interface SelectSingleProps<
+	TValue extends string = string,
+> extends BasePrimitiveProps {
 	/** Selected value */
 	value: TValue | null;
 	/** Change handler */
@@ -208,7 +210,7 @@ export function SelectSingle<TValue extends string = string>({
 			<span className="truncate">
 				{value ? getLabel(value) : resolvedPlaceholder}
 			</span>
-			<div className="flex items-center gap-1 shrink-0">
+			<div className="flex shrink-0 items-center gap-1">
 				{clearable && value && !disabled && (
 					<span
 						role="button"
@@ -220,7 +222,7 @@ export function SelectSingle<TValue extends string = string>({
 								handleClear(event as unknown as React.MouseEvent);
 							}
 						}}
-						className="rounded-sm opacity-50 hover:opacity-100 hover:bg-muted p-0.5 -mr-1"
+						className="hover:bg-muted -mr-1 rounded-sm p-0.5 opacity-50 hover:opacity-100"
 					>
 						<Icon icon="ph:x" className="size-3" />
 					</span>
@@ -242,7 +244,7 @@ export function SelectSingle<TValue extends string = string>({
 					<div className="flex items-center justify-center py-6">
 						<Icon
 							icon="ph:circle-notch"
-							className="size-4 animate-spin text-muted-foreground"
+							className="text-muted-foreground size-4 animate-spin"
 						/>
 					</div>
 				)}

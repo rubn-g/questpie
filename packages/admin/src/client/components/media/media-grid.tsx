@@ -23,6 +23,7 @@
 
 import { Icon } from "@iconify/react";
 import * as React from "react";
+
 import type { Asset } from "../../hooks/use-upload";
 import { cn } from "../../lib/utils";
 import { Skeleton } from "../ui/skeleton";
@@ -170,7 +171,7 @@ function AssetItem({
 			onClick={handleClick}
 			className={cn(
 				"group relative aspect-square w-full overflow-hidden rounded-lg border",
-				"transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+				"focus-visible:ring-ring transition-all focus-visible:ring-2 focus-visible:outline-none",
 				selected
 					? "ring-primary border-primary ring-2"
 					: "border-border hover:border-border",
@@ -202,7 +203,7 @@ function AssetItem({
 			{showCheckbox && (
 				<div
 					className={cn(
-						"absolute right-2 top-2 flex size-5 items-center justify-center rounded-full border-2 transition-all",
+						"absolute top-2 right-2 flex size-5 items-center justify-center rounded-full border-2 transition-all",
 						selected
 							? "bg-primary border-primary"
 							: "border-white bg-black/20 group-hover:bg-black/40",

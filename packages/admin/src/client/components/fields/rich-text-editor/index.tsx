@@ -194,7 +194,7 @@ export function RichTextEditor({
 
 			<div
 				className={cn(
-					"qp-rich-text-editor rounded-md border bg-input",
+					"qp-rich-text-editor bg-input rounded-md border",
 					disabled || readOnly ? "opacity-60" : "",
 					error ? "border-destructive" : "border-border",
 				)}
@@ -254,20 +254,22 @@ export function RichTextEditor({
 				{editor ? (
 					<EditorContent editor={editor} id={name} />
 				) : (
-					<div className="flex min-h-[120px] items-center justify-center text-muted-foreground text-sm">
+					<div className="text-muted-foreground flex min-h-[120px] items-center justify-center text-sm">
 						Loading editor...
 					</div>
 				)}
 
 				{/* Character Count */}
 				{allowCharacterCount && showCharacterCount && (
-					<div className="flex items-center justify-between border-t bg-muted px-2 py-1 text-xs text-muted-foreground">
+					<div className="bg-muted text-muted-foreground flex items-center justify-between border-t px-2 py-1 text-xs">
 						<span>
 							{characterCount.words} word{characterCount.words === 1 ? "" : "s"}
 						</span>
 						<span>
 							{characterCount.characters}
-							{typeof maxCharacters === "number" ? ` / ${maxCharacters}` : ""}{" "}
+							{typeof maxCharacters === "number"
+								? ` / ${maxCharacters}`
+								: ""}{" "}
 							characters
 						</span>
 					</div>

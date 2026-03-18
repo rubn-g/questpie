@@ -3,6 +3,7 @@ import tsx from "react-syntax-highlighter/dist/esm/languages/prism/tsx";
 import typescript from "react-syntax-highlighter/dist/esm/languages/prism/typescript";
 import coldarkCold from "react-syntax-highlighter/dist/esm/styles/prism/coldark-cold";
 import coldarkDark from "react-syntax-highlighter/dist/esm/styles/prism/coldark-dark";
+
 import { cn } from "@/lib/utils";
 
 SyntaxHighlighter.registerLanguage("typescript", typescript);
@@ -24,18 +25,18 @@ export function CodeWindow({
 	return (
 		<div
 			className={cn(
-				"flex flex-col border border-border overflow-hidden",
+				"border-border flex flex-col overflow-hidden border",
 				className,
 			)}
 		>
 			{/* VSCode-like tab */}
 			{title && (
-				<div className="flex items-center bg-card/30 border-b border-border">
-					<div className="flex items-center gap-2 px-4 py-2.5 text-sm font-mono border-r border-border bg-background text-foreground relative min-w-fit">
+				<div className="bg-card/30 border-border flex items-center border-b">
+					<div className="border-border bg-background text-foreground relative flex min-w-fit items-center gap-2 border-r px-4 py-2.5 font-mono text-sm">
 						{/* File icon based on extension */}
 						<span
 							className={cn(
-								"w-2 h-2 rounded-full",
+								"h-2 w-2 rounded-full",
 								title.endsWith(".ts")
 									? "bg-blue-500"
 									: title.endsWith(".tsx")
@@ -50,13 +51,13 @@ export function CodeWindow({
 						{/* Filename */}
 						<span className="select-none">{title}</span>
 						{/* Active indicator */}
-						<div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />
+						<div className="bg-primary absolute right-0 bottom-0 left-0 h-0.5" />
 					</div>
 				</div>
 			)}
 
 			{/* Code content */}
-			<div className="flex-1 bg-background p-6 overflow-auto">
+			<div className="bg-background flex-1 overflow-auto p-6">
 				{/* Light mode */}
 				<div className="dark:hidden">
 					<SyntaxHighlighter

@@ -1,4 +1,5 @@
 import { block } from "@questpie/admin/server";
+
 import { dynamic } from "./_categories";
 
 export const latestNewsBlock = block("latest-news")

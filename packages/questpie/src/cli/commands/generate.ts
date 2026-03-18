@@ -1,6 +1,7 @@
 import { existsSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { Readable } from "node:stream";
+
 import {
 	DrizzleMigrationGenerator,
 	type GenerateMigrationOptions,
@@ -121,11 +122,10 @@ async function generateMigrationInternal(
 
 	// Get migrations from app config
 	// Supports both flat array (new codegen) and legacy nested format { migrations: [...] }
-	const existingMigrations = (
-		Array.isArray(app.config.migrations)
+	const existingMigrations =
+		(Array.isArray(app.config.migrations)
 			? app.config.migrations
-			: app.config.migrations?.migrations
-	) ?? [];
+			: app.config.migrations?.migrations) ?? [];
 	console.log(`📦 Found ${existingMigrations.length} existing migrations`);
 
 	// Get migration directory: explicit cli override or convention-based default (entity root)
@@ -181,7 +181,9 @@ async function generateMigrationInternal(
 	});
 
 	if (result.skipped) {
-		console.log("⏭️  No schema changes detected, skipping migration generation");
+		console.log(
+			"⏭️  No schema changes detected, skipping migration generation",
+		);
 		return;
 	}
 

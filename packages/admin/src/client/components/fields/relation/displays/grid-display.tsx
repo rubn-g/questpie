@@ -4,6 +4,7 @@
 
 import { Icon } from "@iconify/react";
 import * as React from "react";
+
 import { useTranslation } from "../../../../i18n/hooks";
 import { CollectionEditLink } from "../../../admin-link";
 import { resolveIconElement } from "../../../component-renderer";
@@ -39,10 +40,10 @@ function GridSkeleton({
 			{skeletonKeys.map((key) => (
 				<div
 					key={key}
-					className="flex items-center gap-2 rounded-md border border-border bg-card p-2"
+					className="border-border bg-card flex items-center gap-2 rounded-md border p-2"
 				>
 					<Skeleton className="size-8 shrink-0 rounded" />
-					<Skeleton className="h-4 flex-1 max-w-[120px] rounded" />
+					<Skeleton className="h-4 max-w-[120px] flex-1 rounded" />
 				</div>
 			))}
 		</div>
@@ -77,26 +78,26 @@ export function GridDisplay({
 				const image = getImage(item);
 
 				const gridContent = (
-					<div className="flex items-center gap-2 rounded-md border border-border bg-card p-2 hover:bg-card transition-colors h-full">
+					<div className="border-border bg-card hover:bg-card flex h-full items-center gap-2 rounded-md border p-2 transition-colors">
 						{image ? (
-							<div className="size-8 rounded bg-muted shrink-0 overflow-hidden">
+							<div className="bg-muted size-8 shrink-0 overflow-hidden rounded">
 								<img
 									src={image}
 									alt={getTitle(item)}
-									className="w-full h-full object-cover"
+									className="h-full w-full object-cover"
 								/>
 							</div>
 						) : collectionIcon ? (
-							<div className="size-8 rounded bg-muted shrink-0 flex items-center justify-center">
+							<div className="bg-muted flex size-8 shrink-0 items-center justify-center rounded">
 								{resolveIconElement(collectionIcon, {
 									className: "size-4 text-muted-foreground",
 								})}
 							</div>
 						) : null}
-						<span className="text-sm truncate flex-1">{getTitle(item)}</span>
+						<span className="flex-1 truncate text-sm">{getTitle(item)}</span>
 						{/* Action buttons for editable mode */}
 						{editable && (actions?.onEdit || actions?.onRemove) && (
-							<div className="flex items-center gap-0.5 shrink-0">
+							<div className="flex shrink-0 items-center gap-0.5">
 								{actions?.onEdit && (
 									<Button
 										type="button"
@@ -141,7 +142,7 @@ export function GridDisplay({
 							key={item.id}
 							type="button"
 							onClick={() => actions.onEdit?.(item)}
-							className="text-left w-full"
+							className="w-full text-left"
 						>
 							{gridContent}
 						</button>

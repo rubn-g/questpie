@@ -1,4 +1,5 @@
 import { block } from "@questpie/admin/server";
+
 import { sections } from "./_categories";
 
 export const heroBlock = block("hero")

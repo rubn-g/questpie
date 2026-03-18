@@ -7,6 +7,7 @@
  */
 
 import * as React from "react";
+
 import type { FieldInstance } from "../../../builder/field/field";
 import { ResourceSheet } from "../../../components/sheets";
 import { Badge } from "../../../components/ui/badge";
@@ -90,7 +91,7 @@ export function RelationCell({
 				<Tooltip>
 					<TooltipTrigger
 						render={
-							<span className="inline-flex items-center gap-1 max-w-[250px] overflow-hidden">
+							<span className="inline-flex max-w-[250px] items-center gap-1 overflow-hidden">
 								{visibleItems.map((item) => {
 									const itemId = getRelationItemId(item);
 									return (
@@ -109,7 +110,7 @@ export function RelationCell({
 								{remainingCount > 0 && (
 									<Badge
 										variant="secondary"
-										className="h-5 px-1.5 text-[10px] shrink-0"
+										className="h-5 shrink-0 px-1.5 text-[10px]"
 									>
 										+{remainingCount}
 									</Badge>
@@ -118,8 +119,8 @@ export function RelationCell({
 						}
 					/>
 					{value.length > 3 && (
-						<TooltipContent side="bottom" align="start" className="p-0 w-56">
-							<div className="max-h-[200px] overflow-y-auto p-2 space-y-1">
+						<TooltipContent side="bottom" align="start" className="w-56 p-0">
+							<div className="max-h-[200px] space-y-1 overflow-y-auto p-2">
 								{value.map((item, idx) => {
 									const label = resolveText(
 										getRelationItemLabelWithField(item, labelField),
@@ -133,7 +134,7 @@ export function RelationCell({
 											key={key}
 											className="flex items-center gap-1.5 text-xs"
 										>
-											<span className="size-1 rounded-full bg-foreground/60" />
+											<span className="bg-foreground/60 size-1 rounded-full" />
 											{canNavigate ? (
 												<button
 													type="button"
@@ -141,7 +142,7 @@ export function RelationCell({
 														e.stopPropagation();
 														handleChipClick(id, targetCollection);
 													}}
-													className="text-primary hover:underline text-left"
+													className="text-primary text-left hover:underline"
 												>
 													{label}
 												</button>
@@ -242,9 +243,7 @@ function ReverseRelationCell({
 	// Handle count-only value (when items not fetched)
 	if (typeof value === "number") {
 		return (
-			<Badge variant="secondary">
-				{t("cell.item", { count: value })}
-			</Badge>
+			<Badge variant="secondary">{t("cell.item", { count: value })}</Badge>
 		);
 	}
 
@@ -293,7 +292,7 @@ function ReverseRelationCell({
 						render={
 							<span
 								className={cn(
-									"inline-flex items-center gap-1.5 cursor-default",
+									"inline-flex cursor-default items-center gap-1.5",
 									"text-muted-foreground hover:text-foreground transition-colors",
 								)}
 							>
@@ -307,8 +306,8 @@ function ReverseRelationCell({
 							</span>
 						}
 					/>
-					<TooltipContent side="bottom" align="start" className="p-0 w-56">
-						<div className="max-h-[200px] overflow-y-auto p-2 space-y-1">
+					<TooltipContent side="bottom" align="start" className="w-56 p-0">
+						<div className="max-h-[200px] space-y-1 overflow-y-auto p-2">
 							{value.slice(0, 15).map((item, idx) => {
 								const label = resolveText(getRelationItemLabelWithField(item));
 								const id = getRelationItemId(item);
@@ -317,7 +316,7 @@ function ReverseRelationCell({
 
 								return (
 									<div key={key} className="flex items-center gap-1.5 text-xs">
-										<span className="size-1 rounded-full bg-foreground/60" />
+										<span className="bg-foreground/60 size-1 rounded-full" />
 										{canNavigate ? (
 											<button
 												type="button"
@@ -325,7 +324,7 @@ function ReverseRelationCell({
 													e.stopPropagation();
 													handleChipClick(id, sourceCollection);
 												}}
-												className="text-primary hover:underline text-left truncate"
+												className="text-primary truncate text-left hover:underline"
 											>
 												{label}
 											</button>
@@ -336,7 +335,7 @@ function ReverseRelationCell({
 								);
 							})}
 							{value.length > 15 && (
-								<div className="text-[11px] text-muted-foreground text-center pt-1 border-t border-border mt-1">
+								<div className="text-muted-foreground border-border mt-1 border-t pt-1 text-center text-[11px]">
 									{t("cell.more", { count: value.length - 15 })}
 								</div>
 							)}

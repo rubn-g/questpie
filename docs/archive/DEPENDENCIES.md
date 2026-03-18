@@ -80,11 +80,11 @@ Always use `workspace:*` for internal packages:
 
 ```json
 {
-  "dependencies": {
-    "questpie": "workspace:*",
-    "@questpie/admin": "workspace:*",
-    "@questpie/tanstack-query": "workspace:*"
-  }
+	"dependencies": {
+		"questpie": "workspace:*",
+		"@questpie/admin": "workspace:*",
+		"@questpie/tanstack-query": "workspace:*"
+	}
 }
 ```
 
@@ -94,7 +94,7 @@ Always use `workspace:*` for internal packages:
 
 ```json
 {
-  "packageManager": "bun@1.3.0"
+	"packageManager": "bun@1.3.0"
 }
 ```
 

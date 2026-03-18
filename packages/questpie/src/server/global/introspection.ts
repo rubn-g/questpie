@@ -6,6 +6,7 @@
  */
 
 import { z } from "zod";
+
 import { buildFieldBasedSchema } from "#questpie/server/collection/builder/field-schema-builder.js";
 import type { CRUDContext } from "#questpie/server/collection/crud/types.js";
 import {
@@ -13,8 +14,8 @@ import {
 	extractFormReactiveConfigs,
 	type FieldReactiveSchema,
 } from "#questpie/server/collection/introspection.js";
-import type { Field } from "#questpie/server/fields/field-class.js";
 import type { FieldState } from "#questpie/server/fields/field-class-types.js";
+import type { Field } from "#questpie/server/fields/field-class.js";
 import type {
 	FieldAccess,
 	FieldLocation,
@@ -442,9 +443,8 @@ async function evaluateGlobalAccess(
 	const { access } = state;
 	const appDefaultAccess = (app as any)?.defaultAccess;
 
-	const { extractAppServices } = await import(
-		"#questpie/server/config/app-context.js"
-	);
+	const { extractAppServices } =
+		await import("#questpie/server/config/app-context.js");
 	const services = extractAppServices(app, {
 		db: context.db,
 		session: context.session,

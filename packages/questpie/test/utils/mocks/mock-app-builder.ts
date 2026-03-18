@@ -1,10 +1,10 @@
 import type { DriveManager } from "flydrive";
-import {
-	Questpie,
-	createApp,
-	module,
-} from "../../../src/exports/index.js";
-import type { ModuleDefinition, RuntimeConfig } from "../../../src/server/config/module-types.js";
+
+import { Questpie, createApp, module } from "../../../src/exports/index.js";
+import type {
+	ModuleDefinition,
+	RuntimeConfig,
+} from "../../../src/server/config/module-types.js";
 import { createTestDb } from "../test-db";
 import { MockKVAdapter } from "./kv.adapter";
 import { MockLogger } from "./logger.adapter";

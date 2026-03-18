@@ -4,6 +4,7 @@ import { Icon } from "@iconify/react";
 import { useQuery } from "@tanstack/react-query";
 import type * as React from "react";
 import { useCallback, useDeferredValue, useId, useMemo, useState } from "react";
+
 import { useIsMobile } from "../../hooks/use-media-query";
 import { useResolveText } from "../../i18n/hooks";
 import { cn } from "../../lib/utils";
@@ -31,8 +32,9 @@ import { flattenOptions } from "./types";
 const EMPTY_VALUE: string[] = [];
 const EMPTY_OPTIONS: SelectOptions<string> = [];
 
-interface SelectMultiProps<TValue extends string = string>
-	extends BasePrimitiveProps {
+interface SelectMultiProps<
+	TValue extends string = string,
+> extends BasePrimitiveProps {
 	/** Selected values */
 	value: TValue[];
 	/** Change handler */
@@ -216,8 +218,8 @@ export function SelectMulti<TValue extends string = string>({
 			aria-invalid={ariaInvalid}
 			tabIndex={0}
 			className={cn(
-				"qa-select-multi flex min-h-9 w-full flex-wrap items-center gap-1 rounded-md border border-border bg-input px-3 py-1.5 text-sm transition-colors",
-				"focus-within:ring-2 focus-within:ring-ring focus-within:border-ring",
+				"qa-select-multi border-border bg-input flex min-h-9 w-full flex-wrap items-center gap-1 rounded-md border px-3 py-1.5 text-sm transition-colors",
+				"focus-within:ring-ring focus-within:border-ring focus-within:ring-2",
 				disabled && "cursor-not-allowed opacity-50",
 				ariaInvalid && "border-destructive ring-destructive/20",
 				className,
@@ -231,12 +233,12 @@ export function SelectMulti<TValue extends string = string>({
 				<>
 					{visibleChips.map((val) => (
 						<Badge key={String(val)} variant="secondary" className="gap-1 pr-1">
-							<span className="truncate max-w-24">{getLabel(val)}</span>
+							<span className="max-w-24 truncate">{getLabel(val)}</span>
 							{!disabled && (
 								<button
 									type="button"
 									onClick={(e) => handleRemove(val, e)}
-									className="rounded-full hover:bg-muted-foreground/20 p-0.5"
+									className="hover:bg-muted-foreground/20 rounded-full p-0.5"
 								>
 									<Icon icon="ph:x" className="size-2.5" />
 								</button>
@@ -250,12 +252,12 @@ export function SelectMulti<TValue extends string = string>({
 					)}
 				</>
 			)}
-			<div className="ml-auto flex items-center gap-1 shrink-0">
+			<div className="ml-auto flex shrink-0 items-center gap-1">
 				{resolvedValue.length > 0 && !disabled && (
 					<button
 						type="button"
 						onClick={handleClearAll}
-						className="rounded-sm opacity-50 hover:opacity-100 hover:bg-muted p-0.5"
+						className="hover:bg-muted rounded-sm p-0.5 opacity-50 hover:opacity-100"
 					>
 						<Icon icon="ph:x" className="size-3" />
 					</button>
@@ -277,7 +279,7 @@ export function SelectMulti<TValue extends string = string>({
 					<div className="flex items-center justify-center py-6">
 						<Icon
 							icon="ph:circle-notch"
-							className="size-4 animate-spin text-muted-foreground"
+							className="text-muted-foreground size-4 animate-spin"
 						/>
 					</div>
 				)}
@@ -314,7 +316,7 @@ export function SelectMulti<TValue extends string = string>({
 				</CommandGroup>
 			</CommandList>
 			{maxSelections && (
-				<div className="border-t p-2 text-center text-xs text-muted-foreground">
+				<div className="text-muted-foreground border-t p-2 text-center text-xs">
 					{resolvedValue.length} / {maxSelections} selected
 				</div>
 			)}

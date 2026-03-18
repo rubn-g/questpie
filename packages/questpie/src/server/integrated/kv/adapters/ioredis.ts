@@ -1,4 +1,5 @@
 import type { Redis } from "ioredis";
+
 import type { KVAdapter } from "../adapter.js";
 
 /**

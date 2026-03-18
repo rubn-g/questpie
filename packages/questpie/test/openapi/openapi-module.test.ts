@@ -1,4 +1,5 @@
 import { describe, expect, it } from "bun:test";
+
 import { generateOpenApiSpec as generateInternal } from "../../../openapi/src/generator/index.js";
 import { openApiPlugin } from "../../../openapi/src/plugin.js";
 import {

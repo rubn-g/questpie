@@ -3,11 +3,13 @@ import z from "zod";
 
 export default route()
 	.post()
-	.schema(z.object({
-		date: z.string(),
-		barberId: z.string(),
-		serviceId: z.string(),
-	}))
+	.schema(
+		z.object({
+			date: z.string(),
+			barberId: z.string(),
+			serviceId: z.string(),
+		}),
+	)
 	.handler(async ({ input, collections }) => {
 		const { date, barberId, serviceId } = input;
 

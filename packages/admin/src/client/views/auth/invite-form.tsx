@@ -5,6 +5,7 @@
 import { Icon } from "@iconify/react";
 import * as React from "react";
 import { useForm, useWatch } from "react-hook-form";
+
 import { Alert, AlertDescription } from "../../components/ui/alert";
 import { Button } from "../../components/ui/button";
 import {
@@ -131,12 +132,14 @@ export function InviteForm({
 			<FieldGroup>
 				{/* Email Field */}
 				<Field data-invalid={!!errors.email}>
-					<FieldLabel htmlFor="invite-email">{t("auth.inviteEmailLabel")}</FieldLabel>
+					<FieldLabel htmlFor="invite-email">
+						{t("auth.inviteEmailLabel")}
+					</FieldLabel>
 					<FieldContent>
 						<div className="relative">
 							<Icon
 								icon="ph:envelope-duotone"
-								className="text-muted-foreground absolute left-2 top-1/2 size-4 -translate-y-1/2"
+								className="text-muted-foreground absolute top-1/2 left-2 size-4 -translate-y-1/2"
 							/>
 							<Input
 								id="invite-email"
@@ -172,7 +175,9 @@ export function InviteForm({
 							<SelectTrigger id="invite-role">
 								<SelectValue>
 									{(() => {
-										const selectedRoleLabel = roles.find((r) => r.value === selectedRole)?.label;
+										const selectedRoleLabel = roles.find(
+											(r) => r.value === selectedRole,
+										)?.label;
 										return selectedRoleLabel
 											? resolveText(selectedRoleLabel)
 											: t("auth.inviteSelectRole");

@@ -12,8 +12,9 @@
 
 import { jsonb, type PgVarcharBuilder, varchar } from "drizzle-orm/pg-core";
 import { z } from "zod";
-import { Field, field } from "../field-class.js";
+
 import type { DefaultFieldState } from "../field-class-types.js";
+import { Field, field } from "../field-class.js";
 import { belongsToOps, multipleOps, toManyOps } from "../operators/builtin.js";
 import type {
 	InferredRelationType,

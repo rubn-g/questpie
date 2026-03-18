@@ -11,54 +11,56 @@ A module is a reusable package that contributes entities to any QUESTPIE project
 import { module, collection, job } from "questpie";
 
 const notificationsCollection = collection("notifications")
-  .fields(({ f }) => ({
-    title: f.text().required(),
-    body: f.textarea(),
-    read: f.boolean().default(false),
-    userId: f.relation("user").required(),
-  }))
-  .admin(({ c }) => ({
-    label: { en: "Notifications" },
-    icon: c.icon("ph:bell"),
-  }));
+	.fields(({ f }) => ({
+		title: f.text().required(),
+		body: f.textarea(),
+		read: f.boolean().default(false),
+		userId: f.relation("user").required(),
+	}))
+	.admin(({ c }) => ({
+		label: { en: "Notifications" },
+		icon: c.icon("ph:bell"),
+	}));
 
 const sendPushNotification = job({
-  name: "sendPushNotification",
-  schema: z.object({
-    userId: z.string(),
-    title: z.string(),
-    body: z.string(),
-  }),
-  handler: async ({ payload }) => {
-    // Send push notification
-  },
+	name: "sendPushNotification",
+	schema: z.object({
+		userId: z.string(),
+		title: z.string(),
+		body: z.string(),
+	}),
+	handler: async ({ payload }) => {
+		// Send push notification
+	},
 });
 
 export const notificationsModule = module({
-  name: "notifications",
+	name: "notifications",
 
-  collections: {
-    notifications: notificationsCollection,
-  },
+	collections: {
+		notifications: notificationsCollection,
+	},
 
-  jobs: {
-    sendPushNotification,
-  },
+	jobs: {
+		sendPushNotification,
+	},
 
-  sidebar: {
-    items: [{
-      sectionId: "operations",
-      type: "collection",
-      collection: "notifications",
-    }],
-  },
+	sidebar: {
+		items: [
+			{
+				sectionId: "operations",
+				type: "collection",
+				collection: "notifications",
+			},
+		],
+	},
 
-  messages: {
-    en: {
-      "notifications.title": "Notifications",
-      "notifications.markRead": "Mark as read",
-    },
-  },
+	messages: {
+		en: {
+			"notifications.title": "Notifications",
+			"notifications.markRead": "Mark as read",
+		},
+	},
 });
 ```
 
@@ -73,21 +75,21 @@ export default [adminModule, notificationsModule] as const;
 
 ## Module Options
 
-| Property | Type | Description |
-|---|---|---|
-| `name` | `string` | Module identifier |
-| `modules` | `Module[]` | Module dependencies |
-| `collections` | `Record` | Collection contributions |
-| `globals` | `Record` | Global contributions |
-| `jobs` | `Record` | Job contributions |
-| `routes` | `Record` | Route contributions |
-| `services` | `Record` | Service contributions |
-| `fields` | `Record` | Custom field types |
-| `sidebar` | `object` | Sidebar items |
-| `dashboard` | `object` | Dashboard widgets |
-| `migrations` | `Migration[]` | Database migrations |
-| `seeds` | `Seed[]` | Seed data |
-| `messages` | `Record` | i18n translations |
+| Property      | Type          | Description              |
+| ------------- | ------------- | ------------------------ |
+| `name`        | `string`      | Module identifier        |
+| `modules`     | `Module[]`    | Module dependencies      |
+| `collections` | `Record`      | Collection contributions |
+| `globals`     | `Record`      | Global contributions     |
+| `jobs`        | `Record`      | Job contributions        |
+| `routes`      | `Record`      | Route contributions      |
+| `services`    | `Record`      | Service contributions    |
+| `fields`      | `Record`      | Custom field types       |
+| `sidebar`     | `object`      | Sidebar items            |
+| `dashboard`   | `object`      | Dashboard widgets        |
+| `migrations`  | `Migration[]` | Database migrations      |
+| `seeds`       | `Seed[]`      | Seed data                |
+| `messages`    | `Record`      | i18n translations        |
 
 ## Publishing
 
@@ -95,12 +97,12 @@ Package your module as an npm package. Users install it and add to `modules.ts`:
 
 ```json title="package.json"
 {
-  "name": "questpie-notifications",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "peerDependencies": {
-    "questpie": "^2.0.0"
-  }
+	"name": "questpie-notifications",
+	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
+	"peerDependencies": {
+		"questpie": "^2.0.0"
+	}
 }
 ```
 

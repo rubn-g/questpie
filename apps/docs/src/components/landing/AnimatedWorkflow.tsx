@@ -5,6 +5,7 @@ import tsx from "react-syntax-highlighter/dist/esm/languages/prism/tsx";
 import typescript from "react-syntax-highlighter/dist/esm/languages/prism/typescript";
 import coldarkCold from "react-syntax-highlighter/dist/esm/styles/prism/coldark-cold";
 import coldarkDark from "react-syntax-highlighter/dist/esm/styles/prism/coldark-dark";
+
 import { cn } from "@/lib/utils";
 
 SyntaxHighlighter.registerLanguage("typescript", typescript);
@@ -267,24 +268,24 @@ export function AnimatedWorkflow({ steps, className }: AnimatedWorkflowProps) {
 	const activeStep = steps[activeStepIndex];
 
 	return (
-		<div className={cn("flex flex-col relative", className)}>
+		<div className={cn("relative flex flex-col", className)}>
 			{/* Action Badge/Toast */}
 			{currentAction && (
-				<div className="absolute -top-8 md:-top-12 left-1/2 -translate-x-1/2 z-20 animate-in fade-in slide-in-from-top-2 duration-300">
-					<div className="flex items-center gap-2 bg-primary text-primary-foreground px-3 py-1.5 md:px-4 md:py-2 rounded-full text-xs md:text-sm font-medium shadow-lg border border-primary/20">
+				<div className="animate-in fade-in slide-in-from-top-2 absolute -top-8 left-1/2 z-20 -translate-x-1/2 duration-300 md:-top-12">
+					<div className="bg-primary text-primary-foreground border-primary/20 flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium shadow-lg md:px-4 md:py-2 md:text-sm">
 						{isTyping ? (
 							<>
-								<Sparkles className="w-3 h-3 md:w-4 md:h-4 animate-pulse" />
+								<Sparkles className="h-3 w-3 animate-pulse md:h-4 md:w-4" />
 								<span>{currentAction}</span>
 							</>
 						) : currentAction === "✓ Complete" ? (
 							<>
-								<CheckCircle className="w-3 h-3 md:w-4 md:h-4" />
+								<CheckCircle className="h-3 w-3 md:h-4 md:w-4" />
 								<span>{currentAction}</span>
 							</>
 						) : (
 							<>
-								<FileCode className="w-3 h-3 md:w-4 md:h-4" />
+								<FileCode className="h-3 w-3 md:h-4 md:w-4" />
 								<span>{currentAction}</span>
 							</>
 						)}
@@ -295,7 +296,7 @@ export function AnimatedWorkflow({ steps, className }: AnimatedWorkflowProps) {
 			{/* VSCode-like tabs */}
 			<div
 				ref={tabsContainerRef}
-				className="flex items-center bg-card/30 border-b border-border overflow-x-auto scrollbar-hide"
+				className="bg-card/30 border-border scrollbar-hide flex items-center overflow-x-auto border-b"
 			>
 				{uniqueFiles.map((fileName) => {
 					const isActive = fileName === currentFile;
@@ -306,7 +307,7 @@ export function AnimatedWorkflow({ steps, className }: AnimatedWorkflowProps) {
 							type="button"
 							onClick={() => handleTabClick(fileName)}
 							className={cn(
-								"flex items-center gap-2 px-4 py-2.5 text-sm font-mono border-r border-border transition-colors relative group min-w-fit",
+								"border-border group relative flex min-w-fit items-center gap-2 border-r px-4 py-2.5 font-mono text-sm transition-colors",
 								isActive
 									? "bg-background text-foreground"
 									: "bg-card/50 text-muted-foreground hover:bg-card hover:text-foreground",
@@ -315,7 +316,7 @@ export function AnimatedWorkflow({ steps, className }: AnimatedWorkflowProps) {
 							{/* File icon based on extension */}
 							<span
 								className={cn(
-									"w-2 h-2 rounded-full",
+									"h-2 w-2 rounded-full",
 									fileName.endsWith(".ts")
 										? "bg-blue-500"
 										: fileName.endsWith(".tsx")
@@ -329,15 +330,15 @@ export function AnimatedWorkflow({ steps, className }: AnimatedWorkflowProps) {
 
 							{/* Modified indicator (when typing) */}
 							{isActive && isTyping && (
-								<span className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse" />
+								<span className="h-1.5 w-1.5 animate-pulse rounded-full bg-orange-500" />
 							)}
 
 							{/* Close button (hover only, non-functional) */}
-							<X className="w-3 h-3 opacity-0 group-hover:opacity-50 transition-opacity" />
+							<X className="h-3 w-3 opacity-0 transition-opacity group-hover:opacity-50" />
 
 							{/* Active indicator */}
 							{isActive && (
-								<div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />
+								<div className="bg-primary absolute right-0 bottom-0 left-0 h-0.5" />
 							)}
 						</button>
 					);
@@ -347,10 +348,10 @@ export function AnimatedWorkflow({ steps, className }: AnimatedWorkflowProps) {
 			{/* Code editor area */}
 			<div
 				ref={codeContainerRef}
-				className="flex-1 bg-background p-6 overflow-auto font-mono text-sm scrollbar-hide"
+				className="bg-background scrollbar-hide flex-1 overflow-auto p-6 font-mono text-sm"
 			>
 				{/* Light mode */}
-				<div className="dark:hidden scrollbar-hide overflow-hidden">
+				<div className="scrollbar-hide overflow-hidden dark:hidden">
 					<SyntaxHighlighter
 						language={activeStep?.language || "typescript"}
 						style={coldarkCold}
@@ -372,7 +373,7 @@ export function AnimatedWorkflow({ steps, className }: AnimatedWorkflowProps) {
 				</div>
 
 				{/* Dark mode */}
-				<div className="hidden dark:block scrollbar-hide overflow-hidden">
+				<div className="scrollbar-hide hidden overflow-hidden dark:block">
 					<SyntaxHighlighter
 						language={activeStep?.language || "typescript"}
 						style={coldarkDark}

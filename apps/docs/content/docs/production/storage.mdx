@@ -9,9 +9,9 @@ QUESTPIE uses [Flydrive](https://flydrive.dev/) for file storage. Supports S3, l
 
 ```ts title="questpie.config.ts"
 export default runtimeConfig({
-  storage: {
-    basePath: "/api",
-  },
+	storage: {
+		basePath: "/api",
+	},
 });
 ```
 
@@ -37,16 +37,16 @@ Files stored on local filesystem. Default for development.
 
 ```ts
 export default runtimeConfig({
-  storage: {
-    basePath: "/api",
-    driver: "s3",
-    s3: {
-      bucket: process.env.S3_BUCKET,
-      region: process.env.S3_REGION,
-      accessKeyId: process.env.S3_ACCESS_KEY,
-      secretAccessKey: process.env.S3_SECRET_KEY,
-    },
-  },
+	storage: {
+		basePath: "/api",
+		driver: "s3",
+		s3: {
+			bucket: process.env.S3_BUCKET,
+			region: process.env.S3_REGION,
+			accessKeyId: process.env.S3_ACCESS_KEY,
+			secretAccessKey: process.env.S3_SECRET_KEY,
+		},
+	},
 });
 ```
 
@@ -55,7 +55,7 @@ export default runtimeConfig({
 ```ts
 // Upload a file
 const asset = await client.collections.assets.upload(file, {
-  onProgress: (progress) => console.log(`${progress}%`),
+	onProgress: (progress) => console.log(`${progress}%`),
 });
 ```
 

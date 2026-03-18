@@ -9,8 +9,8 @@ import type { BuiltinFields } from "./builtin/defaults.js";
 
 export type { BuiltinFields } from "./builtin/defaults.js";
 
-import type { Field } from "./field-class.js";
 import type { FieldState } from "./field-class-types.js";
+import type { Field } from "./field-class.js";
 
 // ============================================================================
 // Field Builder Proxy Types

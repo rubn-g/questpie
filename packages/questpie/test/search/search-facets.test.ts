@@ -1,5 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it } from "bun:test";
+
 import { sql } from "drizzle-orm";
+
 import { collection } from "../../src/server/index.js";
 import { createPostgresSearchAdapter } from "../../src/server/integrated/search/adapters/postgres.js";
 import { extractFacetValues } from "../../src/server/integrated/search/facet-utils.js";

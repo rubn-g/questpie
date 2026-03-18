@@ -20,12 +20,12 @@ export function Examples() {
 	return (
 		<section
 			id="examples"
-			className="relative overflow-hidden border-t border-border/40 py-24"
+			className="border-border/40 relative overflow-hidden border-t py-24"
 		>
 			<div className="mx-auto w-full max-w-7xl px-4">
 				<div className="grid gap-8 lg:grid-cols-[1fr_1.2fr] lg:items-start">
 					<div className="space-y-4">
-						<h2 className="font-mono text-sm uppercase tracking-[0.2em] text-primary">
+						<h2 className="text-primary font-mono text-sm tracking-[0.2em] uppercase">
 							Example spotlight
 						</h2>
 						<h3 className="text-3xl font-bold tracking-tight md:text-4xl">
@@ -41,9 +41,9 @@ export function Examples() {
 							{highlights.map((item) => (
 								<div
 									key={item.title}
-									className="inline-flex w-full items-center gap-2 border border-border bg-card/30 px-3 py-2 text-sm text-muted-foreground"
+									className="border-border bg-card/30 text-muted-foreground inline-flex w-full items-center gap-2 border px-3 py-2 text-sm"
 								>
-									<item.icon className="h-3.5 w-3.5 text-primary" />
+									<item.icon className="text-primary h-3.5 w-3.5" />
 									{item.title}
 								</div>
 							))}
@@ -53,7 +53,7 @@ export function Examples() {
 							href="https://github.com/questpie/questpie/tree/main/examples/tanstack-barbershop"
 							target="_blank"
 							rel="noreferrer"
-							className="inline-flex items-center gap-2 text-sm font-medium text-primary transition-colors hover:text-primary/80"
+							className="text-primary hover:text-primary/80 inline-flex items-center gap-2 text-sm font-medium transition-colors"
 						>
 							Explore the Barbershop codebase
 							<ArrowUpRight className="h-4 w-4" />
@@ -61,37 +61,37 @@ export function Examples() {
 					</div>
 
 					<div className="grid gap-4 sm:grid-cols-[1.3fr_1fr]">
-						<article className="border border-border bg-card/40 p-5 sm:row-span-2">
-							<p className="mb-4 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+						<article className="border-border bg-card/40 border p-5 sm:row-span-2">
+							<p className="text-muted-foreground mb-4 font-mono text-[10px] tracking-[0.18em] uppercase">
 								Dashboard
 							</p>
 							<div className="space-y-3">
-								<div className="h-16 border border-border bg-background/60" />
+								<div className="border-border bg-background/60 h-16 border" />
 								<div className="grid grid-cols-3 gap-3">
-									<div className="h-20 border border-border bg-background/60" />
-									<div className="h-20 border border-border bg-background/60" />
-									<div className="h-20 border border-border bg-background/60" />
+									<div className="border-border bg-background/60 h-20 border" />
+									<div className="border-border bg-background/60 h-20 border" />
+									<div className="border-border bg-background/60 h-20 border" />
 								</div>
-								<div className="h-28 border border-border bg-background/60" />
+								<div className="border-border bg-background/60 h-28 border" />
 							</div>
 						</article>
 
-						<article className="border border-border bg-card/40 p-4">
-							<p className="mb-3 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+						<article className="border-border bg-card/40 border p-4">
+							<p className="text-muted-foreground mb-3 font-mono text-[10px] tracking-[0.18em] uppercase">
 								Reactive Form
 							</p>
 							<div className="space-y-2">
-								<div className="h-8 border border-border bg-background/60" />
-								<div className="h-8 border border-border bg-background/60" />
-								<div className="h-20 border border-border bg-background/60" />
+								<div className="border-border bg-background/60 h-8 border" />
+								<div className="border-border bg-background/60 h-8 border" />
+								<div className="border-border bg-background/60 h-20 border" />
 							</div>
 						</article>
 
-						<article className="border border-border bg-card/40 p-4">
-							<p className="mb-3 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+						<article className="border-border bg-card/40 border p-4">
+							<p className="text-muted-foreground mb-3 font-mono text-[10px] tracking-[0.18em] uppercase">
 								Typed routes
 							</p>
-							<div className="h-[124px] border border-border bg-background/60 p-3 font-mono text-[11px] text-muted-foreground">
+							<div className="border-border bg-background/60 text-muted-foreground h-[124px] border p-3 font-mono text-[11px]">
 								<p>client.routes.getAvailableSlots( )</p>
 								<p className="mt-2">-&gt; slots: string[]</p>
 								<p className="mt-2">-&gt; nextWindow: string</p>
@@ -106,7 +106,7 @@ export function Examples() {
 						params={{
 							_splat: "examples/barbershop",
 						}}
-						className="inline-flex items-center gap-2 border border-border px-5 py-2.5 text-sm font-medium transition-colors hover:border-primary/40 hover:bg-card/60"
+						className="border-border hover:border-primary/40 hover:bg-card/60 inline-flex items-center gap-2 border px-5 py-2.5 text-sm font-medium transition-colors"
 					>
 						Read Architecture Tour
 						<ArrowUpRight className="h-4 w-4" />

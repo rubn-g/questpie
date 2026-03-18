@@ -1,4 +1,5 @@
 import type { BetterAuthOptions } from "better-auth";
+
 import type { CollectionAccess } from "#questpie/server/collection/builder/types.js";
 
 // ============================================================================

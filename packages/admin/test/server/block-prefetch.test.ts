@@ -10,6 +10,7 @@
  */
 
 import { describe, expect, mock, test } from "bun:test";
+
 import {
 	BlockBuilder,
 	block,

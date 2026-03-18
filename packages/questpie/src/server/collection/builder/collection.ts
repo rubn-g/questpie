@@ -26,6 +26,7 @@ import {
 	uuid,
 	varchar,
 } from "drizzle-orm/pg-core";
+
 import type {
 	CollectionBuilderIndexesFn,
 	CollectionBuilderState,
@@ -329,7 +330,9 @@ export type CollectionUpdate<TState extends CollectionBuilderState> =
  * Default ID column factory - creates a text column with gen_random_uuid() default
  */
 const defaultIdColumn = () =>
-	text("id").primaryKey().default(sql`gen_random_uuid()`);
+	text("id")
+		.primaryKey()
+		.default(sql`gen_random_uuid()`);
 
 /**
  * Helper to get column config from a Drizzle column
@@ -495,7 +498,9 @@ export class Collection<TState extends CollectionBuilderState> {
 	 * @param parentIdColumn - The ID column from the parent table to match type
 	 */
 	static readonly i18nVersionCols = (parentIdColumn?: PgColumn) => ({
-		id: text("id").primaryKey().default(sql`gen_random_uuid()`),
+		id: text("id")
+			.primaryKey()
+			.default(sql`gen_random_uuid()`),
 		parentId: parentIdColumn
 			? cloneColumnType(parentIdColumn, "parent_id").notNull()
 			: text("parent_id").notNull(),
@@ -508,7 +513,9 @@ export class Collection<TState extends CollectionBuilderState> {
 	 * @param parentIdColumn - The ID column from the parent table to match type
 	 */
 	static readonly i18nCols = (parentIdColumn?: PgColumn) => ({
-		id: text("id").primaryKey().default(sql`gen_random_uuid()`),
+		id: text("id")
+			.primaryKey()
+			.default(sql`gen_random_uuid()`),
 		parentId: parentIdColumn
 			? cloneColumnType(parentIdColumn, "parent_id").notNull()
 			: text("parent_id").notNull(),
@@ -924,7 +931,9 @@ export class Collection<TState extends CollectionBuilderState> {
 
 		const columns: Record<string, any> = {
 			// Own ID - uses default type
-			id: text("id").primaryKey().default(sql`gen_random_uuid()`),
+			id: text("id")
+				.primaryKey()
+				.default(sql`gen_random_uuid()`),
 			// Parent ID - matches parent table's ID type
 			parentId: cloneColumnType(parentIdColumn, "parent_id")
 				.notNull()

@@ -9,12 +9,12 @@ import { Icon } from "@iconify/react";
 import { useQueryClient } from "@tanstack/react-query";
 import * as React from "react";
 import { toast } from "sonner";
+
 import { ComponentRenderer } from "../../components/component-renderer";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuItem,
-
 	DropdownMenuSeparator,
 	DropdownMenuSub,
 	DropdownMenuSubContent,
@@ -50,6 +50,7 @@ import { useAuthClientSafe } from "../../hooks/use-auth";
 import { useCurrentUser, useSessionState } from "../../hooks/use-current-user";
 import { useResolveText, useSafeI18n, useTranslation } from "../../i18n/hooks";
 import { cn, formatLabel } from "../../lib/utils";
+import { useSafeContentLocales } from "../../runtime/content-locales-provider";
 import {
 	selectAdmin,
 	selectBasePath,
@@ -58,7 +59,6 @@ import {
 	selectSetContentLocale,
 	useAdminStore,
 } from "../../runtime/provider";
-import { useSafeContentLocales } from "../../runtime/content-locales-provider";
 import type {
 	NavigationElement,
 	NavigationGroup,
@@ -498,13 +498,11 @@ function isRouteActive(
 const menuButtonStyles = cn(
 	"flex w-full items-center gap-2.5 px-3 py-2 text-sm font-medium transition-colors duration-150",
 	"text-sidebar-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent",
-	"focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-sidebar-ring",
-	"group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-2 group-data-[collapsible=icon]:size-8",
+	"focus-visible:ring-sidebar-ring focus-visible:ring-1 focus-visible:outline-none",
+	"group-data-[collapsible=icon]:size-8 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-2",
 );
 
-const menuButtonActiveStyles = cn(
-	"bg-sidebar-primary/10 text-sidebar-primary",
-);
+const menuButtonActiveStyles = cn("bg-sidebar-primary/10 text-sidebar-primary");
 
 /**
  * Active indicator bar positioned at the sidebar group edge.
@@ -513,7 +511,7 @@ const menuButtonActiveStyles = cn(
 function ActiveIndicator({ depth }: { depth: number }) {
 	return (
 		<div
-			className="absolute top-0 bottom-0 w-0.5 bg-sidebar-primary"
+			className="bg-sidebar-primary absolute top-0 bottom-0 w-0.5"
 			style={{ left: `${-depth * 0.75}rem` }}
 			aria-hidden="true"
 		/>
@@ -731,8 +729,8 @@ function NavGroup({
 			{groupLabel && (
 				<SidebarGroupLabel
 					className={cn(
-						"qa-sidebar__group-label gap-2 px-3 mt-2",
-						group.collapsible && "cursor-pointer hover:text-sidebar-foreground",
+						"qa-sidebar__group-label mt-2 gap-2 px-3",
+						group.collapsible && "hover:text-sidebar-foreground cursor-pointer",
 						depth > 0 && "pl-6",
 					)}
 					role={group.collapsible ? "button" : undefined}
@@ -755,7 +753,7 @@ function NavGroup({
 					}
 				>
 					{group.icon && <RenderIcon icon={group.icon} className="size-3.5" />}
-					<span className="flex-1 font-mono  text-left">{groupLabel}</span>
+					<span className="flex-1 text-left font-mono">{groupLabel}</span>
 					{group.collapsible && (
 						<Icon
 							icon="ph:caret-down"
@@ -841,7 +839,7 @@ function NavGroup({
  */
 function UserFooterSkeleton({ collapsed }: { collapsed: boolean }) {
 	return (
-		<SidebarFooter className="border-t border-sidebar-border p-2">
+		<SidebarFooter className="border-sidebar-border border-t p-2">
 			<div
 				className={cn(
 					"flex items-center gap-2.5 p-2",
@@ -892,8 +890,7 @@ function UserFooter() {
 	const contentLocales = useSafeContentLocales();
 	const contentLocale = useAdminStore(selectContentLocale);
 	const setContentLocale = useAdminStore(selectSetContentLocale);
-	const hasMultipleContentLocales =
-		(contentLocales?.locales?.length ?? 0) > 1;
+	const hasMultipleContentLocales = (contentLocales?.locales?.length ?? 0) > 1;
 
 	// Close sidebar on mobile when navigating
 	const closeSidebarOnMobile = React.useCallback(() => {
@@ -937,7 +934,7 @@ function UserFooter() {
 	const displayEmail = user.email || "";
 
 	return (
-		<SidebarFooter className="qa-sidebar__footer border-t border-sidebar-border p-2">
+		<SidebarFooter className="qa-sidebar__footer border-sidebar-border border-t p-2">
 			<SidebarMenu>
 				{/* User Menu */}
 				<SidebarMenuItem>
@@ -946,11 +943,11 @@ function UserFooter() {
 							className={cn(
 								"flex w-full items-center gap-2.5 p-2 text-left transition-colors duration-150",
 								"hover:bg-sidebar-accent text-sidebar-foreground",
-								"focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-sidebar-ring",
+								"focus-visible:ring-sidebar-ring focus-visible:ring-1 focus-visible:outline-none",
 								collapsed && "justify-center",
 							)}
 						>
-							<div className="qa-sidebar__user-avatar flex size-8 shrink-0 items-center justify-center bg-sidebar-primary/10 text-sidebar-primary border border-sidebar-primary/20">
+							<div className="qa-sidebar__user-avatar bg-sidebar-primary/10 text-sidebar-primary border-sidebar-primary/20 flex size-8 shrink-0 items-center justify-center border">
 								<Icon icon="ph:user-bold" className="size-4" />
 							</div>
 							{!collapsed && (
@@ -959,13 +956,13 @@ function UserFooter() {
 										<span className="qa-sidebar__user-name truncate text-xs font-medium">
 											{displayName}
 										</span>
-										<span className="qa-sidebar__user-email truncate text-[10px] text-sidebar-foreground/70">
+										<span className="qa-sidebar__user-email text-sidebar-foreground/70 truncate text-[10px]">
 											{displayEmail}
 										</span>
 									</div>
 									<Icon
 										icon="ph:caret-up-down"
-										className="ml-auto size-3.5 text-sidebar-foreground/60"
+										className="text-sidebar-foreground/60 ml-auto size-3.5"
 										aria-hidden="true"
 									/>
 								</>
@@ -978,11 +975,11 @@ function UserFooter() {
 						>
 							<div className="px-2 py-1.5">
 								<p className="text-xs font-medium">{displayName}</p>
-								<p className="text-[10px] text-muted-foreground">
+								<p className="text-muted-foreground text-[10px]">
 									{displayEmail}
 								</p>
 								{user.role && (
-									<p className="text-[10px] text-muted-foreground capitalize mt-0.5">
+									<p className="text-muted-foreground mt-0.5 text-[10px] capitalize">
 										{user.role}
 									</p>
 								)}
@@ -1001,34 +998,33 @@ function UserFooter() {
 										{t("locale.uiLanguage")}
 									</DropdownMenuSubTrigger>
 
-										<DropdownMenuSubContent>
-											{uiLocaleOptions.map((locale) => (
-												<DropdownMenuItem
-													key={locale.code}
-													onClick={() => setUiLocale(locale.code)}
-												>
-													<img
-														src={getFlagUrl(locale.code)}
-														alt={locale.code}
-														className="h-3 w-4 rounded-sm object-cover"
-														onError={(e) => {
-															e.currentTarget.style.display = "none";
-														}}
+									<DropdownMenuSubContent>
+										{uiLocaleOptions.map((locale) => (
+											<DropdownMenuItem
+												key={locale.code}
+												onClick={() => setUiLocale(locale.code)}
+											>
+												<img
+													src={getFlagUrl(locale.code)}
+													alt={locale.code}
+													className="h-3 w-4 rounded-sm object-cover"
+													onError={(e) => {
+														e.currentTarget.style.display = "none";
+													}}
+												/>
+												<span className="w-6 text-xs font-medium uppercase">
+													{locale.code}
+												</span>
+												<span className="flex-1">{locale.label}</span>
+												{locale.code === uiLocale && (
+													<Icon
+														icon="ph:check"
+														className="text-primary size-4"
 													/>
-													<span className="uppercase text-xs font-medium w-6">
-														{locale.code}
-													</span>
-													<span className="flex-1">{locale.label}</span>
-													{locale.code === uiLocale && (
-														<Icon
-															icon="ph:check"
-															className="size-4 text-primary"
-														/>
-													)}
-												</DropdownMenuItem>
-											))}
-										</DropdownMenuSubContent>
-
+												)}
+											</DropdownMenuItem>
+										))}
+									</DropdownMenuSubContent>
 								</DropdownMenuSub>
 							)}
 							{/* Content Language Switcher */}
@@ -1054,7 +1050,7 @@ function UserFooter() {
 														e.currentTarget.style.display = "none";
 													}}
 												/>
-												<span className="uppercase text-xs font-medium w-6">
+												<span className="w-6 text-xs font-medium uppercase">
 													{locale.code}
 												</span>
 												<span className="flex-1">
@@ -1063,7 +1059,7 @@ function UserFooter() {
 												{locale.code === contentLocale && (
 													<Icon
 														icon="ph:check"
-														className="size-4 text-primary"
+														className="text-primary size-4"
 													/>
 												)}
 											</DropdownMenuItem>
@@ -1147,9 +1143,7 @@ export function AdminSidebar({
 			<QuestpieSymbol />
 			{!collapsed && (
 				<div className="grid flex-1 text-left leading-tight">
-					<span className="truncate  font-bold tracking-tight">
-						{brandName}
-					</span>
+					<span className="truncate font-bold tracking-tight">{brandName}</span>
 				</div>
 			)}
 		</>
@@ -1171,7 +1165,7 @@ export function AdminSidebar({
 	return (
 		<Sidebar collapsible="icon" className={cn("qa-sidebar", className)}>
 			{/* Brand Header */}
-			<SidebarHeader className="qa-sidebar__header p-2 border-b border-sidebar-border">
+			<SidebarHeader className="qa-sidebar__header border-sidebar-border border-b p-2">
 				<SidebarMenu>
 					<SidebarMenuItem onClickCapture={handleBrandClick}>
 						{collapsed && !isMobile ? (
@@ -1205,7 +1199,7 @@ export function AdminSidebar({
 
 			{/* After Brand Slot - for scope pickers, etc */}
 			{afterBrand && !collapsed && (
-				<div className="qa-sidebar__after-brand px-3 py-2 border-b border-sidebar-border">
+				<div className="qa-sidebar__after-brand border-sidebar-border border-b px-3 py-2">
 					{afterBrand}
 				</div>
 			)}
@@ -1231,7 +1225,7 @@ export function AdminSidebar({
 
 			{/* Before Footer Slot - for additional actions */}
 			{beforeFooter && !collapsed && (
-				<div className="qa-sidebar__before-footer px-3 py-2 border-t border-sidebar-border">
+				<div className="qa-sidebar__before-footer border-sidebar-border border-t px-3 py-2">
 					{beforeFooter}
 				</div>
 			)}

@@ -5,6 +5,7 @@
  */
 
 import type { ComponentReference } from "#questpie/admin/server/augmentation.js";
+
 import type { I18nText } from "../../i18n/types.js";
 import type { DynamicI18nText, IconComponent } from "./common";
 import type { WidgetConfig } from "./widget-types";

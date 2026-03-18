@@ -1,6 +1,7 @@
 import { Dialog as SheetPrimitive } from "@base-ui/react/dialog";
 import { Icon } from "@iconify/react";
 import type * as React from "react";
+
 import { cn } from "../../lib/utils";
 import { Button } from "./button";
 
@@ -25,7 +26,7 @@ function SheetOverlay({ className, ...props }: SheetPrimitive.Backdrop.Props) {
 		<SheetPrimitive.Backdrop
 			data-slot="sheet-overlay"
 			className={cn(
-				"qa-sheet__overlay data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 bg-background duration-200 data-ending-style:opacity-0 data-starting-style:opacity-0 fixed inset-0 z-50",
+				"qa-sheet__overlay data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 bg-background fixed inset-0 z-50 duration-200 data-ending-style:opacity-0 data-starting-style:opacity-0",
 				className,
 			)}
 			{...props}
@@ -80,7 +81,7 @@ function SheetHeader({ className, ...props }: React.ComponentProps<"div">) {
 	return (
 		<div
 			data-slot="sheet-header"
-			className={cn("qa-sheet__header gap-1.5 p-6 flex flex-col", className)}
+			className={cn("qa-sheet__header flex flex-col gap-1.5 p-6", className)}
 			{...props}
 		/>
 	);
@@ -91,7 +92,7 @@ function SheetFooter({ className, ...props }: React.ComponentProps<"div">) {
 		<div
 			data-slot="sheet-footer"
 			className={cn(
-				"qa-sheet__footer gap-2 p-6 mt-auto flex flex-col",
+				"qa-sheet__footer mt-auto flex flex-col gap-2 p-6",
 				className,
 			)}
 			{...props}

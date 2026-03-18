@@ -37,9 +37,9 @@ Create a collection that represents your tenant entity:
 import { collection } from "#questpie";
 
 export default collection("workspaces").fields(({ f }) => ({
-  name: f.text({ label: "Name", required: true }),
-  slug: f.slug({ label: "Slug", from: "name" }),
-  owner: f.relation({ to: "user", label: "Owner" }),
+	name: f.text({ label: "Name", required: true }),
+	slug: f.slug({ label: "Slug", from: "name" }),
+	owner: f.relation({ to: "user", label: "Owner" }),
 }));
 ```
 
@@ -50,8 +50,12 @@ Other collections reference the scope via a relation:
 import { collection } from "#questpie";
 
 export default collection("projects").fields(({ f }) => ({
-  title: f.text({ label: "Title", required: true }),
-  workspace: f.relation({ to: "workspaces", label: "Workspace", required: true }),
+	title: f.text({ label: "Title", required: true }),
+	workspace: f.relation({
+		to: "workspaces",
+		label: "Workspace",
+		required: true,
+	}),
 }));
 ```
 
@@ -64,32 +68,32 @@ The `context.ts` file convention is a singleton that extracts custom properties 
 import { context } from "#questpie";
 
 export default context(async ({ request, session, db }) => {
-  const workspaceId = request.headers.get("x-selected-workspace");
+	const workspaceId = request.headers.get("x-selected-workspace");
 
-  // Optional: validate that the user has access to this workspace
-  // if (workspaceId && session?.user) {
-  //   const membership = await db.query.workspaceMembers.findFirst({
-  //     where: and(
-  //       eq(workspaceMembers.workspaceId, workspaceId),
-  //       eq(workspaceMembers.userId, session.user.id),
-  //     ),
-  //   });
-  //   if (!membership) throw new Error("No access to this workspace");
-  // }
+	// Optional: validate that the user has access to this workspace
+	// if (workspaceId && session?.user) {
+	//   const membership = await db.query.workspaceMembers.findFirst({
+	//     where: and(
+	//       eq(workspaceMembers.workspaceId, workspaceId),
+	//       eq(workspaceMembers.userId, session.user.id),
+	//     ),
+	//   });
+	//   if (!membership) throw new Error("No access to this workspace");
+	// }
 
-  return {
-    workspaceId: workspaceId || null,
-  };
+	return {
+		workspaceId: workspaceId || null,
+	};
 });
 ```
 
 ### Context Resolver Parameters
 
-| Parameter | Type | Description |
-|---|---|---|
-| `request` | `Request` | The incoming HTTP request (Web API) |
+| Parameter | Type                        | Description                                     |
+| --------- | --------------------------- | ----------------------------------------------- |
+| `request` | `Request`                   | The incoming HTTP request (Web API)             |
 | `session` | `{ user, session } \| null` | Resolved auth session (null if unauthenticated) |
-| `db` | `Database` | Database client for validation queries |
+| `db`      | `Database`                  | Database client for validation queries          |
 
 The object you return is merged into the request context and becomes available in **every** handler, hook, and access rule.
 
@@ -100,11 +104,11 @@ Use module augmentation so your custom context properties are type-safe everywhe
 ```ts
 // src/questpie/server/context.ts (same file, add at the top)
 declare global {
-  namespace Questpie {
-    interface QuestpieContextExtension {
-      workspaceId: string | null;
-    }
-  }
+	namespace Questpie {
+		interface QuestpieContextExtension {
+			workspaceId: string | null;
+		}
+	}
 }
 ```
 
@@ -119,42 +123,46 @@ Use the typed context in access rules and hooks to enforce data isolation:
 import { collection } from "#questpie";
 
 export default collection("projects")
-  .fields(({ f }) => ({
-    title: f.text({ label: "Title", required: true }),
-    workspace: f.relation({ to: "workspaces", label: "Workspace", required: true }),
-  }))
-  .access({
-    // Only allow reads when a workspace is selected
-    read: ({ ctx }) => {
-      if (!ctx.workspaceId) return false;
-      return { workspace: { equals: ctx.workspaceId } };
-    },
-    create: ({ ctx }) => !!ctx.workspaceId,
-    update: ({ ctx }) => {
-      if (!ctx.workspaceId) return false;
-      return { workspace: { equals: ctx.workspaceId } };
-    },
-    delete: ({ ctx }) => {
-      if (!ctx.workspaceId) return false;
-      return { workspace: { equals: ctx.workspaceId } };
-    },
-  })
-  .hooks({
-    // Auto-assign workspace on create
-    beforeCreate: async ({ data, ctx }) => {
-      if (ctx.workspaceId) {
-        data.workspace = ctx.workspaceId;
-      }
-    },
-  });
+	.fields(({ f }) => ({
+		title: f.text({ label: "Title", required: true }),
+		workspace: f.relation({
+			to: "workspaces",
+			label: "Workspace",
+			required: true,
+		}),
+	}))
+	.access({
+		// Only allow reads when a workspace is selected
+		read: ({ ctx }) => {
+			if (!ctx.workspaceId) return false;
+			return { workspace: { equals: ctx.workspaceId } };
+		},
+		create: ({ ctx }) => !!ctx.workspaceId,
+		update: ({ ctx }) => {
+			if (!ctx.workspaceId) return false;
+			return { workspace: { equals: ctx.workspaceId } };
+		},
+		delete: ({ ctx }) => {
+			if (!ctx.workspaceId) return false;
+			return { workspace: { equals: ctx.workspaceId } };
+		},
+	})
+	.hooks({
+		// Auto-assign workspace on create
+		beforeCreate: async ({ data, ctx }) => {
+			if (ctx.workspaceId) {
+				data.workspace = ctx.workspaceId;
+			}
+		},
+	});
 ```
 
 ### Access Rule Return Values
 
-| Return | Meaning |
-|---|---|
-| `true` | Allow all records |
-| `false` | Deny all records |
+| Return                         | Meaning                                  |
+| ------------------------------ | ---------------------------------------- |
+| `true`                         | Allow all records                        |
+| `false`                        | Deny all records                         |
 | `{ field: { equals: value } }` | Where-clause filter (row-level security) |
 
 ## Step 5: Set Up the Admin UI
@@ -166,31 +174,31 @@ Wrap your admin with `ScopeProvider` to enable scope selection. It manages the s
 ```tsx
 // routes/admin/$.tsx
 import {
-  AdminLayout,
-  AdminRouter,
-  ScopePicker,
-  ScopeProvider,
+	AdminLayout,
+	AdminRouter,
+	ScopePicker,
+	ScopeProvider,
 } from "@questpie/admin/client";
 
 function AdminPage() {
-  return (
-    <ScopeProvider
-      headerName="x-selected-workspace"
-      storageKey="admin-selected-workspace"
-    >
-      <AdminContent />
-    </ScopeProvider>
-  );
+	return (
+		<ScopeProvider
+			headerName="x-selected-workspace"
+			storageKey="admin-selected-workspace"
+		>
+			<AdminContent />
+		</ScopeProvider>
+	);
 }
 ```
 
 #### ScopeProvider Props
 
-| Prop | Type | Required | Description |
-|---|---|---|---|
-| `headerName` | `string` | Yes | HTTP header name for the scope ID |
-| `storageKey` | `string` | No | localStorage key for persistence |
-| `defaultScope` | `string \| null` | No | Default scope if none stored |
+| Prop           | Type             | Required | Description                       |
+| -------------- | ---------------- | -------- | --------------------------------- |
+| `headerName`   | `string`         | Yes      | HTTP header name for the scope ID |
+| `storageKey`   | `string`         | No       | localStorage key for persistence  |
+| `defaultScope` | `string \| null` | No       | Default scope if none stored      |
 
 ### ScopePicker
 
@@ -198,44 +206,44 @@ A dropdown for selecting the current scope. Place it in the sidebar:
 
 ```tsx
 function AdminContent() {
-  return (
-    <AdminLayout
-      admin={admin}
-      basePath="/admin"
-      slots={{
-        afterBrand: (
-          <div className="px-3 py-2 border-b">
-            <ScopePicker
-              collection="workspaces"
-              labelField="name"
-              placeholder="Select workspace..."
-              allowClear
-              clearText="All Workspaces"
-              compact
-            />
-          </div>
-        ),
-      }}
-    >
-      <AdminRouter basePath="/admin" />
-    </AdminLayout>
-  );
+	return (
+		<AdminLayout
+			admin={admin}
+			basePath="/admin"
+			slots={{
+				afterBrand: (
+					<div className="px-3 py-2 border-b">
+						<ScopePicker
+							collection="workspaces"
+							labelField="name"
+							placeholder="Select workspace..."
+							allowClear
+							clearText="All Workspaces"
+							compact
+						/>
+					</div>
+				),
+			}}
+		>
+			<AdminRouter basePath="/admin" />
+		</AdminLayout>
+	);
 }
 ```
 
 #### ScopePicker Props
 
-| Prop | Type | Default | Description |
-|---|---|---|---|
-| `collection` | `string` | — | Collection to fetch options from |
-| `labelField` | `string` | `"name"` | Field to display as label |
-| `valueField` | `string` | `"id"` | Field to use as value |
-| `options` | `ScopeOption[]` | — | Static options (alternative to collection) |
-| `loadOptions` | `() => Promise<ScopeOption[]>` | — | Async options loader |
-| `placeholder` | `string` | `"Select..."` | Placeholder text |
-| `allowClear` | `boolean` | `false` | Show "All" option to clear scope |
-| `clearText` | `string` | `"All"` | Label for the clear option |
-| `compact` | `boolean` | `false` | Render smaller (no label) |
+| Prop          | Type                           | Default       | Description                                |
+| ------------- | ------------------------------ | ------------- | ------------------------------------------ |
+| `collection`  | `string`                       | —             | Collection to fetch options from           |
+| `labelField`  | `string`                       | `"name"`      | Field to display as label                  |
+| `valueField`  | `string`                       | `"id"`        | Field to use as value                      |
+| `options`     | `ScopeOption[]`                | —             | Static options (alternative to collection) |
+| `loadOptions` | `() => Promise<ScopeOption[]>` | —             | Async options loader                       |
+| `placeholder` | `string`                       | `"Select..."` | Placeholder text                           |
+| `allowClear`  | `boolean`                      | `false`       | Show "All" option to clear scope           |
+| `clearText`   | `string`                       | `"All"`       | Label for the clear option                 |
+| `compact`     | `boolean`                      | `false`       | Render smaller (no label)                  |
 
 ### Three Data Sources
 
@@ -264,14 +272,14 @@ When you need to create the API client, use `useScopedFetch()` to automatically 
 import { useScopedFetch } from "@questpie/admin/client";
 
 function AdminContent() {
-  const scopedFetch = useScopedFetch();
+	const scopedFetch = useScopedFetch();
 
-  const client = useMemo(
-    () => createClient<typeof app>({ baseURL: "/api", fetch: scopedFetch }),
-    [scopedFetch],
-  );
+	const client = useMemo(
+		() => createClient<typeof app>({ baseURL: "/api", fetch: scopedFetch }),
+		[scopedFetch],
+	);
 
-  return <AdminProvider client={client} />;
+	return <AdminProvider client={client} />;
 }
 ```
 
@@ -285,8 +293,8 @@ import { createScopedFetch } from "@questpie/admin/client";
 let currentScopeId: string | null = null;
 
 const scopedFetch = createScopedFetch(
-  "x-selected-workspace",
-  () => currentScopeId,
+	"x-selected-workspace",
+	() => currentScopeId,
 );
 ```
 
@@ -299,12 +307,12 @@ For advanced cases, create a request-scoped service that provides a tenant-aware
 import { service } from "questpie";
 
 export default service({
-  lifecycle: "request",
-  deps: ["db", "session"] as const,
-  create: ({ db, session }) => {
-    return createScopedDb(db, session?.user?.tenantId);
-  },
-  dispose: (scopedDb) => scopedDb.release(),
+	lifecycle: "request",
+	deps: ["db", "session"] as const,
+	create: ({ db, session }) => {
+		return createScopedDb(db, session?.user?.tenantId);
+	},
+	dispose: (scopedDb) => scopedDb.release(),
 });
 ```
 
@@ -353,21 +361,21 @@ In production, validate that the authenticated user actually belongs to the sele
 
 ```ts
 export default context(async ({ request, session, db }) => {
-  const workspaceId = request.headers.get("x-selected-workspace");
+	const workspaceId = request.headers.get("x-selected-workspace");
 
-  if (workspaceId && session?.user) {
-    const isMember = await db.query.workspaceMembers.findFirst({
-      where: and(
-        eq(workspaceMembers.workspaceId, workspaceId),
-        eq(workspaceMembers.userId, session.user.id),
-      ),
-    });
-    if (!isMember) {
-      throw new Error("Unauthorized access to workspace");
-    }
-  }
+	if (workspaceId && session?.user) {
+		const isMember = await db.query.workspaceMembers.findFirst({
+			where: and(
+				eq(workspaceMembers.workspaceId, workspaceId),
+				eq(workspaceMembers.userId, session.user.id),
+			),
+		});
+		if (!isMember) {
+			throw new Error("Unauthorized access to workspace");
+		}
+	}
 
-  return { workspaceId: workspaceId || null };
+	return { workspaceId: workspaceId || null };
 });
 ```
 

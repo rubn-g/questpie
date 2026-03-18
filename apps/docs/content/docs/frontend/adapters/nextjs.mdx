@@ -37,10 +37,10 @@ import { app } from "#questpie";
 const handler = createFetchHandler(app, { basePath: "/api" });
 
 export const Route = createAPIFileRoute("/api/$")({
-  GET: ({ request }) => handler(request),
-  POST: ({ request }) => handler(request),
-  PATCH: ({ request }) => handler(request),
-  DELETE: ({ request }) => handler(request),
+	GET: ({ request }) => handler(request),
+	POST: ({ request }) => handler(request),
+	PATCH: ({ request }) => handler(request),
+	DELETE: ({ request }) => handler(request),
 });
 ```
 

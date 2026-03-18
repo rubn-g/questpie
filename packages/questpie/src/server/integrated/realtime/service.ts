@@ -1,7 +1,7 @@
 import { asc, desc, gt, lt } from "drizzle-orm";
-import type {
-	DrizzleClientFromQuestpieConfig,
-} from "#questpie/server/config/types.js";
+
+import type { DrizzleClientFromQuestpieConfig } from "#questpie/server/config/types.js";
+
 import type { RealtimeAdapter } from "./adapter.js";
 import { questpieRealtimeLogTable } from "./collection.js";
 import type {
@@ -296,13 +296,13 @@ export class RealtimeService {
 			watchedResources =
 				resolvedTopics.resourceType === "collection"
 					? {
-						collections: new Set([resolvedTopics.resource]),
-						globals: new Set(),
-					}
+							collections: new Set([resolvedTopics.resource]),
+							globals: new Set(),
+						}
 					: {
-						collections: new Set(),
-						globals: new Set([resolvedTopics.resource]),
-					};
+							collections: new Set(),
+							globals: new Set([resolvedTopics.resource]),
+						};
 		}
 
 		const entry: ListenerEntry = {

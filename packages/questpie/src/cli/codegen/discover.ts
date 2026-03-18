@@ -10,6 +10,7 @@
 import type { Dirent } from "node:fs";
 import { readdir, readFile, stat } from "node:fs/promises";
 import { basename, extname, join, relative } from "node:path";
+
 import type {
 	CategoryDeclaration,
 	DiscoveredFile,

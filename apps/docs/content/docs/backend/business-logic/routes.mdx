@@ -14,13 +14,13 @@ import { route } from "questpie";
 import z from "zod";
 
 export default route()
-  .post()
-  .schema(z.object({}))
-  .handler(async ({ collections }) => {
-    return await collections.barbers.find({
-      where: { isActive: true },
-    });
-  });
+	.post()
+	.schema(z.object({}))
+	.handler(async ({ collections }) => {
+		return await collections.barbers.find({
+			where: { isActive: true },
+		});
+	});
 ```
 
 Place route files in `routes/`. The filename becomes the route key: `get-active-barbers.ts` → `getActiveBarbers`.
@@ -34,36 +34,38 @@ import { route } from "questpie";
 import z from "zod";
 
 export default route()
-  .post()
-  .schema(z.object({
-    barberId: z.string(),
-    serviceId: z.string(),
-    scheduledAt: z.string().datetime(),
-    customerName: z.string().min(2),
-    customerEmail: z.string().email(),
-    customerPhone: z.string().optional(),
-    notes: z.string().optional(),
-  }))
-  .handler(async ({ input, collections }) => {
-    const service = await collections.services.findOne({
-      where: { id: input.serviceId },
-    });
-    if (!service) throw new Error("Service not found");
+	.post()
+	.schema(
+		z.object({
+			barberId: z.string(),
+			serviceId: z.string(),
+			scheduledAt: z.string().datetime(),
+			customerName: z.string().min(2),
+			customerEmail: z.string().email(),
+			customerPhone: z.string().optional(),
+			notes: z.string().optional(),
+		}),
+	)
+	.handler(async ({ input, collections }) => {
+		const service = await collections.services.findOne({
+			where: { id: input.serviceId },
+		});
+		if (!service) throw new Error("Service not found");
 
-    const appointment = await collections.appointments.create({
-      barber: input.barberId,
-      service: input.serviceId,
-      scheduledAt: new Date(input.scheduledAt),
-      status: "pending",
-      notes: input.notes || null,
-    });
+		const appointment = await collections.appointments.create({
+			barber: input.barberId,
+			service: input.serviceId,
+			scheduledAt: new Date(input.scheduledAt),
+			status: "pending",
+			notes: input.notes || null,
+		});
 
-    return {
-      success: true,
-      appointmentId: appointment.id,
-      message: "Appointment booked successfully!",
-    };
-  });
+		return {
+			success: true,
+			appointmentId: appointment.id,
+			message: "Appointment booked successfully!",
+		};
+	});
 ```
 
 ## Handler Context
@@ -72,14 +74,14 @@ Route handlers receive the full `AppContext`:
 
 ```ts
 handler: async ({ input, collections, queue, email, db, session, blog }) => {
-  // input — validated data matching the Zod schema
-  // collections — typed collection API
-  // queue — publish background jobs
-  // email — send emails
-  // db — raw database access
-  // session — current auth session
-  // blog — custom service from services/blog.ts
-}
+	// input — validated data matching the Zod schema
+	// collections — typed collection API
+	// queue — publish background jobs
+	// email — send emails
+	// db — raw database access
+	// session — current auth session
+	// blog — custom service from services/blog.ts
+};
 ```
 
 ## Calling Routes
@@ -91,11 +93,11 @@ import { client } from "@/lib/client";
 
 // Fully typed — input and return type inferred from the route definition
 const result = await client.routes.createBooking({
-  barberId: "abc",
-  serviceId: "def",
-  scheduledAt: "2025-03-15T10:00:00Z",
-  customerName: "John",
-  customerEmail: "john@example.com",
+	barberId: "abc",
+	serviceId: "def",
+	scheduledAt: "2025-03-15T10:00:00Z",
+	customerName: "John",
+	customerEmail: "john@example.com",
 });
 ```
 
@@ -131,46 +133,48 @@ import { route } from "questpie";
 import z from "zod";
 
 export default route()
-  .post()
-  .schema(z.object({
-    date: z.string(),
-    barberId: z.string(),
-    serviceId: z.string(),
-  }))
-  .handler(async ({ input, collections }) => {
-    const barber = await collections.barbers.findOne({
-      where: { id: input.barberId, isActive: true },
-    });
-    if (!barber) throw new Error("Barber not found or inactive");
+	.post()
+	.schema(
+		z.object({
+			date: z.string(),
+			barberId: z.string(),
+			serviceId: z.string(),
+		}),
+	)
+	.handler(async ({ input, collections }) => {
+		const barber = await collections.barbers.findOne({
+			where: { id: input.barberId, isActive: true },
+		});
+		if (!barber) throw new Error("Barber not found or inactive");
 
-    const service = await collections.services.findOne({
-      where: { id: input.serviceId, isActive: true },
-    });
-    if (!service) throw new Error("Service not found or inactive");
+		const service = await collections.services.findOne({
+			where: { id: input.serviceId, isActive: true },
+		});
+		if (!service) throw new Error("Service not found or inactive");
 
-    // Get existing appointments for the day
-    const startOfDay = new Date(input.date);
-    startOfDay.setHours(0, 0, 0, 0);
-    const endOfDay = new Date(input.date);
-    endOfDay.setHours(23, 59, 59, 999);
+		// Get existing appointments for the day
+		const startOfDay = new Date(input.date);
+		startOfDay.setHours(0, 0, 0, 0);
+		const endOfDay = new Date(input.date);
+		endOfDay.setHours(23, 59, 59, 999);
 
-    const existing = await collections.appointments.find({
-      where: {
-        barber: input.barberId,
-        scheduledAt: { gte: startOfDay, lte: endOfDay },
-      },
-    });
+		const existing = await collections.appointments.find({
+			where: {
+				barber: input.barberId,
+				scheduledAt: { gte: startOfDay, lte: endOfDay },
+			},
+		});
 
-    // Generate available slots (business logic)
-    const slots = generateAvailableSlots(
-      barber.workingHours,
-      existing.docs,
-      service.duration,
-      input.date,
-    );
+		// Generate available slots (business logic)
+		const slots = generateAvailableSlots(
+			barber.workingHours,
+			existing.docs,
+			service.duration,
+			input.date,
+		);
 
-    return slots;
-  });
+		return slots;
+	});
 ```
 
 ## Related Pages

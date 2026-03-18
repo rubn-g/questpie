@@ -7,6 +7,7 @@
 
 import { Icon } from "@iconify/react";
 import type * as React from "react";
+
 import type { WidgetAction, WidgetCardVariant } from "../../builder";
 import { resolveIconElement } from "../../components/component-renderer";
 import { Button } from "../../components/ui/button";
@@ -88,7 +89,7 @@ function WidgetCardLoading({
 	variant?: WidgetCardVariant;
 }) {
 	return (
-		<Card className={cn("h-full flex flex-col", variantStyles[variant])}>
+		<Card className={cn("flex h-full flex-col", variantStyles[variant])}>
 			<CardHeader>
 				<Skeleton className="h-4 w-24" />
 			</CardHeader>
@@ -112,12 +113,12 @@ function WidgetCardError({
 	return (
 		<Card
 			className={cn(
-				"h-full flex flex-col border-destructive/20 bg-destructive/5",
+				"border-destructive/20 bg-destructive/5 flex h-full flex-col",
 				variantStyles[variant],
 			)}
 		>
 			<CardHeader>
-				<CardTitle className="text-sm font-medium text-destructive">
+				<CardTitle className="text-destructive text-sm font-medium">
 					{t("toast.error")}
 				</CardTitle>
 				{onRetry && (
@@ -129,7 +130,7 @@ function WidgetCardError({
 				)}
 			</CardHeader>
 			<CardContent className={cn("flex-1", variantContentStyles[variant])}>
-				<p className="text-xs text-muted-foreground">{error.message}</p>
+				<p className="text-muted-foreground text-xs">{error.message}</p>
 			</CardContent>
 		</Card>
 	);
@@ -176,7 +177,7 @@ export function WidgetCard({
 			return (
 				<Card
 					className={cn(
-						"h-full flex flex-col",
+						"flex h-full flex-col",
 						variantStyles[variant],
 						className,
 					)}
@@ -206,7 +207,7 @@ export function WidgetCard({
 	return (
 		<Card
 			className={cn(
-				"qa-widget-card h-full flex flex-col",
+				"qa-widget-card flex h-full flex-col",
 				variantStyles[variant],
 				className,
 			)}
@@ -217,9 +218,9 @@ export function WidgetCard({
 						{resolveIconElement(icon, {
 							className: "h-4 w-4 text-muted-foreground",
 						})}
-						<div className="flex-1 min-w-0">
+						<div className="min-w-0 flex-1">
 							{title && (
-								<CardTitle className="text-sm font-medium truncate">
+								<CardTitle className="truncate text-sm font-medium">
 									{title}
 								</CardTitle>
 							)}

@@ -12,6 +12,7 @@
  */
 
 import { CollectionBuilder, GlobalBuilder } from "questpie";
+
 import type {
 	ActionsConfigContext,
 	AdminCollectionConfig,

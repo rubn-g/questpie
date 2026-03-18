@@ -1,6 +1,7 @@
 import { Icon } from "@iconify/react";
 import type * as React from "react";
 import { useState } from "react";
+
 import { useResolveText } from "../i18n/hooks";
 import type { I18nText } from "../i18n/types";
 import { cn } from "../lib/utils";
@@ -81,9 +82,9 @@ export function LocaleSwitcher({
 		case "both":
 			labelElement = (
 				<span className="flex items-center gap-1">
-					<span className="uppercase tracking-wide">{codeLabel}</span>
+					<span className="tracking-wide uppercase">{codeLabel}</span>
 					{currentLocale.label && (
-						<span className="font-normal text-muted-foreground">
+						<span className="text-muted-foreground font-normal">
 							{resolveText(currentLocale.label)}
 						</span>
 					)}
@@ -93,18 +94,18 @@ export function LocaleSwitcher({
 		case "code":
 		default:
 			labelElement = (
-				<span className="uppercase tracking-wide">{codeLabel}</span>
+				<span className="tracking-wide uppercase">{codeLabel}</span>
 			);
 			break;
 	}
 
 	const baseClassName = cn(
-		"inline-flex items-center gap-1 rounded bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground",
+		"bg-muted text-muted-foreground inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-medium",
 		className,
 	);
 	const interactiveClassName = cn(
 		baseClassName,
-		"cursor-pointer transition-colors hover:bg-muted focus:outline-none focus:ring-1 focus:ring-ring",
+		"hover:bg-muted focus:ring-ring cursor-pointer transition-colors focus:ring-1 focus:outline-none",
 	);
 	const ariaLabel = `Switch locale (current: ${nameLabel})`;
 
@@ -181,7 +182,7 @@ export function LocaleSwitcher({
 								}}
 							/>
 						)}
-						<span className="uppercase font-medium">{locale.code}</span>
+						<span className="font-medium uppercase">{locale.code}</span>
 						{locale.label && (
 							<span className="text-muted-foreground">
 								{resolveText(locale.label)}

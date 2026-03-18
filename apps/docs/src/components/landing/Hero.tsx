@@ -4,6 +4,7 @@ import { motion, useReducedMotion } from "motion/react";
 import { useEffect, useState } from "react";
 import { PrismLight as SyntaxHighlighter } from "react-syntax-highlighter";
 import typescript from "react-syntax-highlighter/dist/esm/languages/prism/typescript";
+
 import { AnimHeroArcs } from "@/components/landing/BrandVisuals";
 import { cn } from "@/lib/utils";
 
@@ -77,17 +78,17 @@ export function Hero() {
 	}, []);
 
 	return (
-		<section className="relative min-h-[85vh] lg:min-h-0 lg:flex-1 flex items-center overflow-hidden">
+		<section className="relative flex min-h-[85vh] items-center overflow-hidden lg:min-h-0 lg:flex-1">
 			{/* Brand arc motif — pinned to bottom-right corner, dark mode only */}
-			<AnimHeroArcs className="absolute bottom-0 right-0 w-[60%] max-w-[800px] pointer-events-none" />
+			<AnimHeroArcs className="pointer-events-none absolute right-0 bottom-0 w-[60%] max-w-[800px]" />
 
 			{/* Dark mode ambient glow */}
-			<div className="hidden dark:block absolute top-0 left-1/2 -translate-x-1/2 w-[1200px] h-[600px] pointer-events-none bg-[radial-gradient(ellipse,_oklch(0.5984_0.3015_310.74_/_0.08)_0%,_transparent_60%)]" />
+			<div className="pointer-events-none absolute top-0 left-1/2 hidden h-[600px] w-[1200px] -translate-x-1/2 bg-[radial-gradient(ellipse,_oklch(0.5984_0.3015_310.74_/_0.08)_0%,_transparent_60%)] dark:block" />
 
 			{/* Horizontal beam sweep on load - dark mode only */}
 			{!shouldReduceMotion && (
 				<motion.div
-					className="hidden dark:block absolute top-1/3 left-0 h-px w-full pointer-events-none"
+					className="pointer-events-none absolute top-1/3 left-0 hidden h-px w-full dark:block"
 					style={{
 						background:
 							"linear-gradient(90deg, transparent 0%, oklch(0.5984 0.3015 310.74 / 0.5) 50%, transparent 100%)",
@@ -99,7 +100,7 @@ export function Hero() {
 			)}
 
 			<div className="relative z-10 mx-auto w-full max-w-7xl px-4 py-24 lg:py-32">
-				<div className="grid gap-12 lg:grid-cols-[1.2fr_1fr] lg:gap-12 items-center">
+				<div className="grid items-center gap-12 lg:grid-cols-[1.2fr_1fr] lg:gap-12">
 					{/* Left — text content */}
 					<div className="relative">
 						<motion.div
@@ -107,14 +108,18 @@ export function Hero() {
 							animate={{ opacity: 1, y: 0 }}
 							transition={{ duration: 0.5 }}
 						>
-							<span className="inline-flex items-center gap-2 border border-primary/20 bg-primary/[0.05] px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.22em] text-primary">
-								<Icon icon="ph:sparkle" className="h-3 w-3" aria-hidden="true" />
+							<span className="border-primary/20 bg-primary/[0.05] text-primary inline-flex items-center gap-2 border px-3 py-1.5 font-mono text-[10px] tracking-[0.22em] uppercase">
+								<Icon
+									icon="ph:sparkle"
+									className="h-3 w-3"
+									aria-hidden="true"
+								/>
 								Open Source
 							</span>
 						</motion.div>
 
 						<motion.h1
-							className="mt-6 font-mono text-4xl font-bold leading-[1.08] tracking-[-0.02em] text-balance text-foreground md:text-5xl lg:text-6xl"
+							className="text-foreground mt-6 font-mono text-4xl leading-[1.08] font-bold tracking-[-0.02em] text-balance md:text-5xl lg:text-6xl"
 							initial={{ opacity: 0, y: 16 }}
 							animate={{ opacity: 1, y: 0 }}
 							transition={{ duration: 0.6, delay: 0.08 }}
@@ -123,7 +128,7 @@ export function Hero() {
 							<span className="relative inline-block">
 								<span className="text-primary">ship everywhere</span>
 								<motion.span
-									className="absolute -bottom-1 left-0 h-[2px] bg-primary/30"
+									className="bg-primary/30 absolute -bottom-1 left-0 h-[2px]"
 									initial={{ width: 0 }}
 									animate={{ width: "100%" }}
 									transition={{ duration: 0.8, delay: 1 }}
@@ -132,7 +137,7 @@ export function Hero() {
 						</motion.h1>
 
 						<motion.p
-							className="mt-5 max-w-xl text-base leading-relaxed text-balance text-muted-foreground lg:text-lg"
+							className="text-muted-foreground mt-5 max-w-xl text-base leading-relaxed text-balance lg:text-lg"
 							initial={{ opacity: 0, y: 16 }}
 							animate={{ opacity: 1, y: 0 }}
 							transition={{ duration: 0.6, delay: 0.16 }}
@@ -154,7 +159,7 @@ export function Hero() {
 							].map((pill) => (
 								<span
 									key={pill}
-									className="inline-flex items-center border border-border bg-card/10 px-3 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground"
+									className="border-border bg-card/10 text-muted-foreground inline-flex items-center border px-3 py-1 font-mono text-[10px] tracking-[0.14em] uppercase"
 								>
 									{pill}
 								</span>
@@ -170,10 +175,13 @@ export function Hero() {
 							<Link
 								to="/docs/$"
 								params={{ _splat: "start-here/first-app" }}
-								className="group relative inline-flex h-12 items-center justify-center overflow-hidden bg-primary px-8 text-sm font-medium text-primary-foreground transition-all hover:bg-primary/90"
+								className="group bg-primary text-primary-foreground hover:bg-primary/90 relative inline-flex h-12 items-center justify-center overflow-hidden px-8 text-sm font-medium transition-all"
 							>
 								<span className="relative z-10">Get Started</span>
-								<Icon icon="ph:arrow-right" className="relative z-10 ml-2 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+								<Icon
+									icon="ph:arrow-right"
+									className="relative z-10 ml-2 h-4 w-4 transition-transform group-hover:translate-x-0.5"
+								/>
 								<motion.div
 									className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
 									initial={{ x: "-100%" }}
@@ -185,18 +193,19 @@ export function Hero() {
 								href="https://github.com/questpie/questpie"
 								target="_blank"
 								rel="noreferrer"
-								className="group inline-flex h-12 items-center justify-center gap-2 border border-border bg-card/10 backdrop-blur-sm px-8 text-sm font-medium text-muted-foreground transition-all hover:text-foreground hover:border-primary/30 hover:bg-card/20"
+								className="group border-border bg-card/10 text-muted-foreground hover:text-foreground hover:border-primary/30 hover:bg-card/20 inline-flex h-12 items-center justify-center gap-2 border px-8 text-sm font-medium backdrop-blur-sm transition-all"
 							>
-								<Icon icon="ph:github-logo"
+								<Icon
+									icon="ph:github-logo"
 									className="h-4 w-4 transition-transform group-hover:scale-110"
 									aria-hidden="true"
-								 />
+								/>
 								GitHub
 							</a>
 						</motion.div>
 
 						<motion.div
-							className="mt-6 inline-flex items-center gap-3 border border-border bg-card/10 backdrop-blur-sm px-4 py-2.5 font-mono text-sm text-muted-foreground rounded-sm group cursor-pointer hover:border-primary/20 transition-colors"
+							className="border-border bg-card/10 text-muted-foreground group hover:border-primary/20 mt-6 inline-flex cursor-pointer items-center gap-3 rounded-sm border px-4 py-2.5 font-mono text-sm backdrop-blur-sm transition-colors"
 							initial={{ opacity: 0, y: 12 }}
 							animate={{ opacity: 1, y: 0 }}
 							transition={{ duration: 0.5, delay: 0.32 }}
@@ -204,12 +213,16 @@ export function Hero() {
 								navigator.clipboard.writeText("bun i questpie");
 							}}
 						>
-							<Icon icon="ph:terminal" className="h-4 w-4 text-primary" aria-hidden="true" />
+							<Icon
+								icon="ph:terminal"
+								className="text-primary h-4 w-4"
+								aria-hidden="true"
+							/>
 							<span>
 								<span className="text-primary">$</span> bun i questpie
 							</span>
 							<motion.span
-								className="text-[10px] text-primary opacity-0 group-hover:opacity-100 transition-opacity"
+								className="text-primary text-[10px] opacity-0 transition-opacity group-hover:opacity-100"
 								initial={false}
 							>
 								Click to copy
@@ -225,49 +238,49 @@ export function Hero() {
 						transition={{ duration: 0.7, delay: 0.3 }}
 					>
 						{/* Main admin card */}
-						<div className="relative border border-border bg-card/10 backdrop-blur-sm overflow-hidden">
+						<div className="border-border bg-card/10 relative overflow-hidden border backdrop-blur-sm">
 							{/* Browser chrome */}
-							<div className="relative flex items-center gap-2 border-b border-border px-4 py-3 bg-background/50">
+							<div className="border-border bg-background/50 relative flex items-center gap-2 border-b px-4 py-3">
 								<div className="flex gap-1.5">
 									<div className="h-3 w-3 bg-red-400/80" />
 									<div className="h-3 w-3 bg-yellow-400/80" />
 									<div className="h-3 w-3 bg-green-400/80" />
 								</div>
-								<div className="ml-2 flex-1 border border-border/50 bg-background/60 px-3 py-1">
-									<span className="font-mono text-[10px] text-muted-foreground">
+								<div className="border-border/50 bg-background/60 ml-2 flex-1 border px-3 py-1">
+									<span className="text-muted-foreground font-mono text-[10px]">
 										localhost:3000/admin/posts
 									</span>
 								</div>
-								<span className="inline-flex items-center gap-1.5 border border-primary/20 bg-primary/[0.05] px-2 py-0.5">
+								<span className="border-primary/20 bg-primary/[0.05] inline-flex items-center gap-1.5 border px-2 py-0.5">
 									<span className="relative flex h-1.5 w-1.5">
-										<span className="absolute inline-flex h-full w-full animate-ping bg-primary opacity-75" />
-										<span className="relative inline-flex h-1.5 w-1.5 bg-primary" />
+										<span className="bg-primary absolute inline-flex h-full w-full animate-ping opacity-75" />
+										<span className="bg-primary relative inline-flex h-1.5 w-1.5" />
 									</span>
-									<span className="text-[9px] font-medium text-primary">
+									<span className="text-primary text-[9px] font-medium">
 										SYNCED
 									</span>
 								</span>
 							</div>
 
 							{/* Table header */}
-							<div className="relative flex items-center justify-between border-b border-border px-4 py-3 bg-card/5">
+							<div className="border-border bg-card/5 relative flex items-center justify-between border-b px-4 py-3">
 								<div className="flex items-center gap-2">
-									<span className="text-sm font-semibold text-foreground">
+									<span className="text-foreground text-sm font-semibold">
 										Posts View
 									</span>
 								</div>
 								<div className="flex items-center gap-2">
-									<div className="h-7 w-24 border border-border bg-background/50 rounded-sm" />
-									<div className="h-7 w-20 border border-border bg-primary/10 rounded-sm" />
+									<div className="border-border bg-background/50 h-7 w-24 rounded-sm border" />
+									<div className="border-border bg-primary/10 h-7 w-20 rounded-sm border" />
 								</div>
 							</div>
 
 							{/* Column headers */}
-							<div className="relative grid grid-cols-[1fr_0.6fr_0.4fr_auto] gap-2 border-b border-border px-4 py-2 bg-muted/30">
+							<div className="border-border bg-muted/30 relative grid grid-cols-[1fr_0.6fr_0.4fr_auto] gap-2 border-b px-4 py-2">
 								{["Title", "Author", "Status", ""].map((h) => (
 									<span
 										key={h || "lock"}
-										className="text-[9px] font-medium uppercase tracking-wider text-muted-foreground"
+										className="text-muted-foreground text-[9px] font-medium tracking-wider uppercase"
 									>
 										{h}
 									</span>
@@ -283,38 +296,39 @@ export function Hero() {
 										animate={{ opacity: 1, x: 0 }}
 										transition={{ delay: 0.5 + i * 0.1 }}
 										className={cn(
-											"grid grid-cols-[1fr_0.6fr_0.4fr_auto] gap-2 border-b border-border/30 px-4 py-2.5 transition-all hover:bg-background/40",
+											"border-border/30 hover:bg-background/40 grid grid-cols-[1fr_0.6fr_0.4fr_auto] gap-2 border-b px-4 py-2.5 transition-all",
 											pulsingRow === i && "bg-primary/5",
 										)}
 									>
-										<span className="text-[11px] text-foreground truncate">
+										<span className="text-foreground truncate text-[11px]">
 											{row.title}
 										</span>
-										<span className="text-[11px] text-muted-foreground">
+										<span className="text-muted-foreground text-[11px]">
 											{row.author}
 										</span>
 										<span
 											className={cn(
-												"inline-flex w-fit items-center px-2 py-0.5 text-[9px] font-medium rounded-sm transition-all duration-300",
+												"inline-flex w-fit items-center rounded-sm px-2 py-0.5 text-[9px] font-medium transition-all duration-300",
 												row.status === "published"
-													? "bg-primary/10 text-primary border border-primary/20"
-													: "bg-muted/30 text-muted-foreground border border-border",
+													? "bg-primary/10 text-primary border-primary/20 border"
+													: "bg-muted/30 text-muted-foreground border-border border",
 											)}
 										>
 											{row.status}
 										</span>
-										<div className="flex items-center justify-end w-8">
+										<div className="flex w-8 items-center justify-end">
 											{row.locked && (
 												<motion.span
 													initial={{ scale: 0.95, opacity: 0 }}
 													animate={{ scale: 1, opacity: 1 }}
 													className="inline-flex items-center gap-1"
 												>
-													<Icon icon="ph:lock"
-														className="h-3 w-3 text-muted-foreground"
+													<Icon
+														icon="ph:lock"
+														className="text-muted-foreground h-3 w-3"
 														aria-hidden="true"
-													 />
-													<span className="inline-flex h-4 w-4 items-center justify-center bg-primary/10 text-[7px] font-mono text-primary rounded-sm">
+													/>
+													<span className="bg-primary/10 text-primary inline-flex h-4 w-4 items-center justify-center rounded-sm font-mono text-[7px]">
 														{row.lockedBy}
 													</span>
 												</motion.span>
@@ -325,7 +339,7 @@ export function Hero() {
 							</div>
 
 							{/* Ambient glow behind card */}
-							<div className="hidden dark:block absolute -inset-4 -z-10 bg-[radial-gradient(ellipse_at_center,_oklch(0.5984_0.3015_310.74_/_0.1)_0%,_transparent_70%)] blur-2xl" />
+							<div className="absolute -inset-4 -z-10 hidden bg-[radial-gradient(ellipse_at_center,_oklch(0.5984_0.3015_310.74_/_0.1)_0%,_transparent_70%)] blur-2xl dark:block" />
 						</div>
 					</motion.div>
 				</div>

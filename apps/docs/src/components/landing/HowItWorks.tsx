@@ -72,10 +72,10 @@ const slots = await client.routes.getAvailableSlots({
 
 export function HowItWorks() {
 	return (
-		<section id="workflow" className="border-t border-border/40 py-20">
+		<section id="workflow" className="border-border/40 border-t py-20">
 			<div className="mx-auto w-full max-w-7xl px-4">
 				<div className="mx-auto mb-14 max-w-2xl space-y-3 text-center">
-					<h2 className="font-mono text-sm uppercase tracking-[0.2em] text-primary">
+					<h2 className="text-primary font-mono text-sm tracking-[0.2em] uppercase">
 						Real-world patterns
 					</h2>
 					<h3 className="text-3xl font-bold tracking-tight md:text-4xl">
@@ -87,12 +87,12 @@ export function HowItWorks() {
 					{steps.map((step) => (
 						<div key={step.number} className="space-y-4">
 							<div className="flex items-center gap-4">
-								<span className="font-mono text-4xl leading-none text-primary/25">
+								<span className="text-primary/25 font-mono text-4xl leading-none">
 									{step.number}
 								</span>
 								<div>
 									<h4 className="text-xl font-semibold">{step.title}</h4>
-									<p className="text-sm text-muted-foreground">
+									<p className="text-muted-foreground text-sm">
 										{step.description}
 									</p>
 								</div>

@@ -9,9 +9,11 @@ import {
 	varchar,
 } from "drizzle-orm/pg-core";
 import { z } from "zod";
+
 import type { I18nText } from "#questpie/shared/i18n/types.js";
-import { field, Field } from "../field-class.js";
+
 import type { DefaultFieldState } from "../field-class-types.js";
+import { field, Field } from "../field-class.js";
 import { selectMultiOps, selectSingleOps } from "../operators/builtin.js";
 import type { OptionsConfig } from "../reactive.js";
 import type { SelectFieldMetadata } from "../types.js";

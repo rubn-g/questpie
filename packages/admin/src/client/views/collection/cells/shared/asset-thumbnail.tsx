@@ -10,6 +10,7 @@
 
 import { Icon } from "@iconify/react";
 import type * as React from "react";
+
 import { Button } from "../../../../components/ui/button";
 import { cn } from "../../../../lib/utils";
 
@@ -122,7 +123,7 @@ export function AssetThumbnail({
 	if (typeof asset === "string") {
 		return (
 			<span
-				className="font-mono text-xs text-muted-foreground truncate max-w-[100px]"
+				className="text-muted-foreground max-w-[100px] truncate font-mono text-xs"
 				title={asset}
 			>
 				{asset.slice(0, 8)}...
@@ -146,7 +147,7 @@ export function AssetThumbnail({
 	if (!url) {
 		if (assetObj.id) {
 			return (
-				<span className="font-mono text-xs text-muted-foreground">
+				<span className="text-muted-foreground font-mono text-xs">
 					{String(assetObj.id).slice(0, 8)}...
 				</span>
 			);
@@ -185,10 +186,10 @@ export function AssetThumbnail({
 					<img
 						src={url}
 						alt={filename || "Asset"}
-						className="size-8 rounded object-cover border"
+						className="size-8 rounded border object-cover"
 					/>
 					{showFilename && filename && (
-						<span className="text-xs truncate max-w-[100px]" title={filename}>
+						<span className="max-w-[100px] truncate text-xs" title={filename}>
 							{filename}
 						</span>
 					)}
@@ -199,14 +200,14 @@ export function AssetThumbnail({
 		// Non-image files
 		if (showFilename && filename) {
 			return (
-				<span className="text-sm truncate max-w-[150px]" title={filename}>
+				<span className="max-w-[150px] truncate text-sm" title={filename}>
 					{filename}
 				</span>
 			);
 		}
 
 		return (
-			<span className="font-mono text-xs text-muted-foreground">
+			<span className="text-muted-foreground font-mono text-xs">
 				{String(assetObj.id || "").slice(0, 8)}...
 			</span>
 		);
@@ -243,7 +244,7 @@ export function AssetThumbnail({
 					<img
 						src={url}
 						alt={filename || "Asset"}
-						className="size-10 rounded object-cover border"
+						className="size-10 rounded border object-cover"
 					/>
 				</div>
 			);
@@ -273,8 +274,8 @@ export function AssetThumbnail({
 					)}
 					{...interactiveProps}
 				>
-					<div className="size-10 rounded border bg-muted flex items-center justify-center">
-						<Icon icon={fileIcon} className="size-5 text-muted-foreground" />
+					<div className="bg-muted flex size-10 items-center justify-center rounded border">
+						<Icon icon={fileIcon} className="text-muted-foreground size-5" />
 					</div>
 				</div>
 			);
@@ -285,7 +286,7 @@ export function AssetThumbnail({
 	return (
 		<div
 			className={cn(
-				"qa-asset-thumbnail relative overflow-hidden rounded-lg border bg-muted",
+				"qa-asset-thumbnail bg-muted relative overflow-hidden rounded-lg border",
 				className,
 			)}
 		>
@@ -315,8 +316,8 @@ export function AssetThumbnail({
 						</video>
 					) : (
 						<div className="flex flex-col items-center justify-center gap-4 p-12">
-							<Icon icon={fileIcon} className="size-20 text-muted-foreground" />
-							<p className="text-sm text-muted-foreground">
+							<Icon icon={fileIcon} className="text-muted-foreground size-20" />
+							<p className="text-muted-foreground text-sm">
 								{filename || "Video"}
 							</p>
 						</div>
@@ -327,7 +328,7 @@ export function AssetThumbnail({
 			{/* Audio Preview */}
 			{isAudioType && (
 				<div className="flex flex-col items-center justify-center gap-4 p-8">
-					<Icon icon={fileIcon} className="size-16 text-muted-foreground" />
+					<Icon icon={fileIcon} className="text-muted-foreground size-16" />
 					{showControls && (
 						<audio
 							src={url}
@@ -339,7 +340,7 @@ export function AssetThumbnail({
 						</audio>
 					)}
 					{!showControls && (
-						<p className="text-sm text-muted-foreground">
+						<p className="text-muted-foreground text-sm">
 							{filename || "Audio"}
 						</p>
 					)}
@@ -349,13 +350,13 @@ export function AssetThumbnail({
 			{/* Other File Types */}
 			{!isImageType && !isVideoType && !isAudioType && (
 				<div className="flex flex-col items-center justify-center gap-4 p-12">
-					<Icon icon={fileIcon} className="size-20 text-muted-foreground" />
-					<p className="text-sm text-muted-foreground">{filename || "File"}</p>
+					<Icon icon={fileIcon} className="text-muted-foreground size-20" />
+					<p className="text-muted-foreground text-sm">{filename || "File"}</p>
 				</div>
 			)}
 
 			{/* Open in new tab button (lg size only) */}
-			<div className="absolute right-2 top-2">
+			<div className="absolute top-2 right-2">
 				<Button
 					type="button"
 					variant="secondary"

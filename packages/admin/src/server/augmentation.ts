@@ -28,6 +28,7 @@
 
 import type { AppContext } from "questpie";
 import type { I18nText } from "questpie/shared";
+
 import type { AnyBlockBuilder } from "./block/index.js";
 
 // ============================================================================
@@ -280,11 +281,12 @@ export interface ComponentDefinition<
 type ExtractComponentProps<
 	TComponent,
 	TFallback = Record<string, unknown> | string,
-> = TComponent extends ComponentDefinition<any, infer P>
-	? unknown extends P
-		? TFallback
-		: P
-	: TFallback;
+> =
+	TComponent extends ComponentDefinition<any, infer P>
+		? unknown extends P
+			? TFallback
+			: P
+		: TFallback;
 
 /**
  * Normalize component input props to output props for ComponentReference.
@@ -1807,14 +1809,12 @@ export interface AdminConfigContext<
  * Falls back to `TFallback` when the view has `unknown` config
  * (i.e. was defined without a config type parameter).
  */
-type ExtractViewConfig<
-	TView,
-	TFallback = Record<string, unknown>,
-> = TView extends ViewDefinition<any, any, infer C>
-	? unknown extends C
-		? TFallback
-		: C
-	: TFallback;
+type ExtractViewConfig<TView, TFallback = Record<string, unknown>> =
+	TView extends ViewDefinition<any, any, infer C>
+		? unknown extends C
+			? TFallback
+			: C
+		: TFallback;
 
 /**
  * View factory API generated from registered list views.

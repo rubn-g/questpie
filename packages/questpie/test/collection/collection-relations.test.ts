@@ -7,6 +7,7 @@
  * Uses string literals for collection references to avoid circular dependency issues.
  */
 import { afterEach, beforeEach, describe, expect, it } from "bun:test";
+
 import { collection } from "../../src/server/index.js";
 import { buildMockApp } from "../utils/mocks/mock-app-builder";
 import { createTestContext } from "../utils/test-context";
@@ -52,20 +53,16 @@ const profiles = collection("profiles").fields(({ f }) => ({
 const authors = collection("authors").fields(({ f }) => ({
 	name: f.text().required(),
 	// HasMany relations - using string literals for circular refs
-	posts: f
-		.relation("posts")
-		.hasMany({
-			foreignKey: "author",
-			onDelete: "cascade",
-			relationName: "author",
-		}),
-	editedPosts: f
-		.relation("posts")
-		.hasMany({
-			foreignKey: "editor",
-			onDelete: "set null",
-			relationName: "editor",
-		}),
+	posts: f.relation("posts").hasMany({
+		foreignKey: "author",
+		onDelete: "cascade",
+		relationName: "author",
+	}),
+	editedPosts: f.relation("posts").hasMany({
+		foreignKey: "editor",
+		onDelete: "set null",
+		relationName: "editor",
+	}),
 }));
 
 // Posts with cascade/set null scenarios
@@ -104,13 +101,11 @@ const restrictedCategories = collection("restrictedCategories").fields(
 	({ f }) => ({
 		name: f.text().required(),
 		// HasMany - RESTRICT delete when products exist
-		products: f
-			.relation("restrictedProducts")
-			.hasMany({
-				foreignKey: "category",
-				onDelete: "restrict",
-				relationName: "category",
-			}),
+		products: f.relation("restrictedProducts").hasMany({
+			foreignKey: "category",
+			onDelete: "restrict",
+			relationName: "category",
+		}),
 	}),
 );
 
@@ -128,25 +123,21 @@ const restrictedProducts = collection("restrictedProducts").fields(({ f }) => ({
 const articles = collection("articles").fields(({ f }) => ({
 	title: f.text().required(),
 	// ManyToMany
-	tags: f
-		.relation("articleTags")
-		.manyToMany({
-			through: "articleTagJunction",
-			sourceField: "article",
-			targetField: "tag",
-		}),
+	tags: f.relation("articleTags").manyToMany({
+		through: "articleTagJunction",
+		sourceField: "article",
+		targetField: "tag",
+	}),
 }));
 
 const articleTags = collection("articleTags").fields(({ f }) => ({
 	name: f.text().required(),
 	// ManyToMany reverse
-	articles: f
-		.relation("articles")
-		.manyToMany({
-			through: "articleTagJunction",
-			sourceField: "tag",
-			targetField: "article",
-		}),
+	articles: f.relation("articles").manyToMany({
+		through: "articleTagJunction",
+		sourceField: "tag",
+		targetField: "article",
+	}),
 }));
 
 // Junction table - still uses belongsTo for FK columns
@@ -165,13 +156,11 @@ const categories = collection("categories").fields(({ f }) => ({
 		.relation("products")
 		.hasMany({ foreignKey: "category", relationName: "category" }),
 	// ManyToMany
-	tags: f
-		.relation("tags")
-		.manyToMany({
-			through: "categoryTags",
-			sourceField: "category",
-			targetField: "tag",
-		}),
+	tags: f.relation("tags").manyToMany({
+		through: "categoryTags",
+		sourceField: "category",
+		targetField: "tag",
+	}),
 }));
 
 const products = collection("products").fields(({ f }) => ({
@@ -179,32 +168,26 @@ const products = collection("products").fields(({ f }) => ({
 	// BelongsTo
 	category: f.relation("categories").required().relationName("category"),
 	// ManyToMany
-	tags: f
-		.relation("tags")
-		.manyToMany({
-			through: "productTags",
-			sourceField: "product",
-			targetField: "tag",
-		}),
+	tags: f.relation("tags").manyToMany({
+		through: "productTags",
+		sourceField: "product",
+		targetField: "tag",
+	}),
 }));
 
 const tags = collection("tags").fields(({ f }) => ({
 	name: f.text().required(),
 	// ManyToMany relations
-	products: f
-		.relation("products")
-		.manyToMany({
-			through: "productTags",
-			sourceField: "tag",
-			targetField: "product",
-		}),
-	categories: f
-		.relation("categories")
-		.manyToMany({
-			through: "categoryTags",
-			sourceField: "tag",
-			targetField: "category",
-		}),
+	products: f.relation("products").manyToMany({
+		through: "productTags",
+		sourceField: "tag",
+		targetField: "product",
+	}),
+	categories: f.relation("categories").manyToMany({
+		through: "categoryTags",
+		sourceField: "tag",
+		targetField: "category",
+	}),
 }));
 
 // Junction tables

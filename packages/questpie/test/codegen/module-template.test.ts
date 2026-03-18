@@ -17,6 +17,7 @@
  * 13. keyFromProperty categories skip named type interfaces
  */
 import { describe, expect, it } from "bun:test";
+
 import { generateModuleTemplate } from "../../src/cli/codegen/module-template.js";
 import type {
 	CategoryDeclaration,

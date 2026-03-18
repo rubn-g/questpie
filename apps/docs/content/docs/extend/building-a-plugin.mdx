@@ -11,39 +11,39 @@ A plugin tells codegen what to discover and what types to generate. It's the hig
 import type { CodegenPlugin } from "questpie";
 
 export function myPlugin(): CodegenPlugin {
-  return {
-    name: "my-plugin",
+	return {
+		name: "my-plugin",
 
-    // File categories to discover
-    categories: {
-      widgets: {
-        pattern: "widgets/**/*.ts",
-        cardinality: "map",
-        recursive: true,
-        featureLayout: true,
-        mergeStrategy: "record",
-        moduleContributionKey: "widgets",
-        registryKey: "widgets",
-      },
-    },
+		// File categories to discover
+		categories: {
+			widgets: {
+				pattern: "widgets/**/*.ts",
+				cardinality: "map",
+				recursive: true,
+				featureLayout: true,
+				mergeStrategy: "record",
+				moduleContributionKey: "widgets",
+				registryKey: "widgets",
+			},
+		},
 
-    // Builder extensions
-    extensions: {
-      collection: {
-        methods: {
-          widget: { type: "WidgetConfig" },
-        },
-      },
-    },
+		// Builder extensions
+		extensions: {
+			collection: {
+				methods: {
+					widget: { type: "WidgetConfig" },
+				},
+			},
+		},
 
-    // Single-file factories
-    singletons: {
-      widgetConfig: {
-        pattern: "widget-config.ts",
-        factory: "widgetConfig",
-      },
-    },
-  };
+		// Single-file factories
+		singletons: {
+			widgetConfig: {
+				pattern: "widget-config.ts",
+				factory: "widgetConfig",
+			},
+		},
+	};
 }
 ```
 
@@ -55,8 +55,8 @@ Register in runtime config:
 import { myPlugin } from "my-plugin-package";
 
 export default runtimeConfig({
-  plugins: [myPlugin()],
-  // ...
+	plugins: [myPlugin()],
+	// ...
 });
 ```
 

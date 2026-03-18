@@ -1,4 +1,5 @@
 import type { SQL } from "drizzle-orm";
+
 import type { RelationConfig } from "#questpie/server/collection/builder/types.js";
 import {
 	createFieldsCallbackContext,

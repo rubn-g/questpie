@@ -5,6 +5,7 @@
  */
 
 import { DEFAULT_LOCALE } from "#questpie/shared/constants.js";
+
 import type { PluralMessages } from "./messages.js";
 import { allBackendMessagesEN } from "./messages.js";
 import type { BackendTranslateFn, TranslationsConfig } from "./types.js";

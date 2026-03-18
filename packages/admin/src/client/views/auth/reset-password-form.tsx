@@ -5,6 +5,7 @@
 import { Icon } from "@iconify/react";
 import * as React from "react";
 import { useForm, useWatch } from "react-hook-form";
+
 import { Alert, AlertDescription } from "../../components/ui/alert";
 import { Button } from "../../components/ui/button";
 import {
@@ -115,7 +116,9 @@ export function ResetPasswordForm({
 					/>
 				</div>
 				<div className="space-y-2">
-					<h3 className="text-sm font-medium">{t("auth.resetPasswordSuccess")}</h3>
+					<h3 className="text-sm font-medium">
+						{t("auth.resetPasswordSuccess")}
+					</h3>
 					<p className="text-muted-foreground text-xs">
 						{t("auth.resetPasswordSuccessDescription")}
 					</p>
@@ -149,7 +152,7 @@ export function ResetPasswordForm({
 						<div className="relative">
 							<Icon
 								icon="ph:lock-duotone"
-								className="text-muted-foreground absolute left-2 top-1/2 size-4 -translate-y-1/2"
+								className="text-muted-foreground absolute top-1/2 left-2 size-4 -translate-y-1/2"
 							/>
 							<Input
 								id="password"
@@ -185,7 +188,7 @@ export function ResetPasswordForm({
 						<div className="relative">
 							<Icon
 								icon="ph:lock-duotone"
-								className="text-muted-foreground absolute left-2 top-1/2 size-4 -translate-y-1/2"
+								className="text-muted-foreground absolute top-1/2 left-2 size-4 -translate-y-1/2"
 							/>
 							<Input
 								id="confirmPassword"

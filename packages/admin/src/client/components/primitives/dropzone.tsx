@@ -16,6 +16,7 @@
 
 import { Icon } from "@iconify/react";
 import * as React from "react";
+
 import { useTranslation } from "../../i18n/hooks";
 import { cn } from "../../lib/utils";
 
@@ -188,7 +189,10 @@ export function Dropzone({
 					errors.push({
 						file,
 						type: "size",
-						message: t("dropzone.tooLarge", { name: file.name, maxSize: formatFileSize(maxSize) }),
+						message: t("dropzone.tooLarge", {
+							name: file.name,
+							maxSize: formatFileSize(maxSize),
+						}),
 					});
 					continue;
 				}
@@ -421,7 +425,7 @@ export function Dropzone({
 
 			{/* Error message */}
 			{error && (
-				<p className="text-destructive absolute bottom-2 left-0 right-0 text-center text-xs">
+				<p className="text-destructive absolute right-0 bottom-2 left-0 text-center text-xs">
 					{error}
 				</p>
 			)}

@@ -9,7 +9,7 @@ export function Logo({ className }: { className?: string }) {
 			<img
 				src="/logo/Questpie-white-pink.svg"
 				alt="QUESTPIE"
-				className="h-6 w-auto hidden dark:block"
+				className="hidden h-6 w-auto dark:block"
 			/>
 		</div>
 	);

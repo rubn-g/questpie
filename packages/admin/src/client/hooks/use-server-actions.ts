@@ -9,6 +9,7 @@
 "use client";
 
 import * as React from "react";
+
 import type { FieldDefinition } from "../builder/field/field";
 import type {
 	ActionContext,
@@ -146,7 +147,10 @@ function mapServerAction(
 	// Map confirmation config
 	if (serverAction.confirmation) {
 		action.confirmation = {
-			title: serverAction.confirmation.title ?? { key: "common.confirm", fallback: "Confirm" },
+			title: serverAction.confirmation.title ?? {
+				key: "common.confirm",
+				fallback: "Confirm",
+			},
 			description: serverAction.confirmation.description,
 			confirmLabel: serverAction.confirmation.confirmLabel,
 			cancelLabel: serverAction.confirmation.cancelLabel,

@@ -1,4 +1,5 @@
 import * as React from "react";
+
 import { SEARCH_PARAMS_EVENT } from "../lib/events.js";
 
 interface UseSearchParamToggleOptions {

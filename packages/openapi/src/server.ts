@@ -21,6 +21,7 @@
 
 import type { Questpie } from "questpie";
 import { module, route } from "questpie";
+
 import { generateOpenApiSpec as generate } from "./generator/index.js";
 import { serveScalarUI } from "./scalar.js";
 import type {

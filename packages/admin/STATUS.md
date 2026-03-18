@@ -15,20 +15,20 @@
 ```tsx
 // 1. Build admin config
 const admin = qa()
-  .use(coreAdminModule)
-  .branding({ name: "My Admin" })
-  .collections({ posts: postsAdmin })
-  .sidebar(sidebarConfig);
+	.use(coreAdminModule)
+	.branding({ name: "My Admin" })
+	.collections({ posts: postsAdmin })
+	.sidebar(sidebarConfig);
 
 // 2. Mount in React
 <AdminLayoutProvider
-  admin={Admin.from(admin)}
-  client={appClient}
-  queryClient={queryClient}
-  LinkComponent={Link}
-  basePath="/admin"
+	admin={Admin.from(admin)}
+	client={appClient}
+	queryClient={queryClient}
+	LinkComponent={Link}
+	basePath="/admin"
 >
-  <Outlet />
+	<Outlet />
 </AdminLayoutProvider>;
 ```
 
@@ -70,14 +70,14 @@ import { AdminLayoutProvider } from "@questpie/admin/views/layout";
 const adminInstance = Admin.from(admin);
 
 <AdminLayoutProvider
-  admin={adminInstance}
-  client={appClient}
-  queryClient={queryClient}
-  LinkComponent={Link}
-  activeRoute={location.pathname}
-  basePath="/admin"
+	admin={adminInstance}
+	client={appClient}
+	queryClient={queryClient}
+	LinkComponent={Link}
+	activeRoute={location.pathname}
+	basePath="/admin"
 >
-  {children}
+	{children}
 </AdminLayoutProvider>;
 ```
 
@@ -96,60 +96,60 @@ const adminInstance = Admin.from(admin);
 
 ```typescript
 const postsAdmin = qab
-  .collection("posts")
-  .meta({
-    label: "Blog Posts",
-    icon: FileTextIcon,
-  })
-  // Fields s registry callback - ({ r }) dáva autocomplete!
-  .fields(({ r }) => ({
-    title: r.text({ label: "Title", maxLength: 200 }),
-    content: r.textarea({ label: "Content" }),
-    status: r.select({
-      label: "Status",
-      options: [
-        { label: "Draft", value: "draft" },
-        { label: "Published", value: "published" },
-      ],
-    }),
-  }))
-  // List view s field proxy - ({ v, f }) dáva autocomplete!
-  .list(({ v, f }) =>
-    v.collectionTable({
-      columns: [f.title, f.status],
-    }),
-  )
-  // Form view
-  .form(({ v, f }) =>
-    v.collectionForm({
-      sections: [
-        { title: "Content", fields: [f.title, f.content] },
-        { title: "Settings", fields: [f.status] },
-      ],
-    }),
-  );
+	.collection("posts")
+	.meta({
+		label: "Blog Posts",
+		icon: FileTextIcon,
+	})
+	// Fields s registry callback - ({ r }) dáva autocomplete!
+	.fields(({ r }) => ({
+		title: r.text({ label: "Title", maxLength: 200 }),
+		content: r.textarea({ label: "Content" }),
+		status: r.select({
+			label: "Status",
+			options: [
+				{ label: "Draft", value: "draft" },
+				{ label: "Published", value: "published" },
+			],
+		}),
+	}))
+	// List view s field proxy - ({ v, f }) dáva autocomplete!
+	.list(({ v, f }) =>
+		v.collectionTable({
+			columns: [f.title, f.status],
+		}),
+	)
+	// Form view
+	.form(({ v, f }) =>
+		v.collectionForm({
+			sections: [
+				{ title: "Content", fields: [f.title, f.content] },
+				{ title: "Settings", fields: [f.status] },
+			],
+		}),
+	);
 ```
 
 ### 3. Sidebar Builder
 
 ```typescript
 const sidebarConfig = qa
-  .sidebar()
-  .section("main", (s) =>
-    s.items([
-      { type: "link", label: "Dashboard", href: "/admin", icon: HomeIcon },
-    ]),
-  )
-  .section("content", (s) =>
-    s
-      .title("Content")
-      .icon(FileTextIcon)
-      .items([
-        { type: "collection", collection: "posts" },
-        { type: "divider" },
-        { type: "global", global: "settings" },
-      ]),
-  );
+	.sidebar()
+	.section("main", (s) =>
+		s.items([
+			{ type: "link", label: "Dashboard", href: "/admin", icon: HomeIcon },
+		]),
+	)
+	.section("content", (s) =>
+		s
+			.title("Content")
+			.icon(FileTextIcon)
+			.items([
+				{ type: "collection", collection: "posts" },
+				{ type: "divider" },
+				{ type: "global", global: "settings" },
+			]),
+	);
 ```
 
 ### 4. Conditional Field Logic
@@ -220,12 +220,12 @@ const sidebarConfig = qa
 
 ```typescript
 sections: [
-  {
-    title: "Contact",
-    layout: "columns",
-    columns: 2,
-    fields: [f.firstName, f.lastName, f.email, f.phone],
-  },
+	{
+		title: "Contact",
+		layout: "columns",
+		columns: 2,
+		fields: [f.firstName, f.lastName, f.email, f.phone],
+	},
 ];
 ```
 
@@ -233,15 +233,15 @@ sections: [
 
 ```typescript
 sections: [
-  {
-    layout: "grid",
-    grid: { columns: 4, gap: 4 },
-    fields: [
-      { field: f.title, span: 4 },
-      { field: f.price, span: 1 },
-      { field: f.stock, span: 2 },
-    ],
-  },
+	{
+		layout: "grid",
+		grid: { columns: 4, gap: 4 },
+		fields: [
+			{ field: f.title, span: 4 },
+			{ field: f.price, span: 1 },
+			{ field: f.stock, span: 2 },
+		],
+	},
 ];
 ```
 

@@ -2,6 +2,7 @@
 
 import type { BuildColumn, SQL } from "drizzle-orm";
 import type { PgTableWithColumns } from "drizzle-orm/pg-core";
+
 import type { Collection } from "#questpie/server/collection/builder/collection.js";
 import type {
 	CollectionVersioningOptions,

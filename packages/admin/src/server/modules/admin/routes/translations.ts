@@ -12,6 +12,7 @@
 
 import { route, type Questpie } from "questpie";
 import { z } from "zod";
+
 import type { AdminLocaleConfig } from "../../../augmentation.js";
 import {
 	type AdminMessages,

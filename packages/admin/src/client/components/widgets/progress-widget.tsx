@@ -6,6 +6,7 @@
  */
 
 import { useQuery } from "@tanstack/react-query";
+
 import type { ProgressWidgetConfig } from "../../builder/types/widget-types";
 import { useServerWidgetData } from "../../hooks/use-server-widget-data";
 import { useResolveText } from "../../i18n/hooks";
@@ -91,7 +92,7 @@ export default function ProgressWidget({ config }: ProgressWidgetProps) {
 		<div className="space-y-3">
 			{/* Progress bar */}
 			<div className="relative">
-				<div className="h-2 w-full overflow-hidden rounded-full bg-muted">
+				<div className="bg-muted h-2 w-full overflow-hidden rounded-full">
 					<div
 						className={cn(
 							"h-full rounded-full transition-all duration-500",
@@ -115,7 +116,7 @@ export default function ProgressWidget({ config }: ProgressWidgetProps) {
 
 			{/* Subtitle */}
 			{data.subtitle && (
-				<p className="text-xs text-muted-foreground">{data.subtitle}</p>
+				<p className="text-muted-foreground text-xs">{data.subtitle}</p>
 			)}
 		</div>
 	) : null;

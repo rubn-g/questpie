@@ -1,4 +1,5 @@
 import * as React from "react";
+
 import { cn } from "@/lib/utils";
 
 const Tabs = React.forwardRef<
@@ -60,7 +61,7 @@ const TabsList = React.forwardRef<
 	<div
 		ref={ref}
 		className={cn(
-			"inline-flex h-9 items-center justify-center border border-border bg-card/30 p-1 text-muted-foreground backdrop-blur-sm",
+			"border-border bg-card/30 text-muted-foreground inline-flex h-9 items-center justify-center border p-1 backdrop-blur-sm",
 			className,
 		)}
 		{...props}
@@ -80,9 +81,9 @@ const TabsTrigger = React.forwardRef<
 			ref={ref}
 			type="button"
 			className={cn(
-				"inline-flex items-center cursor-pointer rounded-none justify-center whitespace-nowrap px-3 py-1 text-xs font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:text-foreground",
+				"ring-offset-background focus-visible:ring-ring hover:text-foreground inline-flex cursor-pointer items-center justify-center rounded-none px-3 py-1 text-xs font-medium whitespace-nowrap transition-all focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50",
 				isSelected &&
-					"bg-primary/10 text-primary  shadow-primary/10  shadow-[0_0_20px_-2px]",
+					"bg-primary/10 text-primary shadow-primary/10 shadow-[0_0_20px_-2px]",
 				className,
 			)}
 			onClick={(e) => {
@@ -106,7 +107,7 @@ const TabsContent = React.forwardRef<
 		<div
 			ref={ref}
 			className={cn(
-				"mt-2 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 animate-in fade-in zoom-in-95 duration-200",
+				"ring-offset-background focus-visible:ring-ring animate-in fade-in zoom-in-95 mt-2 duration-200 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none",
 				className,
 			)}
 			{...props}

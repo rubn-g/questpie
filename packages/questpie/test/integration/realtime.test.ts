@@ -1,5 +1,6 @@
 // @ts-nocheck // TODO: Temporary until test utils are fully typed
 import { afterEach, describe, expect, it } from "bun:test";
+
 import {
 	createAdapterRoutes,
 	collection,
@@ -200,10 +201,13 @@ describe("realtime", () => {
 				slug: f.textarea().required(),
 			}));
 
-			const testModule = { collections: { posts }, locale: {
-				locales: [{ code: "en" }, { code: "sk" }],
-				defaultLocale: "en",
-			} };
+			const testModule = {
+				collections: { posts },
+				locale: {
+					locales: [{ code: "en" }, { code: "sk" }],
+					defaultLocale: "en",
+				},
+			};
 
 			setup = await buildMockApp(testModule, { realtime: { adapter } });
 			await runTestDbMigrations(setup.app);
@@ -250,9 +254,11 @@ describe("realtime", () => {
 				slug: f.textarea().required(),
 			}));
 
-			const testModule = { collections: {
-				posts,
-			} };
+			const testModule = {
+				collections: {
+					posts,
+				},
+			};
 
 			setup = await buildMockApp(testModule, { realtime: { adapter } });
 			await runTestDbMigrations(setup.app);
@@ -293,9 +299,11 @@ describe("realtime", () => {
 				status: f.textarea().required(),
 			}));
 
-			const testModule = { collections: {
-				posts,
-			} };
+			const testModule = {
+				collections: {
+					posts,
+				},
+			};
 
 			setup = await buildMockApp(testModule, { realtime: { adapter } });
 			await runTestDbMigrations(setup.app);
@@ -335,9 +343,11 @@ describe("realtime", () => {
 				content: f.textarea().required(),
 			}));
 
-			const testModule = { collections: {
-				messages,
-			} };
+			const testModule = {
+				collections: {
+					messages,
+				},
+			};
 
 			setup = await buildMockApp(testModule, { realtime: { adapter } });
 			await runTestDbMigrations(setup.app);
@@ -403,9 +413,11 @@ describe("realtime", () => {
 				title: f.textarea().required(),
 			}));
 
-			const testModule = { collections: {
-				posts,
-			} };
+			const testModule = {
+				collections: {
+					posts,
+				},
+			};
 
 			setup = await buildMockApp(testModule, { realtime: { adapter } });
 			await runTestDbMigrations(setup.app);
@@ -539,9 +551,11 @@ describe("realtime", () => {
 				completed: f.boolean().required().default(false),
 			}));
 
-			const testModule = { collections: {
-				tasks,
-			} };
+			const testModule = {
+				collections: {
+					tasks,
+				},
+			};
 
 			setup = await buildMockApp(testModule, { realtime: { adapter } });
 			await runTestDbMigrations(setup.app);
@@ -584,9 +598,11 @@ describe("realtime", () => {
 				categoryId: f.number().required(),
 			}));
 
-			const testModule = { collections: {
-				products,
-			} };
+			const testModule = {
+				collections: {
+					products,
+				},
+			};
 
 			setup = await buildMockApp(testModule, { realtime: { adapter } });
 			await runTestDbMigrations(setup.app);
@@ -622,15 +638,19 @@ describe("realtime", () => {
 
 		it("supports wildcard collection subscriptions", async () => {
 			const adapter = new MockRealtimeAdapter();
-			const posts = collection("posts")
-				.fields(({ f }) => ({ title: f.textarea().required() }));
-			const comments = collection("comments")
-				.fields(({ f }) => ({ content: f.textarea().required() }));
+			const posts = collection("posts").fields(({ f }) => ({
+				title: f.textarea().required(),
+			}));
+			const comments = collection("comments").fields(({ f }) => ({
+				content: f.textarea().required(),
+			}));
 
-			const testModule = { collections: {
-				posts,
-				comments,
-			} };
+			const testModule = {
+				collections: {
+					posts,
+					comments,
+				},
+			};
 
 			setup = await buildMockApp(testModule, { realtime: { adapter } });
 			await runTestDbMigrations(setup.app);
@@ -758,11 +778,13 @@ describe("realtime", () => {
 				.fields(({ f }) => ({ name: f.textarea().required() }))
 				.access({ read: true, create: true, update: true, delete: true });
 
-			const messages = collection("messages").fields(({ f }) => ({
-				chatId: f.textarea().required(),
-				content: f.textarea().required(),
-				user: f.relation("users").required().relationName("user"),
-			})).access({ read: true, create: true, update: true, delete: true });
+			const messages = collection("messages")
+				.fields(({ f }) => ({
+					chatId: f.textarea().required(),
+					content: f.textarea().required(),
+					user: f.relation("users").required().relationName("user"),
+				}))
+				.access({ read: true, create: true, update: true, delete: true });
 
 			const testModule = {
 				collections: {
@@ -820,8 +842,9 @@ describe("realtime", () => {
 
 		it("handles nested WITH relations (comments -> posts -> users)", async () => {
 			const adapter = new MockRealtimeAdapter();
-			const users = collection("users")
-				.fields(({ f }) => ({ name: f.textarea().required() }));
+			const users = collection("users").fields(({ f }) => ({
+				name: f.textarea().required(),
+			}));
 
 			const posts = collection("posts").fields(({ f }) => ({
 				title: f.textarea().required(),
@@ -833,11 +856,13 @@ describe("realtime", () => {
 				post: f.relation("posts").required().relationName("post"),
 			}));
 
-			const testModule = { collections: {
-				users,
-				posts,
-				comments,
-			} };
+			const testModule = {
+				collections: {
+					users,
+					posts,
+					comments,
+				},
+			};
 
 			setup = await buildMockApp(testModule, { realtime: { adapter } });
 			await runTestDbMigrations(setup.app);
@@ -905,18 +930,21 @@ describe("realtime", () => {
 
 		it("service-level WITH dependency tracking", async () => {
 			const adapter = new MockRealtimeAdapter();
-			const categories = collection("categories")
-				.fields(({ f }) => ({ name: f.textarea().required() }));
+			const categories = collection("categories").fields(({ f }) => ({
+				name: f.textarea().required(),
+			}));
 
 			const products = collection("products").fields(({ f }) => ({
 				name: f.textarea().required(),
 				category: f.relation("categories").required().relationName("category"),
 			}));
 
-			const testModule = { collections: {
-				categories,
-				products,
-			} };
+			const testModule = {
+				collections: {
+					categories,
+					products,
+				},
+			};
 
 			setup = await buildMockApp(testModule, { realtime: { adapter } });
 			await runTestDbMigrations(setup.app);
@@ -1011,10 +1039,14 @@ describe("realtime", () => {
 				.fields(({ f }) => ({ name: f.textarea().required() }))
 				.access({ read: true, create: true, update: true, delete: true });
 
-			const settings = global("settings").fields(({ f }) => ({
-				siteName: f.textarea(),
-				defaultCategory: f.relation("categories").relationName("defaultCategory"),
-			})).access({ read: true, update: true });
+			const settings = global("settings")
+				.fields(({ f }) => ({
+					siteName: f.textarea(),
+					defaultCategory: f
+						.relation("categories")
+						.relationName("defaultCategory"),
+				}))
+				.access({ read: true, update: true });
 
 			const testModule = {
 				collections: { categories },
@@ -1078,8 +1110,9 @@ describe("realtime", () => {
 	describe("edge cases", () => {
 		it("restarts adapter after all subscribers disconnect", async () => {
 			const adapter = new LifecycleTrackingRealtimeAdapter();
-			const items = collection("items")
-				.fields(({ f }) => ({ name: f.textarea().required() }));
+			const items = collection("items").fields(({ f }) => ({
+				name: f.textarea().required(),
+			}));
 
 			const testModule = { collections: { items } };
 
@@ -1115,9 +1148,11 @@ describe("realtime", () => {
 				total: f.number().required(),
 			}));
 
-			const testModule = { collections: {
-				orders,
-			} };
+			const testModule = {
+				collections: {
+					orders,
+				},
+			};
 
 			setup = await buildMockApp(testModule, { realtime: { adapter } });
 			await runTestDbMigrations(setup.app);
@@ -1179,12 +1214,15 @@ describe("realtime", () => {
 
 		it("properly cleans up subscriptions", async () => {
 			const adapter = new MockRealtimeAdapter();
-			const items = collection("items")
-				.fields(({ f }) => ({ name: f.textarea().required() }));
+			const items = collection("items").fields(({ f }) => ({
+				name: f.textarea().required(),
+			}));
 
-			const testModule = { collections: {
-				items,
-			} };
+			const testModule = {
+				collections: {
+					items,
+				},
+			};
 
 			setup = await buildMockApp(testModule, { realtime: { adapter } });
 			await runTestDbMigrations(setup.app);
@@ -1212,12 +1250,15 @@ describe("realtime", () => {
 
 		it("handles empty WHERE filter (matches all)", async () => {
 			const adapter = new MockRealtimeAdapter();
-			const logs = collection("logs")
-				.fields(({ f }) => ({ message: f.textarea().required() }));
+			const logs = collection("logs").fields(({ f }) => ({
+				message: f.textarea().required(),
+			}));
 
-			const testModule = { collections: {
-				logs,
-			} };
+			const testModule = {
+				collections: {
+					logs,
+				},
+			};
 
 			setup = await buildMockApp(testModule, { realtime: { adapter } });
 			await runTestDbMigrations(setup.app);
@@ -1298,8 +1339,9 @@ describe("realtime", () => {
 
 		it("cleans up old realtime log rows with retentionDays", async () => {
 			const adapter = new MockRealtimeAdapter();
-			const items = collection("items")
-				.fields(({ f }) => ({ name: f.textarea().required() }));
+			const items = collection("items").fields(({ f }) => ({
+				name: f.textarea().required(),
+			}));
 
 			const testModule = { collections: { items } };
 
@@ -1335,8 +1377,9 @@ describe("realtime", () => {
 
 		it("cleans up consumed realtime rows using min consumed seq", async () => {
 			const adapter = new MockRealtimeAdapter();
-			const items = collection("items")
-				.fields(({ f }) => ({ name: f.textarea().required() }));
+			const items = collection("items").fields(({ f }) => ({
+				name: f.textarea().required(),
+			}));
 
 			const testModule = { collections: { items } };
 
@@ -1403,9 +1446,11 @@ describe("realtime", () => {
 					create: true,
 				});
 
-			const testModule = { collections: {
-				secrets,
-			} };
+			const testModule = {
+				collections: {
+					secrets,
+				},
+			};
 
 			setup = await buildMockApp(testModule, { realtime: { adapter } });
 			await runTestDbMigrations(setup.app);
@@ -1458,9 +1503,11 @@ describe("realtime", () => {
 					create: true,
 				});
 
-			const testModule = { collections: {
-				secrets,
-			} };
+			const testModule = {
+				collections: {
+					secrets,
+				},
+			};
 
 			setup = await buildMockApp(testModule, { realtime: { adapter } });
 			await runTestDbMigrations(setup.app);
@@ -1511,9 +1558,11 @@ describe("realtime", () => {
 					},
 				});
 
-			const testModule = { collections: {
-				documents,
-			} };
+			const testModule = {
+				collections: {
+					documents,
+				},
+			};
 
 			setup = await buildMockApp(testModule, { realtime: { adapter } });
 			await runTestDbMigrations(setup.app);
@@ -1564,9 +1613,11 @@ describe("realtime", () => {
 					update: ({ session }) => (session?.user as any)?.role === "admin",
 				});
 
-			const testModule = { globals: {
-				config,
-			} };
+			const testModule = {
+				globals: {
+					config,
+				},
+			};
 
 			setup = await buildMockApp(testModule, { realtime: { adapter } });
 			await runTestDbMigrations(setup.app);
@@ -1619,10 +1670,12 @@ describe("realtime", () => {
 	describe("E2E SSE streaming", () => {
 		it("should stream multiple snapshots on rapid updates", async () => {
 			const adapter = new MockRealtimeAdapter();
-			const counters = collection("counters").fields(({ f }) => ({
-				name: f.textarea().required(),
-				value: f.number().required().default(0),
-			})).access({ read: true, create: true, update: true, delete: true });
+			const counters = collection("counters")
+				.fields(({ f }) => ({
+					name: f.textarea().required(),
+					value: f.number().required().default(0),
+				}))
+				.access({ read: true, create: true, update: true, delete: true });
 
 			const testModule = {
 				collections: {
@@ -1697,8 +1750,9 @@ describe("realtime", () => {
 
 		it("should handle client disconnection gracefully", async () => {
 			const adapter = new MockRealtimeAdapter();
-			const items = collection("items")
-				.fields(({ f }) => ({ name: f.textarea().required() }));
+			const items = collection("items").fields(({ f }) => ({
+				name: f.textarea().required(),
+			}));
 
 			const testModule = {
 				collections: {

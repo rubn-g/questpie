@@ -65,14 +65,14 @@ bun add @questpie/admin @questpie/tanstack-query @tanstack/react-query
 import { collection } from "questpie";
 
 export const posts = collection("posts")
-  .fields(({ f }) => ({
-    title: f.text(255).required().label("Title"),
-    slug: f.slug({ from: "title" }).label("Slug"),
-    content: f.richText().label("Content"),
-    isPublished: f.boolean().default(false).label("Published"),
-    publishedAt: f.datetime().label("Published At"),
-  }))
-  .title(({ f }) => f.title);
+	.fields(({ f }) => ({
+		title: f.text(255).required().label("Title"),
+		slug: f.slug({ from: "title" }).label("Slug"),
+		content: f.richText().label("Content"),
+		isPublished: f.boolean().default(false).label("Published"),
+		publishedAt: f.datetime().label("Published At"),
+	}))
+	.title(({ f }) => f.title);
 ```
 
 ### Configure the App
@@ -83,10 +83,10 @@ import { runtimeConfig } from "questpie";
 import { adminPlugin } from "@questpie/admin/plugin";
 
 export default runtimeConfig({
-  plugins: [adminPlugin()],
-  app: { url: process.env.APP_URL! },
-  db: { url: process.env.DATABASE_URL! },
-  secret: process.env.AUTH_SECRET!,
+	plugins: [adminPlugin()],
+	app: { url: process.env.APP_URL! },
+	db: { url: process.env.DATABASE_URL! },
+	secret: process.env.AUTH_SECRET!,
 });
 ```
 
@@ -136,10 +136,10 @@ import { questpieNextRouteHandlers } from "@questpie/next";
 import { app } from "#questpie";
 
 export const { GET, POST, PUT, PATCH, DELETE } = questpieNextRouteHandlers(
-  app,
-  {
-    basePath: "/api",
-  },
+	app,
+	{
+		basePath: "/api",
+	},
 );
 
 export const dynamic = "force-dynamic";
@@ -162,10 +162,10 @@ import { runtimeConfig } from "questpie";
 import { adminPlugin } from "@questpie/admin/plugin";
 
 export default runtimeConfig({
-  plugins: [adminPlugin()],
-  app: { url: process.env.APP_URL! },
-  db: { url: process.env.DATABASE_URL! },
-  secret: process.env.AUTH_SECRET!,
+	plugins: [adminPlugin()],
+	app: { url: process.env.APP_URL! },
+	db: { url: process.env.DATABASE_URL! },
+	secret: process.env.AUTH_SECRET!,
 });
 ```
 
@@ -177,6 +177,7 @@ export default [adminModule] as const;
 ```
 
 The `adminModule` automatically provides:
+
 - Auth collections (users, sessions, accounts, verifications, apikeys)
 - Assets collection with file upload support
 - Admin UI functions, views, and components
@@ -189,27 +190,27 @@ The `adminModule` automatically provides:
 ```typescript
 // Create
 const post = await app.api.collections.posts.create({
-  title: "Hello World",
-  slug: "hello-world",
+	title: "Hello World",
+	slug: "hello-world",
 });
 
 // Find many (paginated)
 const { docs, totalDocs } = await app.api.collections.posts.find({
-  where: { isPublished: true },
-  orderBy: { publishedAt: "desc" },
-  limit: 10,
+	where: { isPublished: true },
+	orderBy: { publishedAt: "desc" },
+	limit: 10,
 });
 
 // Find one
 const post = await app.api.collections.posts.findOne({
-  where: { slug: "hello-world" },
-  with: { author: true },
+	where: { slug: "hello-world" },
+	with: { author: true },
 });
 
 // Update
 await app.api.collections.posts.updateById({
-  id: post.id,
-  data: { title: "Updated Title" },
+	id: post.id,
+	data: { title: "Updated Title" },
 });
 
 // Delete
@@ -222,9 +223,9 @@ File uploads work automatically when `adminModule` is included (it provides the 
 
 ```typescript
 export default runtimeConfig({
-  plugins: [adminPlugin()],
-  db: { url: process.env.DATABASE_URL! },
-  storage: { basePath: "/api" },
+	plugins: [adminPlugin()],
+	db: { url: process.env.DATABASE_URL! },
+	storage: { basePath: "/api" },
 });
 
 // Upload via API: POST /api/assets/upload
@@ -239,15 +240,15 @@ const asset = await app.api.collections.assets.upload(file, context);
 import { collection } from "questpie";
 
 export const media = collection("media")
-  .fields(({ f }) => ({
-    alt: f.text().label("Alt Text"),
-    folder: f.text().label("Folder"),
-  }))
-  .upload({
-    visibility: "public",
-    maxSize: 10_000_000, // 10MB
-    allowedTypes: ["image/*", "application/pdf"],
-  });
+	.fields(({ f }) => ({
+		alt: f.text().label("Alt Text"),
+		folder: f.text().label("Folder"),
+	}))
+	.upload({
+		visibility: "public",
+		maxSize: 10_000_000, // 10MB
+		allowedTypes: ["image/*", "application/pdf"],
+	});
 
 // Upload via API: POST /api/media/upload
 // Serve files: GET /api/media/files/:key
@@ -262,10 +263,10 @@ Auth is configured via a standalone `auth.ts` file using the file convention:
 import type { AuthConfig } from "questpie";
 
 export default {
-  emailAndPassword: { enabled: true, requireEmailVerification: false },
-  baseURL: process.env.APP_URL,
-  basePath: "/api/auth",
-  secret: process.env.AUTH_SECRET,
+	emailAndPassword: { enabled: true, requireEmailVerification: false },
+	baseURL: process.env.APP_URL,
+	basePath: "/api/auth",
+	secret: process.env.AUTH_SECRET,
 } satisfies AuthConfig;
 ```
 
@@ -281,10 +282,10 @@ await app.auth.api.signIn.email({ email, password });
 import { z } from "zod";
 
 export default {
-  schema: z.object({ userId: z.string() }),
-  handler: async ({ data }) => {
-    console.log(`Sending email to ${data.userId}`);
-  },
+	schema: z.object({ userId: z.string() }),
+	handler: async ({ data }) => {
+		console.log(`Sending email to ${data.userId}`);
+	},
 };
 ```
 
@@ -294,11 +295,11 @@ Configure the queue adapter in your config:
 import { pgBossAdapter, runtimeConfig } from "questpie";
 
 export default runtimeConfig({
-  plugins: [adminPlugin()],
-  db: { url: process.env.DATABASE_URL! },
-  queue: {
-    adapter: pgBossAdapter({ connectionString: process.env.DATABASE_URL! }),
-  },
+	plugins: [adminPlugin()],
+	db: { url: process.env.DATABASE_URL! },
+	queue: {
+		adapter: pgBossAdapter({ connectionString: process.env.DATABASE_URL! }),
+	},
 });
 
 // Publish job (via the generated app instance)
@@ -314,15 +315,15 @@ Create reusable modules:
 import { module, collection } from "questpie";
 
 export const blogModule = module({
-  name: "blog",
-  collections: {
-    posts: collection("posts").fields(({ f }) => ({
-      title: f.text(255).required().label("Title"),
-    })),
-    categories: collection("categories").fields(({ f }) => ({
-      name: f.text(255).required().label("Name"),
-    })),
-  },
+	name: "blog",
+	collections: {
+		posts: collection("posts").fields(({ f }) => ({
+			title: f.text(255).required().label("Title"),
+		})),
+		categories: collection("categories").fields(({ f }) => ({
+			name: f.text(255).required().label("Name"),
+		})),
+	},
 });
 
 // modules.ts
@@ -341,28 +342,30 @@ The `@questpie/admin` package provides a config-driven admin interface. Admin me
 import { collection } from "questpie";
 
 export const posts = collection("posts")
-  .fields(({ f }) => ({
-    title: f.text(200).required().label("Title"),
-    content: f.richText().label("Content"),
-    status: f.select([
-      { value: "draft", label: "Draft" },
-      { value: "published", label: "Published" },
-    ]).label("Status"),
-  }))
-  .title(({ f }) => f.title)
-  .admin(({ c }) => ({
-    label: { en: "Blog Posts" },
-    icon: c.icon("ph:file-text"),
-  }))
-  .list(({ v, f }) => v.collectionTable({ columns: [f.title, f.status] }))
-  .form(({ v, f }) =>
-    v.collectionForm({
-      fields: [
-        { type: "section", label: "Content", fields: [f.title, f.content] },
-        { type: "section", label: "Publishing", fields: [f.status] },
-      ],
-    }),
-  );
+	.fields(({ f }) => ({
+		title: f.text(200).required().label("Title"),
+		content: f.richText().label("Content"),
+		status: f
+			.select([
+				{ value: "draft", label: "Draft" },
+				{ value: "published", label: "Published" },
+			])
+			.label("Status"),
+	}))
+	.title(({ f }) => f.title)
+	.admin(({ c }) => ({
+		label: { en: "Blog Posts" },
+		icon: c.icon("ph:file-text"),
+	}))
+	.list(({ v, f }) => v.collectionTable({ columns: [f.title, f.status] }))
+	.form(({ v, f }) =>
+		v.collectionForm({
+			fields: [
+				{ type: "section", label: "Content", fields: [f.title, f.content] },
+				{ type: "section", label: "Publishing", fields: [f.status] },
+			],
+		}),
+	);
 ```
 
 The client creates a typed admin builder and mounts the admin UI in React:
@@ -382,17 +385,17 @@ import { Admin, AdminLayoutProvider } from "@questpie/admin/client";
 const adminInstance = Admin.normalize(admin);
 
 function AdminLayout() {
-  return (
-    <AdminLayoutProvider
-      admin={adminInstance}
-      client={client}
-      queryClient={queryClient}
-      LinkComponent={Link}
-      basePath="/admin"
-    >
-      <Outlet />
-    </AdminLayoutProvider>
-  );
+	return (
+		<AdminLayoutProvider
+			admin={adminInstance}
+			client={client}
+			queryClient={queryClient}
+			LinkComponent={Link}
+			basePath="/admin"
+		>
+			<Outlet />
+		</AdminLayoutProvider>
+	);
 }
 ```
 

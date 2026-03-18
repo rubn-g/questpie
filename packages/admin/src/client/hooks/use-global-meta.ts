@@ -15,6 +15,7 @@ import {
 } from "@tanstack/react-query";
 import type { Questpie } from "questpie";
 import type { GlobalMeta } from "questpie/client";
+
 import type { RegisteredCMS, RegisteredGlobalNames } from "../builder/registry";
 import { selectClient, useAdminStore } from "../runtime";
 

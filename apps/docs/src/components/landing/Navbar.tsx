@@ -1,6 +1,7 @@
 import { Icon } from "@iconify/react";
 import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { cn } from "@/lib/utils";
 
@@ -36,7 +37,7 @@ export function Navbar() {
 			className={cn(
 				"fixed inset-x-0 top-0 z-50 border-b border-transparent transition-all duration-300",
 				isScrolled
-					? "bg-background/70 backdrop-blur-xl border-border/60 py-3"
+					? "bg-background/70 border-border/60 py-3 backdrop-blur-xl"
 					: "bg-transparent py-5",
 			)}
 		>
@@ -46,7 +47,7 @@ export function Navbar() {
 						<img
 							src="/symbol/Q-symbol-dark-pink.svg"
 							alt="QUESTPIE"
-							className="block h-8 w-auto dark:hidden sm:hidden"
+							className="block h-8 w-auto sm:hidden dark:hidden"
 						/>
 						<img
 							src="/symbol/Q-symbol-white-pink.svg"
@@ -56,7 +57,7 @@ export function Navbar() {
 						<img
 							src="/logo/Questpie-dark-pink.svg"
 							alt="QUESTPIE"
-							className="hidden h-6 w-auto dark:hidden sm:block"
+							className="hidden h-6 w-auto sm:block dark:hidden"
 						/>
 						<img
 							src="/logo/Questpie-white-pink.svg"
@@ -72,7 +73,7 @@ export function Navbar() {
 									key={item.label}
 									to={item.href}
 									params={item.params as never}
-									className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
+									className="text-muted-foreground hover:text-primary text-sm font-medium transition-colors"
 								>
 									{item.label}
 								</Link>
@@ -82,7 +83,7 @@ export function Navbar() {
 									href={item.href}
 									target="_blank"
 									rel="noreferrer"
-									className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
+									className="text-muted-foreground hover:text-primary text-sm font-medium transition-colors"
 								>
 									{item.label}
 								</a>
@@ -94,15 +95,19 @@ export function Navbar() {
 							target="_blank"
 							rel="noreferrer"
 							aria-label="QUESTPIE on GitHub"
-							className="text-muted-foreground transition-colors hover:text-foreground"
+							className="text-muted-foreground hover:text-foreground transition-colors"
 						>
-							<Icon icon="ph:github-logo" className="h-5 w-5" aria-hidden="true" />
+							<Icon
+								icon="ph:github-logo"
+								className="h-5 w-5"
+								aria-hidden="true"
+							/>
 						</a>
 						<ThemeToggle />
 						<Link
 							to="/docs/$"
 							params={{ _splat: "start-here/first-app" }}
-							className="inline-flex h-9 items-center justify-center border border-primary/30 bg-primary/10 px-4 font-mono text-[11px] font-medium uppercase tracking-wider text-primary transition-all hover:bg-primary/20"
+							className="border-primary/30 bg-primary/10 text-primary hover:bg-primary/20 inline-flex h-9 items-center justify-center border px-4 font-mono text-[11px] font-medium tracking-wider uppercase transition-all"
 						>
 							Build Platform
 						</Link>
@@ -110,7 +115,7 @@ export function Navbar() {
 
 					<button
 						type="button"
-						className="p-2 text-muted-foreground transition-colors hover:text-foreground md:hidden"
+						className="text-muted-foreground hover:text-foreground p-2 transition-colors md:hidden"
 						onClick={() => setIsMobileMenuOpen((v) => !v)}
 						aria-label="Toggle navigation"
 					>
@@ -123,11 +128,11 @@ export function Navbar() {
 				</nav>
 
 				{isMobileMenuOpen && (
-					<div className="animate-in slide-in-from-top-2 absolute left-0 right-0 top-full border-b border-border bg-background/95 p-4 backdrop-blur-xl duration-300 md:hidden">
+					<div className="animate-in slide-in-from-top-2 border-border bg-background/95 absolute top-full right-0 left-0 border-b p-4 backdrop-blur-xl duration-300 md:hidden">
 						<div className="flex flex-col gap-4">
 							<Link
 								to="/docs/$"
-								className="py-1 text-sm font-medium text-muted-foreground"
+								className="text-muted-foreground py-1 text-sm font-medium"
 								onClick={() => setIsMobileMenuOpen(false)}
 							>
 								Docs
@@ -135,7 +140,7 @@ export function Navbar() {
 							<Link
 								to="/docs/$"
 								params={{ _splat: "examples" }}
-								className="py-1 text-sm font-medium text-muted-foreground"
+								className="text-muted-foreground py-1 text-sm font-medium"
 								onClick={() => setIsMobileMenuOpen(false)}
 							>
 								Examples
@@ -144,12 +149,12 @@ export function Navbar() {
 								href="https://github.com/questpie/questpie/tree/main/examples"
 								target="_blank"
 								rel="noreferrer"
-								className="py-1 text-sm font-medium text-muted-foreground"
+								className="text-muted-foreground py-1 text-sm font-medium"
 								onClick={() => setIsMobileMenuOpen(false)}
 							>
 								Examples
 							</a>
-							<div className="my-1 h-px bg-border" />
+							<div className="bg-border my-1 h-px" />
 							<div className="flex items-center justify-between">
 								<div className="flex items-center gap-4">
 									<ThemeToggle />
@@ -157,16 +162,20 @@ export function Navbar() {
 										href="https://github.com/questpie/questpie"
 										target="_blank"
 										rel="noreferrer"
-										className="inline-flex items-center gap-2 text-sm text-muted-foreground"
+										className="text-muted-foreground inline-flex items-center gap-2 text-sm"
 									>
-										<Icon icon="ph:github-logo" className="h-5 w-5" aria-hidden="true" />
+										<Icon
+											icon="ph:github-logo"
+											className="h-5 w-5"
+											aria-hidden="true"
+										/>
 										GitHub
 									</a>
 								</div>
 								<Link
 									to="/docs/$"
 									params={{ _splat: "start-here/first-app" }}
-									className="inline-flex h-8 items-center justify-center border border-primary/30 bg-primary/10 px-3 font-mono text-[11px] uppercase tracking-wider text-primary"
+									className="border-primary/30 bg-primary/10 text-primary inline-flex h-8 items-center justify-center border px-3 font-mono text-[11px] tracking-wider uppercase"
 									onClick={() => setIsMobileMenuOpen(false)}
 								>
 									Build

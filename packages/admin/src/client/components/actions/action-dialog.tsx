@@ -18,6 +18,7 @@ import {
 	useForm,
 } from "react-hook-form";
 import { toast } from "sonner";
+
 import type { FieldDefinition } from "../../builder/field/field";
 import type {
 	ActionContext,
@@ -294,7 +295,7 @@ function CustomDialogContent<TItem>({
 			<div className="flex h-32 items-center justify-center">
 				<Icon
 					icon="ph:spinner-gap"
-					className="size-6 animate-spin text-muted-foreground"
+					className="text-muted-foreground size-6 animate-spin"
 				/>
 			</div>
 		);

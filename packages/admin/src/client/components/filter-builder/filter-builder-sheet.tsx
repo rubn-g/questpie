@@ -1,4 +1,5 @@
 import { useState } from "react";
+
 import { useTranslation } from "../../i18n/hooks.js";
 import { Button } from "../ui/button.js";
 import {
@@ -25,7 +26,10 @@ function arraysEqual<T>(a: T[], b: T[], eq: (x: T, y: T) => boolean): boolean {
 	return a.length === b.length && a.every((v, i) => eq(v, b[i]));
 }
 
-function filterValueEqual(a: FilterRule["value"], b: FilterRule["value"]): boolean {
+function filterValueEqual(
+	a: FilterRule["value"],
+	b: FilterRule["value"],
+): boolean {
 	if (a === b) return true;
 	if (Array.isArray(a) && Array.isArray(b)) {
 		return a.length === b.length && a.every((v, i) => v === b[i]);
@@ -34,11 +38,14 @@ function filterValueEqual(a: FilterRule["value"], b: FilterRule["value"]): boole
 }
 
 function filtersEqual(a: FilterRule[], b: FilterRule[]): boolean {
-	return arraysEqual(a, b, (x, y) =>
-		x.id === y.id &&
-		x.field === y.field &&
-		x.operator === y.operator &&
-		filterValueEqual(x.value, y.value),
+	return arraysEqual(
+		a,
+		b,
+		(x, y) =>
+			x.id === y.id &&
+			x.field === y.field &&
+			x.operator === y.operator &&
+			filterValueEqual(x.value, y.value),
 	);
 }
 
@@ -139,18 +146,18 @@ export function FilterBuilderSheet({
 		<Sheet open={isOpen} onOpenChange={onOpenChange}>
 			<SheetContent
 				side="right"
-				className="qa-filter-builder sm:max-w-md flex flex-col p-0"
+				className="qa-filter-builder flex flex-col p-0 sm:max-w-md"
 			>
 				<SheetHeader className="px-6 pt-6">
 					<SheetTitle>{t("viewOptions.title")}</SheetTitle>
 				</SheetHeader>
 
 				<div className="flex-1 overflow-y-auto px-6">
-					<div className="mt-4 rounded-md border border-border bg-muted px-3 py-2">
+					<div className="border-border bg-muted mt-4 rounded-md border px-3 py-2">
 						<div className="flex items-center justify-between gap-3">
 							<div>
 								<p className="text-sm font-medium">Realtime Updates</p>
-								<p className="text-xs text-muted-foreground">
+								<p className="text-muted-foreground text-xs">
 									Auto-refresh this table when data changes.
 								</p>
 							</div>
@@ -164,13 +171,13 @@ export function FilterBuilderSheet({
 					</div>
 
 					{supportsSoftDelete && (
-						<div className="mt-3 rounded-md border border-border bg-muted px-3 py-2">
+						<div className="border-border bg-muted mt-3 rounded-md border px-3 py-2">
 							<div className="flex items-center justify-between gap-3">
 								<div>
 									<p className="text-sm font-medium">
 										{t("viewOptions.showDeleted")}
 									</p>
-									<p className="text-xs text-muted-foreground">
+									<p className="text-muted-foreground text-xs">
 										{t("viewOptions.showDeletedDescription")}
 									</p>
 								</div>
@@ -192,7 +199,7 @@ export function FilterBuilderSheet({
 							<TabsTrigger value="filters" className="flex-1">
 								{t("viewOptions.filters")}
 								{localConfig.filters.length > 0 && (
-									<span className="ml-1.5 bg-primary text-primary-foreground text-xs px-1.5 py-0.5 rounded-full">
+									<span className="bg-primary text-primary-foreground ml-1.5 rounded-full px-1.5 py-0.5 text-xs">
 										{localConfig.filters.length}
 									</span>
 								)}
@@ -236,7 +243,7 @@ export function FilterBuilderSheet({
 					</Tabs>
 				</div>
 
-				<SheetFooter className="border-t px-6 py-4 mt-4">
+				<SheetFooter className="mt-4 border-t px-6 py-4">
 					<div className="flex w-full gap-2">
 						<Button
 							variant="outline"

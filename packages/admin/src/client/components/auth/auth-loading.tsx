@@ -6,6 +6,7 @@
  */
 
 import type * as React from "react";
+
 import { cn } from "../../lib/utils";
 import { Spinner } from "../ui/spinner";
 
@@ -56,9 +57,9 @@ export function AuthLoading({
 				className,
 			)}
 		>
-			<Spinner className="size-8 text-primary" />
+			<Spinner className="text-primary size-8" />
 			{showMessage && (
-				<p className="text-sm text-muted-foreground">{message}</p>
+				<p className="text-muted-foreground text-sm">{message}</p>
 			)}
 		</div>
 	);

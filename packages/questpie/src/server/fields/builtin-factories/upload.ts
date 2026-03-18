@@ -7,9 +7,10 @@
 
 import { type PgVarcharBuilder, varchar } from "drizzle-orm/pg-core";
 import { z } from "zod";
+
 import type { KnownCollectionNames } from "../../config/app-context.js";
-import { field } from "../field-class.js";
 import type { DefaultFieldState } from "../field-class-types.js";
+import { field } from "../field-class.js";
 import { belongsToOps, toManyOps } from "../operators/builtin.js";
 import type { ReferentialAction, RelationFieldMetadata } from "../types.js";
 

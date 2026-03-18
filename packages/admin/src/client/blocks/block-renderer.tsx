@@ -21,6 +21,7 @@
  */
 
 import type * as React from "react";
+
 import { BlockScopeProvider } from "../preview/block-scope-context.js";
 import type { BlockContent, BlockNode } from "./types";
 

@@ -1,4 +1,5 @@
 import pino from "pino";
+
 import type { LoggerAdapter, LoggerConfig } from "./types.js";
 
 export class PinoLoggerAdapter implements LoggerAdapter {

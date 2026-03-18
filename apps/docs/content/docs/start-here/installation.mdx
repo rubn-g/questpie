@@ -32,13 +32,13 @@ bun add @questpie/admin
 import { runtimeConfig } from "questpie";
 
 export default runtimeConfig({
-  app: {
-    url: process.env.APP_URL || "http://localhost:3000",
-  },
-  db: {
-    url: process.env.DATABASE_URL || "postgres://localhost/myapp",
-  },
-  secret: process.env.APP_SECRET || "change-me-in-production",
+	app: {
+		url: process.env.APP_URL || "http://localhost:3000",
+	},
+	db: {
+		url: process.env.DATABASE_URL || "postgres://localhost/myapp",
+	},
+	secret: process.env.APP_SECRET || "change-me-in-production",
 });
 ```
 
@@ -56,9 +56,9 @@ The CLI resolves this file at the project root to find your config.
 import { collection } from "#questpie";
 
 export default collection("posts").fields(({ f }) => ({
-  title: f.text().required(),
-  body: f.textarea(),
-  status: f.select(["draft", "published"]),
+	title: f.text().required(),
+	body: f.textarea(),
+	status: f.select(["draft", "published"]),
 }));
 ```
 
@@ -95,14 +95,14 @@ import { adminPlugin } from "@questpie/admin/plugin";
 import { runtimeConfig } from "questpie";
 
 export default runtimeConfig({
-  plugins: [adminPlugin()],
-  app: {
-    url: process.env.APP_URL || "http://localhost:3000",
-  },
-  db: {
-    url: process.env.DATABASE_URL,
-  },
-  secret: process.env.APP_SECRET,
+	plugins: [adminPlugin()],
+	app: {
+		url: process.env.APP_URL || "http://localhost:3000",
+	},
+	db: {
+		url: process.env.DATABASE_URL,
+	},
+	secret: process.env.APP_SECRET,
 });
 ```
 
@@ -124,11 +124,11 @@ bunx questpie generate
 
 QUESTPIE needs an HTTP adapter to serve your API. Choose one:
 
-| Adapter | Package | Use case |
-|---|---|---|
-| Hono | `@questpie/hono` | General purpose, fast |
-| Elysia | `@questpie/elysia` | Bun-native, validation |
-| Next.js | `@questpie/nextjs` | Next.js API routes |
+| Adapter | Package            | Use case               |
+| ------- | ------------------ | ---------------------- |
+| Hono    | `@questpie/hono`   | General purpose, fast  |
+| Elysia  | `@questpie/elysia` | Bun-native, validation |
+| Next.js | `@questpie/nextjs` | Next.js API routes     |
 
 ```ts title="API handler (Hono example)"
 import { createFetchHandler } from "questpie/adapters/hono";
@@ -146,22 +146,22 @@ import { app } from "#questpie";
 const handler = createFetchHandler(app, { basePath: "/api" });
 
 export const Route = createAPIFileRoute("/api/$")({
-  GET: ({ request }) => handler(request),
-  POST: ({ request }) => handler(request),
-  PATCH: ({ request }) => handler(request),
-  DELETE: ({ request }) => handler(request),
+	GET: ({ request }) => handler(request),
+	POST: ({ request }) => handler(request),
+	PATCH: ({ request }) => handler(request),
+	DELETE: ({ request }) => handler(request),
 });
 ```
 
 ## Environment Variables
 
-| Variable | Required | Description |
-|---|---|---|
-| `DATABASE_URL` | Yes | PostgreSQL connection string |
-| `APP_URL` | Yes | Public URL of your app |
-| `APP_SECRET` | Yes | Secret for auth sessions |
-| `SMTP_HOST` | No | Email SMTP host |
-| `SMTP_PORT` | No | Email SMTP port |
+| Variable       | Required | Description                  |
+| -------------- | -------- | ---------------------------- |
+| `DATABASE_URL` | Yes      | PostgreSQL connection string |
+| `APP_URL`      | Yes      | Public URL of your app       |
+| `APP_SECRET`   | Yes      | Secret for auth sessions     |
+| `SMTP_HOST`    | No       | Email SMTP host              |
+| `SMTP_PORT`    | No       | Email SMTP port              |
 
 ## What's Next
 

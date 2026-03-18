@@ -2,6 +2,7 @@ import type {
 	BackendMessageKey,
 	BackendTranslateFn,
 } from "#questpie/server/i18n/types.js";
+
 import type { ApiErrorCode } from "./codes.js";
 import { getHTTPStatusFromCode } from "./codes.js";
 import type {

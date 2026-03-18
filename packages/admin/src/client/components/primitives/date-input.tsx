@@ -4,6 +4,7 @@ import { Icon } from "@iconify/react";
 import { format } from "date-fns";
 import { useState } from "react";
 import { DayPicker } from "react-day-picker";
+
 import { useResolveText } from "../../i18n/hooks";
 import { cn } from "../../lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
@@ -60,9 +61,9 @@ export function DateInput({
 				disabled={disabled}
 				aria-invalid={ariaInvalid}
 				className={cn(
-					"qa-date-input flex h-9 w-full items-center justify-start gap-2 border border-border bg-input px-3 py-2 text-sm",
+					"qa-date-input border-border bg-input flex h-9 w-full items-center justify-start gap-2 border px-3 py-2 text-sm",
 					"hover:bg-accent hover:text-accent-foreground",
-					"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+					"focus-visible:ring-ring focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none",
 					"disabled:cursor-not-allowed disabled:opacity-50",
 					!value && "text-muted-foreground",
 					className,
@@ -98,12 +99,12 @@ export function DateInput({
 						caption_label: "text-sm font-medium",
 						nav: "absolute inset-x-0 top-0 flex items-center justify-between px-1",
 						button_previous: cn(
-							"size-8 flex items-center justify-center rounded-md",
-							"bg-transparent p-0 opacity-50 hover:opacity-100 hover:bg-accent",
+							"flex size-8 items-center justify-center rounded-md",
+							"hover:bg-accent bg-transparent p-0 opacity-50 hover:opacity-100",
 						),
 						button_next: cn(
-							"size-8 flex items-center justify-center rounded-md",
-							"bg-transparent p-0 opacity-50 hover:opacity-100 hover:bg-accent",
+							"flex size-8 items-center justify-center rounded-md",
+							"hover:bg-accent bg-transparent p-0 opacity-50 hover:opacity-100",
 						),
 						month_grid: "w-full border-collapse",
 						weekdays: "flex",
@@ -112,9 +113,9 @@ export function DateInput({
 						week: "flex w-full mt-2",
 						day: "relative p-0 text-center text-sm focus-within:relative focus-within:z-20 [&:has([aria-selected])]:bg-accent [&:has([aria-selected].day-outside)]:bg-accent",
 						day_button: cn(
-							"size-9 p-0 font-normal rounded-md",
+							"size-9 rounded-md p-0 font-normal",
 							"hover:bg-accent hover:text-accent-foreground",
-							"focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+							"focus-visible:ring-ring focus-visible:ring-2 focus-visible:ring-offset-2",
 						),
 						selected:
 							"bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground rounded-md",
@@ -204,9 +205,9 @@ export function DateTimeInput({
 				disabled={disabled}
 				aria-invalid={ariaInvalid}
 				className={cn(
-					"qa-datetime-input flex h-9 w-full items-center justify-start gap-2 border border-border bg-input px-3 py-2 text-sm",
+					"qa-datetime-input border-border bg-input flex h-9 w-full items-center justify-start gap-2 border px-3 py-2 text-sm",
 					"hover:bg-accent hover:text-accent-foreground",
-					"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+					"focus-visible:ring-ring focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none",
 					"disabled:cursor-not-allowed disabled:opacity-50",
 					!value && "text-muted-foreground",
 					className,
@@ -242,12 +243,12 @@ export function DateTimeInput({
 						caption_label: "text-sm font-medium",
 						nav: "absolute inset-x-0 top-0 flex items-center justify-between px-1",
 						button_previous: cn(
-							"size-8 flex items-center justify-center rounded-md",
-							"bg-transparent p-0 opacity-50 hover:opacity-100 hover:bg-accent",
+							"flex size-8 items-center justify-center rounded-md",
+							"hover:bg-accent bg-transparent p-0 opacity-50 hover:opacity-100",
 						),
 						button_next: cn(
-							"size-8 flex items-center justify-center rounded-md",
-							"bg-transparent p-0 opacity-50 hover:opacity-100 hover:bg-accent",
+							"flex size-8 items-center justify-center rounded-md",
+							"hover:bg-accent bg-transparent p-0 opacity-50 hover:opacity-100",
 						),
 						month_grid: "w-full border-collapse",
 						weekdays: "flex",
@@ -256,9 +257,9 @@ export function DateTimeInput({
 						week: "flex w-full mt-2",
 						day: "relative p-0 text-center text-sm focus-within:relative focus-within:z-20 [&:has([aria-selected])]:bg-accent [&:has([aria-selected].day-outside)]:bg-accent",
 						day_button: cn(
-							"size-9 p-0 font-normal rounded-md",
+							"size-9 rounded-md p-0 font-normal",
 							"hover:bg-accent hover:text-accent-foreground",
-							"focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+							"focus-visible:ring-ring focus-visible:ring-2 focus-visible:ring-offset-2",
 						),
 						selected:
 							"bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground rounded-md",
@@ -268,15 +269,15 @@ export function DateTimeInput({
 						hidden: "invisible",
 					}}
 				/>
-				<div className="border-t border-border p-3">
+				<div className="border-border border-t p-3">
 					<input
 						type="time"
 						step={precision === "second" ? 1 : 60}
 						value={timeValue}
 						onChange={handleTimeChange}
 						className={cn(
-							"flex h-9 w-full border border-border bg-input px-3 py-2 text-sm",
-							"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+							"border-border bg-input flex h-9 w-full border px-3 py-2 text-sm",
+							"focus-visible:ring-ring focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none",
 						)}
 					/>
 				</div>
@@ -340,9 +341,9 @@ function DateRangeInput({
 				disabled={disabled}
 				aria-invalid={ariaInvalid}
 				className={cn(
-					"qa-date-range-input flex h-9 w-full items-center justify-start gap-2 border border-border bg-input px-3 py-2 text-sm",
+					"qa-date-range-input border-border bg-input flex h-9 w-full items-center justify-start gap-2 border px-3 py-2 text-sm",
 					"hover:bg-accent hover:text-accent-foreground",
-					"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+					"focus-visible:ring-ring focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none",
 					"disabled:cursor-not-allowed disabled:opacity-50",
 					!value.start && !value.end && "text-muted-foreground",
 					className,
@@ -381,12 +382,12 @@ function DateRangeInput({
 						caption_label: "text-sm font-medium",
 						nav: "absolute inset-x-0 top-0 flex items-center justify-between px-1",
 						button_previous: cn(
-							"size-8 flex items-center justify-center rounded-md",
-							"bg-transparent p-0 opacity-50 hover:opacity-100 hover:bg-accent",
+							"flex size-8 items-center justify-center rounded-md",
+							"hover:bg-accent bg-transparent p-0 opacity-50 hover:opacity-100",
 						),
 						button_next: cn(
-							"size-8 flex items-center justify-center rounded-md",
-							"bg-transparent p-0 opacity-50 hover:opacity-100 hover:bg-accent",
+							"flex size-8 items-center justify-center rounded-md",
+							"hover:bg-accent bg-transparent p-0 opacity-50 hover:opacity-100",
 						),
 						month_grid: "w-full border-collapse",
 						weekdays: "flex",
@@ -395,9 +396,9 @@ function DateRangeInput({
 						week: "flex w-full mt-2",
 						day: "relative p-0 text-center text-sm focus-within:relative focus-within:z-20 [&:has([aria-selected])]:bg-accent [&:has([aria-selected].day-outside)]:bg-accent",
 						day_button: cn(
-							"size-9 p-0 font-normal rounded-md",
+							"size-9 rounded-md p-0 font-normal",
 							"hover:bg-accent hover:text-accent-foreground",
-							"focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+							"focus-visible:ring-ring focus-visible:ring-2 focus-visible:ring-offset-2",
 						),
 						selected:
 							"bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground rounded-md",

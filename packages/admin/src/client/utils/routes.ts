@@ -6,6 +6,7 @@
  */
 
 import type { QuestpieApp } from "questpie/client";
+
 import type { CollectionNames, GlobalNames, PageDefinition } from "../builder";
 import type { Admin } from "../builder/admin";
 

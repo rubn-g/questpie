@@ -1,5 +1,6 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+
 import type { SeedCategory } from "../../server/seed/types.js";
 import { loadQuestpieConfig } from "../config.js";
 import { resolveEntityRoot } from "./codegen.js";

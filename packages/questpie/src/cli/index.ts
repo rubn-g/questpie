@@ -1,13 +1,14 @@
 #!/usr/bin/env bun
 
 import { Command } from "commander";
+
 import { addCommand } from "./commands/add.js";
 import { devCommand, generateCommand } from "./commands/codegen.js";
 import { generateMigrationCommand } from "./commands/generate.js";
 import { pushCommand } from "./commands/push.js";
 import { runMigrationCommand } from "./commands/run.js";
-import { runSeedCommand } from "./commands/seed.js";
 import { generateSeedCommand } from "./commands/seed-generate.js";
+import { runSeedCommand } from "./commands/seed.js";
 
 const program = new Command();
 

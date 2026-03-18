@@ -14,6 +14,7 @@ import { Icon } from "@iconify/react";
 import { useQueryClient } from "@tanstack/react-query";
 import type { Table } from "@tanstack/react-table";
 import * as React from "react";
+
 import type {
 	ActionContext,
 	ActionDefinition,
@@ -319,18 +320,18 @@ export function BulkActionToolbar<TItem = any>({
 	return (
 		<>
 			{/* Fixed toolbar at bottom of screen */}
-			<div className="qa-bulk-toolbar fixed bottom-6 left-1/2 -translate-x-1/2 z-50 animate-in slide-in-from-bottom-4 fade-in duration-200 max-w-[calc(100%-2rem)] sm:max-w-none">
-				<div className="qa-bulk-toolbar__bar flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 sm:py-2.5 bg-background border border-border shadow-lg rounded-full overflow-x-auto">
+			<div className="qa-bulk-toolbar animate-in slide-in-from-bottom-4 fade-in fixed bottom-6 left-1/2 z-50 max-w-[calc(100%-2rem)] -translate-x-1/2 duration-200 sm:max-w-none">
+				<div className="qa-bulk-toolbar__bar bg-background border-border flex items-center gap-2 overflow-x-auto rounded-full border px-3 py-2 shadow-lg sm:gap-3 sm:px-4 sm:py-2.5">
 					{/* Filter segment - shows when filters are active */}
 					{hasFilters && (
 						<>
-							<div className="flex items-center gap-2 shrink-0">
+							<div className="flex shrink-0 items-center gap-2">
 								{onOpenFilters ? (
 									<Button
 										variant="ghost"
 										size="sm"
 										onClick={onOpenFilters}
-										className="h-6 px-2 text-xs gap-2"
+										className="h-6 gap-2 px-2 text-xs"
 									>
 										<Icon
 											icon="ph:funnel-fill"
@@ -366,7 +367,7 @@ export function BulkActionToolbar<TItem = any>({
 							</div>
 
 							{/* Divider between filter and selection segments */}
-							{hasSelection && <div className="h-4 w-px bg-border shrink-0" />}
+							{hasSelection && <div className="bg-border h-4 w-px shrink-0" />}
 						</>
 					)}
 
@@ -374,12 +375,12 @@ export function BulkActionToolbar<TItem = any>({
 					{hasSelection && (
 						<>
 							{/* Selection count */}
-							<span className="text-sm font-medium whitespace-nowrap shrink-0">
+							<span className="shrink-0 text-sm font-medium whitespace-nowrap">
 								{t("collection.selected", { count: selectedCount })}
 							</span>
 
 							{/* Divider */}
-							<div className="h-4 w-px bg-border shrink-0" />
+							<div className="bg-border h-4 w-px shrink-0" />
 
 							{/* Select dropdown */}
 							<DropdownMenu>
@@ -388,7 +389,7 @@ export function BulkActionToolbar<TItem = any>({
 										<Button
 											variant="ghost"
 											size="sm"
-											className="gap-1 h-7 px-2 shrink-0"
+											className="h-7 shrink-0 gap-1 px-2"
 										/>
 									}
 									disabled={isSelectingAll}
@@ -427,7 +428,7 @@ export function BulkActionToolbar<TItem = any>({
 											<Button
 												variant="outline"
 												size="sm"
-												className="gap-1 h-7 px-2 shrink-0"
+												className="h-7 shrink-0 gap-1 px-2"
 											/>
 										}
 										disabled={isLoading}

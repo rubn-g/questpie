@@ -25,27 +25,27 @@ When no `.access()` is defined, all operations default to `({ session }) => !!se
 import { collection } from "questpie";
 
 export default collection("posts")
-  .fields(({ f }) => ({
-    title: f.text({ label: "Title", required: true }),
-    content: f.richText({ label: "Content" }),
-    author: f.relation({ to: "users" }),
-  }))
-  .access({
-    read: true,                                              // Public read
-    create: ({ session }) => !!session,                      // Authenticated
-    update: ({ session }) => session?.user?.role === "admin", // Admin only
-    delete: ({ session }) => session?.user?.role === "admin",
-  });
+	.fields(({ f }) => ({
+		title: f.text({ label: "Title", required: true }),
+		content: f.richText({ label: "Content" }),
+		author: f.relation({ to: "users" }),
+	}))
+	.access({
+		read: true, // Public read
+		create: ({ session }) => !!session, // Authenticated
+		update: ({ session }) => session?.user?.role === "admin", // Admin only
+		delete: ({ session }) => session?.user?.role === "admin",
+	});
 ```
 
 ### Operations
 
-| Operation | When checked                     |
-|-----------|----------------------------------|
-| `read`    | Listing and fetching records     |
-| `create`  | Creating new records             |
-| `update`  | Updating existing records        |
-| `delete`  | Deleting records                 |
+| Operation | When checked                 |
+| --------- | ---------------------------- |
+| `read`    | Listing and fetching records |
+| `create`  | Creating new records         |
+| `update`  | Updating existing records    |
+| `delete`  | Deleting records             |
 
 ### Global Access
 
@@ -56,14 +56,14 @@ Globals support `read` and `update` only (singletons have no create/delete):
 import { global } from "questpie";
 
 export default global("siteSettings")
-  .fields(({ f }) => ({
-    siteName: f.text({ label: "Site Name", required: true }),
-    logo: f.upload({ label: "Logo" }),
-  }))
-  .access({
-    read: true,
-    update: ({ session }) => session?.user?.role === "admin",
-  });
+	.fields(({ f }) => ({
+		siteName: f.text({ label: "Site Name", required: true }),
+		logo: f.upload({ label: "Logo" }),
+	}))
+	.access({
+		read: true,
+		update: ({ session }) => session?.user?.role === "admin",
+	});
 ```
 
 ### Row-Level Access (AccessWhere)
@@ -85,11 +85,11 @@ Return a where clause object instead of a boolean to restrict operations to matc
 
 Access functions receive `AppContext` with these properties:
 
-| Property      | Description                               |
-|---------------|-------------------------------------------|
-| `session`     | Current auth session (null if unauthed)   |
-| `db`          | Database instance                         |
-| `collections` | Typed collection API                      |
+| Property      | Description                             |
+| ------------- | --------------------------------------- |
+| `session`     | Current auth session (null if unauthed) |
+| `db`          | Database instance                       |
+| `collections` | Typed collection API                    |
 
 ### System Access Mode
 
@@ -137,71 +137,71 @@ beforeDelete --> Database Delete --> afterDelete
 import { collection } from "questpie";
 
 export default collection("appointments")
-  .fields(({ f }) => ({
-    customer: f.relation({ to: "users" }),
-    barber: f.relation({ to: "barbers" }),
-    service: f.relation({ to: "services" }),
-    scheduledAt: f.dateTime({ required: true }),
-    status: f.select({ options: ["pending", "confirmed", "cancelled"] }),
-    slug: f.text({ required: true, input: "optional" }),
-    name: f.text({ required: true }),
-  }))
-  .hooks({
-    beforeValidate: async (ctx) => {
-      if (ctx.data.name && !ctx.data.slug) {
-        ctx.data.slug = slugify(ctx.data.name);
-      }
-    },
+	.fields(({ f }) => ({
+		customer: f.relation({ to: "users" }),
+		barber: f.relation({ to: "barbers" }),
+		service: f.relation({ to: "services" }),
+		scheduledAt: f.dateTime({ required: true }),
+		status: f.select({ options: ["pending", "confirmed", "cancelled"] }),
+		slug: f.text({ required: true, input: "optional" }),
+		name: f.text({ required: true }),
+	}))
+	.hooks({
+		beforeValidate: async (ctx) => {
+			if (ctx.data.name && !ctx.data.slug) {
+				ctx.data.slug = slugify(ctx.data.name);
+			}
+		},
 
-    beforeChange: async ({ data, operation, original }) => {
-      if (operation === "create") {
-        // Set defaults on create
-      }
-      if (operation === "update" && original) {
-        // Compare with original data
-      }
-    },
+		beforeChange: async ({ data, operation, original }) => {
+			if (operation === "create") {
+				// Set defaults on create
+			}
+			if (operation === "update" && original) {
+				// Compare with original data
+			}
+		},
 
-    afterChange: async ({ data, operation, original, queue }) => {
-      if (operation === "create") {
-        await queue.sendAppointmentConfirmation.publish({
-          appointmentId: data.id,
-          customerId: data.customer,
-        });
-      }
-      if (operation === "update" && data.status === "cancelled") {
-        await queue.sendAppointmentCancellation.publish({
-          appointmentId: data.id,
-          customerId: data.customer,
-        });
-      }
-    },
+		afterChange: async ({ data, operation, original, queue }) => {
+			if (operation === "create") {
+				await queue.sendAppointmentConfirmation.publish({
+					appointmentId: data.id,
+					customerId: data.customer,
+				});
+			}
+			if (operation === "update" && data.status === "cancelled") {
+				await queue.sendAppointmentCancellation.publish({
+					appointmentId: data.id,
+					customerId: data.customer,
+				});
+			}
+		},
 
-    beforeDelete: async ({ id }) => {
-      // Prevent deletion or clean up
-    },
+		beforeDelete: async ({ id }) => {
+			// Prevent deletion or clean up
+		},
 
-    afterDelete: async ({ id }) => {
-      // Clean up related data
-    },
-  });
+		afterDelete: async ({ id }) => {
+			// Clean up related data
+		},
+	});
 ```
 
 ### Hook Context Properties
 
-| Property      | Available in                          | Description                        |
-|---------------|---------------------------------------|------------------------------------|
-| `data`        | beforeValidate, beforeChange, afterChange | The record data being written  |
-| `operation`   | beforeChange, afterChange             | `"create"` or `"update"`          |
-| `original`    | beforeChange, afterChange (update)    | Previous record state             |
-| `id`          | beforeDelete, afterDelete             | ID of record being deleted        |
-| `collections` | All hooks                             | Typed collection API              |
-| `globals`     | All hooks                             | Typed globals API                 |
-| `queue`       | All hooks                             | Queue client for publishing jobs  |
-| `email`       | All hooks                             | Email service                     |
-| `db`          | All hooks                             | Database instance                 |
-| `session`     | All hooks                             | Current auth session              |
-| `services`    | All hooks                             | Custom services from `services/`  |
+| Property      | Available in                              | Description                      |
+| ------------- | ----------------------------------------- | -------------------------------- |
+| `data`        | beforeValidate, beforeChange, afterChange | The record data being written    |
+| `operation`   | beforeChange, afterChange                 | `"create"` or `"update"`         |
+| `original`    | beforeChange, afterChange (update)        | Previous record state            |
+| `id`          | beforeDelete, afterDelete                 | ID of record being deleted       |
+| `collections` | All hooks                                 | Typed collection API             |
+| `globals`     | All hooks                                 | Typed globals API                |
+| `queue`       | All hooks                                 | Queue client for publishing jobs |
+| `email`       | All hooks                                 | Email service                    |
+| `db`          | All hooks                                 | Database instance                |
+| `session`     | All hooks                                 | Current auth session             |
+| `services`    | All hooks                                 | Custom services from `services/` |
 
 ### Context-First Pattern
 
@@ -248,14 +248,14 @@ Built-in constraints on field definitions generate Zod schemas automatically:
 }))
 ```
 
-| Constraint  | Fields             | Description              |
-|-------------|--------------------|--------------------------|
-| `required`  | All                | Field must have a value  |
-| `maxLength` | `text`, `textarea` | Maximum string length    |
-| `min`/`max` | `number`           | Numeric range            |
-| `maxItems`  | `array`            | Maximum array length     |
-| `mimeTypes` | `upload`           | Allowed file types       |
-| `maxSize`   | `upload`           | Max file size in bytes   |
+| Constraint  | Fields             | Description             |
+| ----------- | ------------------ | ----------------------- |
+| `required`  | All                | Field must have a value |
+| `maxLength` | `text`, `textarea` | Maximum string length   |
+| `min`/`max` | `number`           | Numeric range           |
+| `maxItems`  | `array`            | Maximum array length    |
+| `mimeTypes` | `upload`           | Allowed file types      |
+| `maxSize`   | `upload`           | Max file size in bytes  |
 
 ### Input Modifier
 

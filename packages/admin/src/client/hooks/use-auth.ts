@@ -35,9 +35,7 @@ import type { QuestpieApp } from "questpie/client";
  * Extract auth options type from app config
  */
 type ExtractAuthOptions<T extends QuestpieApp> =
-	T["auth"] extends BetterAuthOptions
-	? T["auth"]
-	: BetterAuthOptions;
+	T["auth"] extends BetterAuthOptions ? T["auth"] : BetterAuthOptions;
 
 /**
  * Options for creating admin auth client
@@ -194,7 +192,7 @@ export function useAuthClient<T = any>(): T {
 	if (!authClient) {
 		throw new Error(
 			"useAuthClient: authClient is not provided. " +
-			"Make sure to pass authClient to AdminProvider.",
+				"Make sure to pass authClient to AdminProvider.",
 		);
 	}
 	return authClient as T;

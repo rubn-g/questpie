@@ -12,6 +12,7 @@ import type { CollectionSchema } from "questpie";
 import type { QuestpieApp } from "questpie/client";
 import * as React from "react";
 import { useFormContext, useWatch } from "react-hook-form";
+
 import type {
 	ComponentRegistry,
 	FieldLayoutItem,
@@ -681,7 +682,7 @@ function SectionLayoutRenderer({
 					</h3>
 				)}
 				{section.description && (
-					<p className="text-sm text-muted-foreground mt-1">
+					<p className="text-muted-foreground mt-1 text-sm">
 						{resolveText(section.description, "", formValues)}
 					</p>
 				)}
@@ -699,7 +700,7 @@ function SectionLayoutRenderer({
 				defaultValue={defaultOpen ? [value] : []}
 				className="w-full"
 			>
-				<AccordionItem value={value} className="border rounded-lg px-4">
+				<AccordionItem value={value} className="rounded-lg border px-4">
 					<AccordionTrigger className="hover:no-underline">
 						<span className="font-semibold">
 							{resolveText(section.label, "Section", formValues)}
@@ -707,7 +708,7 @@ function SectionLayoutRenderer({
 					</AccordionTrigger>
 					<AccordionContent className="pt-2 pb-4">
 						{section.description && (
-							<p className="text-sm text-muted-foreground mb-4">
+							<p className="text-muted-foreground mb-4 text-sm">
 								{resolveText(section.description, "", formValues)}
 							</p>
 						)}
@@ -1057,11 +1058,11 @@ export function AutoFormFields<T extends QuestpieApp, K extends string>({
 					<aside
 						className={cn(
 							"qa-form-fields__sidebar",
-							"@2xl:border-l @max-2xl:border-b @max-2xl:pb-4 w-full border-border @2xl:pl-4",
+							"border-border w-full @max-2xl:border-b @max-2xl:pb-4 @2xl:border-l @2xl:pl-4",
 							"w-full @2xl:max-w-xs",
 						)}
 					>
-						<div className="space-y-4 @2xl:sticky @2xl:h-auto @2xl:top-4">
+						<div className="space-y-4 @2xl:sticky @2xl:top-4 @2xl:h-auto">
 							<SidebarRenderer
 								sidebar={formConfig.sidebar}
 								fields={fields}

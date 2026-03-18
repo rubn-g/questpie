@@ -1,6 +1,8 @@
 import { describe, expect, test } from "bun:test";
+
 import type { BetterAuthOptions } from "better-auth";
 import { admin, bearer } from "better-auth/plugins";
+
 import {
 	auth,
 	coreAuthOptions,

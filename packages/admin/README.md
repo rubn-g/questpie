@@ -27,10 +27,10 @@ import { runtimeConfig } from "questpie";
 import { adminPlugin } from "@questpie/admin/plugin";
 
 export default runtimeConfig({
-  plugins: [adminPlugin()],
-  app: { url: process.env.APP_URL! },
-  db: { url: process.env.DATABASE_URL! },
-  secret: process.env.AUTH_SECRET!,
+	plugins: [adminPlugin()],
+	app: { url: process.env.APP_URL! },
+	db: { url: process.env.DATABASE_URL! },
+	secret: process.env.AUTH_SECRET!,
 });
 ```
 
@@ -51,32 +51,35 @@ Admin metadata, list views, and form views are defined on the collection itself:
 
 ```ts
 const posts = collection("posts")
-  .fields(({ f }) => ({
-    title: f.text(255).required().label("Title"),
-    content: f.richText().label("Content"),
-    status: f.select(["draft", "published"]).label("Status"),
-    cover: f.upload({ to: "assets", mimeTypes: ["image/*"] }),
-    publishedAt: f.date(),
-  }))
-  .title(({ f }) => f.title)
-  .admin(({ c }) => ({
-    label: { en: "Blog Posts" },
-    icon: c.icon("ph:article"),
-  }))
-  .list(({ v, f }) =>
-    v.collectionTable({
-      columns: [f.title, f.status, f.publishedAt],
-    }),
-  )
-  .form(({ v, f }) =>
-    v.collectionForm({
-      layout: "with-sidebar",
-      sidebar: { position: "right", fields: [f.status, f.publishedAt, f.cover] },
-      fields: [
-        { type: "section", label: "Content", fields: [f.title, f.content] },
-      ],
-    }),
-  );
+	.fields(({ f }) => ({
+		title: f.text(255).required().label("Title"),
+		content: f.richText().label("Content"),
+		status: f.select(["draft", "published"]).label("Status"),
+		cover: f.upload({ to: "assets", mimeTypes: ["image/*"] }),
+		publishedAt: f.date(),
+	}))
+	.title(({ f }) => f.title)
+	.admin(({ c }) => ({
+		label: { en: "Blog Posts" },
+		icon: c.icon("ph:article"),
+	}))
+	.list(({ v, f }) =>
+		v.collectionTable({
+			columns: [f.title, f.status, f.publishedAt],
+		}),
+	)
+	.form(({ v, f }) =>
+		v.collectionForm({
+			layout: "with-sidebar",
+			sidebar: {
+				position: "right",
+				fields: [f.status, f.publishedAt, f.cover],
+			},
+			fields: [
+				{ type: "section", label: "Content", fields: [f.title, f.content] },
+			],
+		}),
+	);
 ```
 
 ### Component References
@@ -182,13 +185,13 @@ import { createTypedHooks } from "@questpie/admin/client";
 import type { App } from "#questpie";
 
 export const {
-  useCollectionList,
-  useCollectionItem,
-  useCollectionCreate,
-  useCollectionUpdate,
-  useCollectionDelete,
-  useGlobal,
-  useGlobalUpdate,
+	useCollectionList,
+	useCollectionItem,
+	useCollectionCreate,
+	useCollectionUpdate,
+	useCollectionDelete,
+	useGlobal,
+	useGlobalUpdate,
 } = createTypedHooks<App>();
 ```
 
@@ -202,14 +205,14 @@ import { appClient } from "~/lib/client";
 import { queryClient } from "~/lib/query-client";
 
 export default function AdminRoute() {
-  return (
-    <AdminRouter
-      admin={admin}
-      client={client}
-      queryClient={queryClient}
-      basePath="/admin"
-    />
-  );
+	return (
+		<AdminRouter
+			admin={admin}
+			client={client}
+			queryClient={queryClient}
+			basePath="/admin"
+		/>
+	);
 }
 ```
 
@@ -230,17 +233,17 @@ The admin includes a full drag-and-drop block editor. Blocks are defined server-
 
 ```ts
 const heroBlock = block("hero")
-  .admin(({ c }) => ({
-    label: { en: "Hero Section" },
-    icon: c.icon("ph:image"),
-    category: { label: "Sections", icon: c.icon("ph:layout") },
-  }))
-  .fields(({ f }) => ({
-    title: f.text({ required: true }),
-    subtitle: f.textarea(),
-    backgroundImage: f.upload({ to: "assets", mimeTypes: ["image/*"] }),
-  }))
-  .prefetch({ with: { backgroundImage: true } });
+	.admin(({ c }) => ({
+		label: { en: "Hero Section" },
+		icon: c.icon("ph:image"),
+		category: { label: "Sections", icon: c.icon("ph:layout") },
+	}))
+	.fields(({ f }) => ({
+		title: f.text({ required: true }),
+		subtitle: f.textarea(),
+		backgroundImage: f.upload({ to: "assets", mimeTypes: ["image/*"] }),
+	}))
+	.prefetch({ with: { backgroundImage: true } });
 ```
 
 Render blocks on the client with `BlockRenderer`:
@@ -249,16 +252,16 @@ Render blocks on the client with `BlockRenderer`:
 import { BlockRenderer, createBlockRegistry } from "@questpie/admin/client";
 
 const registry = createBlockRegistry({
-  hero: ({ block }) => (
-    <section style={{ backgroundImage: `url(${block.backgroundImage?.url})` }}>
-      <h1>{block.title}</h1>
-      <p>{block.subtitle}</p>
-    </section>
-  ),
+	hero: ({ block }) => (
+		<section style={{ backgroundImage: `url(${block.backgroundImage?.url})` }}>
+			<h1>{block.title}</h1>
+			<p>{block.subtitle}</p>
+		</section>
+	),
 });
 
 function Page({ blocks }) {
-  return <BlockRenderer blocks={blocks} registry={registry} />;
+	return <BlockRenderer blocks={blocks} registry={registry} />;
 }
 ```
 
@@ -303,7 +306,14 @@ Legacy params (`history`, `viewOptions`, and `sidebar=preview`) are still read f
 
 ```ts
 // Client (React components, builder, hooks)
-import { qa, adminModule, AdminRouter, createTypedHooks, BlockRenderer, createBlockRegistry } from "@questpie/admin/client";
+import {
+	qa,
+	adminModule,
+	AdminRouter,
+	createTypedHooks,
+	BlockRenderer,
+	createBlockRegistry,
+} from "@questpie/admin/client";
 
 // Server (admin module + plugin for QUESTPIE config)
 import { adminModule, auditModule } from "@questpie/admin/server";

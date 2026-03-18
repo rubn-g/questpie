@@ -20,6 +20,7 @@ import {
 	useState,
 } from "react";
 import { createStore, useStore } from "zustand";
+
 // The admin client uses QuestpieClient<any> since the concrete App type
 // is project-specific and comes from .generated/index.ts at the app level.
 import { Admin, type AdminInput } from "../builder/admin";

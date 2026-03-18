@@ -20,12 +20,13 @@ import { adminPlugin } from "@questpie/admin/plugin";
 import { runtimeConfig } from "questpie";
 
 export default runtimeConfig({
-  plugins: [adminPlugin()],
-  // ...
+	plugins: [adminPlugin()],
+	// ...
 });
 ```
 
 When you add `adminPlugin()`, codegen starts looking for:
+
 - `sidebar.ts` — Admin sidebar configuration
 - `dashboard.ts` — Dashboard widgets
 - `branding.ts` — Admin branding
@@ -38,24 +39,24 @@ Without the plugin, these files are ignored.
 
 The core framework discovers these categories by default:
 
-| Category | Pattern |
-|---|---|
+| Category       | Pattern                |
+| -------------- | ---------------------- |
 | `collections/` | Collection definitions |
-| `globals/` | Global definitions |
-| `jobs/` | Background jobs |
-| `routes/` | HTTP routes |
-| `services/` | Singleton services |
-| `emails/` | Email templates |
+| `globals/`     | Global definitions     |
+| `jobs/`        | Background jobs        |
+| `routes/`      | HTTP routes            |
+| `services/`    | Singleton services     |
+| `emails/`      | Email templates        |
 
 The admin plugin adds:
 
-| Category | Pattern |
-|---|---|
-| `blocks/` | Content blocks |
-| `sidebar.ts` | Sidebar config |
-| `dashboard.ts` | Dashboard config |
-| `branding.ts` | Branding config |
-| `admin-locale.ts` | Admin UI locale |
+| Category          | Pattern          |
+| ----------------- | ---------------- |
+| `blocks/`         | Content blocks   |
+| `sidebar.ts`      | Sidebar config   |
+| `dashboard.ts`    | Dashboard config |
+| `branding.ts`     | Branding config  |
+| `admin-locale.ts` | Admin UI locale  |
 
 ## CodegenPlugin Interface
 
@@ -63,25 +64,25 @@ Plugins implement the `CodegenPlugin` interface:
 
 ```ts
 interface CodegenPlugin {
-  name: string;
+	name: string;
 
-  // File categories to discover
-  categories?: Record<string, CategoryDeclaration>;
+	// File categories to discover
+	categories?: Record<string, CategoryDeclaration>;
 
-  // Builder method extensions
-  extensions?: {
-    collection?: ExtensionDeclaration;
-    global?: ExtensionDeclaration;
-  };
+	// Builder method extensions
+	extensions?: {
+		collection?: ExtensionDeclaration;
+		global?: ExtensionDeclaration;
+	};
 
-  // Module-level registries
-  moduleRegistries?: Record<string, ModuleRegistryDeclaration>;
+	// Module-level registries
+	moduleRegistries?: Record<string, ModuleRegistryDeclaration>;
 
-  // Single-file factories
-  singletons?: Record<string, SingletonDeclaration>;
+	// Single-file factories
+	singletons?: Record<string, SingletonDeclaration>;
 
-  // Post-discovery transformation
-  transform?: (ctx: CodegenContext) => void;
+	// Post-discovery transformation
+	transform?: (ctx: CodegenContext) => void;
 }
 ```
 
@@ -101,15 +102,15 @@ categories: {
 }
 ```
 
-| Property | Description |
-|---|---|
-| `pattern` | Glob pattern for file discovery |
-| `cardinality` | `"map"` (key-value) or `"single"` (one value) |
-| `recursive` | Support nested directories |
-| `featureLayout` | Scan `features/*/` directories |
-| `mergeStrategy` | How to merge with module contributions |
-| `moduleContributionKey` | Property name on module objects |
-| `registryKey` | Type name in generated `Registry` |
+| Property                | Description                                   |
+| ----------------------- | --------------------------------------------- |
+| `pattern`               | Glob pattern for file discovery               |
+| `cardinality`           | `"map"` (key-value) or `"single"` (one value) |
+| `recursive`             | Support nested directories                    |
+| `featureLayout`         | Scan `features/*/` directories                |
+| `mergeStrategy`         | How to merge with module contributions        |
+| `moduleContributionKey` | Property name on module objects               |
+| `registryKey`           | Type name in generated `Registry`             |
 
 ## Three Levels in Action
 

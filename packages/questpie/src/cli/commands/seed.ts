@@ -1,5 +1,6 @@
 import { existsSync } from "node:fs";
 import { join } from "node:path";
+
 import { SeedRunner } from "../../server/seed/runner.js";
 import type { Seed, SeedCategory } from "../../server/seed/types.js";
 import { loadQuestpieConfig } from "../config.js";
@@ -37,11 +38,10 @@ export async function runSeedCommand(options: RunSeedOptions): Promise<void> {
 
 	// Get seeds from Questpie config
 	// Supports both flat array (new codegen) and legacy nested format { seeds: [...] }
-	const seeds: Seed[] = (
-		Array.isArray(app.config.seeds)
+	const seeds: Seed[] =
+		(Array.isArray(app.config.seeds)
 			? app.config.seeds
-			: app.config.seeds?.seeds
-	) || [];
+			: app.config.seeds?.seeds) || [];
 
 	if (seeds.length === 0 && options.action !== "reset") {
 		console.log("ℹ️  No seeds found");

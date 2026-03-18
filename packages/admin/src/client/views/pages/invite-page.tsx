@@ -6,12 +6,10 @@
  */
 
 import * as React from "react";
+
 import { useAuthClient } from "../../hooks/use-auth";
 import { useTranslation } from "../../i18n/hooks";
-import {
-	selectBrandName,
-	useAdminStore,
-} from "../../runtime/provider";
+import { selectBrandName, useAdminStore } from "../../runtime/provider";
 import { AuthLayout } from "../auth/auth-layout";
 import { InviteForm, type InviteFormValues } from "../auth/invite-form";
 

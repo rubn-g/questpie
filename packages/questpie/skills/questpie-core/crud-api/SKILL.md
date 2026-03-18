@@ -21,15 +21,15 @@ Inside any handler, `collections` and `globals` are injected via context. The cu
 import { route } from "questpie";
 
 export default route()
-  .get()
-  .handler(async ({ collections }) => {
-    const result = await collections.posts.find({
-      where: { status: "published" },
-      limit: 10,
-      orderBy: { createdAt: "desc" },
-    });
-    return result.docs;
-  });
+	.get()
+	.handler(async ({ collections }) => {
+		const result = await collections.posts.find({
+			where: { status: "published" },
+			limit: 10,
+			orderBy: { createdAt: "desc" },
+		});
+		return result.docs;
+	});
 ```
 
 ### 2. App Instance (scripts, seeds, external)
@@ -42,8 +42,8 @@ import { app } from "#questpie";
 const ctx = await app.createContext({ accessMode: "system", locale: "en" });
 
 const result = await app.api.collections.posts.find(
-  { where: { status: "published" }, limit: 10 },
-  ctx,
+	{ where: { status: "published" }, limit: 10 },
+	ctx,
 );
 ```
 
@@ -55,12 +55,12 @@ List documents with filtering, sorting, and pagination.
 
 ```ts
 const result = await collections.posts.find({
-  where: { status: "published", price: { gte: 1000 } },
-  orderBy: { createdAt: "desc" },
-  limit: 20,
-  offset: 0,
-  with: { author: true, category: true },
-  select: { title: true, status: true, createdAt: true },
+	where: { status: "published", price: { gte: 1000 } },
+	orderBy: { createdAt: "desc" },
+	limit: 20,
+	offset: 0,
+	with: { author: true, category: true },
+	select: { title: true, status: true, createdAt: true },
 });
 // result: { docs: T[], totalDocs: number }
 ```
@@ -73,8 +73,8 @@ Fetch a single document. Returns `null` if not found.
 
 ```ts
 const post = await collections.posts.findOne({
-  where: { slug: "hello-world" },
-  with: { author: true },
+	where: { slug: "hello-world" },
+	with: { author: true },
 });
 // post: T | null
 ```
@@ -85,10 +85,10 @@ Create a new document. Pass field values as a flat object.
 
 ```ts
 const post = await collections.posts.create({
-  title: "Hello World",
-  body: "Content here",
-  status: "draft",
-  author: "user-id-123",
+	title: "Hello World",
+	body: "Content here",
+	status: "draft",
+	author: "user-id-123",
 });
 // post: T (created record with id)
 ```
@@ -99,8 +99,8 @@ Update a document matching `where`. Pass changed fields in `data`.
 
 ```ts
 const updated = await collections.posts.update({
-  where: { id: "abc-123" },
-  data: { status: "published" },
+	where: { id: "abc-123" },
+	data: { status: "published" },
 });
 // updated: T (updated record)
 ```
@@ -111,7 +111,7 @@ Delete documents matching `where`.
 
 ```ts
 await collections.posts.delete({
-  where: { id: "abc-123" },
+	where: { id: "abc-123" },
 });
 ```
 
@@ -121,7 +121,7 @@ Count documents matching a filter.
 
 ```ts
 const total = await collections.posts.count({
-  where: { status: "published" },
+	where: { status: "published" },
 });
 // total: number
 ```
@@ -132,8 +132,8 @@ Bulk update all documents matching `where`.
 
 ```ts
 await collections.posts.updateMany({
-  where: { status: "draft" },
-  data: { status: "archived" },
+	where: { status: "draft" },
+	data: { status: "archived" },
 });
 ```
 
@@ -143,7 +143,7 @@ Bulk delete all documents matching `where`.
 
 ```ts
 await collections.posts.deleteMany({
-  where: { status: "archived" },
+	where: { status: "archived" },
 });
 ```
 
@@ -157,7 +157,7 @@ const settings = await globals.siteSettings.get({});
 
 // Update global
 const updated = await globals.siteSettings.update({
-  data: { siteName: "New Name" },
+	data: { siteName: "New Name" },
 });
 ```
 
@@ -165,7 +165,10 @@ Via app instance:
 
 ```ts
 const settings = await app.api.globals.siteSettings.get({}, ctx);
-await app.api.globals.siteSettings.update({ data: { siteName: "New Name" } }, ctx);
+await app.api.globals.siteSettings.update(
+	{ data: { siteName: "New Name" } },
+	ctx,
+);
 ```
 
 ## Query Operators
@@ -187,7 +190,9 @@ where: {
 All field types support direct equality:
 
 ```ts
-where: { status: "published" }
+where: {
+	status: "published";
+}
 // equivalent to: where: { status: { eq: "published" } }
 ```
 
@@ -197,7 +202,7 @@ Use `orderBy` with `"asc"` or `"desc"`:
 
 ```ts
 const result = await collections.posts.find({
-  orderBy: { createdAt: "desc" },
+	orderBy: { createdAt: "desc" },
 });
 ```
 
@@ -207,8 +212,8 @@ Use `limit` and `offset`:
 
 ```ts
 const page2 = await collections.posts.find({
-  limit: 20,
-  offset: 20,
+	limit: 20,
+	offset: 20,
 });
 // page2.totalDocs = total count across all pages
 ```
@@ -219,8 +224,8 @@ Relations are NOT populated by default. Use `with` to eager-load:
 
 ```ts
 const post = await collections.posts.findOne({
-  where: { id: "abc" },
-  with: { author: true, category: true },
+	where: { id: "abc" },
+	with: { author: true, category: true },
 });
 // post.author is now the full author object, not just an ID
 ```
@@ -229,7 +234,7 @@ Use `select` to pick specific fields:
 
 ```ts
 const posts = await collections.posts.find({
-  select: { title: true, status: true },
+	select: { title: true, status: true },
 });
 ```
 
@@ -241,12 +246,12 @@ Context is automatic. The current user's session determines access:
 
 ```ts
 export default route()
-  .get()
-  .handler(async ({ collections, session }) => {
-    // Access control is enforced based on session
-    const posts = await collections.posts.find({});
-    return posts;
-  });
+	.get()
+	.handler(async ({ collections, session }) => {
+		// Access control is enforced based on session
+		const posts = await collections.posts.find({});
+		return posts;
+	});
 ```
 
 ### In Scripts / Seeds
@@ -269,9 +274,14 @@ The client SDK mirrors server operations:
 const posts = await client.collections.posts.find({ limit: 10 });
 const post = await client.collections.posts.findOne({ where: { id: "abc" } });
 const created = await client.collections.posts.create({ title: "New" });
-const updated = await client.collections.posts.update({ id: "abc", data: { title: "Updated" } });
+const updated = await client.collections.posts.update({
+	id: "abc",
+	data: { title: "Updated" },
+});
 await client.collections.posts.delete({ id: "abc" });
-const count = await client.collections.posts.count({ where: { status: "draft" } });
+const count = await client.collections.posts.count({
+	where: { status: "draft" },
+});
 ```
 
 ### Upload (Client Only)
@@ -280,11 +290,11 @@ For upload collections:
 
 ```ts
 const asset = await client.collections.assets.upload(file, {
-  onProgress: (percent) => console.log(`${percent}%`),
+	onProgress: (percent) => console.log(`${percent}%`),
 });
 
 const assets = await client.collections.assets.uploadMany(files, {
-  onProgress: (percent) => console.log(`${percent}%`),
+	onProgress: (percent) => console.log(`${percent}%`),
 });
 ```
 
@@ -312,11 +322,11 @@ Inside handlers (route handlers, hooks, jobs), context is injected automatically
 ```ts
 // WRONG
 const posts = await collections.posts.find({});
-posts.forEach(p => console.log(p.title)); // TypeError
+posts.forEach((p) => console.log(p.title)); // TypeError
 
 // CORRECT
 const { docs, totalDocs } = await collections.posts.find({});
-docs.forEach(p => console.log(p.title));
+docs.forEach((p) => console.log(p.title));
 ```
 
 ### HIGH: Relations not populated
@@ -329,8 +339,8 @@ const post = await collections.posts.findOne({ where: { id: "abc" } });
 
 // Returns { author: { id: "user-id-123", name: "John", ... } }
 const post = await collections.posts.findOne({
-  where: { id: "abc" },
-  with: { author: true },
+	where: { id: "abc" },
+	with: { author: true },
 });
 ```
 
@@ -341,18 +351,18 @@ System mode bypasses all access control. Only use it in background jobs, seeds, 
 ```ts
 // WRONG -- in an HTTP route handler
 export default route()
-  .get()
-  .handler(async ({ app }) => {
-    const ctx = await app.createContext({ accessMode: "system" });
-    return app.api.collections.posts.find({}, ctx); // bypasses access control!
-  });
+	.get()
+	.handler(async ({ app }) => {
+		const ctx = await app.createContext({ accessMode: "system" });
+		return app.api.collections.posts.find({}, ctx); // bypasses access control!
+	});
 
 // CORRECT -- use injected collections (respects session access rules)
 export default route()
-  .get()
-  .handler(async ({ collections }) => {
-    return collections.posts.find({});
-  });
+	.get()
+	.handler(async ({ collections }) => {
+		return collections.posts.find({});
+	});
 ```
 
 ### MEDIUM: Wrong create() signature

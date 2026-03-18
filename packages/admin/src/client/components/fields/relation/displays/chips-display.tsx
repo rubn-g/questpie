@@ -4,6 +4,7 @@
 
 import { Icon } from "@iconify/react";
 import * as React from "react";
+
 import { useTranslation } from "../../../../i18n/hooks";
 import { CollectionEditLink } from "../../../admin-link";
 import { resolveIconElement } from "../../../component-renderer";
@@ -57,7 +58,7 @@ export function ChipsDisplay({
 					return (
 						<div
 							key={item.id}
-							className="inline-flex items-center gap-1 rounded-md border bg-secondary pl-2 pr-1 py-1"
+							className="bg-secondary inline-flex items-center gap-1 rounded-md border py-1 pr-1 pl-2"
 						>
 							{iconElement}
 							<span className="text-sm">{displayText}</span>

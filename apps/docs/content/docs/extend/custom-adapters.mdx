@@ -13,18 +13,18 @@ An adapter converts framework-specific requests to standard `Request` objects an
 import { createFetchHandler } from "questpie";
 
 export function createMyFrameworkAdapter(app, options) {
-  const handler = createFetchHandler(app, options);
+	const handler = createFetchHandler(app, options);
 
-  return async (frameworkRequest) => {
-    // Convert framework request to standard Request
-    const request = toStandardRequest(frameworkRequest);
+	return async (frameworkRequest) => {
+		// Convert framework request to standard Request
+		const request = toStandardRequest(frameworkRequest);
 
-    // Handle with QUESTPIE
-    const response = await handler(request);
+		// Handle with QUESTPIE
+		const response = await handler(request);
 
-    // Convert standard Response back to framework format
-    return toFrameworkResponse(response);
-  };
+		// Convert standard Response back to framework format
+		return toFrameworkResponse(response);
+	};
 }
 ```
 

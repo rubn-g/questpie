@@ -8,6 +8,7 @@
 import { Icon } from "@iconify/react";
 import * as React from "react";
 import { useFieldArray, useFormContext, useWatch } from "react-hook-form";
+
 import type { FieldInstance } from "../../builder/field/field";
 import { configureField } from "../../builder/field/field";
 import { useResolveText, useTranslation } from "../../i18n/hooks";
@@ -37,7 +38,8 @@ import { LocaleBadge } from "./locale-badge";
 // ============================================================================
 
 interface ObjectArrayFieldProps
-	extends BaseFieldProps,
+	extends
+		BaseFieldProps,
 		Pick<
 			ArrayFieldConfig,
 			| "item"
@@ -76,7 +78,7 @@ function ItemFieldRenderer({
 
 	if (!Component) {
 		return (
-			<div className="text-sm text-destructive">
+			<div className="text-destructive text-sm">
 				No component for field type: {fieldDef.name}
 			</div>
 		);
@@ -136,7 +138,7 @@ function ObjectArrayItemFields({
 	if (fieldEntries.length === 0) {
 		return (
 			<div className="rounded-lg border border-dashed p-4 text-center">
-				<p className="text-sm text-muted-foreground">
+				<p className="text-muted-foreground text-sm">
 					No fields configured for items.
 				</p>
 			</div>
@@ -303,7 +305,7 @@ export function ObjectArrayField({
 
 	const emptyState = (
 		<div className="rounded-lg border border-dashed p-4 text-center">
-			<p className="text-sm text-muted-foreground">
+			<p className="text-muted-foreground text-sm">
 				{resolvedPlaceholder || emptyLabel}
 			</p>
 		</div>
@@ -335,7 +337,7 @@ export function ObjectArrayField({
 						{resolvedLabel}
 						{required && <span className="text-destructive">*</span>}
 						{maxItems && (
-							<span className="ml-2 text-xs text-muted-foreground">
+							<span className="text-muted-foreground ml-2 text-xs">
 								({fields.length}/{maxItems})
 							</span>
 						)}
@@ -344,7 +346,7 @@ export function ObjectArrayField({
 				</div>
 			)}
 			{description && (
-				<p className="text-sm text-muted-foreground">
+				<p className="text-muted-foreground text-sm">
 					{resolveText(description)}
 				</p>
 			)}
@@ -361,11 +363,11 @@ export function ObjectArrayField({
 							return (
 								<div
 									key={field.id}
-									className="rounded-lg border border-border bg-card "
+									className="border-border bg-card rounded-lg border"
 								>
 									<div className="flex items-center justify-between border-b px-3 py-2">
 										<div className="flex items-center gap-2">
-											<span className="text-xs text-muted-foreground">
+											<span className="text-muted-foreground text-xs">
 												#{index + 1}
 											</span>
 											<span className="text-sm font-medium">{itemLabel}</span>

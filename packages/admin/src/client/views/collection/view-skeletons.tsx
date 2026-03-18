@@ -14,7 +14,7 @@ function TableSkeletonRow({ isLast = false }: { isLast?: boolean }) {
 			<Skeleton className="h-4 w-48" />
 			<Skeleton className="h-4 w-20" />
 			<Skeleton className="h-4 w-24" />
-			<Skeleton className="h-4 w-16 ml-auto" />
+			<Skeleton className="ml-auto h-4 w-16" />
 		</div>
 	);
 }
@@ -64,12 +64,12 @@ export function TableViewSkeleton() {
 				{/* Table */}
 				<div className="rounded-md border">
 					{/* Header row */}
-					<div className="flex items-center gap-4 p-4 border-b bg-muted">
+					<div className="bg-muted flex items-center gap-4 border-b p-4">
 						<Skeleton className="h-4 w-4" />
 						<Skeleton className="h-4 w-32" />
 						<Skeleton className="h-4 w-24" />
 						<Skeleton className="h-4 w-24" />
-						<Skeleton className="h-4 w-20 ml-auto" />
+						<Skeleton className="ml-auto h-4 w-20" />
 					</div>
 					{/* Data rows */}
 					<TableSkeletonRow />
@@ -131,7 +131,7 @@ function RichTextEditorSkeleton() {
 	return (
 		<div className="space-y-2">
 			{/* Toolbar */}
-			<div className="flex items-center gap-1 p-2 border rounded-t-md bg-muted">
+			<div className="bg-muted flex items-center gap-1 rounded-t-md border p-2">
 				<ToolbarIconSkeleton />
 				<ToolbarIconSkeleton />
 				<ToolbarIconSkeleton />
@@ -142,7 +142,7 @@ function RichTextEditorSkeleton() {
 				<ToolbarIconSkeleton />
 			</div>
 			{/* Content area */}
-			<div className="border border-t-0 rounded-b-md p-4 min-h-[200px]">
+			<div className="min-h-[200px] rounded-b-md border border-t-0 p-4">
 				<div className="space-y-2">
 					<ContentLineSkeleton width="w-full" />
 					<ContentLineSkeleton width="w-3/4" />

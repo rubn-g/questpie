@@ -79,18 +79,18 @@ beforeDelete → Database Delete → afterDelete
 
 Every hook receives the full `AppContext` via destructuring:
 
-| Property | Available in | Description |
-|---|---|---|
-| `data` | before/afterChange, beforeValidate | The record data being written |
-| `operation` | before/afterChange | `"create"` or `"update"` |
-| `original` | before/afterChange (update only) | Previous record state |
-| `id` | before/afterDelete | ID of record being deleted |
-| `collections` | All | Typed collection API |
-| `globals` | All | Typed globals API |
-| `queue` | All | Queue client for publishing jobs |
-| `email` | All | Email service |
-| `db` | All | Database instance |
-| `session` | All | Current auth session |
+| Property      | Available in                       | Description                      |
+| ------------- | ---------------------------------- | -------------------------------- |
+| `data`        | before/afterChange, beforeValidate | The record data being written    |
+| `operation`   | before/afterChange                 | `"create"` or `"update"`         |
+| `original`    | before/afterChange (update only)   | Previous record state            |
+| `id`          | before/afterDelete                 | ID of record being deleted       |
+| `collections` | All                                | Typed collection API             |
+| `globals`     | All                                | Typed globals API                |
+| `queue`       | All                                | Queue client for publishing jobs |
+| `email`       | All                                | Email service                    |
+| `db`          | All                                | Database instance                |
+| `session`     | All                                | Current auth session             |
 
 Plus any custom services defined in `services/`.
 

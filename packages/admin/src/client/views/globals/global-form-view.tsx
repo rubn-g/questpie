@@ -11,6 +11,7 @@ import { QuestpieClientError } from "questpie/client";
 import * as React from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { toast } from "sonner";
+
 import type {
 	ComponentRegistry,
 	FormViewConfig,
@@ -376,7 +377,13 @@ export default function GlobalFormView({
 				skipResetRef.current = false;
 			}
 		}
-	}, [contentLocale, form.formState.isDirty, localeChangeDialog.open, setContentLocale, form]);
+	}, [
+		contentLocale,
+		form.formState.isDirty,
+		localeChangeDialog.open,
+		setContentLocale,
+		form,
+	]);
 
 	const handleLocaleChangeConfirm = React.useCallback(() => {
 		skipResetRef.current = false;
@@ -523,14 +530,16 @@ export default function GlobalFormView({
 
 	if (dataError) {
 		return (
-			<div className="flex h-64 flex-col items-center justify-center gap-3 text-muted-foreground">
-				<Icon icon="ph:warning-circle" className="size-8 text-destructive" />
+			<div className="text-muted-foreground flex h-64 flex-col items-center justify-center gap-3">
+				<Icon icon="ph:warning-circle" className="text-destructive size-8" />
 				<p className="text-sm">
-					{dataError instanceof Error ? dataError.message : t("errors.failedToLoad")}
+					{dataError instanceof Error
+						? dataError.message
+						: t("errors.failedToLoad")}
 				</p>
 				<button
 					type="button"
-					className="text-sm underline hover:text-foreground"
+					className="hover:text-foreground text-sm underline"
 					onClick={() => window.location.reload()}
 				>
 					{t("common.retry")}
@@ -541,7 +550,7 @@ export default function GlobalFormView({
 
 	if (dataLoading) {
 		return (
-			<div className="flex h-64 items-center justify-center text-muted-foreground">
+			<div className="text-muted-foreground flex h-64 items-center justify-center">
 				<Icon icon="ph:spinner-gap" className="size-6 animate-spin" />
 			</div>
 		);
@@ -561,8 +570,8 @@ export default function GlobalFormView({
 				{/* Header - Title & Actions */}
 				<div className="qa-global-form__header flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
 					<div className="min-w-0 flex-1">
-						<div className="flex items-center gap-3 flex-wrap">
-							<h1 className="qa-global-form__title text-2xl md:text-3xl font-extrabold tracking-tight">
+						<div className="flex flex-wrap items-center gap-3">
+							<h1 className="qa-global-form__title text-2xl font-extrabold tracking-tight md:text-3xl">
 								{globalLabel}
 							</h1>
 							{localeOptions.length > 0 && (
@@ -582,13 +591,13 @@ export default function GlobalFormView({
 							)}
 						</div>
 						{showMeta && globalData?.updatedAt && (
-							<p className="qa-global-form__meta mt-1 text-xs text-muted-foreground">
+							<p className="qa-global-form__meta text-muted-foreground mt-1 text-xs">
 								{t("form.lastUpdated")}: {formatDate(globalData.updatedAt)}
 							</p>
 						)}
 					</div>
 
-					<div className="qa-global-form__actions flex items-center gap-2 shrink-0">
+					<div className="qa-global-form__actions flex shrink-0 items-center gap-2">
 						{headerActions}
 
 						{/* Workflow transition dropdown */}
@@ -732,7 +741,7 @@ export default function GlobalFormView({
 							/>
 							<Label
 								htmlFor="global-transition-schedule"
-								className="text-sm cursor-pointer"
+								className="cursor-pointer text-sm"
 							>
 								{t("workflow.scheduleLabel")}
 							</Label>
@@ -740,7 +749,7 @@ export default function GlobalFormView({
 
 						{transitionSchedule && (
 							<div className="space-y-1.5 pl-6">
-								<Label className="text-xs text-muted-foreground">
+								<Label className="text-muted-foreground text-xs">
 									{t("workflow.scheduledAt")}
 								</Label>
 								<DateTimeInput
@@ -748,7 +757,7 @@ export default function GlobalFormView({
 									onChange={setTransitionScheduledAt}
 									minDate={new Date()}
 								/>
-								<p className="text-xs text-muted-foreground">
+								<p className="text-muted-foreground text-xs">
 									{t("workflow.scheduledDescription")}
 								</p>
 							</div>
@@ -786,7 +795,7 @@ export default function GlobalFormView({
 					</DialogFooter>
 				</DialogContent>
 			</Dialog>
-		{/* Locale change confirmation dialog */}
+			{/* Locale change confirmation dialog */}
 			<Dialog
 				open={localeChangeDialog.open}
 				onOpenChange={(open) => !open && handleLocaleChangeCancel()}

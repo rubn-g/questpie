@@ -7,10 +7,12 @@
 
 "use client";
 
-import { createQuestpieQueryOptions } from "@questpie/tanstack-query";
 import { useQueryClient } from "@tanstack/react-query";
 import * as React from "react";
 import { toast } from "sonner";
+
+import { createQuestpieQueryOptions } from "@questpie/tanstack-query";
+
 import { getDefaultActionsConfig } from "../builder/types/action-registry";
 import type {
 	ActionContext,
@@ -475,7 +477,9 @@ function useActionExecution<TItem = any>({
 							}
 						} catch (err) {
 							helpers.toast.error(
-								err instanceof Error ? err.message : helpers.t("error.serverActionFailed"),
+								err instanceof Error
+									? err.message
+									: helpers.t("error.serverActionFailed"),
 							);
 						}
 						break;
@@ -483,7 +487,9 @@ function useActionExecution<TItem = any>({
 				}
 			} catch (error) {
 				helpers.toast.error(
-					error instanceof Error ? error.message : helpers.t("error.actionFailed"),
+					error instanceof Error
+						? error.message
+						: helpers.t("error.actionFailed"),
 				);
 			} finally {
 				setIsExecuting(false);

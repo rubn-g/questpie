@@ -210,7 +210,9 @@ export const createStorageRoutes = <
 					const match = rangeHeader.match(/bytes=(\d+)-(\d*)/);
 					if (match) {
 						const start = Number.parseInt(match[1], 10);
-						const end = match[2] ? Number.parseInt(match[2], 10) : totalSize - 1;
+						const end = match[2]
+							? Number.parseInt(match[2], 10)
+							: totalSize - 1;
 
 						if (start >= totalSize || end >= totalSize || start > end) {
 							return new Response(null, {

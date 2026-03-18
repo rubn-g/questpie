@@ -17,6 +17,7 @@
  */
 
 import { z } from "zod";
+
 import type { Questpie } from "#questpie/server/config/questpie.js";
 import { ApiError } from "#questpie/server/errors/base.js";
 import { job } from "#questpie/server/integrated/queue/job.js";
@@ -59,7 +60,9 @@ export const scheduledTransitionJob = job({
 	handler: async (ctx) => {
 		// Core-internal: cast to access services populated by extractAppServices at runtime
 		const { payload } = ctx;
-		const collections = (ctx as any).collections as Record<string, any> | undefined;
+		const collections = (ctx as any).collections as
+			| Record<string, any>
+			| undefined;
 		const globals = (ctx as any).globals as Record<string, any> | undefined;
 
 		if (payload.type === "collection") {

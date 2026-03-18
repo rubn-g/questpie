@@ -42,11 +42,11 @@ Shows all fields as columns with default rendering.
 )
 ```
 
-| Option | Type | Description |
-|---|---|---|
-| `columns` | `Field[]` | Fields to show as columns |
-| `searchableFields` | `Field[]` | Fields included in text search |
-| `defaultSort` | `{ field, direction }` | Default sort order |
+| Option             | Type                   | Description                    |
+| ------------------ | ---------------------- | ------------------------------ |
+| `columns`          | `Field[]`              | Fields to show as columns      |
+| `searchableFields` | `Field[]`              | Fields included in text search |
+| `defaultSort`      | `{ field, direction }` | Default sort order             |
 
 ## Form Views
 
@@ -85,14 +85,14 @@ Group fields into labeled sections with optional grid layout:
 )
 ```
 
-| Option | Type | Description |
-|---|---|---|
-| `type` | `"section"` | Required |
-| `label` | `string \| i18n` | Section heading |
-| `description` | `string \| i18n` | Section description |
-| `layout` | `"grid" \| "stack"` | Field layout |
-| `columns` | `number` | Grid columns (with `layout: "grid"`) |
-| `fields` | `Field[]` | Fields in this section |
+| Option        | Type                | Description                          |
+| ------------- | ------------------- | ------------------------------------ |
+| `type`        | `"section"`         | Required                             |
+| `label`       | `string \| i18n`    | Section heading                      |
+| `description` | `string \| i18n`    | Section description                  |
+| `layout`      | `"grid" \| "stack"` | Field layout                         |
+| `columns`     | `number`            | Grid columns (with `layout: "grid"`) |
+| `fields`      | `Field[]`           | Fields in this section               |
 
 ### Form Sidebar
 
@@ -130,11 +130,11 @@ Auto-compute values from other fields:
 }
 ```
 
-| Option | Type | Description |
-|---|---|---|
-| `handler` | `(ctx) => value` | Compute function |
-| `deps` | `(ctx) => any[]` | Reactive dependencies |
-| `debounce` | `number` | Debounce in milliseconds |
+| Option     | Type             | Description              |
+| ---------- | ---------------- | ------------------------ |
+| `handler`  | `(ctx) => value` | Compute function         |
+| `deps`     | `(ctx) => any[]` | Reactive dependencies    |
+| `debounce` | `number`         | Debounce in milliseconds |
 
 ### Conditional Visibility
 
@@ -175,23 +175,25 @@ Configure with `dashboard.ts`:
 import { dashboard } from "#questpie";
 
 export default dashboard({
-  title: { en: "Dashboard" },
-  description: { en: "Overview of your app" },
-  columns: 4,
-  actions: [
-    {
-      id: "new-post",
-      href: "/admin/collections/posts?create=true",
-      label: { en: "New Post" },
-      icon: { type: "icon", props: { name: "ph:plus" } },
-      variant: "primary",
-    },
-  ],
-  sections: [
-    { id: "today", label: { en: "Today" }, layout: "grid", columns: 4 },
-    { id: "business", label: { en: "Business" }, layout: "grid", columns: 4 },
-  ],
-  items: [ /* widget items — see widget types below */ ],
+	title: { en: "Dashboard" },
+	description: { en: "Overview of your app" },
+	columns: 4,
+	actions: [
+		{
+			id: "new-post",
+			href: "/admin/collections/posts?create=true",
+			label: { en: "New Post" },
+			icon: { type: "icon", props: { name: "ph:plus" } },
+			variant: "primary",
+		},
+	],
+	sections: [
+		{ id: "today", label: { en: "Today" }, layout: "grid", columns: 4 },
+		{ id: "business", label: { en: "Business" }, layout: "grid", columns: 4 },
+	],
+	items: [
+		/* widget items — see widget types below */
+	],
 });
 ```
 
@@ -310,34 +312,34 @@ Configure with `sidebar.ts`:
 import { sidebar } from "#questpie";
 
 export default sidebar({
-  sections: [
-    { id: "overview", title: { en: "Overview" } },
-    { id: "content", title: { en: "Content" } },
-    { id: "external", title: { en: "External" } },
-  ],
-  items: [
-    // Dashboard link
-    {
-      sectionId: "overview",
-      type: "link",
-      label: { en: "Dashboard" },
-      href: "/admin",
-      icon: { type: "icon", props: { name: "ph:house" } },
-    },
-    // Global settings
-    { sectionId: "overview", type: "global", global: "siteSettings" },
-    // Collection — label and icon from .admin() config
-    { sectionId: "content", type: "collection", collection: "posts" },
-    // External link
-    {
-      sectionId: "external",
-      type: "link",
-      label: { en: "Open Website" },
-      href: "/",
-      external: true,
-      icon: { type: "icon", props: { name: "ph:arrow-square-out" } },
-    },
-  ],
+	sections: [
+		{ id: "overview", title: { en: "Overview" } },
+		{ id: "content", title: { en: "Content" } },
+		{ id: "external", title: { en: "External" } },
+	],
+	items: [
+		// Dashboard link
+		{
+			sectionId: "overview",
+			type: "link",
+			label: { en: "Dashboard" },
+			href: "/admin",
+			icon: { type: "icon", props: { name: "ph:house" } },
+		},
+		// Global settings
+		{ sectionId: "overview", type: "global", global: "siteSettings" },
+		// Collection — label and icon from .admin() config
+		{ sectionId: "content", type: "collection", collection: "posts" },
+		// External link
+		{
+			sectionId: "external",
+			type: "link",
+			label: { en: "Open Website" },
+			href: "/",
+			external: true,
+			icon: { type: "icon", props: { name: "ph:arrow-square-out" } },
+		},
+	],
 });
 ```
 
@@ -349,14 +351,14 @@ Modules contribute sidebar items automatically. `adminModule` adds "Administrati
 
 Filters are auto-generated from field definitions:
 
-| Field Type | Filter Operators |
-|---|---|
-| `text` | Contains, equals, starts with, ends with |
-| `number` | Equals, greater than, less than, between |
-| `boolean` | Is true, is false |
-| `select` | Is, is not, in |
-| `date` / `datetime` | Before, after, between |
-| `relation` | Is (picker) |
+| Field Type          | Filter Operators                         |
+| ------------------- | ---------------------------------------- |
+| `text`              | Contains, equals, starts with, ends with |
+| `number`            | Equals, greater than, less than, between |
+| `boolean`           | Is true, is false                        |
+| `select`            | Is, is not, in                           |
+| `date` / `datetime` | Before, after, between                   |
+| `relation`          | Is (picker)                              |
 
 Users can save filter + sort + column combinations as named views.
 
@@ -368,10 +370,10 @@ List views support multi-select. Check rows, then use the floating toolbar. Buil
 
 Click the clock icon in the form toolbar. Two tabs:
 
-| Tab | Shows | Requires |
-|---|---|---|
-| **Activity** | Audit log (create, update, delete, transition) | `auditModule` |
-| **Versions** | Full document snapshots with restore | `.versioning()` on collection |
+| Tab          | Shows                                          | Requires                      |
+| ------------ | ---------------------------------------------- | ----------------------------- |
+| **Activity** | Audit log (create, update, delete, transition) | `auditModule`                 |
+| **Versions** | Full document snapshots with restore           | `.versioning()` on collection |
 
 Enable versioning:
 

@@ -7,9 +7,8 @@
  */
 
 import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
-import {
-	createPostgresSearchAdapter,
-} from "./adapters/postgres.js";
+
+import { createPostgresSearchAdapter } from "./adapters/postgres.js";
 import type {
 	AdapterLogger,
 	IndexParams,
@@ -34,7 +33,7 @@ export class SearchServiceWrapper implements SearchService {
 		private adapter: SearchAdapter,
 		private db: PostgresJsDatabase<any>,
 		private logger: AdapterLogger,
-	) { }
+	) {}
 
 	/**
 	 * Initialize the adapter (called by QUESTPIE on startup)

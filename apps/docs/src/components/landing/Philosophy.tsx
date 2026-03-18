@@ -29,18 +29,18 @@ export { default as admin } from "./.generated/client"
 
 export function Philosophy() {
 	return (
-		<section className="py-24 border-t border-border/30 relative overflow-hidden">
+		<section className="border-border/30 relative overflow-hidden border-t py-24">
 			{/* Background glows */}
-			<div className="absolute top-0 left-1/3 w-[400px] h-[400px] bg-primary/3 rounded-full blur-[150px]" />
-			<div className="absolute bottom-0 right-1/3 w-[300px] h-[300px] bg-primary/3 rounded-full blur-[120px]" />
+			<div className="bg-primary/3 absolute top-0 left-1/3 h-[400px] w-[400px] rounded-full blur-[150px]" />
+			<div className="bg-primary/3 absolute right-1/3 bottom-0 h-[300px] w-[300px] rounded-full blur-[120px]" />
 
-			<div className="w-full max-w-7xl mx-auto px-4 relative z-10">
+			<div className="relative z-10 mx-auto w-full max-w-7xl px-4">
 				{/* Header */}
-				<div className="text-center max-w-2xl mx-auto space-y-4 mb-16">
-					<h2 className="font-mono text-sm tracking-[0.2em] uppercase text-primary">
+				<div className="mx-auto mb-16 max-w-2xl space-y-4 text-center">
+					<h2 className="text-primary font-mono text-sm tracking-[0.2em] uppercase">
 						Architecture
 					</h2>
-					<h3 className="text-3xl md:text-4xl font-bold">
+					<h3 className="text-3xl font-bold md:text-4xl">
 						Server Owns the Truth. Client Just Renders.
 					</h3>
 					<p className="text-muted-foreground">
@@ -51,13 +51,13 @@ export function Philosophy() {
 				</div>
 
 				{/* Split code comparison */}
-				<div className="grid lg:grid-cols-2 gap-6 mb-12">
+				<div className="mb-12 grid gap-6 lg:grid-cols-2">
 					<div className="space-y-3">
 						<div className="flex items-center gap-2">
-							<span className="font-mono text-xs text-primary font-medium">
+							<span className="text-primary font-mono text-xs font-medium">
 								Server — collection() builder
 							</span>
-							<span className="text-sm text-muted-foreground">
+							<span className="text-muted-foreground text-sm">
 								— Schema + Admin + Access
 							</span>
 						</div>
@@ -66,10 +66,10 @@ export function Philosophy() {
 
 					<div className="space-y-3">
 						<div className="flex items-center gap-2">
-							<span className="font-mono text-xs text-primary font-medium">
+							<span className="text-primary font-mono text-xs font-medium">
 								Client — auto-generated
 							</span>
-							<span className="text-sm text-muted-foreground">
+							<span className="text-muted-foreground text-sm">
 								— Codegen output
 							</span>
 						</div>
@@ -78,7 +78,7 @@ export function Philosophy() {
 				</div>
 
 				{/* Benefits */}
-				<div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 text-sm">
+				<div className="grid gap-6 text-sm sm:grid-cols-2 lg:grid-cols-4">
 					{[
 						{
 							title: "Single source of truth",

@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it } from "bun:test";
+
 import { collection, global } from "../../src/server/index.js";
 import { buildMockApp } from "../utils/mocks/mock-app-builder";
 import { createTestContext } from "../utils/test-context";
@@ -13,7 +14,10 @@ const assets = collection("assets").fields(({ f }) => ({
 // Junction table for candle settings images
 const candleSettingsImages = collection("candle_settings_images").fields(
 	({ f }) => ({
-		candleSettings: f.relation("candle_settings").required().onDelete("cascade"),
+		candleSettings: f
+			.relation("candle_settings")
+			.required()
+			.onDelete("cascade"),
 		asset: f.relation("assets").required().onDelete("cascade"),
 		order: f.number().default(0),
 	}),
@@ -23,7 +27,11 @@ const candleSettingsImages = collection("candle_settings_images").fields(
 const candleSettings = global("candle_settings").fields(({ f }) => ({
 	pageTitle: f.text(255).required().default("Zapal svíčku"),
 	pageDescription: f.textarea().default("Test description"),
-	images: f.relation("assets").manyToMany({ through: "candle_settings_images", sourceField: "candleSettings", targetField: "asset" }),
+	images: f.relation("assets").manyToMany({
+		through: "candle_settings_images",
+		sourceField: "candleSettings",
+		targetField: "asset",
+	}),
 }));
 
 describe("global many-to-many relations", () => {

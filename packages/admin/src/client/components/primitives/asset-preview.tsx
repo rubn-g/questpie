@@ -16,6 +16,7 @@
 
 import { Icon } from "@iconify/react";
 import * as React from "react";
+
 import type { Asset } from "../../hooks/use-upload";
 import { cn } from "../../lib/utils";
 import { Button } from "../ui/button";
@@ -262,7 +263,7 @@ export function AssetPreview({
 					"group relative aspect-square overflow-hidden rounded-lg border",
 					"bg-muted border-border",
 					disabled && "opacity-60",
-					onClick && !disabled && "cursor-pointer hover:border-border",
+					onClick && !disabled && "hover:border-border cursor-pointer",
 					className,
 				)}
 				{...interactiveProps}
@@ -361,7 +362,7 @@ export function AssetPreview({
 						className,
 					)}
 				>
-					{showDragHandle && <Skeleton className="size-4 -ml-1 rounded" />}
+					{showDragHandle && <Skeleton className="-ml-1 size-4 rounded" />}
 					<Skeleton className="size-8 shrink-0 rounded" />
 					<div className="min-w-0 flex-1 space-y-1.5">
 						<Skeleton className="h-4 w-32 rounded" />
@@ -391,7 +392,7 @@ export function AssetPreview({
 					"group flex items-center gap-2 rounded-md border p-2",
 					"bg-muted border-border",
 					disabled && "opacity-60",
-					onClick && !disabled && "cursor-pointer hover:border-border",
+					onClick && !disabled && "hover:border-border cursor-pointer",
 					className,
 				)}
 				{...compactInteractiveProps}
@@ -529,7 +530,7 @@ export function AssetPreview({
 				"group relative overflow-hidden rounded-lg border",
 				"bg-muted border-border",
 				disabled && "opacity-60",
-				onClick && !disabled && "cursor-pointer hover:border-border",
+				onClick && !disabled && "hover:border-border cursor-pointer",
 				className,
 			)}
 			{...cardInteractiveProps}
@@ -538,7 +539,7 @@ export function AssetPreview({
 			{showDragHandle && (
 				<button
 					type="button"
-					className="text-muted-foreground hover:text-foreground absolute left-2 top-2 z-10 cursor-grab touch-none rounded p-1 active:cursor-grabbing"
+					className="text-muted-foreground hover:text-foreground absolute top-2 left-2 z-10 cursor-grab touch-none rounded p-1 active:cursor-grabbing"
 					{...dragHandleProps}
 				>
 					<Icon icon="ph:dots-six-vertical-bold" className="size-4" />
@@ -597,7 +598,7 @@ export function AssetPreview({
 						type="button"
 						variant="secondary"
 						size="icon-xs"
-						className="absolute right-2 top-2 opacity-0 transition-opacity group-hover:opacity-100"
+						className="absolute top-2 right-2 opacity-0 transition-opacity group-hover:opacity-100"
 						onClick={(e) => {
 							e.stopPropagation();
 							onRemove();

@@ -1,5 +1,6 @@
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+
 import type { BetterAuthOptions } from "better-auth";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
@@ -8,6 +9,7 @@ import { drizzle as drizzleBun } from "drizzle-orm/bun-sql";
 import type { PgTable } from "drizzle-orm/pg-core";
 import { drizzle as drizzlePgLite } from "drizzle-orm/pglite";
 import { DriveManager } from "flydrive";
+
 import {
 	type Collection,
 	CollectionBuilder,
@@ -61,6 +63,7 @@ import type {
 	AnyGlobal,
 	AnyGlobalBuilder,
 } from "#questpie/shared/type-utils.js";
+
 import type { GlobalHooksState } from "./global-hooks-types.js";
 import type { GetMessageKeys, QuestpieConfig } from "./types.js";
 
@@ -309,7 +312,7 @@ export class Questpie<TConfig extends QuestpieConfig = QuestpieConfig> {
 			const hmrKey = `__questpie_hmr_${config.app.url}`;
 			const existing = (globalThis as Record<string, unknown>)[hmrKey];
 			if (existing && typeof (existing as Questpie).destroy === "function") {
-				(existing as Questpie).destroy().catch(() => { });
+				(existing as Questpie).destroy().catch(() => {});
 			}
 			(globalThis as Record<string, unknown>)[hmrKey] = this;
 		}
@@ -420,8 +423,8 @@ export class Questpie<TConfig extends QuestpieConfig = QuestpieConfig> {
 				input instanceof ServiceBuilder
 					? input.state
 					: (((input as { state?: unknown }).state as
-						| Record<string, unknown>
-						| undefined) ?? (input as Record<string, unknown>));
+							| Record<string, unknown>
+							| undefined) ?? (input as Record<string, unknown>));
 
 			if (!state || typeof state !== "object") {
 				throw new Error(
@@ -832,18 +835,18 @@ export class Questpie<TConfig extends QuestpieConfig = QuestpieConfig> {
 					const isAfter = hookName.startsWith("after");
 					const wrapped = isAfter
 						? async (ctx: any) => {
-							try {
-								await globalFn({ ...ctx, collection: name });
-							} catch (err) {
-								this.logger.error(
-									`[QUESTPIE] Global collection hook "${hookName}" error for "${name}":`,
-									err,
-								);
+								try {
+									await globalFn({ ...ctx, collection: name });
+								} catch (err) {
+									this.logger.error(
+										`[QUESTPIE] Global collection hook "${hookName}" error for "${name}":`,
+										err,
+									);
+								}
 							}
-						}
 						: async (ctx: any) => {
-							await globalFn({ ...ctx, collection: name });
-						};
+								await globalFn({ ...ctx, collection: name });
+							};
 
 					appendHook(state.hooks, hookName, wrapped);
 				}
@@ -859,18 +862,18 @@ export class Questpie<TConfig extends QuestpieConfig = QuestpieConfig> {
 					const isAfter = hookName === "afterTransition";
 					const wrapped = isAfter
 						? async (ctx: any) => {
-							try {
-								await globalFn({ ...ctx, collection: name });
-							} catch (err) {
-								this.logger.error(
-									`[QUESTPIE] Global collection hook "${hookName}" error for "${name}":`,
-									err,
-								);
+								try {
+									await globalFn({ ...ctx, collection: name });
+								} catch (err) {
+									this.logger.error(
+										`[QUESTPIE] Global collection hook "${hookName}" error for "${name}":`,
+										err,
+									);
+								}
 							}
-						}
 						: async (ctx: any) => {
-							await globalFn({ ...ctx, collection: name });
-						};
+								await globalFn({ ...ctx, collection: name });
+							};
 
 					appendHook(state.hooks, hookName, wrapped);
 				}
@@ -894,18 +897,18 @@ export class Questpie<TConfig extends QuestpieConfig = QuestpieConfig> {
 					const isAfter = hookName === "afterChange";
 					const wrapped = isAfter
 						? async (ctx: any) => {
-							try {
-								await globalFn({ ...ctx, global: name });
-							} catch (err) {
-								this.logger.error(
-									`[QUESTPIE] Global global hook "${hookName}" error for "${name}":`,
-									err,
-								);
+								try {
+									await globalFn({ ...ctx, global: name });
+								} catch (err) {
+									this.logger.error(
+										`[QUESTPIE] Global global hook "${hookName}" error for "${name}":`,
+										err,
+									);
+								}
 							}
-						}
 						: async (ctx: any) => {
-							await globalFn({ ...ctx, global: name });
-						};
+								await globalFn({ ...ctx, global: name });
+							};
 
 					appendHook(state.hooks, hookName, wrapped);
 				}
@@ -921,18 +924,18 @@ export class Questpie<TConfig extends QuestpieConfig = QuestpieConfig> {
 					const isAfter = hookName === "afterTransition";
 					const wrapped = isAfter
 						? async (ctx: any) => {
-							try {
-								await globalFn({ ...ctx, global: name });
-							} catch (err) {
-								this.logger.error(
-									`[QUESTPIE] Global global hook "${hookName}" error for "${name}":`,
-									err,
-								);
+								try {
+									await globalFn({ ...ctx, global: name });
+								} catch (err) {
+									this.logger.error(
+										`[QUESTPIE] Global global hook "${hookName}" error for "${name}":`,
+										err,
+									);
+								}
 							}
-						}
 						: async (ctx: any) => {
-							await globalFn({ ...ctx, global: name });
-						};
+								await globalFn({ ...ctx, global: name });
+							};
 
 					appendHook(state.hooks, hookName, wrapped);
 				}
@@ -966,14 +969,14 @@ export class Questpie<TConfig extends QuestpieConfig = QuestpieConfig> {
 				) {
 					errors.push(
 						`Collection "${collectionKey}" has relation "${relationName}" pointing to unknown target "${relation.collection}". ` +
-						`Available collections/globals: ${relationTargetKeys.join(", ")}`,
+							`Available collections/globals: ${relationTargetKeys.join(", ")}`,
 					);
 				}
 				// Validate through/junction collection for many-to-many
 				if (relation.through && !collectionKeys.includes(relation.through)) {
 					errors.push(
 						`Collection "${collectionKey}" has relation "${relationName}" with "through: ${relation.through}" pointing to unknown collection. ` +
-						`Did you mean one of: ${collectionKeys.join(", ")}?`,
+							`Did you mean one of: ${collectionKeys.join(", ")}?`,
 					);
 				}
 			}
@@ -993,14 +996,14 @@ export class Questpie<TConfig extends QuestpieConfig = QuestpieConfig> {
 				) {
 					errors.push(
 						`Global "${globalKey}" has relation "${relationName}" pointing to unknown target "${relation.collection}". ` +
-						`Available collections/globals: ${relationTargetKeys.join(", ")}`,
+							`Available collections/globals: ${relationTargetKeys.join(", ")}`,
 					);
 				}
 				// Validate through/junction collection for many-to-many
 				if (relation.through && !collectionKeys.includes(relation.through)) {
 					errors.push(
 						`Global "${globalKey}" has relation "${relationName}" with "through: ${relation.through}" pointing to unknown collection. ` +
-						`Did you mean one of: ${collectionKeys.join(", ")}?`,
+							`Did you mean one of: ${collectionKeys.join(", ")}?`,
 					);
 				}
 			}
@@ -1018,8 +1021,8 @@ export class Questpie<TConfig extends QuestpieConfig = QuestpieConfig> {
 	): TConfig["collections"][TName] extends Collection<infer TState>
 		? Collection<TState>
 		: TConfig["collections"][TName] extends CollectionBuilder<infer TState>
-		? Collection<TState>
-		: never {
+			? Collection<TState>
+			: never {
 		const collection = this._collections[name as string];
 		if (!collection) {
 			throw new Error(`Collection "${String(name)}" not found.`);
@@ -1032,8 +1035,8 @@ export class Questpie<TConfig extends QuestpieConfig = QuestpieConfig> {
 	): NonNullable<TConfig["globals"]>[TName] extends Global<infer TState>
 		? Global<TState>
 		: NonNullable<TConfig["globals"]>[TName] extends GlobalBuilder<infer TState>
-		? Global<TState>
-		: never {
+			? Global<TState>
+			: never {
 		const global = this._globals[name as string];
 		if (!global) {
 			throw new Error(`Global "${String(name)}" not found.`);
@@ -1108,10 +1111,10 @@ export class Questpie<TConfig extends QuestpieConfig = QuestpieConfig> {
 		[K in keyof TConfig["collections"]]: TConfig["collections"][K] extends Collection<
 			infer TState
 		>
-		? Collection<TState>
-		: TConfig["collections"][K] extends CollectionBuilder<infer TState>
-		? Collection<TState>
-		: never;
+			? Collection<TState>
+			: TConfig["collections"][K] extends CollectionBuilder<infer TState>
+				? Collection<TState>
+				: never;
 	} {
 		return this._collections as any;
 	}
@@ -1120,10 +1123,10 @@ export class Questpie<TConfig extends QuestpieConfig = QuestpieConfig> {
 		[K in keyof NonNullable<TConfig["globals"]>]: NonNullable<
 			TConfig["globals"]
 		>[K] extends Global<infer TState>
-		? Global<TState>
-		: NonNullable<TConfig["globals"]>[K] extends GlobalBuilder<infer TState>
-		? Global<TState>
-		: never;
+			? Global<TState>
+			: NonNullable<TConfig["globals"]>[K] extends GlobalBuilder<infer TState>
+				? Global<TState>
+				: never;
 	} {
 		return this._globals as any;
 	}

@@ -15,6 +15,7 @@
 
 import * as React from "react";
 import { useFormContext, useWatch } from "react-hook-form";
+
 import type { I18nText } from "../../i18n/types";
 import { cn } from "../../lib/utils";
 import { AssetThumbnail } from "../../views/collection/cells";

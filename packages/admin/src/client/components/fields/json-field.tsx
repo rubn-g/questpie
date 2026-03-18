@@ -11,6 +11,7 @@
 import { Icon } from "@iconify/react";
 import * as React from "react";
 import { Controller, useFormContext } from "react-hook-form";
+
 import { useResolveText, useTranslation } from "../../i18n/hooks";
 import { cn } from "../../lib/utils";
 import { Button } from "../ui/button";
@@ -329,7 +330,9 @@ function JsonCodeEditor({
 				<Textarea
 					value={localValue}
 					onChange={handleChange}
-					onBlur={() => { isEditingRef.current = false; }}
+					onBlur={() => {
+						isEditingRef.current = false;
+					}}
 					disabled={disabled}
 					readOnly={readOnly}
 					placeholder={placeholder}
@@ -347,7 +350,7 @@ function JsonCodeEditor({
 
 				{/* Parse error indicator */}
 				{parseError && (
-					<div className="text-destructive absolute right-2 top-2 flex items-center gap-1 text-xs">
+					<div className="text-destructive absolute top-2 right-2 flex items-center gap-1 text-xs">
 						<Icon icon="ph:warning-circle-fill" className="size-3" />
 						{parseError}
 					</div>

@@ -9,6 +9,7 @@
  */
 
 import * as React from "react";
+
 import { Badge } from "../../../components/ui/badge";
 import { useTranslation } from "../../../i18n/hooks";
 import { AssetThumbnail } from "./shared/asset-thumbnail";
@@ -66,12 +67,12 @@ function UploadManyCell({ value }: { value: unknown }) {
 							key={(asset.id as string) || index}
 							src={asset.url as string}
 							alt={(asset.filename as string) || "Asset"}
-							className="size-6 rounded border bg-background object-cover"
+							className="bg-background size-6 rounded border object-cover"
 						/>
 					))}
 				</div>
 				{remaining > 0 && (
-					<span className="text-xs text-muted-foreground ml-1">
+					<span className="text-muted-foreground ml-1 text-xs">
 						+{remaining}
 					</span>
 				)}
@@ -81,8 +82,6 @@ function UploadManyCell({ value }: { value: unknown }) {
 
 	// Show count badge for non-images
 	return (
-		<Badge variant="secondary">
-			{t("cell.file", { count: value.length })}
-		</Badge>
+		<Badge variant="secondary">{t("cell.file", { count: value.length })}</Badge>
 	);
 }

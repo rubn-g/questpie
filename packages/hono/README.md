@@ -15,8 +15,7 @@ import { Hono } from "hono";
 import { questpieHono } from "@questpie/hono";
 import { app } from "./questpie";
 
-const app = new Hono()
-  .route("/", questpieHono(app, { basePath: "/api" }));
+const app = new Hono().route("/", questpieHono(app, { basePath: "/api" }));
 
 export default { port: 3000, fetch: app.fetch };
 export type AppType = typeof app;
@@ -32,7 +31,7 @@ import type { AppType } from "./server";
 import type { App } from "./questpie";
 
 const client = createClientFromHono<AppType, App>({
-  baseURL: "http://localhost:3000",
+	baseURL: "http://localhost:3000",
 });
 
 // CRUD — fully typed
@@ -52,8 +51,8 @@ import { createClient } from "questpie/client";
 import type { App } from "./questpie";
 
 const client = createClient<App>({
-  baseURL: "http://localhost:3000",
-  basePath: "/api",
+	baseURL: "http://localhost:3000",
+	basePath: "/api",
 });
 ```
 

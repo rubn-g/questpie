@@ -21,6 +21,7 @@ cd my-app
 ```
 
 Options:
+
 - `-t, --template <name>` — template to use (default: `tanstack-start`)
 - `--no-install` — skip `bun install`
 - `--no-git` — skip git init
@@ -33,13 +34,13 @@ cp .env.example .env   # Set DATABASE_URL, APP_URL, APP_SECRET
 
 ### Required Environment Variables
 
-| Variable       | Required | Description                    |
-|----------------|----------|--------------------------------|
-| `DATABASE_URL` | Yes      | PostgreSQL connection string   |
-| `APP_URL`      | Yes      | Public URL of the app          |
-| `APP_SECRET`   | Yes      | Secret for auth sessions       |
-| `SMTP_HOST`    | No       | Email SMTP host                |
-| `SMTP_PORT`    | No       | Email SMTP port                |
+| Variable       | Required | Description                  |
+| -------------- | -------- | ---------------------------- |
+| `DATABASE_URL` | Yes      | PostgreSQL connection string |
+| `APP_URL`      | Yes      | Public URL of the app        |
+| `APP_SECRET`   | Yes      | Secret for auth sessions     |
+| `SMTP_HOST`    | No       | Email SMTP host              |
+| `SMTP_PORT`    | No       | Email SMTP port              |
 
 ---
 
@@ -81,16 +82,16 @@ my-app/
 
 Codegen discovers files by **directory name** and **default export**:
 
-| Directory       | Key derivation           | Example                                |
-|-----------------|--------------------------|----------------------------------------|
-| `collections/`  | Filename to camelCase    | `blog-posts.ts` -> `blogPosts`         |
-| `globals/`      | Filename to camelCase    | `site-settings.ts` -> `siteSettings`   |
+| Directory       | Key derivation             | Example                                |
+| --------------- | -------------------------- | -------------------------------------- |
+| `collections/`  | Filename to camelCase      | `blog-posts.ts` -> `blogPosts`         |
+| `globals/`      | Filename to camelCase      | `site-settings.ts` -> `siteSettings`   |
 | `routes/`       | Filename to camelCase/path | `create-booking.ts` -> `createBooking` |
-| `jobs/`         | Filename to camelCase    | `send-email.ts` -> `sendEmail`         |
-| `routes/` (raw) | Filename to path         | `webhook.ts` -> `webhook`              |
-| `services/`     | Filename to camelCase    | `blog.ts` -> `blog`                    |
-| `blocks/`       | Named exports            | `export const hero` -> `hero`          |
-| `emails/`       | Filename to camelCase    | `welcome.ts` -> `welcome`              |
+| `jobs/`         | Filename to camelCase      | `send-email.ts` -> `sendEmail`         |
+| `routes/` (raw) | Filename to path           | `webhook.ts` -> `webhook`              |
+| `services/`     | Filename to camelCase      | `blog.ts` -> `blog`                    |
+| `blocks/`       | Named exports              | `export const hero` -> `hero`          |
+| `emails/`       | Filename to camelCase      | `welcome.ts` -> `welcome`              |
 
 Routes support nested directories for namespacing (`routes/booking/create.ts` -> `client.routes.booking.create()`).
 
@@ -103,13 +104,13 @@ Routes support nested directories for namespacing (`routes/booking/create.ts` ->
 import { runtimeConfig } from "questpie";
 
 export default runtimeConfig({
-  app: {
-    url: process.env.APP_URL || "http://localhost:3000",
-  },
-  db: {
-    url: process.env.DATABASE_URL || "postgres://localhost/myapp",
-  },
-  secret: process.env.APP_SECRET || "change-me-in-production",
+	app: {
+		url: process.env.APP_URL || "http://localhost:3000",
+	},
+	db: {
+		url: process.env.DATABASE_URL || "postgres://localhost/myapp",
+	},
+	secret: process.env.APP_SECRET || "change-me-in-production",
 });
 ```
 
@@ -129,19 +130,20 @@ export { default } from "./src/questpie/server/questpie.config";
 import { collection } from "#questpie";
 
 export default collection("tasks").fields(({ f }) => ({
-  title: f.text({ required: true, maxLength: 255 }),
-  description: f.textarea(),
-  priority: f.select({
-    options: ["low", "medium", "high"],
-    default: "medium",
-    required: true,
-  }),
-  dueDate: f.date(),
-  completed: f.boolean({ default: false, required: true }),
+	title: f.text({ required: true, maxLength: 255 }),
+	description: f.textarea(),
+	priority: f.select({
+		options: ["low", "medium", "high"],
+		default: "medium",
+		required: true,
+	}),
+	dueDate: f.date(),
+	completed: f.boolean({ default: false, required: true }),
 }));
 ```
 
 This creates:
+
 - A `tasks` database table with typed columns
 - CRUD API endpoints at `/api/tasks`
 - Zod validation for create/update
@@ -161,17 +163,17 @@ import { route } from "questpie";
 import z from "zod";
 
 export default route()
-  .post()
-  .schema(z.object({}))
-  .handler(async ({ collections }) => {
-    return await collections.tasks.find({
-      where: {
-        completed: false,
-        dueDate: { lt: new Date() },
-      },
-      orderBy: { dueDate: "asc" },
-    });
-  });
+	.post()
+	.schema(z.object({}))
+	.handler(async ({ collections }) => {
+		return await collections.tasks.find({
+			where: {
+				completed: false,
+				dueDate: { lt: new Date() },
+			},
+			orderBy: { dueDate: "asc" },
+		});
+	});
 ```
 
 Typed JSON routes are exposed as flat endpoints at `/api/<route-path>`.
@@ -185,6 +187,7 @@ bunx questpie generate
 ```
 
 This scans your file convention directories and generates:
+
 - `src/questpie/server/.generated/index.ts` — `app` instance, `AppConfig` type
 - `src/questpie/server/.generated/module.ts` — merged module with all discovered entities
 - Module augmentation for `AppContext` (typed `collections`, `queue`, `email` in every handler)
@@ -239,10 +242,10 @@ import { app } from "#questpie";
 const handler = createFetchHandler(app, { basePath: "/api" });
 
 export const Route = createAPIFileRoute("/api/$")({
-  GET: ({ request }) => handler(request),
-  POST: ({ request }) => handler(request),
-  PATCH: ({ request }) => handler(request),
-  DELETE: ({ request }) => handler(request),
+	GET: ({ request }) => handler(request),
+	POST: ({ request }) => handler(request),
+	PATCH: ({ request }) => handler(request),
+	DELETE: ({ request }) => handler(request),
 });
 ```
 
@@ -257,12 +260,12 @@ export default createFetchHandler(app, { basePath: "/api" });
 
 ### Available Adapters
 
-| Adapter        | Package           | Use case              |
-|----------------|-------------------|-----------------------|
-| Hono           | `@questpie/hono`  | General purpose, fast |
-| Elysia         | `@questpie/elysia`| Bun-native            |
-| Next.js        | `@questpie/nextjs`| Next.js API routes    |
-| TanStack Start | (built-in)        | Generic fetch handler |
+| Adapter        | Package            | Use case              |
+| -------------- | ------------------ | --------------------- |
+| Hono           | `@questpie/hono`   | General purpose, fast |
+| Elysia         | `@questpie/elysia` | Bun-native            |
+| Next.js        | `@questpie/nextjs` | Next.js API routes    |
+| TanStack Start | (built-in)         | Generic fetch handler |
 
 ---
 
@@ -282,14 +285,14 @@ import { adminPlugin } from "@questpie/admin/plugin";
 import { runtimeConfig } from "questpie";
 
 export default runtimeConfig({
-  plugins: [adminPlugin()],
-  app: {
-    url: process.env.APP_URL || "http://localhost:3000",
-  },
-  db: {
-    url: process.env.DATABASE_URL,
-  },
-  secret: process.env.APP_SECRET,
+	plugins: [adminPlugin()],
+	app: {
+		url: process.env.APP_URL || "http://localhost:3000",
+	},
+	db: {
+		url: process.env.DATABASE_URL,
+	},
+	secret: process.env.APP_SECRET,
 });
 ```
 
@@ -322,8 +325,8 @@ import { createClient } from "questpie/client";
 import type { AppConfig } from "#questpie";
 
 export const client = createClient<AppConfig>({
-  baseURL: "http://localhost:3000",
-  basePath: "/api",
+	baseURL: "http://localhost:3000",
+	basePath: "/api",
 });
 ```
 
@@ -332,8 +335,8 @@ Usage with full type inference:
 ```ts
 // Typed collection queries — autocomplete on field names and operators
 const tasks = await client.collections.tasks.find({
-  where: { completed: false },
-  orderBy: { priority: "desc" },
+	where: { completed: false },
+	orderBy: { priority: "desc" },
 });
 
 // Call route
@@ -407,36 +410,40 @@ Framework route handlers should only mount the QUESTPIE fetch handler. Business 
 ```ts
 // WRONG — business logic in route file
 export const Route = createAPIFileRoute("/api/custom")({
-  POST: async ({ request }) => {
-    const db = getDB();
-    // ... manual queries
-  },
+	POST: async ({ request }) => {
+		const db = getDB();
+		// ... manual queries
+	},
 });
 
 // CORRECT — use a typed route
 // src/questpie/server/routes/my-logic.ts
 export default route()
-  .post()
-  .schema(z.object({ /* ... */ }))
-  .handler(async ({ input, collections }) => {
-    return await collections.tasks.create({ data: input });
-  });
+	.post()
+	.schema(
+		z.object({
+			/* ... */
+		}),
+	)
+	.handler(async ({ input, collections }) => {
+		return await collections.tasks.create({ data: input });
+	});
 ```
 
 ---
 
 ## Quick Reference: CLI Commands
 
-| Command                      | Purpose                                    |
-|------------------------------|--------------------------------------------|
-| `bun create questpie my-app` | Scaffold a new project                     |
-| `bunx questpie generate`    | Scan conventions, generate types and app   |
-| `bunx questpie push`        | Push schema to DB (dev only, no migrations)|
-| `bunx questpie migrate:generate` | Generate migration from schema diff   |
-| `bunx questpie migrate:up`  | Run pending migrations                     |
-| `bunx questpie migrate:down`| Rollback last migration                    |
-| `bunx questpie migrate:fresh`| Reset + run all migrations                |
-| `bun dev`                    | Start development server                   |
+| Command                          | Purpose                                     |
+| -------------------------------- | ------------------------------------------- |
+| `bun create questpie my-app`     | Scaffold a new project                      |
+| `bunx questpie generate`         | Scan conventions, generate types and app    |
+| `bunx questpie push`             | Push schema to DB (dev only, no migrations) |
+| `bunx questpie migrate:generate` | Generate migration from schema diff         |
+| `bunx questpie migrate:up`       | Run pending migrations                      |
+| `bunx questpie migrate:down`     | Rollback last migration                     |
+| `bunx questpie migrate:fresh`    | Reset + run all migrations                  |
+| `bun dev`                        | Start development server                    |
 
 ---
 
@@ -454,9 +461,9 @@ export { default } from "./src/questpie/server/questpie.config";
 import { runtimeConfig } from "questpie";
 
 export default runtimeConfig({
-  app: { url: process.env.APP_URL || "http://localhost:3000" },
-  db: { url: process.env.DATABASE_URL! },
-  secret: process.env.APP_SECRET || "dev-secret",
+	app: { url: process.env.APP_URL || "http://localhost:3000" },
+	db: { url: process.env.DATABASE_URL! },
+	secret: process.env.APP_SECRET || "dev-secret",
 });
 ```
 
@@ -465,9 +472,9 @@ export default runtimeConfig({
 import { collection } from "#questpie";
 
 export default collection("posts").fields(({ f }) => ({
-  title: f.text({ required: true }),
-  body: f.richText(),
-  status: f.select({ options: ["draft", "published"] }),
+	title: f.text({ required: true }),
+	body: f.richText(),
+	status: f.select({ options: ["draft", "published"] }),
 }));
 ```
 
@@ -480,10 +487,10 @@ import { app } from "#questpie";
 const handler = createFetchHandler(app, { basePath: "/api" });
 
 export const Route = createAPIFileRoute("/api/$")({
-  GET: ({ request }) => handler(request),
-  POST: ({ request }) => handler(request),
-  PATCH: ({ request }) => handler(request),
-  DELETE: ({ request }) => handler(request),
+	GET: ({ request }) => handler(request),
+	POST: ({ request }) => handler(request),
+	PATCH: ({ request }) => handler(request),
+	DELETE: ({ request }) => handler(request),
 });
 ```
 

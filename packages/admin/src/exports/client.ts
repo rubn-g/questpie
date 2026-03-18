@@ -288,11 +288,12 @@ export type GlobalNames<TApp extends QuestpieApp> = keyof NonNullable<
 export type CollectionItem<
 	TApp extends QuestpieApp,
 	TName extends CollectionNames<TApp>,
-> = Awaited<
-	ReturnType<QuestpieClient<any>["collections"][TName]["find"]>
-> extends { docs: Array<infer TItem> }
-	? TItem
-	: never;
+> =
+	Awaited<
+		ReturnType<QuestpieClient<any>["collections"][TName]["find"]>
+	> extends { docs: Array<infer TItem> }
+		? TItem
+		: never;
 
 /**
  * Extract field keys from a backend collection

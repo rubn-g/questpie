@@ -10,6 +10,7 @@
  */
 
 import type * as React from "react";
+
 import type { FieldInstance } from "../../builder/field/field";
 import type {
 	TableWidgetColumn,
@@ -189,7 +190,7 @@ export default function TableWidget({
 
 	// Empty state
 	const emptyContent = (
-		<div className="flex h-24 items-center justify-center text-muted-foreground">
+		<div className="text-muted-foreground flex h-24 items-center justify-center">
 			<p className="text-sm">
 				{emptyMessage ? resolveText(emptyMessage) : "No data available"}
 			</p>
@@ -203,7 +204,7 @@ export default function TableWidget({
 		) : (
 			<div className="-mx-5 -mb-1">
 				{/* Header */}
-				<div className="flex items-center gap-2 px-5 py-2 border-b border-border text-[10px] font-medium uppercase tracking-wider text-muted-foreground bg-muted ">
+				<div className="border-border text-muted-foreground bg-muted flex items-center gap-2 border-b px-5 py-2 text-[10px] font-medium tracking-wider uppercase">
 					{columns.map((column) => {
 						const fieldDef = fields?.[column.key];
 						const label = getColumnLabel(column, fieldDef);
@@ -212,7 +213,7 @@ export default function TableWidget({
 							<div
 								key={column.key}
 								className={cn(
-									"flex-1 min-w-0",
+									"min-w-0 flex-1",
 									column.align === "center" && "text-center",
 									column.align === "right" && "text-right",
 								)}
@@ -233,14 +234,14 @@ export default function TableWidget({
 						<button
 							key={item.id}
 							type="button"
-							className="flex w-full items-center gap-2 px-5 py-2.5 border-b border-border last:border-0 transition-all cursor-pointer hover:bg-muted text-left"
+							className="border-border hover:bg-muted flex w-full cursor-pointer items-center gap-2 border-b px-5 py-2.5 text-left transition-all last:border-0"
 							onClick={() => handleRowClick(item)}
 						>
 							{columns.map((column) => (
 								<div
 									key={column.key}
 									className={cn(
-										"flex-1 min-w-0 text-sm truncate",
+										"min-w-0 flex-1 truncate text-sm",
 										column.align === "center" && "text-center",
 										column.align === "right" && "text-right",
 									)}
@@ -261,13 +262,13 @@ export default function TableWidget({
 					) : (
 						<div
 							key={item.id}
-							className="flex items-center gap-2 px-5 py-2.5 border-b border-border last:border-0"
+							className="border-border flex items-center gap-2 border-b px-5 py-2.5 last:border-0"
 						>
 							{columns.map((column) => (
 								<div
 									key={column.key}
 									className={cn(
-										"flex-1 min-w-0 text-sm truncate",
+										"min-w-0 flex-1 truncate text-sm",
 										column.align === "center" && "text-center",
 										column.align === "right" && "text-right",
 									)}

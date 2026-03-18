@@ -12,6 +12,7 @@
 
 import { mkdir, writeFile } from "node:fs/promises";
 import { join, relative, resolve } from "node:path";
+
 import { discoverFiles } from "./discover.js";
 import { generateFactoryTemplate } from "./factory-template.js";
 import { generateModuleTemplate } from "./module-template.js";

@@ -28,37 +28,37 @@ A collection is a database-backed data model. Each collection file exports a bui
 import { collection } from "#questpie";
 
 export default collection("posts")
-  .fields(({ f }) => ({
-    title: f.text({ required: true, maxLength: 255 }),
-    body: f.richText({ localized: true }),
-    cover: f.upload({ to: "assets", mimeTypes: ["image/*"] }),
-    status: f.select({ options: ["draft", "published"], default: "draft" }),
-    publishedAt: f.date(),
-  }))
-  .title(({ f }) => f.title)
-  .admin(({ c }) => ({
-    label: { en: "Posts" },
-    icon: c.icon("ph:article"),
-  }))
-  .options({ timestamps: true, versioning: true });
+	.fields(({ f }) => ({
+		title: f.text({ required: true, maxLength: 255 }),
+		body: f.richText({ localized: true }),
+		cover: f.upload({ to: "assets", mimeTypes: ["image/*"] }),
+		status: f.select({ options: ["draft", "published"], default: "draft" }),
+		publishedAt: f.date(),
+	}))
+	.title(({ f }) => f.title)
+	.admin(({ c }) => ({
+		label: { en: "Posts" },
+		icon: c.icon("ph:article"),
+	}))
+	.options({ timestamps: true, versioning: true });
 ```
 
 ### Builder Chain Methods
 
-| Method | Purpose |
-|---|---|
-| `.fields(({ f }) => ({...}))` | Define data fields |
-| `.title(({ f }) => f.name)` | Record display title |
-| `.admin(({ c }) => ({...}))` | Admin UI metadata (label, icon, hidden) |
-| `.indexes(({ table }) => [...])` | Database indexes |
-| `.list(({ v, f }) => v.collectionTable({...}))` | List view config |
-| `.form(({ v, f }) => v.collectionForm({...}))` | Form view config |
-| `.hooks({...})` | Lifecycle hooks |
-| `.access({...})` | Access control rules |
-| `.preview({...})` | Live preview config |
-| `.options({...})` | Timestamps, versioning, soft delete |
-| `.search({...})` | Search indexing |
-| `.searchable(string[])` | Searchable fields |
+| Method                                          | Purpose                                 |
+| ----------------------------------------------- | --------------------------------------- |
+| `.fields(({ f }) => ({...}))`                   | Define data fields                      |
+| `.title(({ f }) => f.name)`                     | Record display title                    |
+| `.admin(({ c }) => ({...}))`                    | Admin UI metadata (label, icon, hidden) |
+| `.indexes(({ table }) => [...])`                | Database indexes                        |
+| `.list(({ v, f }) => v.collectionTable({...}))` | List view config                        |
+| `.form(({ v, f }) => v.collectionForm({...}))`  | Form view config                        |
+| `.hooks({...})`                                 | Lifecycle hooks                         |
+| `.access({...})`                                | Access control rules                    |
+| `.preview({...})`                               | Live preview config                     |
+| `.options({...})`                               | Timestamps, versioning, soft delete     |
+| `.search({...})`                                | Search indexing                         |
+| `.searchable(string[])`                         | Searchable fields                       |
 
 ### Collection Options
 
@@ -109,10 +109,10 @@ const { collections } = context;
 
 // Find many
 const results = await collections.posts.find({
-  where: { status: "published" },
-  orderBy: { publishedAt: "desc" },
-  limit: 10,
-  offset: 0,
+	where: { status: "published" },
+	orderBy: { publishedAt: "desc" },
+	limit: 10,
+	offset: 0,
 });
 // results.docs: Post[], results.totalDocs: number
 
@@ -121,15 +121,15 @@ const post = await collections.posts.findOne({ where: { id: "abc" } });
 
 // Create
 const newPost = await collections.posts.create({
-  title: "Hello",
-  body: "<p>World</p>",
-  status: "draft",
+	title: "Hello",
+	body: "<p>World</p>",
+	status: "draft",
 });
 
 // Update
 await collections.posts.update({
-  where: { id: "abc" },
-  data: { status: "published" },
+	where: { id: "abc" },
+	data: { status: "published" },
 });
 
 // Delete
@@ -147,35 +147,35 @@ A global is a singleton -- one record, no list view. Use for site-wide settings:
 import { global } from "#questpie";
 
 export const siteSettings = global("site_settings")
-  .fields(({ f }) => ({
-    shopName: f.text({ required: true, default: "My App" }),
-    tagline: f.text({ localized: true }),
-    logo: f.upload({ to: "assets" }),
-    contactEmail: f.email({ required: true }),
-  }))
-  .admin(({ c }) => ({
-    label: { en: "Site Settings" },
-    icon: c.icon("ph:gear"),
-  }))
-  .options({ timestamps: true, versioning: true })
-  .access({
-    read: true,
-    update: ({ session }) => session?.user?.role === "admin",
-  });
+	.fields(({ f }) => ({
+		shopName: f.text({ required: true, default: "My App" }),
+		tagline: f.text({ localized: true }),
+		logo: f.upload({ to: "assets" }),
+		contactEmail: f.email({ required: true }),
+	}))
+	.admin(({ c }) => ({
+		label: { en: "Site Settings" },
+		icon: c.icon("ph:gear"),
+	}))
+	.options({ timestamps: true, versioning: true })
+	.access({
+		read: true,
+		update: ({ session }) => session?.user?.role === "admin",
+	});
 ```
 
 ### Global Builder Methods
 
 Globals share most methods with collections but do NOT support `.list()`, `.indexes()`, `.title()`, or `.preview()`.
 
-| Method | Purpose |
-|---|---|
-| `.fields(({ f }) => ({...}))` | Define data fields |
-| `.admin(({ c }) => ({...}))` | Admin label and icon |
-| `.form(({ v, f }) => v.globalForm({...}))` | Form layout |
-| `.hooks({...})` | Lifecycle hooks |
-| `.access({...})` | Read/update access control |
-| `.options({...})` | Timestamps, versioning |
+| Method                                     | Purpose                    |
+| ------------------------------------------ | -------------------------- |
+| `.fields(({ f }) => ({...}))`              | Define data fields         |
+| `.admin(({ c }) => ({...}))`               | Admin label and icon       |
+| `.form(({ v, f }) => v.globalForm({...}))` | Form layout                |
+| `.hooks({...})`                            | Lifecycle hooks            |
+| `.access({...})`                           | Read/update access control |
+| `.options({...})`                          | Timestamps, versioning     |
 
 ### Global API
 
@@ -195,25 +195,25 @@ Fields are defined inside `.fields()` using the `f` builder. Each field drives t
 
 ### Field Types Overview
 
-| Field | DB Type | Use Case |
-|---|---|---|
-| `f.text()` | `varchar` / `text` | Short strings, titles, slugs |
-| `f.textarea()` | `text` | Long text, descriptions |
-| `f.richText()` | `text` (HTML) | Rich formatted content |
-| `f.email()` | `varchar` | Email addresses (validated) |
-| `f.url()` | `varchar` | URLs (validated) |
-| `f.number()` | `integer` / `numeric` | Counts, prices, quantities |
-| `f.boolean()` | `boolean` | Flags, toggles |
-| `f.date()` | `date` | Calendar dates |
-| `f.time()` | `time` | Time of day |
-| `f.datetime()` | `timestamp` | Date + time |
-| `f.select()` | `varchar` | Single choice from list |
-| `f.relation()` | FK column | Reference to another collection |
-| `f.upload()` | FK column | File upload linked to storage |
-| `f.object()` | `jsonb` | Nested structured data |
-| `f.array()` | `jsonb` | Repeatable items |
-| `f.blocks()` | `jsonb` | Page builder content blocks |
-| `f.json()` | `jsonb` | Raw JSON |
+| Field          | DB Type               | Use Case                        |
+| -------------- | --------------------- | ------------------------------- |
+| `f.text()`     | `varchar` / `text`    | Short strings, titles, slugs    |
+| `f.textarea()` | `text`                | Long text, descriptions         |
+| `f.richText()` | `text` (HTML)         | Rich formatted content          |
+| `f.email()`    | `varchar`             | Email addresses (validated)     |
+| `f.url()`      | `varchar`             | URLs (validated)                |
+| `f.number()`   | `integer` / `numeric` | Counts, prices, quantities      |
+| `f.boolean()`  | `boolean`             | Flags, toggles                  |
+| `f.date()`     | `date`                | Calendar dates                  |
+| `f.time()`     | `time`                | Time of day                     |
+| `f.datetime()` | `timestamp`           | Date + time                     |
+| `f.select()`   | `varchar`             | Single choice from list         |
+| `f.relation()` | FK column             | Reference to another collection |
+| `f.upload()`   | FK column             | File upload linked to storage   |
+| `f.object()`   | `jsonb`               | Nested structured data          |
+| `f.array()`    | `jsonb`               | Repeatable items                |
+| `f.blocks()`   | `jsonb`               | Page builder content blocks     |
+| `f.json()`     | `jsonb`               | Raw JSON                        |
 
 See `references/field-types.md` for complete config options per field type.
 
@@ -221,16 +221,16 @@ See `references/field-types.md` for complete config options per field type.
 
 Every field accepts:
 
-| Option | Type | Description |
-|---|---|---|
-| `required` | `boolean` | Field must have a value |
-| `default` | `T` | Default value |
-| `label` | `string \| Record<string, string>` | Display label (supports i18n) |
-| `description` | `string \| Record<string, string>` | Help text |
-| `localized` | `boolean` | Enable per-locale values |
-| `input` | `"optional"` | Optional in API input but required in DB |
-| `meta` | `object` | Admin UI rendering hints |
-| `virtual` | `SQL` | SQL expression for computed fields |
+| Option        | Type                               | Description                              |
+| ------------- | ---------------------------------- | ---------------------------------------- |
+| `required`    | `boolean`                          | Field must have a value                  |
+| `default`     | `T`                                | Default value                            |
+| `label`       | `string \| Record<string, string>` | Display label (supports i18n)            |
+| `description` | `string \| Record<string, string>` | Help text                                |
+| `localized`   | `boolean`                          | Enable per-locale values                 |
+| `input`       | `"optional"`                       | Optional in API input but required in DB |
+| `meta`        | `object`                           | Admin UI rendering hints                 |
+| `virtual`     | `SQL`                              | SQL expression for computed fields       |
 
 ### Virtual (Computed) Fields
 
@@ -270,11 +270,15 @@ import { collection } from "#questpie";
 
 // Junction table
 export default collection("barberServices")
-  .fields(({ f }) => ({
-    barber: f.relation({ to: "barbers", required: true, onDelete: "cascade" }),
-    service: f.relation({ to: "services", required: true, onDelete: "cascade" }),
-  }))
-  .admin(({ c }) => ({ hidden: true }));
+	.fields(({ f }) => ({
+		barber: f.relation({ to: "barbers", required: true, onDelete: "cascade" }),
+		service: f.relation({
+			to: "services",
+			required: true,
+			onDelete: "cascade",
+		}),
+	}))
+	.admin(({ c }) => ({ hidden: true }));
 ```
 
 ```ts title="collections/barbers.ts (inside .fields())"
@@ -302,14 +306,14 @@ barbers: f.relation({
 ```ts
 // Include related data
 const barber = await collections.barbers.findOne({
-  where: { id: "abc" },
-  with: { services: true },
+	where: { id: "abc" },
+	with: { services: true },
 });
 // barber.services: Service[]
 
 // Filter by relation
 const appointments = await collections.appointments.find({
-  where: { barber: barberId, status: "pending" },
+	where: { barber: barberId, status: "pending" },
 });
 ```
 
@@ -321,12 +325,12 @@ const appointments = await collections.appointments.find({
 import { locale } from "#questpie";
 
 export default locale({
-  locales: [
-    { code: "en", label: "English", fallback: true, flagCountryCode: "us" },
-    { code: "sk", label: "Slovencina" },
-    { code: "de", label: "Deutsch" },
-  ],
-  defaultLocale: "en",
+	locales: [
+		{ code: "en", label: "English", fallback: true, flagCountryCode: "us" },
+		{ code: "sk", label: "Slovencina" },
+		{ code: "de", label: "Deutsch" },
+	],
+	defaultLocale: "en",
 });
 ```
 
@@ -367,7 +371,9 @@ const services = await collections.services.find({ where: { isActive: true } });
 
 // Client-side -- set locale explicitly
 client.setLocale("sk");
-const services = await client.collections.services.find({ where: { isActive: true } });
+const services = await client.collections.services.find({
+	where: { isActive: true },
+});
 ```
 
 ### Admin UI Locale (Separate)
@@ -378,8 +384,8 @@ The admin panel has its own locale config for the interface language:
 import { adminLocale } from "#questpie";
 
 export default adminLocale({
-  locales: ["en", "sk"],
-  defaultLocale: "en",
+	locales: ["en", "sk"],
+	defaultLocale: "en",
 });
 ```
 
@@ -444,12 +450,12 @@ The `.relations()` builder method was removed. All relations are now defined via
 
 ```ts
 // WRONG -- .relations() does not exist
-collection("posts").relations({ author: belongsTo("users") })
+collection("posts").relations({ author: belongsTo("users") });
 
 // CORRECT -- use f.relation() inside .fields()
 collection("posts").fields(({ f }) => ({
-  author: f.relation({ to: "users" }),
-}))
+	author: f.relation({ to: "users" }),
+}));
 ```
 
 ### HIGH: Forgetting `export default`
@@ -472,16 +478,16 @@ A `hasMany: true` relation MUST specify `through`, `sourceField`, and `targetFie
 
 ```ts
 // WRONG -- missing through/sourceField/targetField
-services: f.relation({ to: "services", hasMany: true })
+services: f.relation({ to: "services", hasMany: true });
 
 // CORRECT
 services: f.relation({
-  to: "services",
-  hasMany: true,
-  through: "barberServices",
-  sourceField: "barber",
-  targetField: "service",
-})
+	to: "services",
+	hasMany: true,
+	through: "barberServices",
+	sourceField: "barber",
+	targetField: "service",
+});
 ```
 
 ### MEDIUM: Forgetting `localized: true`

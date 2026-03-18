@@ -74,18 +74,18 @@ Components use standard Tailwind utilities (`bg-card`, `border-border`, `rounded
 
 ```css
 :root {
-  --radius: 8px;
-  --border: #E5E5E5;
-  --card: #FAFAFA;
+	--radius: 8px;
+	--border: #e5e5e5;
+	--card: #fafafa;
 }
 
 @theme inline {
-  --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.05);
-  --shadow-md: 0 4px 6px rgb(0 0 0 / 0.1);
+	--shadow-sm: 0 1px 2px rgb(0 0 0 / 0.05);
+	--shadow-md: 0 4px 6px rgb(0 0 0 / 0.1);
 }
 
 body::before {
-  display: none; /* No grid texture */
+	display: none; /* No grid texture */
 }
 ```
 
@@ -94,6 +94,7 @@ Same components, different CSS, completely different look.
 ## Dark / Light Mode
 
 The CSS uses the standard convention:
+
 - `:root` = light theme (default)
 - `.dark` class on `<html>` = dark theme
 

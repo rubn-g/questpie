@@ -34,7 +34,9 @@ export const questpieSearchTable = pgTable(
 		/**
 		 * Primary key with auto-generated UUID
 		 */
-		id: text("id").primaryKey().default(sql`gen_random_uuid()`),
+		id: text("id")
+			.primaryKey()
+			.default(sql`gen_random_uuid()`),
 
 		/**
 		 * Collection name
@@ -125,7 +127,9 @@ export const questpieSearchFacetsTable = pgTable(
 		/**
 		 * Primary key with auto-generated UUID
 		 */
-		id: text("id").primaryKey().default(sql`gen_random_uuid()`),
+		id: text("id")
+			.primaryKey()
+			.default(sql`gen_random_uuid()`),
 
 		/**
 		 * Reference to parent search record

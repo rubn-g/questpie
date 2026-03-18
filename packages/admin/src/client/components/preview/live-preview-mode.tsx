@@ -11,6 +11,7 @@
 
 import { Icon } from "@iconify/react";
 import * as React from "react";
+
 import {
 	FocusProvider,
 	type FocusState,
@@ -281,14 +282,14 @@ function LivePreviewContent({
 	return (
 		<div
 			className={
-				open ? "fixed inset-0 z-50 bg-background flex flex-col" : "w-full"
+				open ? "bg-background fixed inset-0 z-50 flex flex-col" : "w-full"
 			}
 		>
 			{/* Header */}
 			{open && (
-				<div className="flex items-center justify-between border-b px-4 py-2 shrink-0">
+				<div className="flex shrink-0 items-center justify-between border-b px-4 py-2">
 					<div className="flex items-center gap-2">
-						<Icon icon="ph:eye" className="h-4 w-4 text-muted-foreground" />
+						<Icon icon="ph:eye" className="text-muted-foreground h-4 w-4" />
 						<span className="font-medium">{t("preview.livePreview")}</span>
 					</div>
 
@@ -300,10 +301,10 @@ function LivePreviewContent({
 							className="mx-4"
 						>
 							<TabsList className="h-8">
-								<TabsTrigger value="form" className="text-xs px-3">
+								<TabsTrigger value="form" className="px-3 text-xs">
 									{t("common.form")}
 								</TabsTrigger>
-								<TabsTrigger value="preview" className="text-xs px-3">
+								<TabsTrigger value="preview" className="px-3 text-xs">
 									{t("preview.title")}
 								</TabsTrigger>
 							</TabsList>
@@ -337,8 +338,8 @@ function LivePreviewContent({
 				className={
 					open
 						? isMobile
-							? "flex-1 min-h-0"
-							: "flex-1 flex min-h-0"
+							? "min-h-0 flex-1"
+							: "flex min-h-0 flex-1"
 						: "w-full"
 				}
 			>
@@ -351,7 +352,7 @@ function LivePreviewContent({
 										"h-full overflow-y-auto p-6",
 										activeTab !== "form" && "hidden",
 									)
-								: "h-full border-r bg-background overflow-y-auto p-6"
+								: "bg-background h-full overflow-y-auto border-r p-6"
 							: "w-full"
 					}
 					style={
@@ -373,12 +374,12 @@ function LivePreviewContent({
 								onBlockClick={handlePreviewBlockClick}
 							/>
 						) : (
-							<div className="h-full flex items-center justify-center">
+							<div className="flex h-full items-center justify-center">
 								<Icon
 									icon="ph:spinner"
-									className="h-6 w-6 animate-spin text-muted-foreground"
+									className="text-muted-foreground h-6 w-6 animate-spin"
 								/>
-								<span className="ml-2 text-sm text-muted-foreground">
+								<span className="text-muted-foreground ml-2 text-sm">
 									{t("preview.loadingPreview")}
 								</span>
 							</div>
@@ -394,12 +395,12 @@ function LivePreviewContent({
 							aria-label="Resize preview pane"
 							onMouseDown={handleMouseDown}
 							onClick={(e) => e.preventDefault()}
-							className="w-1 shrink-0 cursor-col-resize bg-border hover:bg-primary/40 transition-colors appearance-none border-0 p-0"
+							className="bg-border hover:bg-primary/40 w-1 shrink-0 cursor-col-resize appearance-none border-0 p-0 transition-colors"
 						/>
 
 						{/* Preview panel */}
 						<div
-							className="min-w-0 bg-muted"
+							className="bg-muted min-w-0"
 							style={{ width: `${previewPercent}%` }}
 						>
 							{previewUrl ? (
@@ -410,12 +411,12 @@ function LivePreviewContent({
 									onBlockClick={handlePreviewBlockClick}
 								/>
 							) : (
-								<div className="h-full flex items-center justify-center">
+								<div className="flex h-full items-center justify-center">
 									<Icon
 										icon="ph:spinner"
-										className="h-6 w-6 animate-spin text-muted-foreground"
+										className="text-muted-foreground h-6 w-6 animate-spin"
 									/>
-									<span className="ml-2 text-sm text-muted-foreground">
+									<span className="text-muted-foreground ml-2 text-sm">
 										{t("preview.loadingPreview")}
 									</span>
 								</div>

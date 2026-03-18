@@ -8,6 +8,9 @@
  */
 
 import { z } from "zod";
+
+import { job } from "#questpie/server/integrated/queue/job.js";
+import type { JobDefinition } from "#questpie/server/integrated/queue/types.js";
 import { route } from "#questpie/server/routes/define-route.js";
 import type {
 	JsonRouteDefinition,
@@ -15,8 +18,6 @@ import type {
 	RouteDefinition,
 } from "#questpie/server/routes/types.js";
 import { isJsonRoute, isRawRoute } from "#questpie/server/routes/types.js";
-import { job } from "#questpie/server/integrated/queue/job.js";
-import type { JobDefinition } from "#questpie/server/integrated/queue/types.js";
 
 // Augment AppContext for type tests — simulates what generated code does
 declare module "#questpie/server/config/app-context.js" {
@@ -41,10 +42,12 @@ import type {
 // Route with input schema should infer input type correctly
 const pingRoute = route()
 	.post()
-	.schema(z.object({
-		message: z.string(),
-		count: z.number().optional(),
-	}))
+	.schema(
+		z.object({
+			message: z.string(),
+			count: z.number().optional(),
+		}),
+	)
 	.handler(async ({ input }) => {
 		// input should have correct types
 		const msg: string = input.message;
@@ -76,10 +79,12 @@ type _addHasTimestamp = Expect<
 const validateRoute = route()
 	.post()
 	.schema(z.object({ data: z.string() }))
-	.outputSchema(z.object({
-		valid: z.boolean(),
-		errors: z.array(z.string()),
-	}))
+	.outputSchema(
+		z.object({
+			valid: z.boolean(),
+			errors: z.array(z.string()),
+		}),
+	)
 	.handler(async ({ input }) => {
 		return { valid: true, errors: [] };
 	});
@@ -102,18 +107,20 @@ const protectedRoute = route()
 // Complex input schema should preserve nested types
 const complexRoute = route()
 	.post()
-	.schema(z.object({
-		user: z.object({
-			name: z.string(),
-			email: z.string().email(),
-			preferences: z.object({
-				theme: z.enum(["light", "dark"]),
-				notifications: z.boolean(),
+	.schema(
+		z.object({
+			user: z.object({
+				name: z.string(),
+				email: z.string().email(),
+				preferences: z.object({
+					theme: z.enum(["light", "dark"]),
+					notifications: z.boolean(),
+				}),
 			}),
+			tags: z.array(z.string()),
+			metadata: z.record(z.string(), z.unknown()).optional(),
 		}),
-		tags: z.array(z.string()),
-		metadata: z.record(z.string(), z.unknown()).optional(),
-	}))
+	)
 	.handler(async ({ input }) => {
 		// All nested types should be inferred
 		const theme = input.user.preferences.theme; // "light" | "dark"
@@ -142,9 +149,7 @@ const rawRoute = route()
 	});
 
 type RawRouteType = typeof rawRoute;
-type _rawIsRawRoute = Expect<
-	Extends<RawRouteType, RawRouteDefinition>
->;
+type _rawIsRawRoute = Expect<Extends<RawRouteType, RawRouteDefinition>>;
 
 // ============================================================================
 // job() - Background jobs type tests
@@ -268,12 +273,14 @@ const logJob = job({
 // Union types in schema
 const actionRoute = route()
 	.post()
-	.schema(z.object({
-		action: z.union([
-			z.object({ type: z.literal("create"), data: z.string() }),
-			z.object({ type: z.literal("delete"), id: z.string() }),
-		]),
-	}))
+	.schema(
+		z.object({
+			action: z.union([
+				z.object({ type: z.literal("create"), data: z.string() }),
+				z.object({ type: z.literal("delete"), id: z.string() }),
+			]),
+		}),
+	)
 	.handler(async ({ input }) => {
 		if (input.action.type === "create") {
 			return { created: input.action.data };
@@ -307,11 +314,13 @@ const webhookJob = job({
 // Nullable schema fields
 const updateRoute = route()
 	.post()
-	.schema(z.object({
-		id: z.string(),
-		name: z.string().nullable(),
-		description: z.string().nullish(),
-	}))
+	.schema(
+		z.object({
+			id: z.string(),
+			name: z.string().nullable(),
+			description: z.string().nullish(),
+		}),
+	)
 	.handler(async ({ input }) => {
 		const name: string | null = input.name;
 		const desc: string | null | undefined = input.description;
@@ -330,7 +339,9 @@ const testRoute = route()
 
 type TestRouteType = typeof testRoute;
 type _testRouteHasSchema = Expect<Equal<HasKey<TestRouteType, "schema">, true>>;
-type _testRouteHasHandler = Expect<Equal<HasKey<TestRouteType, "handler">, true>>;
+type _testRouteHasHandler = Expect<
+	Equal<HasKey<TestRouteType, "handler">, true>
+>;
 type _testRouteHasMethod = Expect<Equal<HasKey<TestRouteType, "method">, true>>;
 type _testRouteHasBrand = Expect<Equal<HasKey<TestRouteType, "__brand">, true>>;
 
@@ -352,7 +363,9 @@ type _testJobHasHandler = Expect<Equal<HasKey<TestJobType, "handler">, true>>;
 
 const someRoute: RouteDefinition = testRoute;
 if (isJsonRoute(someRoute)) {
-	type _isJson = Expect<Extends<typeof someRoute, JsonRouteDefinition<any, any>>>;
+	type _isJson = Expect<
+		Extends<typeof someRoute, JsonRouteDefinition<any, any>>
+	>;
 }
 if (isRawRoute(someRoute)) {
 	type _isRaw = Expect<Extends<typeof someRoute, RawRouteDefinition>>;

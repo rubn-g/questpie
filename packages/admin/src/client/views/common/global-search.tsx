@@ -14,7 +14,9 @@
 import { Icon } from "@iconify/react";
 import * as React from "react";
 import { useCallback, useMemo, useRef, useState } from "react";
+
 import type { ComponentReference } from "#questpie/admin/server/augmentation.js";
+
 import { resolveIconElement } from "../../components/component-renderer";
 import { Kbd } from "../../components/ui/kbd";
 import {
@@ -94,7 +96,11 @@ function highlightText(text: string, query: string): React.ReactNode {
 
 	return parts.map((part, i) =>
 		i % 2 === 1
-			? React.createElement("mark", { key: i, className: "bg-yellow-200/50" }, part)
+			? React.createElement(
+					"mark",
+					{ key: i, className: "bg-yellow-200/50" },
+					part,
+				)
 			: part,
 	);
 }
@@ -155,7 +161,7 @@ const SearchGroup = React.memo(function SearchGroup({
 
 	return (
 		<div className="mb-4 last:mb-0">
-			<h3 className="mb-2 px-2 font-mono text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">
+			<h3 className="text-muted-foreground mb-2 px-2 font-mono text-[10px] font-black tracking-[0.2em] uppercase">
 				{resolveText(title)}
 			</h3>
 			<div className="space-y-0.5">
@@ -170,18 +176,18 @@ const SearchGroup = React.memo(function SearchGroup({
 							onClick={() => onSelect(item)}
 							onMouseEnter={() => onHover(globalIndex)}
 							className={cn(
-								"flex w-full items-center gap-3 px-3 py-2.5 text-sm outline-none transition-colors rounded-md",
+								"flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-sm transition-colors outline-none",
 								isSelected
 									? "bg-accent text-accent-foreground"
 									: "hover:bg-accent hover:text-accent-foreground",
 							)}
 						>
 							{item.icon && (
-								<span className="h-4 w-4 text-muted-foreground shrink-0 flex items-center justify-center">
+								<span className="text-muted-foreground flex h-4 w-4 shrink-0 items-center justify-center">
 									{resolveIconElement(item.icon, { className: "h-4 w-4" })}
 								</span>
 							)}
-							<div className="flex flex-col items-start min-w-0">
+							<div className="flex min-w-0 flex-col items-start">
 								{item.highlights?.title ? (
 									<span className="truncate">
 										{highlightText(item.label, query)}
@@ -190,7 +196,7 @@ const SearchGroup = React.memo(function SearchGroup({
 									<span className="truncate">{resolveText(item.label)}</span>
 								)}
 								{item.sublabel && (
-									<span className="text-xs text-muted-foreground truncate">
+									<span className="text-muted-foreground truncate text-xs">
 										{item.sublabel}
 									</span>
 								)}
@@ -389,9 +395,7 @@ export function GlobalSearch({
 			switch (e.key) {
 				case "ArrowDown":
 					e.preventDefault();
-					setSelectedIndex((i) =>
-						totalCount > 0 ? (i + 1) % totalCount : 0,
-					);
+					setSelectedIndex((i) => (totalCount > 0 ? (i + 1) % totalCount : 0));
 					break;
 				case "ArrowUp":
 					e.preventDefault();
@@ -428,16 +432,19 @@ export function GlobalSearch({
 
 	return (
 		<ResponsiveDialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-			<ResponsiveDialogContent className="qa-global-search p-0 gap-0 sm:max-w-3xl" showCloseButton={false}>
+			<ResponsiveDialogContent
+				className="qa-global-search gap-0 p-0 sm:max-w-3xl"
+				showCloseButton={false}
+			>
 				{/* Search Input */}
 				<div className="qa-global-search__input-area flex items-center border-b px-3">
 					<Icon
 						icon="ph:magnifying-glass"
-						className="mr-2 h-5 w-5 text-muted-foreground shrink-0"
+						className="text-muted-foreground mr-2 h-5 w-5 shrink-0"
 					/>
 					<input
 						ref={inputRef}
-						className="flex h-14 w-full rounded-none bg-transparent py-3 text-base outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50"
+						className="placeholder:text-muted-foreground flex h-14 w-full rounded-none bg-transparent py-3 text-base outline-none disabled:cursor-not-allowed disabled:opacity-50"
 						placeholder={t("globalSearch.placeholder")}
 						value={query}
 						onChange={(e) => {
@@ -446,11 +453,11 @@ export function GlobalSearch({
 						}}
 						onKeyDown={handleKeyDown}
 					/>
-					<div className="flex items-center gap-1 shrink-0">
+					<div className="flex shrink-0 items-center gap-1">
 						{isSearching && (
 							<Icon
 								icon="ph:spinner"
-								className="h-4 w-4 animate-spin text-muted-foreground"
+								className="text-muted-foreground h-4 w-4 animate-spin"
 							/>
 						)}
 						<Kbd>ESC</Kbd>
@@ -501,7 +508,7 @@ export function GlobalSearch({
 							)}
 						</>
 					) : (
-						<div className="py-8 text-center text-sm text-muted-foreground">
+						<div className="text-muted-foreground py-8 text-center text-sm">
 							{isSearching ? (
 								<div className="flex items-center justify-center gap-2">
 									<Icon icon="ph:spinner" className="h-4 w-4 animate-spin" />
@@ -515,14 +522,14 @@ export function GlobalSearch({
 				</div>
 
 				{/* Footer with keyboard hints */}
-				<div className="qa-global-search__footer border-t px-3 py-2 flex items-center justify-end gap-4 text-xs text-muted-foreground">
+				<div className="qa-global-search__footer text-muted-foreground flex items-center justify-end gap-4 border-t px-3 py-2 text-xs">
 					<span className="flex items-center gap-1">
-						<Kbd className="text-[10px] px-1">↑</Kbd>
-						<Kbd className="text-[10px] px-1">↓</Kbd>
+						<Kbd className="px-1 text-[10px]">↑</Kbd>
+						<Kbd className="px-1 text-[10px]">↓</Kbd>
 						<span>{t("globalSearch.navigate")}</span>
 					</span>
 					<span className="flex items-center gap-1">
-						<Kbd className="text-[10px] px-1.5">↵</Kbd>
+						<Kbd className="px-1.5 text-[10px]">↵</Kbd>
 						<span>{t("globalSearch.select")}</span>
 					</span>
 				</div>

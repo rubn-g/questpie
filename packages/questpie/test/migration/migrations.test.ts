@@ -8,10 +8,12 @@ import {
 } from "bun:test";
 import { existsSync, mkdirSync, readdirSync, rmSync } from "node:fs";
 import { join } from "node:path";
+
 import type { PGlite } from "@electric-sql/pglite";
 import { sql } from "drizzle-orm";
-import { collection } from "../../src/server/index.js";
+
 import { createApp, module } from "../../src/exports/index.js";
+import { collection } from "../../src/server/index.js";
 import type { Migration } from "../../src/server/migration/types.js";
 import { MockKVAdapter } from "../utils/mocks/kv.adapter";
 import { MockLogger } from "../utils/mocks/logger.adapter";
@@ -267,9 +269,8 @@ describe("Migration System - DrizzleMigrationGenerator", () => {
 	});
 
 	test("should generate migration file from schema", async () => {
-		const { DrizzleMigrationGenerator } = await import(
-			"../../src/server/migration/generator.js"
-		);
+		const { DrizzleMigrationGenerator } =
+			await import("../../src/server/migration/generator.js");
 
 		const posts = collection("posts").fields(({ f }) => ({
 			title: f.text(255).required(),
@@ -307,9 +308,8 @@ describe("Migration System - DrizzleMigrationGenerator", () => {
 	});
 
 	test("should skip if no schema changes", async () => {
-		const { DrizzleMigrationGenerator } = await import(
-			"../../src/server/migration/generator.js"
-		);
+		const { DrizzleMigrationGenerator } =
+			await import("../../src/server/migration/generator.js");
 
 		const posts = collection("posts").fields(({ f }) => ({
 			title: f.text(255).required(),
@@ -347,9 +347,8 @@ describe("Migration System - DrizzleMigrationGenerator", () => {
 	});
 
 	test("should build cumulative snapshot from migrations", async () => {
-		const { DrizzleMigrationGenerator } = await import(
-			"../../src/server/migration/generator.js"
-		);
+		const { DrizzleMigrationGenerator } =
+			await import("../../src/server/migration/generator.js");
 
 		const generator = new DrizzleMigrationGenerator();
 

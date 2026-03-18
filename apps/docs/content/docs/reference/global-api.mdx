@@ -13,14 +13,14 @@ global(name: string)
 
 ### Builder Methods
 
-| Method | Signature | Description |
-|---|---|---|
-| `.fields()` | `(({ f }) => Record<string, Field>)` | Define data fields |
-| `.admin()` | `(({ c }) => AdminConfig)` | Admin UI metadata |
-| `.form()` | `(({ v, f }) => FormView)` | Form view config |
-| `.hooks()` | `(HooksConfig)` | Lifecycle hooks |
-| `.access()` | `(AccessConfig)` | Access control |
-| `.options()` | `(OptionsConfig)` | Timestamps, versioning |
+| Method       | Signature                            | Description            |
+| ------------ | ------------------------------------ | ---------------------- |
+| `.fields()`  | `(({ f }) => Record<string, Field>)` | Define data fields     |
+| `.admin()`   | `(({ c }) => AdminConfig)`           | Admin UI metadata      |
+| `.form()`    | `(({ v, f }) => FormView)`           | Form view config       |
+| `.hooks()`   | `(HooksConfig)`                      | Lifecycle hooks        |
+| `.access()`  | `(AccessConfig)`                     | Access control         |
+| `.options()` | `(OptionsConfig)`                    | Timestamps, versioning |
 
 ### `.access()` Options
 
