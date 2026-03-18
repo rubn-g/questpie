@@ -112,34 +112,43 @@ type AppCollections<TApp> = TApp extends { collections: infer TCollections }
 
 type CollectionStateFor<TCollection> = CollectionState<TCollection>;
 
+/** Cached: extract raw field definitions from collection state. */
+type RawFieldDefs<TCollection> =
+	CollectionStateFor<TCollection> extends { fieldDefinitions: infer D }
+		? D
+		: Record<string, never>;
+
+/** Cached: extract options from collection state. */
+type RawOptions<TCollection> =
+	CollectionStateFor<TCollection> extends {
+		options: infer O extends CollectionOptions;
+	}
+		? O
+		: {};
+
+/** Cached: extract upload config from collection state. */
+type RawUpload<TCollection> =
+	CollectionStateFor<TCollection> extends {
+		upload: infer U extends UploadOptions;
+	}
+		? U
+		: undefined;
+
 /**
  * Extract field definitions from a collection, with system fields auto-inserted.
- * System fields (id, createdAt, updatedAt, deletedAt, _title, upload fields)
- * are merged based on collection options — user-defined fields always win.
+ * Composes cached RawFieldDefs/RawOptions/RawUpload — 1 conditional instead of 6.
  */
 type CollectionFieldDefinitions<TCollection> =
-	CollectionStateFor<TCollection> extends {
-		fieldDefinitions: infer TDefs;
-		options: infer TOptions;
-	}
-		? TDefs extends Record<string, { $types: any; toColumn: any }>
-			? TOptions extends CollectionOptions
-				? FieldDefinitionsWithSystem<
-						TDefs,
-						TOptions,
-						CollectionStateFor<TCollection> extends {
-							upload: infer TUpload extends UploadOptions;
-						}
-							? TUpload
-							: undefined
-					>
-				: FieldDefinitionsWithSystem<TDefs, {}, undefined>
-			: TDefs
-		: CollectionStateFor<TCollection> extends {
-					fieldDefinitions: infer TDefs;
-			  }
-			? TDefs
-			: Record<string, never>;
+	RawFieldDefs<TCollection> extends infer TDefs extends Record<
+		string,
+		{ $types: any; toColumn: any }
+	>
+		? FieldDefinitionsWithSystem<
+				TDefs,
+				RawOptions<TCollection>,
+				RawUpload<TCollection>
+			>
+		: RawFieldDefs<TCollection>;
 
 type CollectionOutputExtensions<TCollection> =
 	CollectionStateFor<TCollection> extends { output: infer TOutput }
@@ -211,6 +220,8 @@ type DecrementDepth<Depth extends unknown[]> = Depth extends [
 ]
 	? Rest
 	: [];
+
+type DefaultWhereDepth = [1, 1];
 
 type OperatorValue<TFn> = TFn extends (...args: any[]) => any
 	? Parameters<TFn>[1]
@@ -437,13 +448,36 @@ type RelationTargetCollectionFromConfig<TConfig, TApp> =
  * The field's operators are the source of truth for WHAT operators exist.
  * This type resolves the cross-collection types they couldn't express.
  */
-type ResolveWherePlaceholders<TWhereShape, TConfig, TApp> = {
+type ResolveWherePlaceholders<
+	TWhereShape,
+	TConfig,
+	TApp,
+	Depth extends unknown[] = DefaultWhereDepth,
+> = {
 	[K in keyof TWhereShape]?: NonNullable<
 		TWhereShape[K]
 	> extends CollectionWherePlaceholder
-		? Where<RelationTargetCollectionFromConfig<TConfig, TApp>, TApp>
+		? Depth extends []
+			? never
+			: WhereFromCollection<
+					RelationTargetCollectionFromConfig<TConfig, TApp>,
+					TApp,
+					DecrementDepth<Depth>
+				>
 		: TWhereShape[K];
 };
+
+type RelationWhereFromTarget<
+	TTo extends string,
+	TApp,
+	Depth extends unknown[],
+> = Depth extends []
+	? never
+	: WhereFromCollection<
+			GetCollection<AppCollections<TApp>, TTo>,
+			TApp,
+			DecrementDepth<Depth>
+		>;
 
 /**
  * Build the complete where input type for a single field definition.
@@ -455,36 +489,58 @@ type ResolveWherePlaceholders<TWhereShape, TConfig, TApp> = {
  *
  * No field types are special-cased — the field's operators drive everything.
  */
-type V2RelationWhereResolved<TFieldDef, TState, TApp> = TState extends {
+type V2RelationWhereResolved<
+	TFieldDef,
+	TState,
+	TApp,
+	Depth extends unknown[],
+> = TState extends {
 	relationTo: infer TTo extends string;
 }
 	?
 			| FieldSelect<TFieldDef, TApp>
-			| ResolveWherePlaceholdersV2<FieldWhere<TFieldDef, TApp>, TTo, TApp>
-			| Where<GetCollection<AppCollections<TApp>, TTo>, TApp>
+			| ResolveWherePlaceholdersV2<
+					FieldWhere<TFieldDef, TApp>,
+					TTo,
+					TApp,
+					Depth
+			  >
+			| RelationWhereFromTarget<TTo, TApp, Depth>
 	: FieldSelect<TFieldDef, TApp> | FieldWhere<TFieldDef, TApp>;
 
-type ResolveWherePlaceholdersV2<TWhereShape, TTo extends string, TApp> = {
+type ResolveWherePlaceholdersV2<
+	TWhereShape,
+	TTo extends string,
+	TApp,
+	Depth extends unknown[],
+> = {
 	[K in keyof TWhereShape]?: NonNullable<
 		TWhereShape[K]
 	> extends CollectionWherePlaceholder
-		? Where<GetCollection<AppCollections<TApp>, TTo>, TApp>
+		? RelationWhereFromTarget<TTo, TApp, Depth>
 		: TWhereShape[K];
 };
 
-type FieldWhereInputFromDefinition<TFieldDef, TApp> =
-	// V2: Field<TState> dispatch via phantom _
-	TFieldDef extends { readonly _: infer TState extends { type: string } }
-		? TState extends { type: "relation" | "upload" }
-			? V2RelationWhereResolved<TFieldDef, TState, TApp>
-			: FieldSelect<TFieldDef, TApp> | FieldWhere<TFieldDef, TApp>
-		: never;
+type FieldWhereInputFromDefinition<
+	TFieldDef,
+	TApp,
+	Depth extends unknown[],
+> = TFieldDef extends { readonly _: infer TState extends { type: string } } // V2: Field<TState> dispatch via phantom _
+	? TState extends { type: "relation" | "upload" }
+		? V2RelationWhereResolved<TFieldDef, TState, TApp, Depth>
+		: FieldSelect<TFieldDef, TApp> | FieldWhere<TFieldDef, TApp>
+	: never;
 
 type WhereFieldsFromDefinitions<
 	TFieldDefs extends Record<string, { $types: any; toColumn: any }>,
 	TApp,
+	Depth extends unknown[],
 > = {
-	[K in keyof TFieldDefs]?: FieldWhereInputFromDefinition<TFieldDefs[K], TApp>;
+	[K in keyof TFieldDefs]?: FieldWhereInputFromDefinition<
+		TFieldDefs[K],
+		TApp,
+		Depth
+	>;
 };
 
 /**
@@ -500,25 +556,43 @@ export type RelationFilter<
 	TRelations = any,
 	TCollection = unknown,
 	TApp = unknown,
-> =
-	IsCollectionLike<TCollection> extends true
+	Depth extends unknown[] = DefaultWhereDepth,
+> = Depth extends []
+	? {} // depth exhausted — stop recursion
+	: IsCollectionLike<TCollection> extends true
 		?
-				| Where<TCollection, TApp>
+				| WhereFromCollection<TCollection, TApp, DecrementDepth<Depth>>
 				| {
-						some?: Where<TCollection, TApp>;
-						none?: Where<TCollection, TApp>;
-						every?: Where<TCollection, TApp>;
-						is?: Where<TCollection, TApp>;
-						isNot?: Where<TCollection, TApp>;
+						some?: WhereFromCollection<
+							TCollection,
+							TApp,
+							DecrementDepth<Depth>
+						>;
+						none?: WhereFromCollection<
+							TCollection,
+							TApp,
+							DecrementDepth<Depth>
+						>;
+						every?: WhereFromCollection<
+							TCollection,
+							TApp,
+							DecrementDepth<Depth>
+						>;
+						is?: WhereFromCollection<TCollection, TApp, DecrementDepth<Depth>>;
+						isNot?: WhereFromCollection<
+							TCollection,
+							TApp,
+							DecrementDepth<Depth>
+						>;
 				  }
 		:
-				| Where<TFields, TRelations>
+				| WhereFromFields<TFields, TRelations>
 				| {
-						some?: Where<TFields, TRelations>;
-						none?: Where<TFields, TRelations>;
-						every?: Where<TFields, TRelations>;
-						is?: Where<TFields, TRelations>;
-						isNot?: Where<TFields, TRelations>;
+						some?: WhereFromFields<TFields, TRelations>;
+						none?: WhereFromFields<TFields, TRelations>;
+						every?: WhereFromFields<TFields, TRelations>;
+						is?: WhereFromFields<TFields, TRelations>;
+						isNot?: WhereFromFields<TFields, TRelations>;
 				  };
 
 /**
@@ -533,12 +607,12 @@ type RelationWhereKeys<TFields, TRelations> =
 type RelationWhereFields<TFields, TRelations> = [TRelations] extends [never]
 	? {}
 	: IsAny<TRelations> extends true
-		? {} // When TRelations is `any`, don't create index signature
+		? {}
 		: string extends keyof TRelations
-			? {} // TRelations has index signature (e.g., Record<string, ...>), don't add relation fields
+			? {}
 			: [TRelations] extends [Record<string, any>]
 				? keyof TRelations extends never
-					? {} // Empty relations object
+					? {}
 					: {
 							[K in RelationWhereKeys<TFields, TRelations>]?: RelationFilter<
 								ExtractRelationSelect<RelationValue<TRelations[K]>>,
@@ -588,32 +662,36 @@ type WhereFromFields<TFields = any, TRelations = any> = WhereFields<
 	AND?: WhereFromFields<TFields, TRelations>[];
 	OR?: WhereFromFields<TFields, TRelations>[];
 	NOT?: WhereFromFields<TFields, TRelations>;
-	// RAW allows custom SQL expressions
 	RAW?: RawWhereOperator;
 } & RelationWhereFields<TFields, TRelations>;
 
-type WhereFromCollection<TCollection, TApp> =
-	CollectionFieldDefinitions<TCollection> extends infer TFieldDefs
-		? TFieldDefs extends Record<string, { $types: any; toColumn: any }>
-			? HasFieldDefinitions<TFieldDefs> extends true
-				? WhereFieldsFromDefinitions<TFieldDefs, TApp> & {
-						AND?: Where<TCollection, TApp>[];
-						OR?: Where<TCollection, TApp>[];
-						NOT?: Where<TCollection, TApp>;
-						RAW?: RawWhereOperator;
-					}
-				: WhereFromFields<
-						CollectionSelectFromInfer<TCollection>,
-						CollectionRelationsFromApp<TCollection, TApp>
-					>
-			: WhereFromFields<
-					CollectionSelectFromInfer<TCollection>,
-					CollectionRelationsFromApp<TCollection, TApp>
-				>
-		: WhereFromFields<
-				CollectionSelectFromInfer<TCollection>,
-				CollectionRelationsFromApp<TCollection, TApp>
-			>;
+type ResolvedFieldDefs<TCollection> = CollectionFieldDefinitions<TCollection>;
+
+type WhereFromCollectionFallback<TCollection, TApp> = WhereFromFields<
+	CollectionSelectFromInfer<TCollection>,
+	CollectionRelationsFromApp<TCollection, TApp>
+>;
+
+type WhereFromCollection<
+	TCollection,
+	TApp,
+	Depth extends unknown[] = DefaultWhereDepth,
+> =
+	HasFieldDefinitions<ResolvedFieldDefs<TCollection>> extends true
+		? WhereFieldsFromDefinitions<
+				Extract<
+					ResolvedFieldDefs<TCollection>,
+					Record<string, { $types: any; toColumn: any }>
+				>,
+				TApp,
+				Depth
+			> & {
+				AND?: WhereFromCollection<TCollection, TApp, Depth>[];
+				OR?: WhereFromCollection<TCollection, TApp, Depth>[];
+				NOT?: WhereFromCollection<TCollection, TApp, Depth>;
+				RAW?: RawWhereOperator;
+			}
+		: WhereFromCollectionFallback<TCollection, TApp>;
 
 export type Where<TFieldsOrCollection = any, TRelationsOrApp = any> =
 	IsCollectionLike<TFieldsOrCollection> extends true
@@ -728,7 +806,11 @@ type WithRelationOptions<TRelation> =
 	IsCollectionLike<RelationCollection<TRelation>> extends true
 		? {
 				columns?: Columns<RelationSelect<TRelation>>;
-				where?: Where<RelationCollection<TRelation>, RelationApp<TRelation>>;
+				where?: WhereFromCollection<
+					RelationCollection<TRelation>,
+					RelationApp<TRelation>,
+					[1]
+				>;
 				orderBy?: OrderBy<RelationSelect<TRelation>>;
 				limit?: number;
 				offset?: number;
@@ -738,7 +820,10 @@ type WithRelationOptions<TRelation> =
 			}
 		: {
 				columns?: Columns<RelationSelect<TRelation>>;
-				where?: Where<RelationSelect<TRelation>, RelationRelations<TRelation>>;
+				where?: WhereFromFields<
+					RelationSelect<TRelation>,
+					RelationRelations<TRelation>
+				>;
 				orderBy?: OrderBy<RelationSelect<TRelation>>;
 				limit?: number;
 				offset?: number;
