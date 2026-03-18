@@ -36,8 +36,8 @@ import type { QuestpieApp } from "questpie/client";
  */
 type ExtractAuthOptions<T extends QuestpieApp> =
 	T["auth"] extends BetterAuthOptions
-		? T["auth"]
-		: BetterAuthOptions;
+	? T["auth"]
+	: BetterAuthOptions;
 
 /**
  * Options for creating admin auth client
@@ -81,7 +81,7 @@ type InternalClientOptions<T extends QuestpieApp> = {
  *
  * The returned client includes full type inference from your app auth configuration:
  * - `useSession()` - React hook for session state (typed based on your user/session schema)
- * - `signIn` methods (email, social providers configured in QuestPie)
+ * - `signIn` methods (email, social providers configured in QUESTPIE)
  * - `signOut` - Sign out the current user
  * - `signUp` - Register new users
  * - Plugin-specific hooks (e.g., `useListAccounts` for admin plugin)
@@ -194,7 +194,7 @@ export function useAuthClient<T = any>(): T {
 	if (!authClient) {
 		throw new Error(
 			"useAuthClient: authClient is not provided. " +
-				"Make sure to pass authClient to AdminProvider.",
+			"Make sure to pass authClient to AdminProvider.",
 		);
 	}
 	return authClient as T;

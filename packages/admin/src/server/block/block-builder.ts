@@ -144,8 +144,8 @@ export type BlockPrefetchWith<TFields = Record<string, unknown>> = {
  */
 export type ExpandWithResult<TWith> = {
 	[K in keyof TWith as TWith[K] extends false | undefined
-		? never
-		: K]: ExpandedRecord | null;
+	? never
+	: K]: ExpandedRecord | null;
 };
 
 /**
@@ -232,7 +232,7 @@ function createComponentProxy(
 				if (hasRegistry && !registered.has(prop)) {
 					throw new Error(
 						`Unknown component "${prop}" for block admin config. ` +
-							`Available components: ${[...registered].sort().join(", ")}`,
+						`Available components: ${[...registered].sort().join(", ")}`,
 					);
 				}
 
@@ -558,7 +558,7 @@ export class BlockBuilder<
  *     subtitle: f.text(),
  *   }));
  *
- * // Register blocks on QuestPie
+ * // Register blocks on QUESTPIE
  * const app = runtimeConfig({
  *   modules: [adminModule],
  *   blocks: { hero: heroBlock },
@@ -582,14 +582,14 @@ export function block<TName extends string>(
  */
 export type InferBlockValues<TState extends BlockBuilderState> =
 	TState["fields"] extends Record<string, any>
-		? {
-				[K in keyof TState["fields"]]: TState["fields"][K] extends {
-					readonly _: infer TS extends FieldState;
-				}
-					? TS["data"]
-					: unknown;
-			}
-		: Record<string, unknown>;
+	? {
+		[K in keyof TState["fields"]]: TState["fields"][K] extends {
+			readonly _: infer TS extends FieldState;
+		}
+		? TS["data"]
+		: unknown;
+	}
+	: Record<string, unknown>;
 
 /**
  * Extract prefetch data type from a block builder or block state.
@@ -605,12 +605,12 @@ export type InferBlockValues<TState extends BlockBuilderState> =
  */
 export type InferBlockData<T> =
 	T extends BlockBuilder<any, any, infer TData>
-		? TData
-		: T extends BlockBuilderState
-			? T["~prefetchData"] extends Record<string, unknown>
-				? T["~prefetchData"]
-				: Record<string, unknown>
-			: Record<string, unknown>;
+	? TData
+	: T extends BlockBuilderState
+	? T["~prefetchData"] extends Record<string, unknown>
+	? T["~prefetchData"]
+	: Record<string, unknown>
+	: Record<string, unknown>;
 
 /**
  * Any block builder (for generic usage).

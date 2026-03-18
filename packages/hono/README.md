@@ -1,6 +1,6 @@
 # @questpie/hono
 
-Hono adapter for QUESTPIE. Mounts CRUD, auth, storage, custom app routes, and realtime routes on a Hono instance with a unified client combining QuestPie operations and Hono RPC.
+Hono adapter for QUESTPIE. Mounts CRUD, auth, storage, custom app routes, and realtime routes on a Hono instance with a unified client combining QUESTPIE operations and Hono RPC.
 
 ## Installation
 
@@ -61,24 +61,24 @@ const client = createClient<App>({
 
 The adapter automatically creates:
 
-| Method | Route                                    | Description          |
-| ------ | ---------------------------------------- | -------------------- |
-| GET    | `/api/collections/:name`             | List items           |
-| POST   | `/api/collections/:name`             | Create item          |
-| GET    | `/api/collections/:name/:id`         | Get item             |
-| PATCH  | `/api/collections/:name/:id`         | Update item          |
-| DELETE | `/api/collections/:name/:id`         | Delete item          |
-| POST   | `/api/collections/:name/:id/restore` | Restore soft-deleted |
-| GET    | `/api/collections/:name/:id/versions` | List item versions   |
-| POST   | `/api/collections/:name/:id/revert`   | Revert item version  |
-| GET    | `/api/globals/:name`                 | Get global           |
-| PATCH  | `/api/globals/:name`                 | Update global        |
-| GET    | `/api/globals/:name/versions`         | List global versions |
+| Method | Route                                 | Description           |
+| ------ | ------------------------------------- | --------------------- |
+| GET    | `/api/collections/:name`              | List items            |
+| POST   | `/api/collections/:name`              | Create item           |
+| GET    | `/api/collections/:name/:id`          | Get item              |
+| PATCH  | `/api/collections/:name/:id`          | Update item           |
+| DELETE | `/api/collections/:name/:id`          | Delete item           |
+| POST   | `/api/collections/:name/:id/restore`  | Restore soft-deleted  |
+| GET    | `/api/collections/:name/:id/versions` | List item versions    |
+| POST   | `/api/collections/:name/:id/revert`   | Revert item version   |
+| GET    | `/api/globals/:name`                  | Get global            |
+| PATCH  | `/api/globals/:name`                  | Update global         |
+| GET    | `/api/globals/:name/versions`         | List global versions  |
 | POST   | `/api/globals/:name/revert`           | Revert global version |
-| POST   | `/api/collections/:name/upload`      | Upload file          |
-| ALL    | `/api/auth/*`                        | Better Auth routes   |
-| ANY    | `/api/:route*`                       | Custom app routes    |
-| GET    | `/api/collections/:name/subscribe`   | SSE realtime         |
+| POST   | `/api/collections/:name/upload`       | Upload file           |
+| ALL    | `/api/auth/*`                         | Better Auth routes    |
+| ANY    | `/api/:route*`                        | Custom app routes     |
+| GET    | `/api/collections/:name/subscribe`    | SSE realtime          |
 
 ## Documentation
 

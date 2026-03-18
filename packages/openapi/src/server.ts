@@ -42,7 +42,7 @@ export type {
 // ============================================================================
 
 /**
- * Generate a complete OpenAPI 3.1 spec from a QuestPie app instance.
+ * Generate a complete OpenAPI 3.1 spec from a QUESTPIE app instance.
  * Routes are read from `app.config.routes` automatically.
  *
  * @example

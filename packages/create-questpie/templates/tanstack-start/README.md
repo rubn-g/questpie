@@ -1,93 +1,84 @@
 # {{projectName}}
 
-A [QUESTPIE](https://questpie.com) project built with TanStack Start.
+A [QUESTPIE](https://questpie.com) app built with TanStack Start.
 
-## Getting Started
+## Quick Start
 
 ### Prerequisites
 
-- [Bun](https://bun.sh) (v1.3+)
-- [Docker](https://docker.com) (for PostgreSQL)
+- [Bun](https://bun.sh) v1.3+
+- [Docker](https://docker.com) (for local PostgreSQL)
 
 ### Setup
 
 ```bash
-# Start PostgreSQL
+# 1) Start PostgreSQL
 docker compose up -d
 
-# Run database migrations
+# 2) Run migrations
 bun questpie migrate
 
-# Start the dev server
+# 3) Start development server
 bun dev
 ```
 
-The admin panel will be available at [http://localhost:3000/admin](http://localhost:3000/admin).
-
-The API docs (Scalar UI) are at [http://localhost:3000/api/docs](http://localhost:3000/api/docs).
+- Admin panel: `http://localhost:3000/admin`
+- API docs (Scalar): `http://localhost:3000/api/docs`
 
 ## Project Structure
 
-```
+```text
 src/
   questpie/
     server/
-      questpie.config.ts              # Runtime configuration
-      modules.ts                    # Module registrations
+      questpie.config.ts             # Runtime config
+      modules.ts                     # Module list (admin/openapi/...)
+      app.ts                         # Re-export of generated app
+      .generated/                    # Codegen output (do not edit manually)
       collections/
-        posts.collection.ts         # Posts collection
+        posts.collection.ts
       globals/
-        site-settings.global.ts     # Site settings
+        site-settings.global.ts
     admin/
-      admin.ts                      # Admin UI configuration
-      builder.ts                    # Client-side builder
+      admin.ts                       # Re-export of generated admin config
   routes/
-    admin.tsx                       # Admin layout
-    admin/                          # Admin routes
-    api/$.ts                    # API handler
+    api/$.ts                         # QUESTPIE fetch handler mount
+    admin.tsx
+    admin/
   lib/
-    env.ts                          # Type-safe environment variables
-    client.ts                   # API client
-    auth-client.ts                  # Auth client
-    query-client.ts                 # React Query client
-  migrations/                       # Database migrations
+    env.ts
+    client.ts
+    auth-client.ts
+    query-client.ts
+migrations/
 ```
 
 ## Scripts
 
-| Command                       | Description              |
-| ----------------------------- | ------------------------ |
-| `bun dev`                     | Start development server |
-| `bun build`                   | Build for production     |
-| `bun start`                   | Start production server  |
-| `bun questpie migrate`        | Run database migrations  |
-| `bun questpie migrate:create` | Create a new migration   |
+| Command | Description |
+| --- | --- |
+| `bun dev` | Start development server |
+| `bun build` | Build for production |
+| `bun start` | Start production server |
+| `bun check-types` | Type check |
+| `bun questpie migrate` | Run migrations |
+| `bun questpie migrate:create` | Create migration |
+| `bunx questpie generate` | Regenerate `src/questpie/server/.generated/*` |
 
-## Adding Collections
+## Adding a Collection
 
-Create a new file following the naming convention:
+1. Create a file in `src/questpie/server/collections/` (example: `products.collection.ts`).
+2. Export a collection builder from that file.
+3. Run `bunx questpie generate`.
+4. Run `bun questpie migrate:create`.
 
-```
-src/questpie/server/collections/my-collection.collection.ts
-```
+Collections are discovered automatically by codegen. No manual `app.ts` registration is required.
 
-Then register it in `app.ts`:
+## Adding a Global
 
-```ts
-import { myCollection } from "./collections/my-collection.collection.js";
+1. Create a file in `src/questpie/server/globals/` (example: `marketing.global.ts`).
+2. Export a global builder from that file.
+3. Run `bunx questpie generate`.
+4. Run `bun questpie migrate:create`.
 
-// Add to .collections()
-.collections({ posts, myCollection })
-```
-
-## Adding Globals
-
-```
-src/questpie/server/globals/my-global.global.ts
-```
-
-Then register in `app.ts`:
-
-```ts
-.globals({ siteSettings, myGlobal })
-```
+Globals are discovered automatically by codegen. No manual `app.ts` registration is required.

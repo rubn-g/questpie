@@ -1,6 +1,5 @@
 import { asc, desc, gt, lt } from "drizzle-orm";
 import type {
-	DbClientType,
 	DrizzleClientFromQuestpieConfig,
 } from "#questpie/server/config/types.js";
 import type { RealtimeAdapter } from "./adapter.js";
@@ -167,7 +166,7 @@ export class RealtimeService {
 
 	/**
 	 * Set context for resolving dependencies from WITH config.
-	 * Called by QuestPie to provide collection/global resolution functions.
+	 * Called by QUESTPIE to provide collection/global resolution functions.
 	 */
 	setSubscriptionContext(context: RealtimeSubscriptionContext): void {
 		this.subscriptionContext = context;
@@ -297,13 +296,13 @@ export class RealtimeService {
 			watchedResources =
 				resolvedTopics.resourceType === "collection"
 					? {
-							collections: new Set([resolvedTopics.resource]),
-							globals: new Set(),
-						}
+						collections: new Set([resolvedTopics.resource]),
+						globals: new Set(),
+					}
 					: {
-							collections: new Set(),
-							globals: new Set([resolvedTopics.resource]),
-						};
+						collections: new Set(),
+						globals: new Set([resolvedTopics.resource]),
+					};
 		}
 
 		const entry: ListenerEntry = {

@@ -73,19 +73,16 @@ function renderConfigError(message: string) {
 }
 
 function stripFieldUiOptions(options: Record<string, any>) {
-	const {
-		label,
-		description,
-		placeholder,
-		required,
-		disabled,
-		readOnly,
-		visible,
-		localized,
-		locale,
-		...rest
-	} = options;
-
+	const rest = { ...options };
+	delete rest.label;
+	delete rest.description;
+	delete rest.placeholder;
+	delete rest.required;
+	delete rest.disabled;
+	delete rest.readOnly;
+	delete rest.visible;
+	delete rest.localized;
+	delete rest.locale;
 	return rest;
 }
 
@@ -146,9 +143,10 @@ function computeDynamicDependencyPaths({
  * Resolve a MaybeLazyComponent to a concrete React component.
  * Handles direct components, React.lazy, and `() => import(...)` loaders.
  */
-function useLazyComponent(
-	loader: MaybeLazyComponent | undefined,
-): { Component: React.ComponentType<any> | null; loading: boolean } {
+function useLazyComponent(loader: MaybeLazyComponent | undefined): {
+	Component: React.ComponentType<any> | null;
+	loading: boolean;
+} {
 	const [state, setState] = React.useState<{
 		Component: React.ComponentType<any> | null;
 		loading: boolean;
@@ -185,7 +183,10 @@ function useLazyComponent(
 			!(loader as any).$$typeof;
 
 		if (!isLazyLoader) {
-			setState({ Component: loader as React.ComponentType<any>, loading: false });
+			setState({
+				Component: loader as React.ComponentType<any>,
+				loading: false,
+			});
 			return;
 		}
 
@@ -341,34 +342,15 @@ export function FieldRenderer({
 		[fieldDef],
 	);
 
-	const [dynamicDependencyPaths, setDynamicDependencyPaths] = React.useState<
-		string[]
-	>(() =>
-		computeDynamicDependencyPaths({
-			fieldOptions,
-			form,
-			fieldPrefix,
-		}),
+	const dynamicDependencyPaths = React.useMemo(
+		() =>
+			computeDynamicDependencyPaths({
+				fieldOptions,
+				form,
+				fieldPrefix,
+			}),
+		[fieldOptions, form, fieldPrefix],
 	);
-
-	React.useEffect(() => {
-		const scopedDeps = computeDynamicDependencyPaths({
-			fieldOptions,
-			form,
-			fieldPrefix,
-		});
-
-		setDynamicDependencyPaths((prev) => {
-			if (
-				prev.length === scopedDeps.length &&
-				prev.every((dep, index) => dep === scopedDeps[index])
-			) {
-				return prev;
-			}
-
-			return scopedDeps;
-		});
-	}, [fieldOptions, fieldPrefix, form]);
 
 	const watchNames = React.useMemo(() => {
 		return [...new Set([fullFieldName, ...dynamicDependencyPaths])];

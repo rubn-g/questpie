@@ -56,7 +56,7 @@ my-app/
 │   │   ├── client.ts              # Typed client
 │   │   └── query-client.ts        # TanStack Query client
 │   ├── routes/
-│   │   ├── api/$.ts               # QuestPie route handler
+│   │   ├── api/$.ts               # QUESTPIE route handler
 │   │   └── admin/                 # Admin panel routes
 │   └── migrations/                # Drizzle migrations
 ├── questpie.config.ts             # CLI config

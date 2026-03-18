@@ -1,4 +1,4 @@
-# QuestPie Admin — Theme System
+# QUESTPIE Admin — Theme System
 
 ## How Theming Works
 
@@ -14,40 +14,40 @@ Components use standard Tailwind utilities (`bg-card`, `border-border`, `rounded
 
 ### Surface Colors
 
-| Variable | Description |
-|---|---|
-| `--background` | Page background |
-| `--foreground` | Primary text color |
-| `--card` | Elevated surfaces (cards, panels) |
-| `--popover` | Floating surfaces (dropdowns, dialogs) |
-| `--input` | Form input backgrounds |
-| `--muted` | Subtle backgrounds (hover, headers) |
-| `--accent` | Interactive hover backgrounds |
+| Variable       | Description                            |
+| -------------- | -------------------------------------- |
+| `--background` | Page background                        |
+| `--foreground` | Primary text color                     |
+| `--card`       | Elevated surfaces (cards, panels)      |
+| `--popover`    | Floating surfaces (dropdowns, dialogs) |
+| `--input`      | Form input backgrounds                 |
+| `--muted`      | Subtle backgrounds (hover, headers)    |
+| `--accent`     | Interactive hover backgrounds          |
 
 ### Brand & Semantic Colors
 
-| Variable | Description |
-|---|---|
-| `--primary` | Brand accent, CTAs, focus rings |
-| `--secondary` | Secondary action backgrounds |
-| `--destructive` | Errors, danger states |
-| `--success` | Confirmations |
-| `--warning` | Caution states |
-| `--info` | Informational emphasis |
+| Variable        | Description                     |
+| --------------- | ------------------------------- |
+| `--primary`     | Brand accent, CTAs, focus rings |
+| `--secondary`   | Secondary action backgrounds    |
+| `--destructive` | Errors, danger states           |
+| `--success`     | Confirmations                   |
+| `--warning`     | Caution states                  |
+| `--info`        | Informational emphasis          |
 
 ### Structure
 
-| Variable | Description |
-|---|---|
-| `--border` | Default border color |
-| `--ring` | Focus ring color |
+| Variable   | Description                                   |
+| ---------- | --------------------------------------------- |
+| `--border` | Default border color                          |
+| `--ring`   | Focus ring color                              |
 | `--radius` | Base border-radius (0 = sharp, 8px = rounded) |
 
 ### Typography
 
-| Variable | Description |
-|---|---|
-| `--font-sans` | Body text, descriptions, content |
+| Variable      | Description                                   |
+| ------------- | --------------------------------------------- |
+| `--font-sans` | Body text, descriptions, content              |
 | `--font-mono` | UI chrome: buttons, badges, tabs, labels, nav |
 
 ## Font Convention
@@ -57,12 +57,12 @@ Components use standard Tailwind utilities (`bg-card`, `border-border`, `rounded
 
 ## Layout Modes
 
-| Mode | Content Width | Padding | Use Case |
-|---|---|---|---|
-| `default` | `max-w-4xl` centered | `p-3 md:p-4 lg:p-6` | Forms, settings |
-| `wide` | Full width | `p-3 md:p-4 lg:p-6` | Tables, cards |
-| `full` | Full width | `p-2 md:p-3` | Kanban, calendar |
-| `immersive` | Full width | None | Block editor |
+| Mode        | Content Width        | Padding             | Use Case         |
+| ----------- | -------------------- | ------------------- | ---------------- |
+| `default`   | `max-w-4xl` centered | `p-3 md:p-4 lg:p-6` | Forms, settings  |
+| `wide`      | Full width           | `p-3 md:p-4 lg:p-6` | Tables, cards    |
+| `full`      | Full width           | `p-2 md:p-3`        | Kanban, calendar |
+| `immersive` | Full width           | None                | Block editor     |
 
 ## Creating a Custom Theme
 

@@ -651,7 +651,7 @@ fields: {
 
 8. **Saved Views** - UX improvement
 9. **Custom Dashboard** - Nice to have
-10. **Permissions UI** - Can use QuestPie access control directly
+10. **Permissions UI** - Can use QUESTPIE access control directly
 
 ## ✅ Core Requirements Validation
 

@@ -34,7 +34,7 @@ export async function executeHooks(
 			try {
 				await hook(ctx);
 			} catch (err) {
-				console.error("[QuestPie] after* hook error:", err);
+				console.error("[QUESTPIE] after* hook error:", err);
 			}
 		} else {
 			await hook(ctx);

@@ -19,6 +19,8 @@ import type {
 import { isPreviewToAdminMessage } from "../../preview/types.js";
 import { selectClient, useAdminStore } from "../../runtime/provider.js";
 
+const DEV_TELEMETRY = process.env.NODE_ENV === "development";
+
 // ============================================================================
 // Types
 // ============================================================================
@@ -78,8 +80,21 @@ export const PreviewPane = React.forwardRef<PreviewPaneRef, PreviewPaneProps>(
 		const isReadyRef = React.useRef(false);
 		const [iframeLoading, setIframeLoading] = React.useState(true);
 		const [isRefreshing, setIsRefreshing] = React.useState(false);
+		const isRefreshingRef = React.useRef(false);
+		const pendingRefreshRef = React.useRef(false);
+		const refreshMetricsRef = React.useRef({
+			startedAt: 0,
+			requested: 0,
+			queued: 0,
+			completed: 0,
+			lastLogAt: 0,
+		});
 
-		const { data: previewUrl, error: tokenQueryError, isLoading: isTokenLoading } = useQuery({
+		const {
+			data: previewUrl,
+			error: tokenQueryError,
+			isLoading: isTokenLoading,
+		} = useQuery({
 			queryKey: ["questpie", "preview-token", url],
 			queryFn: async () => {
 				const result = await (client as any).routes.mintPreviewToken({
@@ -93,7 +108,12 @@ export const PreviewPane = React.forwardRef<PreviewPaneRef, PreviewPaneProps>(
 			retry: false,
 		});
 		const previewUrlResolved = previewUrl ?? null;
-		const tokenError = tokenQueryError instanceof Error ? tokenQueryError.message : tokenQueryError ? t("error.failedToGeneratePreviewToken") : null;
+		const tokenError =
+			tokenQueryError instanceof Error
+				? tokenQueryError.message
+				: tokenQueryError
+					? t("error.failedToGeneratePreviewToken")
+					: null;
 		const isLoading = isTokenLoading || iframeLoading;
 
 		// Validate origin for security
@@ -133,15 +153,43 @@ export const PreviewPane = React.forwardRef<PreviewPaneRef, PreviewPaneProps>(
 			[url],
 		);
 
+		const requestRefresh = React.useCallback(() => {
+			if (!isReady) {
+				return;
+			}
+
+			const metrics = refreshMetricsRef.current;
+			const now = performance.now();
+			if (!metrics.startedAt) {
+				metrics.startedAt = now;
+			}
+			metrics.requested += 1;
+
+			if (isRefreshingRef.current) {
+				pendingRefreshRef.current = true;
+				metrics.queued += 1;
+				if (DEV_TELEMETRY && now - metrics.lastLogAt >= 5000) {
+					metrics.lastLogAt = now;
+					const elapsedSec = Math.max(1, (now - metrics.startedAt) / 1000);
+					const refreshPerMinute = (metrics.completed * 60) / elapsedSec;
+					console.debug(
+						`[LivePreviewTelemetry] refresh requested=${metrics.requested} completed=${metrics.completed} queued=${metrics.queued} rpm=${refreshPerMinute.toFixed(1)}`,
+					);
+				}
+				return;
+			}
+
+			isRefreshingRef.current = true;
+			setIsRefreshing(true);
+			sendToPreview({ type: "PREVIEW_REFRESH" });
+		}, [isReady, sendToPreview]);
+
 		// Expose refresh and focus methods via imperative handle
 		React.useImperativeHandle(
 			ref,
 			() => ({
 				triggerRefresh: () => {
-					if (isReady) {
-						setIsRefreshing(true);
-						sendToPreview({ type: "PREVIEW_REFRESH" });
-					}
+					requestRefresh();
 				},
 				sendFocusToPreview: (fieldPath: string) => {
 					if (isReady) {
@@ -149,7 +197,7 @@ export const PreviewPane = React.forwardRef<PreviewPaneRef, PreviewPaneProps>(
 					}
 				},
 			}),
-			[isReady, sendToPreview],
+			[isReady, requestRefresh, sendToPreview],
 		);
 
 		// Listen for messages from preview
@@ -168,12 +216,47 @@ export const PreviewPane = React.forwardRef<PreviewPaneRef, PreviewPaneProps>(
 				switch (event.data.type) {
 					case "PREVIEW_READY":
 						isReadyRef.current = true;
+						isRefreshingRef.current = false;
+						pendingRefreshRef.current = false;
+						refreshMetricsRef.current = {
+							startedAt: 0,
+							requested: 0,
+							queued: 0,
+							completed: 0,
+							lastLogAt: 0,
+						};
 						setIsReady(true);
 						setIframeLoading(false);
+						setIsRefreshing(false);
 						break;
 
 					case "REFRESH_COMPLETE":
-						setIsRefreshing(false);
+						if (refreshMetricsRef.current.startedAt) {
+							refreshMetricsRef.current.completed += 1;
+						}
+						if (pendingRefreshRef.current) {
+							pendingRefreshRef.current = false;
+							sendToPreview({ type: "PREVIEW_REFRESH" });
+						} else {
+							isRefreshingRef.current = false;
+							setIsRefreshing(false);
+							if (DEV_TELEMETRY) {
+								const metrics = refreshMetricsRef.current;
+								const now = performance.now();
+								if (now - metrics.lastLogAt >= 5000 && metrics.startedAt) {
+									metrics.lastLogAt = now;
+									const elapsedSec = Math.max(
+										1,
+										(now - metrics.startedAt) / 1000,
+									);
+									const refreshPerMinute =
+										(metrics.completed * 60) / elapsedSec;
+									console.debug(
+										`[LivePreviewTelemetry] refresh requested=${metrics.requested} completed=${metrics.completed} queued=${metrics.queued} rpm=${refreshPerMinute.toFixed(1)}`,
+									);
+								}
+							}
+						}
 						break;
 
 					case "FIELD_CLICKED":
@@ -191,7 +274,7 @@ export const PreviewPane = React.forwardRef<PreviewPaneRef, PreviewPaneProps>(
 
 			window.addEventListener("message", handleMessage);
 			return () => window.removeEventListener("message", handleMessage);
-		}, [isValidOrigin, onFieldClick, onBlockClick]);
+		}, [isValidOrigin, onFieldClick, onBlockClick, sendToPreview]);
 
 		// Send selected block updates
 		React.useEffect(() => {
@@ -242,7 +325,9 @@ export const PreviewPane = React.forwardRef<PreviewPaneRef, PreviewPaneProps>(
 							icon="ph:spinner"
 							className="h-4 w-4 animate-spin text-muted-foreground"
 						/>
-						<span className="text-sm text-muted-foreground">{t("preview.refreshing")}</span>
+						<span className="text-sm text-muted-foreground">
+							{t("preview.refreshing")}
+						</span>
 					</div>
 				)}
 
@@ -280,7 +365,7 @@ type PreviewToggleButtonProps = {
 /**
  * Button to toggle preview pane visibility.
  */
-function PreviewToggleButton({
+function _PreviewToggleButton({
 	isPreviewVisible,
 	onToggle,
 	className,

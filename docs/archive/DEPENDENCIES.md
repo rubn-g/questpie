@@ -55,7 +55,7 @@ grep -r "\"zod\":" packages/*/package.json examples/*/package.json
 # Check drizzle-orm version
 grep -r "\"drizzle-orm\":" packages/*/package.json examples/*/package.json
 
-# Check all critical deps in QuestPie package
+# Check all critical deps in QUESTPIE package
 cat packages/package.json | grep -E "\"(zod|drizzle-orm|better-auth|pg|pg-boss)\":"
 ```
 

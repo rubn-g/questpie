@@ -26,7 +26,7 @@ export type ApiErrorOptions = {
 };
 
 /**
- * Base QuestPie Error class
+ * Base QUESTPIE Error class
  * Provides type-safe, structured errors across the entire app
  */
 export class ApiError extends Error {

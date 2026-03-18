@@ -9,7 +9,7 @@
 
 ## Summary
 
-QuestPie's core is an **empty framework**. It provides builder primitives (`CollectionBuilder`, `GlobalBuilder`), a codegen engine, and a plugin API — but zero fields, zero views, zero collections, zero services. Everything is contributed by **modules** and **plugins**, wired together by codegen, and made available to every handler through a single extensible interface: **`AppContext`**.
+QUESTPIE's core is an **empty framework**. It provides builder primitives (`CollectionBuilder`, `GlobalBuilder`), a codegen engine, and a plugin API — but zero fields, zero views, zero collections, zero services. Everything is contributed by **modules** and **plugins**, wired together by codegen, and made available to every handler through a single extensible interface: **`AppContext`**.
 
 There is no god object. No `Questpie<TConfig>` generic. No `App` type. The runtime `app` is a simple extensible object where everything sits flat. Plugins and modules add their keys horizontally — fields, views, services, routes, collections — through the same mechanism.
 
@@ -170,18 +170,18 @@ async ({ data, channels }) => {
 
 Core (`packages/questpie`) is a **framework** — it provides primitives, not features:
 
-| Primitive | Purpose |
-|-----------|---------|
-| `CollectionBuilder` | Immutable builder for defining collections (fields, hooks, access, relations) |
-| `GlobalBuilder` | Immutable builder for defining globals |
-| `createApp()` | Runtime assembly — creates the app object from definition + runtime config |
-| `AppContext` | Empty extensible interface — the universal handler context |
-| `extractAppServices()` | Flattens app instance into AppContext shape |
-| Codegen engine | File discovery + template generation |
-| `CodegenPlugin` API | Extension point for plugins to discover files and register builder extensions |
-| Type utilities | `GetCollection`, `GetGlobal`, `CollectionSelect`, etc. |
-| HTTP adapter | `createFetchHandler()` — URL dispatch (§7) |
-| CRUD generator | Generates typed CRUD APIs from collection/global definitions |
+| Primitive              | Purpose                                                                       |
+| ---------------------- | ----------------------------------------------------------------------------- |
+| `CollectionBuilder`    | Immutable builder for defining collections (fields, hooks, access, relations) |
+| `GlobalBuilder`        | Immutable builder for defining globals                                        |
+| `createApp()`          | Runtime assembly — creates the app object from definition + runtime config    |
+| `AppContext`           | Empty extensible interface — the universal handler context                    |
+| `extractAppServices()` | Flattens app instance into AppContext shape                                   |
+| Codegen engine         | File discovery + template generation                                          |
+| `CodegenPlugin` API    | Extension point for plugins to discover files and register builder extensions |
+| Type utilities         | `GetCollection`, `GetGlobal`, `CollectionSelect`, etc.                        |
+| HTTP adapter           | `createFetchHandler()` — URL dispatch (§7)                                    |
+| CRUD generator         | Generates typed CRUD APIs from collection/global definitions                  |
 
 ### What Core Does NOT Provide
 
@@ -263,7 +263,7 @@ export const posts = collection("posts")
 
 ## §4 Primitives — Routes, Functions, Jobs, Services
 
-QuestPie provides four handler primitives. Each receives `AppContext` with full typed services.
+QUESTPIE provides four handler primitives. Each receives `AppContext` with full typed services.
 
 ### §4.1 Functions — Type-Safe Remote Procedures
 
@@ -403,15 +403,15 @@ export default route({
 
 ### §4.3 When to Use Functions vs Routes
 
-| | Functions (`fn`) | Routes (`route`) |
-|---|---|---|
-| **Input** | Zod-validated JSON body | Raw `Request` — parse yourself |
-| **Output** | Auto-serialized (JSON/SuperJSON) | Raw `Response` — build yourself |
-| **HTTP method** | Always `POST` | Any method |
-| **Access control** | Built-in `access` callback | Handle yourself |
-| **Client SDK** | `client.rpc.myFunction(input)` — type-safe | Not in client SDK |
-| **Use for** | Business logic, queries, mutations | Webhooks, downloads, streams, health |
-| **URL pattern** | `/rpc/{name}` | `/routes/{path}` |
+|                    | Functions (`fn`)                           | Routes (`route`)                     |
+| ------------------ | ------------------------------------------ | ------------------------------------ |
+| **Input**          | Zod-validated JSON body                    | Raw `Request` — parse yourself       |
+| **Output**         | Auto-serialized (JSON/SuperJSON)           | Raw `Response` — build yourself      |
+| **HTTP method**    | Always `POST`                              | Any method                           |
+| **Access control** | Built-in `access` callback                 | Handle yourself                      |
+| **Client SDK**     | `client.rpc.myFunction(input)` — type-safe | Not in client SDK                    |
+| **Use for**        | Business logic, queries, mutations         | Webhooks, downloads, streams, health |
+| **URL pattern**    | `/rpc/{name}`                              | `/routes/{path}`                     |
 
 **Rule of thumb:** If the caller is your own frontend → **function**. If the caller is an external service or needs non-JSON responses → **route**.
 
@@ -682,16 +682,16 @@ Response
 
 The handler is extensible through the primitives themselves — no framework hooks needed:
 
-| Extension Point | Mechanism |
-|----------------|-----------|
-| New HTTP endpoints | `routes/*.ts` files → auto-discovered, mounted at `/routes/*` |
-| New business logic | `functions/*.ts` files → auto-discovered, mounted at `/rpc/*` |
-| Custom auth | `getSession` callback on adapter config |
-| Custom locale | `getLocale` callback on adapter config |
-| Context enrichment | `context.ts` single file — adds properties to every request context |
-| New CRUD collections | `collections/*.ts` files → auto-discovered, auto-mounted at `/:slug` |
-| New globals | `globals/*.ts` files → auto-discovered, auto-mounted at `/globals/:slug` |
-| Background work | `jobs/*.ts` files → dispatched via `queue.jobName.publish()` |
+| Extension Point      | Mechanism                                                                |
+| -------------------- | ------------------------------------------------------------------------ |
+| New HTTP endpoints   | `routes/*.ts` files → auto-discovered, mounted at `/routes/*`            |
+| New business logic   | `functions/*.ts` files → auto-discovered, mounted at `/rpc/*`            |
+| Custom auth          | `getSession` callback on adapter config                                  |
+| Custom locale        | `getLocale` callback on adapter config                                   |
+| Context enrichment   | `context.ts` single file — adds properties to every request context      |
+| New CRUD collections | `collections/*.ts` files → auto-discovered, auto-mounted at `/:slug`     |
+| New globals          | `globals/*.ts` files → auto-discovered, auto-mounted at `/globals/:slug` |
+| Background work      | `jobs/*.ts` files → dispatched via `queue.jobName.publish()`             |
 
 **Example: Adding webhooks to an existing app:**
 
@@ -1152,15 +1152,15 @@ After implementation, verify:
 
 ## §13 Glossary
 
-| Term | Definition |
-|------|-----------|
-| **AppContext** | Empty interface in core, augmented by generated code. Every handler extends it. |
-| **AppConfig** | Flat type (`{ collections, globals, auth }`) for client APIs. Exported from generated code. |
-| **Function** | Type-safe RPC — validated input, auto-serialized output. `POST /rpc/{name}`. |
-| **Route** | Raw HTTP handler — any method, full `Request`/`Response` control. Mounted at `/routes/{path}`. |
-| **Job** | Background task — queued, retried, schedulable. Dispatched via `queue.jobName.publish()`. |
-| **Service** | Singleton or request-scoped dependency. Flat on AppContext. |
-| **Module** | Static data object contributing collections, fields, views, etc. Merged by `createApp()`. |
-| **CodegenPlugin** | Extension point for codegen — discovers files, registers builder extensions. |
-| **Extension** | Builder method added via `declare module` (types) + Proxy (runtime). |
-| **`_AppInternal`** | Internal `Questpie<>` type in generated code. Never exported. Used only for type derivation. |
+| Term               | Definition                                                                                     |
+| ------------------ | ---------------------------------------------------------------------------------------------- |
+| **AppContext**     | Empty interface in core, augmented by generated code. Every handler extends it.                |
+| **AppConfig**      | Flat type (`{ collections, globals, auth }`) for client APIs. Exported from generated code.    |
+| **Function**       | Type-safe RPC — validated input, auto-serialized output. `POST /rpc/{name}`.                   |
+| **Route**          | Raw HTTP handler — any method, full `Request`/`Response` control. Mounted at `/routes/{path}`. |
+| **Job**            | Background task — queued, retried, schedulable. Dispatched via `queue.jobName.publish()`.      |
+| **Service**        | Singleton or request-scoped dependency. Flat on AppContext.                                    |
+| **Module**         | Static data object contributing collections, fields, views, etc. Merged by `createApp()`.      |
+| **CodegenPlugin**  | Extension point for codegen — discovers files, registers builder extensions.                   |
+| **Extension**      | Builder method added via `declare module` (types) + Proxy (runtime).                           |
+| **`_AppInternal`** | Internal `Questpie<>` type in generated code. Never exported. Used only for type derivation.   |

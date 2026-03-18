@@ -48,14 +48,13 @@ import {
 import {
 	createSearchService,
 	type SearchService,
-	type SearchServiceWrapper,
 } from "#questpie/server/integrated/search/index.js";
 import { createDiskDriver } from "#questpie/server/integrated/storage/create-driver.js";
+import { resolveAutoSeedCategories } from "#questpie/server/seed/types.js";
 import {
 	ServiceBuilder,
 	type ServiceLifecycle,
 } from "#questpie/server/services/define-service.js";
-import { resolveAutoSeedCategories } from "#questpie/server/seed/types.js";
 import { DEFAULT_LOCALE } from "#questpie/shared/constants.js";
 import type {
 	AnyCollectionOrBuilder,
@@ -67,9 +66,7 @@ import type { GetMessageKeys, QuestpieConfig } from "./types.js";
 
 interface ResolvedServiceDefinition {
 	lifecycle: ServiceLifecycle;
-	create: (
-		ctx: Questpie.ServiceCreateContext,
-	) => unknown | Promise<unknown>;
+	create: (ctx: Questpie.ServiceCreateContext) => unknown | Promise<unknown>;
 	dispose?: (instance: unknown) => void | Promise<void>;
 	namespace: string | null;
 }
@@ -218,7 +215,7 @@ export class Questpie<TConfig extends QuestpieConfig = QuestpieConfig> {
 		// This is done here but the actual initialization happens on first use
 		// or can be explicitly called via app.search.initialize()
 		this.search.initialize().catch((err: unknown) => {
-			this.logger.error("[QuestPie] Failed to initialize search adapter:", err);
+			this.logger.error("[QUESTPIE] Failed to initialize search adapter:", err);
 		});
 
 		// Initialize realtime service with auto-configured adapter
@@ -312,7 +309,7 @@ export class Questpie<TConfig extends QuestpieConfig = QuestpieConfig> {
 			const hmrKey = `__questpie_hmr_${config.app.url}`;
 			const existing = (globalThis as Record<string, unknown>)[hmrKey];
 			if (existing && typeof (existing as Questpie).destroy === "function") {
-				(existing as Questpie).destroy().catch(() => {});
+				(existing as Questpie).destroy().catch(() => { });
 			}
 			(globalThis as Record<string, unknown>)[hmrKey] = this;
 		}
@@ -391,7 +388,7 @@ export class Questpie<TConfig extends QuestpieConfig = QuestpieConfig> {
 				await this.seeds.run(categories ? { category: categories } : {});
 			}
 		} catch (err) {
-			this.logger.error("[QuestPie] Auto-initialization failed:", err);
+			this.logger.error("[QUESTPIE] Auto-initialization failed:", err);
 			throw err;
 		}
 	}
@@ -405,7 +402,7 @@ export class Questpie<TConfig extends QuestpieConfig = QuestpieConfig> {
 
 		if (namespace === "") {
 			throw new Error(
-				"[QuestPie] Service namespace cannot be an empty string.",
+				"[QUESTPIE] Service namespace cannot be an empty string.",
 			);
 		}
 
@@ -422,27 +419,24 @@ export class Questpie<TConfig extends QuestpieConfig = QuestpieConfig> {
 			const state =
 				input instanceof ServiceBuilder
 					? input.state
-					: ((input as { state?: unknown }).state as
-							| Record<string, unknown>
-							| undefined) ??
-						(input as Record<string, unknown>);
+					: (((input as { state?: unknown }).state as
+						| Record<string, unknown>
+						| undefined) ?? (input as Record<string, unknown>));
 
 			if (!state || typeof state !== "object") {
 				throw new Error(
-					`[QuestPie] Service "${name}" is invalid. Use service().create(...) or service({ create: ... }).`,
+					`[QUESTPIE] Service "${name}" is invalid. Use service().create(...) or service({ create: ... }).`,
 				);
 			}
 
 			if (typeof state.create !== "function") {
-				throw new Error(
-					`[QuestPie] Service "${name}" must define create().`,
-				);
+				throw new Error(`[QUESTPIE] Service "${name}" must define create().`);
 			}
 
 			const lifecycle = (state.lifecycle ?? "singleton") as ServiceLifecycle;
 			if (lifecycle !== "singleton" && lifecycle !== "request") {
 				throw new Error(
-					`[QuestPie] Service "${name}" has invalid lifecycle "${String(state.lifecycle)}".`,
+					`[QUESTPIE] Service "${name}" has invalid lifecycle "${String(state.lifecycle)}".`,
 				);
 			}
 
@@ -453,7 +447,7 @@ export class Questpie<TConfig extends QuestpieConfig = QuestpieConfig> {
 			if (lifecycle === "request" && namespace !== "services") {
 				const formattedNamespace = namespace === null ? "null" : namespace;
 				throw new Error(
-					`[QuestPie] Service "${name}" uses namespace "${formattedNamespace}" but only singleton services may use non-default namespaces.`,
+					`[QUESTPIE] Service "${name}" uses namespace "${formattedNamespace}" but only singleton services may use non-default namespaces.`,
 				);
 			}
 
@@ -485,7 +479,10 @@ export class Questpie<TConfig extends QuestpieConfig = QuestpieConfig> {
 			});
 		}
 
-		if (!this._initPromise && (this.config.autoMigrate || this.config.autoSeed)) {
+		if (
+			!this._initPromise &&
+			(this.config.autoMigrate || this.config.autoSeed)
+		) {
 			this._initPromise = this._autoInit();
 		}
 	}
@@ -552,7 +549,7 @@ export class Questpie<TConfig extends QuestpieConfig = QuestpieConfig> {
 					return Reflect.get(target, prop, receiver);
 				}
 
-				if (Object.prototype.hasOwnProperty.call(target, prop)) {
+				if (Object.hasOwn(target, prop)) {
 					return target[prop];
 				}
 
@@ -573,7 +570,7 @@ export class Questpie<TConfig extends QuestpieConfig = QuestpieConfig> {
 			},
 			has: (target, prop) => {
 				if (typeof prop !== "string") return false;
-				if (Object.prototype.hasOwnProperty.call(target, prop)) return true;
+				if (Object.hasOwn(target, prop)) return true;
 				if (prop === "services") return true;
 				if (this._customServiceNamespaces.has(prop)) return true;
 				const topLevelDef = this._serviceDefs[prop];
@@ -664,12 +661,12 @@ export class Questpie<TConfig extends QuestpieConfig = QuestpieConfig> {
 					popIfCurrent();
 					if (options.lazyTriggered) {
 						throw new Error(
-							`[QuestPie] Service "${name}" has async create() but was lazily triggered. Reorder services so "${name}" initializes first.`,
+							`[QUESTPIE] Service "${name}" has async create() but was lazily triggered. Reorder services so "${name}" initializes first.`,
 						);
 					}
 
 					throw new Error(
-						`[QuestPie] Service "${name}" has async create() but this resolution path is synchronous.`,
+						`[QUESTPIE] Service "${name}" has async create() but this resolution path is synchronous.`,
 					);
 				}
 
@@ -705,7 +702,9 @@ export class Questpie<TConfig extends QuestpieConfig = QuestpieConfig> {
 		if (existingIndex === -1) return;
 
 		const cycle = [...stack.slice(existingIndex), name].join(" -> ");
-		throw new Error(`[QuestPie] Circular service dependency detected: ${cycle}`);
+		throw new Error(
+			`[QUESTPIE] Circular service dependency detected: ${cycle}`,
+		);
 	}
 
 	/**
@@ -719,7 +718,7 @@ export class Questpie<TConfig extends QuestpieConfig = QuestpieConfig> {
 		if (def.lifecycle === "singleton") {
 			if (this._singletonServices[name] === undefined) {
 				throw new Error(
-					`[QuestPie] Singleton service "${name}" is not initialized. Await createApp() before accessing services.`,
+					`[QUESTPIE] Singleton service "${name}" is not initialized. Await createApp() before accessing services.`,
 				);
 			}
 			return this._singletonServices[name];
@@ -833,18 +832,18 @@ export class Questpie<TConfig extends QuestpieConfig = QuestpieConfig> {
 					const isAfter = hookName.startsWith("after");
 					const wrapped = isAfter
 						? async (ctx: any) => {
-								try {
-									await globalFn({ ...ctx, collection: name });
-								} catch (err) {
-									this.logger.error(
-										`[QuestPie] Global collection hook "${hookName}" error for "${name}":`,
-										err,
-									);
-								}
-							}
-						: async (ctx: any) => {
+							try {
 								await globalFn({ ...ctx, collection: name });
-							};
+							} catch (err) {
+								this.logger.error(
+									`[QUESTPIE] Global collection hook "${hookName}" error for "${name}":`,
+									err,
+								);
+							}
+						}
+						: async (ctx: any) => {
+							await globalFn({ ...ctx, collection: name });
+						};
 
 					appendHook(state.hooks, hookName, wrapped);
 				}
@@ -860,18 +859,18 @@ export class Questpie<TConfig extends QuestpieConfig = QuestpieConfig> {
 					const isAfter = hookName === "afterTransition";
 					const wrapped = isAfter
 						? async (ctx: any) => {
-								try {
-									await globalFn({ ...ctx, collection: name });
-								} catch (err) {
-									this.logger.error(
-										`[QuestPie] Global collection hook "${hookName}" error for "${name}":`,
-										err,
-									);
-								}
-							}
-						: async (ctx: any) => {
+							try {
 								await globalFn({ ...ctx, collection: name });
-							};
+							} catch (err) {
+								this.logger.error(
+									`[QUESTPIE] Global collection hook "${hookName}" error for "${name}":`,
+									err,
+								);
+							}
+						}
+						: async (ctx: any) => {
+							await globalFn({ ...ctx, collection: name });
+						};
 
 					appendHook(state.hooks, hookName, wrapped);
 				}
@@ -895,18 +894,18 @@ export class Questpie<TConfig extends QuestpieConfig = QuestpieConfig> {
 					const isAfter = hookName === "afterChange";
 					const wrapped = isAfter
 						? async (ctx: any) => {
-								try {
-									await globalFn({ ...ctx, global: name });
-								} catch (err) {
-									this.logger.error(
-										`[QuestPie] Global global hook "${hookName}" error for "${name}":`,
-										err,
-									);
-								}
-							}
-						: async (ctx: any) => {
+							try {
 								await globalFn({ ...ctx, global: name });
-							};
+							} catch (err) {
+								this.logger.error(
+									`[QUESTPIE] Global global hook "${hookName}" error for "${name}":`,
+									err,
+								);
+							}
+						}
+						: async (ctx: any) => {
+							await globalFn({ ...ctx, global: name });
+						};
 
 					appendHook(state.hooks, hookName, wrapped);
 				}
@@ -922,18 +921,18 @@ export class Questpie<TConfig extends QuestpieConfig = QuestpieConfig> {
 					const isAfter = hookName === "afterTransition";
 					const wrapped = isAfter
 						? async (ctx: any) => {
-								try {
-									await globalFn({ ...ctx, global: name });
-								} catch (err) {
-									this.logger.error(
-										`[QuestPie] Global global hook "${hookName}" error for "${name}":`,
-										err,
-									);
-								}
-							}
-						: async (ctx: any) => {
+							try {
 								await globalFn({ ...ctx, global: name });
-							};
+							} catch (err) {
+								this.logger.error(
+									`[QUESTPIE] Global global hook "${hookName}" error for "${name}":`,
+									err,
+								);
+							}
+						}
+						: async (ctx: any) => {
+							await globalFn({ ...ctx, global: name });
+						};
 
 					appendHook(state.hooks, hookName, wrapped);
 				}
@@ -967,14 +966,14 @@ export class Questpie<TConfig extends QuestpieConfig = QuestpieConfig> {
 				) {
 					errors.push(
 						`Collection "${collectionKey}" has relation "${relationName}" pointing to unknown target "${relation.collection}". ` +
-							`Available collections/globals: ${relationTargetKeys.join(", ")}`,
+						`Available collections/globals: ${relationTargetKeys.join(", ")}`,
 					);
 				}
 				// Validate through/junction collection for many-to-many
 				if (relation.through && !collectionKeys.includes(relation.through)) {
 					errors.push(
 						`Collection "${collectionKey}" has relation "${relationName}" with "through: ${relation.through}" pointing to unknown collection. ` +
-							`Did you mean one of: ${collectionKeys.join(", ")}?`,
+						`Did you mean one of: ${collectionKeys.join(", ")}?`,
 					);
 				}
 			}
@@ -994,14 +993,14 @@ export class Questpie<TConfig extends QuestpieConfig = QuestpieConfig> {
 				) {
 					errors.push(
 						`Global "${globalKey}" has relation "${relationName}" pointing to unknown target "${relation.collection}". ` +
-							`Available collections/globals: ${relationTargetKeys.join(", ")}`,
+						`Available collections/globals: ${relationTargetKeys.join(", ")}`,
 					);
 				}
 				// Validate through/junction collection for many-to-many
 				if (relation.through && !collectionKeys.includes(relation.through)) {
 					errors.push(
 						`Global "${globalKey}" has relation "${relationName}" with "through: ${relation.through}" pointing to unknown collection. ` +
-							`Did you mean one of: ${collectionKeys.join(", ")}?`,
+						`Did you mean one of: ${collectionKeys.join(", ")}?`,
 					);
 				}
 			}
@@ -1019,8 +1018,8 @@ export class Questpie<TConfig extends QuestpieConfig = QuestpieConfig> {
 	): TConfig["collections"][TName] extends Collection<infer TState>
 		? Collection<TState>
 		: TConfig["collections"][TName] extends CollectionBuilder<infer TState>
-			? Collection<TState>
-			: never {
+		? Collection<TState>
+		: never {
 		const collection = this._collections[name as string];
 		if (!collection) {
 			throw new Error(`Collection "${String(name)}" not found.`);
@@ -1033,8 +1032,8 @@ export class Questpie<TConfig extends QuestpieConfig = QuestpieConfig> {
 	): NonNullable<TConfig["globals"]>[TName] extends Global<infer TState>
 		? Global<TState>
 		: NonNullable<TConfig["globals"]>[TName] extends GlobalBuilder<infer TState>
-			? Global<TState>
-			: never {
+		? Global<TState>
+		: never {
 		const global = this._globals[name as string];
 		if (!global) {
 			throw new Error(`Global "${String(name)}" not found.`);
@@ -1109,10 +1108,10 @@ export class Questpie<TConfig extends QuestpieConfig = QuestpieConfig> {
 		[K in keyof TConfig["collections"]]: TConfig["collections"][K] extends Collection<
 			infer TState
 		>
-			? Collection<TState>
-			: TConfig["collections"][K] extends CollectionBuilder<infer TState>
-				? Collection<TState>
-				: never;
+		? Collection<TState>
+		: TConfig["collections"][K] extends CollectionBuilder<infer TState>
+		? Collection<TState>
+		: never;
 	} {
 		return this._collections as any;
 	}
@@ -1121,10 +1120,10 @@ export class Questpie<TConfig extends QuestpieConfig = QuestpieConfig> {
 		[K in keyof NonNullable<TConfig["globals"]>]: NonNullable<
 			TConfig["globals"]
 		>[K] extends Global<infer TState>
-			? Global<TState>
-			: NonNullable<TConfig["globals"]>[K] extends GlobalBuilder<infer TState>
-				? Global<TState>
-				: never;
+		? Global<TState>
+		: NonNullable<TConfig["globals"]>[K] extends GlobalBuilder<infer TState>
+		? Global<TState>
+		: never;
 	} {
 		return this._globals as any;
 	}

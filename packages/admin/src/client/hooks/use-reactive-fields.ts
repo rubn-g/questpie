@@ -244,7 +244,7 @@ export function useReactiveFields({
 	);
 
 	const watchedDepValues = useWatch({
-		control: form?.control ?? undefined!,
+		control: form?.control as any,
 		name: watchDeps as any,
 		disabled: !form || watchDeps.length === 0,
 	});
@@ -263,22 +263,27 @@ export function useReactiveFields({
 		null,
 	);
 
-	const mutateRef = React.useRef<(descriptors: ReactiveRequestDescriptor[]) => void>(undefined);
+	const mutateRef =
+		React.useRef<(descriptors: ReactiveRequestDescriptor[]) => void>(undefined);
 	const reactiveMutation = useMutation({
 		mutationFn: async (descriptors: ReactiveRequestDescriptor[]) => {
+			if (!client) {
+				return { results: [] as ReactiveFieldResult[] };
+			}
+
 			const formData = (form.getValues() ?? {}) as Record<string, any>;
 			const prevData = prevFormValuesRef.current;
 			const requests = descriptors.map((descriptor) => ({
 				field: descriptor.field,
 				type: descriptor.type,
-				formData,
 				siblingData: getSiblingData(formData, descriptor.field),
-				prevData,
 				prevSiblingData: getSiblingData(prevData, descriptor.field),
 			}));
-			return (client!.routes as any).batchReactive({
+			return (client.routes as any).batchReactive({
 				collection,
 				type: mode,
+				formData,
+				prevData,
 				requests,
 			});
 		},

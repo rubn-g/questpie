@@ -3,8 +3,6 @@ title: Jobs
 description: Background tasks with typed payloads — send emails, process data, schedule work.
 ---
 
-# Jobs
-
 Jobs are background tasks that run outside the request lifecycle. They're ideal for sending emails, processing data, generating reports, or any work that shouldn't block an API response.
 
 ## Defining a Job
@@ -113,7 +111,7 @@ export default email({
 
 ## Queue Adapter
 
-Configure the queue adapter in your runtime config. QuestPie uses [pg-boss](https://github.com/timgit/pg-boss) by default:
+Configure the queue adapter in your runtime config. QUESTPIE uses [pg-boss](https://github.com/timgit/pg-boss) by default:
 
 ```ts title="questpie.config.ts"
 import { pgBossAdapter, runtimeConfig } from "questpie";

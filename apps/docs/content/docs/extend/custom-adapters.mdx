@@ -3,9 +3,7 @@ title: Custom Adapters
 description: Create a custom HTTP framework adapter.
 ---
 
-# Custom Adapters
-
-QuestPie ships with adapters for Hono, Elysia, and Next.js. You can create your own for other frameworks.
+QUESTPIE ships with adapters for Hono, Elysia, and Next.js. You can create your own for other frameworks.
 
 ## Adapter Pattern
 
@@ -21,7 +19,7 @@ export function createMyFrameworkAdapter(app, options) {
     // Convert framework request to standard Request
     const request = toStandardRequest(frameworkRequest);
 
-    // Handle with QuestPie
+    // Handle with QUESTPIE
     const response = await handler(request);
 
     // Convert standard Response back to framework format

@@ -491,13 +491,6 @@ article h6 {
 	margin-bottom: 0.25em !important;
 }
 
-/* Heading anchors inherit heading color */
-.prose h1 a, .prose h2 a, .prose h3 a, .prose h4 a, .prose h5 a, .prose h6 a,
-article h1 a, article h2 a, article h3 a, article h4 a, article h5 a, article h6 a {
-	color: inherit !important;
-	text-decoration: none !important;
-}
-
 /* Tighter prose spacing for docs */
 .prose p,
 article p {
@@ -557,6 +550,13 @@ article a:not(:has(> h1, > h2, > h3, > h4, > h5, > h6)) {
 .prose a:not(:has(> h1, > h2, > h3, > h4, > h5, > h6)):hover,
 article a:not(:has(> h1, > h2, > h3, > h4, > h5, > h6)):hover {
 	text-decoration: underline !important;
+}
+
+/* Heading anchors inherit heading color (must come AFTER general link rule) */
+.prose h1 a, .prose h2 a, .prose h3 a, .prose h4 a, .prose h5 a, .prose h6 a,
+article h1 a, article h2 a, article h3 a, article h4 a, article h5 a, article h6 a {
+	color: inherit !important;
+	text-decoration: none !important;
 }
 
 /* Inline code */

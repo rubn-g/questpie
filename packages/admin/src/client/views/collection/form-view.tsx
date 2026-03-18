@@ -32,10 +32,8 @@ import { ConfirmationDialog } from "../../components/actions/confirmation-dialog
 import { resolveIconElement } from "../../components/component-renderer";
 import { HistorySidebar } from "../../components/history-sidebar";
 import { LocaleSwitcher } from "../../components/locale-switcher";
-import {
-	LivePreviewMode,
-	useLivePreviewContext,
-} from "../../components/preview/live-preview-mode";
+import { LivePreviewMode } from "../../components/preview/live-preview-mode";
+import type { PreviewPaneRef } from "../../components/preview/preview-pane";
 import { DateTimeInput } from "../../components/primitives/date-input";
 import { Badge } from "../../components/ui/badge";
 import { Button } from "../../components/ui/button";
@@ -218,7 +216,7 @@ type AutosaveManagerProps = {
 	isDirtyRef: React.MutableRefObject<boolean>;
 	isSubmittingRef: React.MutableRefObject<boolean>;
 	updateMutation: { mutateAsync: (args: any) => Promise<any> };
-	previewContext: ReturnType<typeof useLivePreviewContext>;
+	onPreviewRefresh?: () => void;
 	onSavingChange: (isSaving: boolean) => void;
 	onSaved: (savedAt: Date) => void;
 };
@@ -233,7 +231,7 @@ const AutosaveManager = React.memo(function AutosaveManager({
 	isDirtyRef,
 	isSubmittingRef,
 	updateMutation,
-	previewContext,
+	onPreviewRefresh,
 	onSavingChange,
 	onSaved,
 }: AutosaveManagerProps) {
@@ -257,9 +255,7 @@ const AutosaveManager = React.memo(function AutosaveManager({
 
 					form.reset(result as any, { keepTouched: true });
 
-					if (previewContext) {
-						previewContext.triggerPreviewRefresh();
-					}
+					onPreviewRefresh?.();
 
 					onSaved(new Date());
 					onSavingChange(false);
@@ -282,7 +278,7 @@ const AutosaveManager = React.memo(function AutosaveManager({
 		isSubmittingRef,
 		onSaved,
 		onSavingChange,
-		previewContext,
+		onPreviewRefresh,
 		t,
 		updateMutation,
 	]);
@@ -588,15 +584,12 @@ export default function FormView({
 		[schema],
 	);
 
-	// Try to get preview context (will be null if not in LivePreviewMode)
-	const previewContext = useLivePreviewContext();
-
 	// Preview configuration from introspected schema (server-side .preview() config)
 	// Note: url function cannot be serialized, so we use hasUrlBuilder flag + RPC
 	const schemaPreview = schema?.admin?.preview;
 	const hasPreview =
 		!!schemaPreview?.hasUrlBuilder && schemaPreview?.enabled !== false;
-	const canUseLivePreview = hasPreview && isEditMode && !!id && !previewContext;
+	const canUseLivePreview = hasPreview && isEditMode && !!id;
 	const previewSearchParamOptions = React.useMemo(
 		() => ({ legacyKeys: [{ key: "sidebar", trueValue: "preview" }] }),
 		[],
@@ -608,25 +601,21 @@ export default function FormView({
 	const [isHistoryOpen, setIsHistoryOpen] = useSidebarSearchParam("history", {
 		legacyKey: "history",
 	});
+	const previewRef = React.useRef<PreviewPaneRef>(null);
+	const triggerPreviewRefresh = React.useCallback(() => {
+		if (!isLivePreviewOpen) return;
+		previewRef.current?.triggerRefresh();
+	}, [isLivePreviewOpen]);
 
 	// Create mode (or missing id) should never keep preview open.
-	// Skip when inside LivePreviewMode (previewContext is set) — the inner FormView
-	// must not clear the ?preview param, otherwise it immediately closes the outer preview.
 	// Also wait for schema to load — prevents clearing ?preview on page refresh before
 	// we know if the collection supports preview.
 	React.useEffect(() => {
-		if (previewContext) return;
 		if (!schema) return;
 		if (!canUseLivePreview && isLivePreviewOpen) {
 			setIsLivePreviewOpen(false);
 		}
-	}, [
-		canUseLivePreview,
-		isLivePreviewOpen,
-		setIsLivePreviewOpen,
-		previewContext,
-		schema,
-	]);
+	}, [canUseLivePreview, isLivePreviewOpen, setIsLivePreviewOpen, schema]);
 
 	// Create mode should never keep history sidebar open
 	React.useEffect(() => {
@@ -642,7 +631,11 @@ export default function FormView({
 	);
 
 	// Fetch item if in edit mode (include relations if specified)
-	const { data: item, isLoading, error: itemError } = useCollectionItem(
+	const {
+		data: item,
+		isLoading,
+		error: itemError,
+	} = useCollectionItem(
 		collection as any,
 		id ?? "",
 		hasManyToManyRelations(withRelations)
@@ -981,7 +974,12 @@ export default function FormView({
 			});
 		}
 		setLocaleChangeDialog({ open: false, pendingLocale: null });
-	}, [localeChangeDialog.pendingLocale, setContentLocale, localeQueryClient, collection]);
+	}, [
+		localeChangeDialog.pendingLocale,
+		setContentLocale,
+		localeQueryClient,
+		collection,
+	]);
 
 	const handleLocaleChangeCancel = React.useCallback(() => {
 		skipItemResetRef.current = false;
@@ -1020,9 +1018,7 @@ export default function FormView({
 						form.reset(result as any);
 
 						// Trigger preview refresh after successful save
-						if (previewContext) {
-							previewContext.triggerPreviewRefresh();
-						}
+						triggerPreviewRefresh();
 					} else if (result?.id) {
 						navigate(`${basePath}/collections/${collection}/${result.id}`);
 					} else {
@@ -1174,73 +1170,85 @@ export default function FormView({
 	);
 
 	// Action helpers
-	const actionHelpers: ActionHelpers = {
-		navigate: storeNavigate,
-		toast: {
-			success: toast.success,
-			error: toast.error,
-			info: toast.info,
-			warning: toast.warning,
-		},
-		t,
-		invalidateCollection: async (targetCollection?: string) => {
-			const col = targetCollection || collection;
-			// Invalidate list and count queries for the collection
-			await queryClient.invalidateQueries({
-				queryKey: queryOpts.key(["collections", col, "find", contentLocale]),
-			});
-			await queryClient.invalidateQueries({
-				queryKey: queryOpts.key(["collections", col, "count", contentLocale]),
-			});
-		},
-		invalidateItem: async (itemId: string, targetCollection?: string) => {
-			const col = targetCollection || collection;
-			// Invalidate findOne query for specific item
-			await queryClient.invalidateQueries({
-				queryKey: queryOpts.key([
-					"collections",
-					col,
-					"findOne",
-					contentLocale,
-					{ id: itemId },
-				]),
-			});
-			// Also invalidate list queries since item data changed
-			await queryClient.invalidateQueries({
-				queryKey: queryOpts.key(["collections", col, "find", contentLocale]),
-			});
-		},
-		invalidateAll: async () => {
-			// Invalidate all queries
-			await queryClient.invalidateQueries({
-				queryKey: [...QUERY_KEY_PREFIX],
-			});
-		},
-		refresh: () => {
-			// Invalidate current collection queries (better than page reload)
-			queryClient.invalidateQueries({
-				queryKey: queryOpts.key([
-					"collections",
-					collection,
-					"find",
-					contentLocale,
-				]),
-			});
-			queryClient.invalidateQueries({
-				queryKey: queryOpts.key([
-					"collections",
-					collection,
-					"count",
-					contentLocale,
-				]),
-			});
-		},
-		closeDialog: () => {
-			setDialogAction(null);
-			setConfirmAction(null);
-		},
-		basePath: storeBasePath || basePath,
-	};
+	const actionHelpers: ActionHelpers = React.useMemo(
+		() => ({
+			navigate: storeNavigate,
+			toast: {
+				success: toast.success,
+				error: toast.error,
+				info: toast.info,
+				warning: toast.warning,
+			},
+			t,
+			invalidateCollection: async (targetCollection?: string) => {
+				const col = targetCollection || collection;
+				// Invalidate list and count queries for the collection
+				await queryClient.invalidateQueries({
+					queryKey: queryOpts.key(["collections", col, "find", contentLocale]),
+				});
+				await queryClient.invalidateQueries({
+					queryKey: queryOpts.key(["collections", col, "count", contentLocale]),
+				});
+			},
+			invalidateItem: async (itemId: string, targetCollection?: string) => {
+				const col = targetCollection || collection;
+				// Invalidate findOne query for specific item
+				await queryClient.invalidateQueries({
+					queryKey: queryOpts.key([
+						"collections",
+						col,
+						"findOne",
+						contentLocale,
+						{ id: itemId },
+					]),
+				});
+				// Also invalidate list queries since item data changed
+				await queryClient.invalidateQueries({
+					queryKey: queryOpts.key(["collections", col, "find", contentLocale]),
+				});
+			},
+			invalidateAll: async () => {
+				// Invalidate all queries
+				await queryClient.invalidateQueries({
+					queryKey: [...QUERY_KEY_PREFIX],
+				});
+			},
+			refresh: () => {
+				// Invalidate current collection queries (better than page reload)
+				queryClient.invalidateQueries({
+					queryKey: queryOpts.key([
+						"collections",
+						collection,
+						"find",
+						contentLocale,
+					]),
+				});
+				queryClient.invalidateQueries({
+					queryKey: queryOpts.key([
+						"collections",
+						collection,
+						"count",
+						contentLocale,
+					]),
+				});
+			},
+			closeDialog: () => {
+				setDialogAction(null);
+				setConfirmAction(null);
+			},
+			basePath: storeBasePath || basePath,
+		}),
+		[
+			storeNavigate,
+			t,
+			collection,
+			queryClient,
+			queryOpts,
+			contentLocale,
+			storeBasePath,
+			basePath,
+		],
+	);
 
 	// Action context for visibility/disabled checks
 	// Use ref for transformedItem to avoid re-computing action visibility on every field change
@@ -1355,7 +1363,7 @@ export default function FormView({
 					// For other API operations, make a fetch request
 					// (This is a fallback - most actions should use custom handlers)
 					let itemId_: string;
-					if (transformedItem && transformedItem.id) {
+					if (transformedItem?.id) {
 						itemId_ = String(transformedItem.id);
 					} else {
 						itemId_ = String(id);
@@ -1452,9 +1460,7 @@ export default function FormView({
 
 		const result = await revertVersionMutation.mutateAsync(payload);
 		form.reset(result as any);
-		if (previewContext) {
-			previewContext.triggerPreviewRefresh();
-		}
+		triggerPreviewRefresh();
 		toast.success(t("version.revertSuccess"));
 		setPendingRevertVersion(null);
 	};
@@ -1544,7 +1550,13 @@ export default function FormView({
 
 	// Generate preview URL via server RPC (url function runs server-side)
 	const { data: previewUrl = null } = useQuery({
-		queryKey: ["questpie", "preview-url", collection, (transformedItem as any)?.id, contentLocale],
+		queryKey: [
+			"questpie",
+			"preview-url",
+			collection,
+			(transformedItem as any)?.id,
+			contentLocale,
+		],
 		queryFn: async () => {
 			const result = await (client as any).routes.getPreviewUrl({
 				collection,
@@ -1553,7 +1565,8 @@ export default function FormView({
 			});
 			return result?.url ?? null;
 		},
-		enabled: isLivePreviewOpen && canUseLivePreview && !!client && !!transformedItem,
+		enabled:
+			isLivePreviewOpen && canUseLivePreview && !!client && !!transformedItem,
 		staleTime: 30_000,
 	});
 
@@ -1662,7 +1675,7 @@ export default function FormView({
 					isDirtyRef={formIsDirtyRef}
 					isSubmittingRef={formIsSubmittingRef}
 					updateMutation={updateMutation}
-					previewContext={previewContext}
+					onPreviewRefresh={triggerPreviewRefresh}
 					onSavingChange={setIsSaving}
 					onSaved={setLastSaved}
 				/>
@@ -2131,26 +2144,22 @@ export default function FormView({
 		</>
 	);
 
-	return (
-		<>
-			<div className="qa-form-view w-full">{formContent}</div>
+	const formShell = <div className="qa-form-view w-full">{formContent}</div>;
 
-			{/* Live Preview Mode */}
-			{canUseLivePreview && isLivePreviewOpen && (
-				<LivePreviewMode
-					open={isLivePreviewOpen}
-					onClose={() => setIsLivePreviewOpen(false)}
-					collection={collection}
-					itemId={id}
-					config={config}
-					allCollectionsConfig={allCollectionsConfig}
-					registry={registry}
-					previewUrl={previewUrl}
-					onSuccess={onSuccess}
-					defaultSize={schemaPreview?.defaultSize}
-					minSize={schemaPreview?.minSize}
-				/>
-			)}
-		</>
+	if (!canUseLivePreview) {
+		return formShell;
+	}
+
+	return (
+		<LivePreviewMode
+			open={isLivePreviewOpen}
+			onClose={() => setIsLivePreviewOpen(false)}
+			previewUrl={previewUrl}
+			previewRef={previewRef}
+			defaultSize={schemaPreview?.defaultSize}
+			minSize={schemaPreview?.minSize}
+		>
+			{formShell}
+		</LivePreviewMode>
 	);
 }

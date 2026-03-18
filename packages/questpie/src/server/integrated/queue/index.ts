@@ -63,7 +63,7 @@
  * });
  * ```
  *
- * ### 2. Configure QuestPie
+ * ### 2. Configure QUESTPIE
  *
  * ```ts
  * import { Questpie, pgBossAdapter } from 'questpie';

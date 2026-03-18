@@ -35,17 +35,17 @@ export type FacetFieldConfig =
 	| true // Simple string facet
 	| { type: "array" } // Multi-value facet (e.g., tags)
 	| {
-			type: "range";
-			buckets: Array<{
-				label: string;
-				min?: number;
-				max?: number;
-			}>;
-	  }
+		type: "range";
+		buckets: Array<{
+			label: string;
+			min?: number;
+			max?: number;
+		}>;
+	}
 	| {
-			type: "hierarchy";
-			separator?: string; // Default: " > "
-	  };
+		type: "hierarchy";
+		separator?: string; // Default: " > "
+	};
 
 /**
  * Facets configuration object
@@ -643,7 +643,7 @@ export type AdapterCapabilities = {
  * Search Adapter interface
  *
  * Adapters fully own their indexing strategy, storage, and queries.
- * QuestPie uses this interface via app.search.* high-level API.
+ * QUESTPIE uses this interface via app.search.* high-level API.
  *
  * @example
  * ```ts
@@ -681,7 +681,7 @@ export interface SearchAdapter {
 
 	/**
 	 * Initialize adapter (check extensions, setup runtime state)
-	 * Called once when QuestPie initializes.
+	 * Called once when QUESTPIE initializes.
 	 * Should NOT create tables/indexes - use getMigrations() for that.
 	 */
 	initialize(ctx: AdapterInitContext): Promise<void>;
@@ -811,7 +811,7 @@ export interface EmbeddingProvider {
  */
 export interface SearchService {
 	/**
-	 * Initialize the search service (called by QuestPie on startup)
+	 * Initialize the search service (called by QUESTPIE on startup)
 	 */
 	initialize(): Promise<void>;
 

@@ -1,11 +1,9 @@
 ---
-title: What is QuestPie
+title: What is QUESTPIE
 description: A backend-first TypeScript framework where schema drives everything — from database to typed frontends.
 ---
 
-# What is QuestPie
-
-QuestPie is a **backend-first TypeScript framework**. You define your data schema once, codegen generates the typed runtime, and any frontend can consume it through introspection.
+QUESTPIE is a **backend-first TypeScript framework**. You define your data schema once, codegen generates the typed runtime, and any frontend can consume it through introspection.
 
 It is **not a CMS**. The admin panel is one projection of your schema — the same way an SDK, an OpenAPI spec, or a mobile app would be. The framework exists independently of any UI.
 
@@ -31,7 +29,7 @@ The admin panel, client SDK, and OpenAPI spec all consume these generated types.
 
 ## Mental Model
 
-Think of QuestPie in three layers:
+Think of QUESTPIE in three layers:
 
 ### Layer 1: Schema (you write this)
 
@@ -70,7 +68,7 @@ const posts = await client.collections.posts.find({
 
 ## Why Not Just Use [X]?
 
-| If you need... | QuestPie gives you... |
+| If you need... | QUESTPIE gives you... |
 |---|---|
 | A typed API from schema | Collections → CRUD endpoints + Zod validation + query operators |
 | Business logic alongside data | Routes, hooks, jobs - all in the same project with DI |
@@ -80,7 +78,7 @@ const posts = await client.collections.posts.find({
 
 ## Context-First Architecture
 
-Every handler in QuestPie receives its dependencies through context — no imports, no singletons, no god objects:
+Every handler in QUESTPIE receives its dependencies through context — no imports, no singletons, no god objects:
 
 ```ts title="routes/create-booking.ts"
 import { route } from "questpie";
@@ -117,6 +115,6 @@ export default route()
 
 ## What's Next
 
-- [Installation](/docs/start-here/installation) — Get QuestPie running
+- [Installation](/docs/start-here/installation) — Get QUESTPIE running
 - [First App](/docs/start-here/first-app) — Build a working API in 5 minutes
 - [Project Structure](/docs/start-here/project-structure) — File conventions and discovery rules

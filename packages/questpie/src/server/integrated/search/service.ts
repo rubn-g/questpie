@@ -9,7 +9,6 @@
 import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
 import {
 	createPostgresSearchAdapter,
-	PostgresSearchAdapter,
 } from "./adapters/postgres.js";
 import type {
 	AdapterLogger,
@@ -35,10 +34,10 @@ export class SearchServiceWrapper implements SearchService {
 		private adapter: SearchAdapter,
 		private db: PostgresJsDatabase<any>,
 		private logger: AdapterLogger,
-	) {}
+	) { }
 
 	/**
-	 * Initialize the adapter (called by QuestPie on startup)
+	 * Initialize the adapter (called by QUESTPIE on startup)
 	 */
 	async initialize(): Promise<void> {
 		if (this.initialized) return;
@@ -123,7 +122,7 @@ export class SearchServiceWrapper implements SearchService {
 	private ensureInitialized(): void {
 		if (!this.initialized) {
 			throw new Error(
-				"SearchService not initialized. Call initialize() first or ensure QuestPie is properly started.",
+				"SearchService not initialized. Call initialize() first or ensure QUESTPIE is properly started.",
 			);
 		}
 	}

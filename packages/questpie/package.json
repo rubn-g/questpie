@@ -11,7 +11,8 @@
 		"questpie": "./dist/cli.mjs"
 	},
 	"files": [
-		"dist"
+		"dist",
+		"skills"
 	],
 	"scripts": {
 		"build": "tsdown",

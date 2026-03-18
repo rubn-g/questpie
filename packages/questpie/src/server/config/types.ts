@@ -59,13 +59,13 @@ type HasI18nFields<
 	},
 > = [keyof TState["fieldDefinitions"]] extends [never]
 	? TState["localized"][number] extends string
-		? true
-		: false
+	? true
+	: false
 	: [
-				keyof ExtractFieldsByLocation<TState["fieldDefinitions"], "i18n">,
-			] extends [never]
-		? false
-		: true;
+		keyof ExtractFieldsByLocation<TState["fieldDefinitions"], "i18n">,
+	] extends [never]
+	? false
+	: true;
 
 // Re-export for convenience (many files import from here)
 export type {
@@ -90,117 +90,117 @@ import type {
 	SearchConfig,
 } from "../integrated/search/index.js";
 import type { Migration } from "../migration/types.js";
-import type { Seed, SeedCategory, SeedsConfig } from "../seed/types.js";
+import type { SeedCategory, SeedsConfig } from "../seed/types.js";
 
 export type DrizzleSchemaFromCollections<
 	TCollections extends Record<string, AnyCollectionOrBuilder>,
 > = {
 	[K in keyof TCollections as TCollections[K] extends Collection<infer TState>
-		? TState["name"]
-		: TCollections[K] extends CollectionBuilder<infer TState>
-			? TState["name"]
-			: never]: TCollections[K] extends Collection<infer TState>
-		? InferTableWithColumns<
-				TState["name"],
-				NonLocalizedFields<SchemaFields<TState>, TState["localized"]>,
-				TState["title"],
-				TState["options"]
-			>
-		: TCollections[K] extends CollectionBuilder<infer TState>
-			? InferTableWithColumns<
-					TState["name"],
-					NonLocalizedFields<SchemaFields<TState>, TState["localized"]>,
-					TState["title"],
-					TState["options"]
-				>
-			: never;
+	? TState["name"]
+	: TCollections[K] extends CollectionBuilder<infer TState>
+	? TState["name"]
+	: never]: TCollections[K] extends Collection<infer TState>
+	? InferTableWithColumns<
+		TState["name"],
+		NonLocalizedFields<SchemaFields<TState>, TState["localized"]>,
+		TState["title"],
+		TState["options"]
+	>
+	: TCollections[K] extends CollectionBuilder<infer TState>
+	? InferTableWithColumns<
+		TState["name"],
+		NonLocalizedFields<SchemaFields<TState>, TState["localized"]>,
+		TState["title"],
+		TState["options"]
+	>
+	: never;
 } & {
-	[K in keyof TCollections as TCollections[K] extends Collection<infer TState>
+		[K in keyof TCollections as TCollections[K] extends Collection<infer TState>
 		? HasI18nFields<TState> extends true
-			? `${TState["name"]}_i18n`
-			: never
+		? `${TState["name"]}_i18n`
+		: never
 		: TCollections[K] extends CollectionBuilder<infer TState>
-			? HasI18nFields<TState> extends true
-				? `${TState["name"]}_i18n`
-				: never
-			: never]: TCollections[K] extends Collection<infer TState>
 		? HasI18nFields<TState> extends true
-			? InferTableWithColumns<
-					TState["name"],
-					LocalizedFields<SchemaFields<TState>, TState["localized"]>,
-					TState["title"],
-					TState["options"]
-				>
-			: never
+		? `${TState["name"]}_i18n`
+		: never
+		: never]: TCollections[K] extends Collection<infer TState>
+		? HasI18nFields<TState> extends true
+		? InferTableWithColumns<
+			TState["name"],
+			LocalizedFields<SchemaFields<TState>, TState["localized"]>,
+			TState["title"],
+			TState["options"]
+		>
+		: never
 		: TCollections[K] extends CollectionBuilder<infer TState>
-			? HasI18nFields<TState> extends true
-				? InferTableWithColumns<
-						TState["name"],
-						LocalizedFields<SchemaFields<TState>, TState["localized"]>,
-						TState["title"],
-						TState["options"]
-					>
-				: never
-			: never;
-};
+		? HasI18nFields<TState> extends true
+		? InferTableWithColumns<
+			TState["name"],
+			LocalizedFields<SchemaFields<TState>, TState["localized"]>,
+			TState["title"],
+			TState["options"]
+		>
+		: never
+		: never;
+	};
 
 export type DrizzleSchemaFromGlobals<
 	TGlobals extends Record<string, AnyGlobalOrBuilder>,
 > = {
 	[K in keyof TGlobals as TGlobals[K] extends Global<infer TState>
-		? TState["name"]
-		: TGlobals[K] extends GlobalBuilder<infer TState>
-			? TState["name"]
-			: never]: TGlobals[K] extends Global<infer TState>
-		? InferTableWithColumns<
-				TState["name"],
-				NonLocalizedFields<TState["fields"], TState["localized"]>,
-				never,
-				{}
-			>
-		: TGlobals[K] extends GlobalBuilder<infer TState>
-			? InferTableWithColumns<
-					TState["name"],
-					NonLocalizedFields<TState["fields"], TState["localized"]>,
-					never,
-					{}
-				>
-			: never;
+	? TState["name"]
+	: TGlobals[K] extends GlobalBuilder<infer TState>
+	? TState["name"]
+	: never]: TGlobals[K] extends Global<infer TState>
+	? InferTableWithColumns<
+		TState["name"],
+		NonLocalizedFields<TState["fields"], TState["localized"]>,
+		never,
+		{}
+	>
+	: TGlobals[K] extends GlobalBuilder<infer TState>
+	? InferTableWithColumns<
+		TState["name"],
+		NonLocalizedFields<TState["fields"], TState["localized"]>,
+		never,
+		{}
+	>
+	: never;
 } & {
-	[K in keyof TGlobals as TGlobals[K] extends Global<infer TState>
+		[K in keyof TGlobals as TGlobals[K] extends Global<infer TState>
 		? TState["localized"][number] extends string
-			? `${TState["name"]}_i18n`
-			: never
+		? `${TState["name"]}_i18n`
+		: never
 		: TGlobals[K] extends GlobalBuilder<infer TState>
-			? TState["localized"][number] extends string
-				? `${TState["name"]}_i18n`
-				: never
-			: never]: TGlobals[K] extends Global<infer TState>
 		? TState["localized"][number] extends string
-			? InferTableWithColumns<
-					TState["name"],
-					LocalizedFields<TState["fields"], TState["localized"]>,
-					never,
-					{}
-				>
-			: never
+		? `${TState["name"]}_i18n`
+		: never
+		: never]: TGlobals[K] extends Global<infer TState>
+		? TState["localized"][number] extends string
+		? InferTableWithColumns<
+			TState["name"],
+			LocalizedFields<TState["fields"], TState["localized"]>,
+			never,
+			{}
+		>
+		: never
 		: TGlobals[K] extends GlobalBuilder<infer TState>
-			? TState["localized"][number] extends string
-				? InferTableWithColumns<
-						TState["name"],
-						LocalizedFields<TState["fields"], TState["localized"]>,
-						never,
-						{}
-					>
-				: never
-			: never;
-};
+		? TState["localized"][number] extends string
+		? InferTableWithColumns<
+			TState["name"],
+			LocalizedFields<TState["fields"], TState["localized"]>,
+			never,
+			{}
+		>
+		: never
+		: never;
+	};
 
 export type TablesFromConfig<TConfig extends QuestpieConfig> =
 	DrizzleSchemaFromCollections<TConfig["collections"]> &
-		(TConfig["globals"] extends Record<string, AnyGlobalOrBuilder>
-			? DrizzleSchemaFromGlobals<TConfig["globals"]>
-			: {});
+	(TConfig["globals"] extends Record<string, AnyGlobalOrBuilder>
+		? DrizzleSchemaFromGlobals<TConfig["globals"]>
+		: {});
 
 export type Locale = {
 	/** Locale code (e.g. "en", "sk", "en-US") */
@@ -242,22 +242,22 @@ export type DbClientType = "postgres" | "pglite";
 export type DrizzleClientFromQuestpieConfig<TConfig extends QuestpieConfig> =
 	ReturnType<
 		InferyDbClientType<TConfig["db"]> extends "postgres"
-			? typeof drizzleBun<
-					DrizzleSchemaFromCollections<TConfig["collections"]> &
-						DrizzleSchemaFromGlobals<
-							TConfig["globals"] extends Record<string, AnyGlobalOrBuilder>
-								? TConfig["globals"]
-								: Record<string, never>
-						>
-				>
-			: typeof drizzlePgLite<
-					DrizzleSchemaFromCollections<TConfig["collections"]> &
-						DrizzleSchemaFromGlobals<
-							TConfig["globals"] extends Record<string, AnyGlobalOrBuilder>
-								? TConfig["globals"]
-								: Record<string, never>
-						>
-				>
+		? typeof drizzleBun<
+			DrizzleSchemaFromCollections<TConfig["collections"]> &
+			DrizzleSchemaFromGlobals<
+				TConfig["globals"] extends Record<string, AnyGlobalOrBuilder>
+				? TConfig["globals"]
+				: Record<string, never>
+			>
+		>
+		: typeof drizzlePgLite<
+			DrizzleSchemaFromCollections<TConfig["collections"]> &
+			DrizzleSchemaFromGlobals<
+				TConfig["globals"] extends Record<string, AnyGlobalOrBuilder>
+				? TConfig["globals"]
+				: Record<string, never>
+			>
+		>
 	>;
 
 export type AccessMode = "user" | "system";
@@ -291,7 +291,7 @@ export interface StorageBaseConfig {
 
 /**
  * Local filesystem storage configuration.
- * QuestPie creates FSDriver and serves files at `/storage/files/:key`.
+ * QUESTPIE creates FSDriver and serves files at `/storage/files/:key`.
  */
 export interface StorageLocalConfig extends StorageBaseConfig {
 	/**
@@ -331,19 +331,19 @@ export type StorageConfig = StorageLocalConfig | StorageDriverConfig;
 
 export type DbConfig =
 	| {
-			url: string;
-	  }
+		url: string;
+	}
 	| {
-			pglite: PGlite;
-	  };
+		pglite: PGlite;
+	};
 
 export type InferyDbClientType<TDbConfig extends DbConfig> = TDbConfig extends {
 	url: string;
 }
 	? "postgres"
 	: TDbConfig extends { pglite: PGlite }
-		? "pglite"
-		: never;
+	? "pglite"
+	: never;
 
 export interface QuestpieConfig {
 	app: {
@@ -562,10 +562,10 @@ export type GetDbConfig<T extends QuestpieConfig> = T["db"];
  */
 export type GetMessageKeys<T extends QuestpieConfig> =
 	T["~messageKeys"] extends infer TKeys
-		? TKeys extends string
-			? TKeys
-			: never
-		: never;
+	? TKeys extends string
+	? TKeys
+	: never
+	: never;
 
 export interface ContextExtensions {
 	// To be extended by plugins or user config
@@ -594,7 +594,7 @@ export interface ContextExtensions {
  */
 // biome-ignore lint/suspicious/noEmptyInterface: Designed to be augmented
 export interface QuestpieContextExtension
-	extends Questpie.QuestpieContextExtension {}
+	extends Questpie.QuestpieContextExtension { }
 
 /**
  * Parameters passed to the context resolver function.

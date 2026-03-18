@@ -87,12 +87,12 @@ export function guardHookRecursion(): number {
 	const depth = (ctx?._hookDepth ?? 0) + 1;
 	if (depth > MAX_HOOK_RECURSION) {
 		throw new Error(
-			`[QuestPie] Maximum hook recursion depth (${MAX_HOOK_RECURSION}) exceeded. ` +
+			`[QUESTPIE] Maximum hook recursion depth (${MAX_HOOK_RECURSION}) exceeded. ` +
 			"A lifecycle hook is likely triggering CRUD operations that re-trigger the same hook.",
 		);
 	}
 	if (depth >= 3) {
-		console.warn(`[QuestPie] Hook recursion depth at ${depth} — review hooks for potential infinite loops`);
+		console.warn(`[QUESTPIE] Hook recursion depth at ${depth} — review hooks for potential infinite loops`);
 	}
 	return depth;
 }
@@ -205,7 +205,7 @@ export function getContext<TApp>(): {
 	if (!stored) {
 		throw new Error(
 			"getContext() called outside request scope. " +
-				"Either call within runWithContext() scope, or use tryGetContext() for safe access.",
+			"Either call within runWithContext() scope, or use tryGetContext() for safe access.",
 		);
 	}
 	return stored as any;

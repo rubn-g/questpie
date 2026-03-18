@@ -18,7 +18,7 @@ function matchesFilter(
 	if (entry.include && !entry.include.includes(name)) {
 		return false;
 	}
-	if (entry.exclude && entry.exclude.includes(name)) {
+	if (entry.exclude?.includes(name)) {
 		return false;
 	}
 	return true;
@@ -55,7 +55,7 @@ export async function executeGlobalCollectionHooks(
 				await hookFn(ctx);
 			} catch (err) {
 				ctx.logger.error(
-					`[QuestPie] Global collection hook "${hookName}" error for "${collectionName}":`,
+					`[QUESTPIE] Global collection hook "${hookName}" error for "${collectionName}":`,
 					err,
 				);
 			}
@@ -90,7 +90,7 @@ export async function executeGlobalCollectionTransitionHooks(
 				await hookFn(ctx);
 			} catch (err) {
 				ctx.logger.error(
-					`[QuestPie] Global collection hook "${hookName}" error for "${collectionName}":`,
+					`[QUESTPIE] Global collection hook "${hookName}" error for "${collectionName}":`,
 					err,
 				);
 			}
@@ -129,7 +129,7 @@ export async function executeGlobalGlobalHooks(
 				await hookFn(ctx);
 			} catch (err) {
 				ctx.logger.error(
-					`[QuestPie] Global global hook "${hookName}" error for "${globalName}":`,
+					`[QUESTPIE] Global global hook "${hookName}" error for "${globalName}":`,
 					err,
 				);
 			}
@@ -164,7 +164,7 @@ export async function executeGlobalGlobalTransitionHooks(
 				await hookFn(ctx);
 			} catch (err) {
 				ctx.logger.error(
-					`[QuestPie] Global global hook "${hookName}" error for "${globalName}":`,
+					`[QUESTPIE] Global global hook "${hookName}" error for "${globalName}":`,
 					err,
 				);
 			}

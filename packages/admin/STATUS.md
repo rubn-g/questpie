@@ -8,7 +8,7 @@
 
 ## Executive Summary
 
-**@questpie/admin** je config-driven admin UI package pre Questpie QuestPie. Hlavná myšlienka:
+**@questpie/admin** je config-driven admin UI package pre Questpie QUESTPIE. Hlavná myšlienka:
 
 > **qa() builder + AdminLayoutProvider = kompletné admin UI**
 

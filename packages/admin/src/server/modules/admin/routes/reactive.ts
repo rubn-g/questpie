@@ -11,7 +11,7 @@ import type {
 	ReactiveContext,
 	ReactiveServerContext,
 } from "questpie";
-import { ApiError, route, type Questpie } from "questpie";
+import { ApiError, type Questpie, route } from "questpie";
 import { z } from "zod";
 
 // ============================================================================
@@ -418,7 +418,7 @@ const reactiveRequestSchema = z.object({
 	type: z.enum(["hidden", "readOnly", "disabled", "compute"]),
 
 	/** Current form data */
-	formData: z.record(z.string(), z.unknown()),
+	formData: z.record(z.string(), z.unknown()).optional(),
 
 	/** Sibling data (for array items) */
 	siblingData: z.record(z.string(), z.unknown()).nullable().optional(),
@@ -439,6 +439,12 @@ const batchReactiveInputSchema = z.object({
 
 	/** Entity type - collection or global */
 	type: z.enum(["collection", "global"]).default("collection"),
+
+	/** Current form data shared by all requests */
+	formData: z.record(z.string(), z.unknown()).optional(),
+
+	/** Previous form data shared by all requests */
+	prevData: z.record(z.string(), z.unknown()).nullable().optional(),
 
 	/** Array of reactive requests */
 	requests: z.array(reactiveRequestSchema),
@@ -525,7 +531,13 @@ export const batchReactive = route()
 	.outputSchema(batchReactiveOutputSchema)
 	.handler(async (ctx) => {
 		const app = getApp(ctx);
-		const { collection: entityName, type: entityType, requests } = ctx.input;
+		const {
+			collection: entityName,
+			type: entityType,
+			requests,
+			formData: sharedFormData,
+			prevData: sharedPrevData,
+		} = ctx.input;
 
 		// Build server context (req is not available in function handlers)
 		const serverCtx: ReactiveServerContext = {
@@ -545,6 +557,14 @@ export const batchReactive = route()
 					prevData,
 					prevSiblingData,
 				} = request;
+				const resolvedFormData = (formData ?? sharedFormData ?? {}) as Record<
+					string,
+					any
+				>;
+				const resolvedPrevData = (prevData ?? sharedPrevData ?? null) as Record<
+					string,
+					any
+				> | null;
 
 				try {
 					// Get field definition
@@ -571,9 +591,9 @@ export const batchReactive = route()
 
 					// Build context
 					const reactiveCtx = buildReactiveContext(
-						formData as Record<string, any>,
+						resolvedFormData,
 						siblingData as Record<string, any> | null,
-						prevData as Record<string, any> | null,
+						resolvedPrevData,
 						prevSiblingData as Record<string, any> | null,
 						serverCtx,
 					);

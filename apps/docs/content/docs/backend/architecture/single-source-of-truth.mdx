@@ -3,9 +3,7 @@ title: Single Source of Truth
 description: Fields drive everything — database, validation, query operators, types, and UI rendering from one definition.
 ---
 
-# Single Source of Truth
-
-In QuestPie, a field definition is not just a form widget or a database column. It's the **single source of truth** that drives every layer of the stack.
+In QUESTPIE, a field definition is not just a form widget or a database column. It's the **single source of truth** that drives every layer of the stack.
 
 ## What One Field Definition Produces
 
@@ -13,7 +11,7 @@ In QuestPie, a field definition is not just a form widget or a database column. 
 price: f.number().required().label("Price (cents)")
 ```
 
-From this single line, QuestPie derives:
+From this single line, QUESTPIE derives:
 
 | Layer | Output |
 |---|---|
@@ -31,17 +29,17 @@ From this single line, QuestPie derives:
 Traditional approaches require you to define schema in multiple places:
 
 ```text
-// Without QuestPie — same data defined 3+ times
+// Without QUESTPIE — same data defined 3+ times
 Database migration   → INTEGER price NOT NULL
 API validation       → z.object({ price: z.number() })
 TypeScript type      → interface Post { price: number }
 Form component       → <NumberInput name="price" label="Price" required />
 ```
 
-With QuestPie:
+With QUESTPIE:
 
 ```text
-// With QuestPie — defined once
+// With QUESTPIE — defined once
 f.number().required().label("Price")
 → database, validation, types, UI all derived automatically
 ```

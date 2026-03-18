@@ -11,7 +11,8 @@
 		"#questpie/admin/*": "./src/*"
 	},
 	"files": [
-		"dist"
+		"dist",
+		"skills"
 	],
 	"sideEffects": [
 		"**/*.css"

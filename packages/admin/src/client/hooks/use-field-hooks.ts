@@ -10,9 +10,9 @@
  * - useMemo for computed values to avoid unnecessary recalculations
  */
 
+import { useQuery } from "@tanstack/react-query";
 import * as React from "react";
 import { useFormContext, useWatch } from "react-hook-form";
-import { useQuery } from "@tanstack/react-query";
 import type {
 	FieldHookContext,
 	SelectOption,
@@ -198,12 +198,10 @@ export function useFieldHooks({
 		[computeDeps, loadOptionsDeps],
 	);
 
-	const shouldFallbackToFullWatch = !!compute && computeDeps.length === 0;
-
 	const watchedDepValues = useWatch({
 		control: form.control,
-		name: shouldFallbackToFullWatch ? undefined : (watchedDeps as any),
-		disabled: !shouldFallbackToFullWatch && watchedDeps.length === 0,
+		name: watchedDeps as any,
+		disabled: watchedDeps.length === 0,
 	});
 
 	const watchedDepMap = React.useMemo(() => {
@@ -225,13 +223,9 @@ export function useFieldHooks({
 	}, [watchedDeps, watchedDepValues]);
 
 	const computeDepKey = React.useMemo(() => {
-		if (shouldFallbackToFullWatch) {
-			return JSON.stringify(watchedDepValues ?? {});
-		}
-
 		if (!computeDeps.length) return "";
 		return JSON.stringify(computeDeps.map((dep) => watchedDepMap[dep]));
-	}, [computeDeps, shouldFallbackToFullWatch, watchedDepValues, watchedDepMap]);
+	}, [computeDeps, watchedDepMap]);
 
 	// ========================================================================
 	// Computed Value (reactive via useWatch + useMemo)
@@ -310,8 +304,11 @@ export function useFieldHooks({
 	const { data: asyncOptions, isLoading: optionsLoading } = useQuery({
 		queryKey: ["questpie", "field-hooks-options", fieldName, trackedDepKey],
 		queryFn: async () => {
+			if (!loadOptions) {
+				return [];
+			}
 			const values = (form.getValues() ?? {}) as Record<string, any>;
-			return loadOptions!(values);
+			return loadOptions(values);
 		},
 		enabled: !!loadOptions && loadOptionsDeps.length > 0,
 		staleTime: 30_000,

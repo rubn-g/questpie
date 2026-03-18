@@ -325,7 +325,7 @@ function WelcomeBanner() {
 QUESTPIE separates two types of locales:
 
 - **UI Locale** (`uiLocale`) - Admin interface language
-- **Content Locale** (`contentLocale`) - QuestPie content language (for `_i18n` tables)
+- **Content Locale** (`contentLocale`) - QUESTPIE content language (for `_i18n` tables)
 
 ```typescript
 import { useAdminStore, selectUiLocale, selectContentLocale } from "@questpie/admin/client";

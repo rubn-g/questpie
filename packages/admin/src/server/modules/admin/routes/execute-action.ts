@@ -16,7 +16,7 @@
  * ```
  */
 
-import { route, type Questpie } from "questpie";
+import { type Questpie, route } from "questpie";
 import { z } from "zod";
 import type {
 	ServerActionContext,
@@ -616,7 +616,7 @@ const getActionsConfigResponseSchema = z
 	.nullable();
 
 // ============================================================================
-// QuestPie Functions
+// QUESTPIE Functions
 // ============================================================================
 
 /**
@@ -656,7 +656,7 @@ export const getActionsConfigFn = route()
 	});
 
 /**
- * QuestPie functions for action execution.
+ * QUESTPIE functions for action execution.
  * These are registered on the `adminModule`.
  */
 export const actionFunctions = {

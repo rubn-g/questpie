@@ -130,8 +130,7 @@ export class CRUDGenerator<TState extends CollectionBuilderState> {
 			i18nCurrentTable: PgTable | null,
 			i18nFallbackTable: PgTable | null,
 		) => TState["virtuals"],
-		private getTitleExpression?: (context: any) => TitleExpressionSQL,
-		private getVirtualsForVersions?: (context: any) => TState["virtuals"],
+		private getTitleExpression?: (context: any) => TitleExpressionSQL, _getVirtualsForVersions?: (context: any) => TState["virtuals"],
 		private getVirtualsForVersionsWithAliases?: (
 			context: any,
 			i18nVersionsCurrentTable: PgTable | null,
@@ -555,15 +554,15 @@ export class CRUDGenerator<TState extends CollectionBuilderState> {
 				// Create aliased i18n tables for current and fallback locales
 				const i18nCurrentTable = useI18n
 					? alias(
-							i18nSourceTable!,
-							useStageVersions ? "i18n_v_current" : "i18n_current",
-						)
+						i18nSourceTable!,
+						useStageVersions ? "i18n_v_current" : "i18n_current",
+					)
 					: null;
 				const i18nFallbackTable = needsFallback
 					? alias(
-							i18nSourceTable!,
-							useStageVersions ? "i18n_v_fallback" : "i18n_fallback",
-						)
+						i18nSourceTable!,
+						useStageVersions ? "i18n_v_fallback" : "i18n_fallback",
+					)
 					: null;
 
 				// Build SELECT object with aliased i18n tables
@@ -1708,7 +1707,7 @@ export class CRUDGenerator<TState extends CollectionBuilderState> {
 								db: tx,
 							}),
 						).catch((err) => {
-							console.error(`[QuestPie] afterChange hook error in bulk update:`, err);
+							console.error(`[QUESTPIE] afterChange hook error in bulk update:`, err);
 						}),
 					);
 				}
@@ -1909,7 +1908,7 @@ export class CRUDGenerator<TState extends CollectionBuilderState> {
 					);
 				} catch (err) {
 					// afterDelete hook errors are non-fatal — log and continue
-					console.error(`[QuestPie] afterDelete hook error for "${this.state.name}":`, err);
+					console.error(`[QUESTPIE] afterDelete hook error for "${this.state.name}":`, err);
 				}
 			});
 
@@ -2283,19 +2282,19 @@ export class CRUDGenerator<TState extends CollectionBuilderState> {
 				.where(
 					hasVersionId
 						? and(
-								eq(getColumn(this.versionsTable!, "id")!, options.id),
-								eq(
-									getColumn(this.versionsTable!, "versionId")!,
-									options.versionId,
-								),
-							)
-						: and(
-								eq(getColumn(this.versionsTable!, "id")!, options.id),
-								eq(
-									getColumn(this.versionsTable!, "versionNumber")!,
-									options.version,
-								),
+							eq(getColumn(this.versionsTable!, "id")!, options.id),
+							eq(
+								getColumn(this.versionsTable!, "versionId")!,
+								options.versionId,
 							),
+						)
+						: and(
+							eq(getColumn(this.versionsTable!, "id")!, options.id),
+							eq(
+								getColumn(this.versionsTable!, "versionNumber")!,
+								options.version,
+							),
+						),
 				)
 				.limit(1);
 			const version = versionRows[0];
@@ -2653,7 +2652,7 @@ export class CRUDGenerator<TState extends CollectionBuilderState> {
 						transitionCtx,
 					);
 				} catch (err) {
-					console.error(`[QuestPie] afterTransition hook error for "${this.state.name}":`, err);
+					console.error(`[QUESTPIE] afterTransition hook error for "${this.state.name}":`, err);
 				}
 			});
 
