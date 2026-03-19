@@ -616,7 +616,8 @@ export function generateTemplate(options: TemplateOptions): string {
 	lines.push("\tcollections: AppCollections & Record<string, any>;");
 	lines.push("\tglobals: AppGlobals & Record<string, any>;");
 	lines.push("\troutes: AppRoutes;");
-	const authFile = discovered.singles.get("auth");
+	const authConfigFile = discovered.singles.get("authConfig");
+	const authFile = authConfigFile ?? discovered.singles.get("auth");
 	if (authFile) {
 		lines.push(`\tauth: typeof ${authFile.varName};`);
 	}
@@ -734,41 +735,48 @@ function emitNewArchitectureRuntime(
 		}
 	}
 
-	// Collect state keys that are covered by destructured singles,
+	// Collect state keys that are covered by destructured or *Config singles,
 	// so we can skip flat singles that would be overridden.
-	const destructuredStateKeys = new Set<string>();
+	const suppressedKeys = new Set<string>();
 	const allSingles = [...coreSingles.core, ...coreSingles.plugin];
 	for (const file of allSingles) {
 		if (file.destructure) {
 			for (const stateKey of Object.values(file.destructure)) {
-				destructuredStateKeys.add(stateKey);
+				suppressedKeys.add(stateKey);
 			}
+		}
+		// *Config singles (e.g. authConfig) suppress their base key (auth)
+		if (file.key.endsWith("Config")) {
+			suppressedKeys.add(file.key.slice(0, -"Config".length));
 		}
 	}
 
-	// Core singles (auth, locale, hooks, access, context)
-	// Cast with `as any` because user files may use `as const` (readonly),
-	// and the whole expression is cast to App anyway.
-	for (const file of coreSingles.core) {
+	// Helper to emit a single file entry in createApp
+	const emitSingle = (file: DiscoveredFile) => {
 		if (file.destructure) {
 			// Destructured single: emit property-access assignments
 			for (const [prop, stateKey] of Object.entries(file.destructure)) {
 				lines.push(`\t\t${safeKey(stateKey)}: ${file.varName}.${prop} as any,`);
 			}
-		} else if (!destructuredStateKeys.has(file.key)) {
+		} else if (file.key.endsWith("Config")) {
+			// *Config single: emit under the base key name
+			const baseKey = file.key.slice(0, -"Config".length);
+			lines.push(`\t\t${safeKey(baseKey)}: ${file.varName} as any,`);
+		} else if (!suppressedKeys.has(file.key)) {
 			lines.push(`\t\t${safeKey(file.key)}: ${file.varName} as any,`);
 		}
+	};
+
+	// Core singles (auth, locale, hooks, access, context)
+	// Cast with `as any` because user files may use `as const` (readonly),
+	// and the whole expression is cast to App anyway.
+	for (const file of coreSingles.core) {
+		emitSingle(file);
 	}
 
 	// Plugin singles (sidebar, dashboard, branding, adminLocale, etc.)
 	for (const file of coreSingles.plugin) {
-		if (file.destructure) {
-			for (const [prop, stateKey] of Object.entries(file.destructure)) {
-				lines.push(`\t\t${safeKey(stateKey)}: ${file.varName}.${prop} as any,`);
-			}
-		} else if (!destructuredStateKeys.has(file.key)) {
-			lines.push(`\t\t${safeKey(file.key)}: ${file.varName} as any,`);
-		}
+		emitSingle(file);
 	}
 
 	// Spread singles (sidebar, dashboard — mergeStrategy: "spread")

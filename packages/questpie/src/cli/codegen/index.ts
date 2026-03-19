@@ -134,6 +134,18 @@ export function coreCodegenPlugin(): CodegenPlugin {
 				discover: {
 					modules: "modules.ts",
 					fields: { pattern: "fields.ts", registryKey: "~fieldTypes" },
+					// ── config/ directory patterns (new) ─────────────────
+					authConfig: "config/auth.ts",
+					appConfig: {
+						pattern: "config/app.ts",
+						destructure: {
+							locale: "locale",
+							access: "defaultAccess",
+							hooks: "hooks",
+							context: "contextResolver",
+						},
+					},
+					// ── Legacy flat-file fallbacks (overridden by config/ when both exist) ──
 					auth: "auth.ts",
 					locale: "locale.ts",
 					hooks: "hooks.ts",
@@ -142,6 +154,14 @@ export function coreCodegenPlugin(): CodegenPlugin {
 				},
 				registries: {
 					singletonFactories: {
+						appConfig: {
+							configType: "AppConfigInput",
+							imports: [{ name: "AppConfigInput", from: "questpie" }],
+						},
+						authConfig: {
+							configType: "AuthConfig",
+							imports: [{ name: "AuthConfig", from: "questpie" }],
+						},
 						locale: {
 							configType: "LocaleConfig",
 							imports: [{ name: "LocaleConfig", from: "questpie" }],
