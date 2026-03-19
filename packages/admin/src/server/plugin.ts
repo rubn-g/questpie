@@ -87,6 +87,17 @@ export function adminPlugin(): CodegenPlugin {
 					},
 				},
 				discover: {
+					// ── config/ directory pattern (new) ──
+					adminConfig: {
+						pattern: "config/admin.ts",
+						destructure: {
+							sidebar: "sidebar",
+							dashboard: "dashboard",
+							branding: "branding",
+							locale: "adminLocale",
+						},
+					},
+					// ── Legacy flat-file fallbacks ──
 					sidebar: "sidebar.ts",
 					dashboard: "dashboard.ts",
 					branding: "branding.ts",
@@ -248,6 +259,16 @@ export function adminPlugin(): CodegenPlugin {
 						},
 					},
 					singletonFactories: {
+						adminConfig: {
+							configType: "AdminConfigInput",
+							imports: [
+								{
+									name: "AdminConfigInput",
+									from: "@questpie/admin/server",
+								},
+							],
+							isCallback: true,
+						},
 						branding: {
 							configType: "ServerBrandingConfig",
 							imports: [
