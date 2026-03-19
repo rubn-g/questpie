@@ -734,16 +734,41 @@ function emitNewArchitectureRuntime(
 		}
 	}
 
+	// Collect state keys that are covered by destructured singles,
+	// so we can skip flat singles that would be overridden.
+	const destructuredStateKeys = new Set<string>();
+	const allSingles = [...coreSingles.core, ...coreSingles.plugin];
+	for (const file of allSingles) {
+		if (file.destructure) {
+			for (const stateKey of Object.values(file.destructure)) {
+				destructuredStateKeys.add(stateKey);
+			}
+		}
+	}
+
 	// Core singles (auth, locale, hooks, access, context)
 	// Cast with `as any` because user files may use `as const` (readonly),
 	// and the whole expression is cast to App anyway.
 	for (const file of coreSingles.core) {
-		lines.push(`\t\t${safeKey(file.key)}: ${file.varName} as any,`);
+		if (file.destructure) {
+			// Destructured single: emit property-access assignments
+			for (const [prop, stateKey] of Object.entries(file.destructure)) {
+				lines.push(`\t\t${safeKey(stateKey)}: ${file.varName}.${prop} as any,`);
+			}
+		} else if (!destructuredStateKeys.has(file.key)) {
+			lines.push(`\t\t${safeKey(file.key)}: ${file.varName} as any,`);
+		}
 	}
 
 	// Plugin singles (sidebar, dashboard, branding, adminLocale, etc.)
 	for (const file of coreSingles.plugin) {
-		lines.push(`\t\t${safeKey(file.key)}: ${file.varName} as any,`);
+		if (file.destructure) {
+			for (const [prop, stateKey] of Object.entries(file.destructure)) {
+				lines.push(`\t\t${safeKey(stateKey)}: ${file.varName}.${prop} as any,`);
+			}
+		} else if (!destructuredStateKeys.has(file.key)) {
+			lines.push(`\t\t${safeKey(file.key)}: ${file.varName} as any,`);
+		}
 	}
 
 	// Spread singles (sidebar, dashboard — mergeStrategy: "spread")
@@ -840,10 +865,12 @@ function getCoreSingleKeys(
 	return new Set([
 		"modules",
 		"auth",
+		"authConfig",
 		"locale",
 		"hooks",
 		"defaultAccess",
 		"contextResolver",
+		"appConfig",
 	]);
 }
 

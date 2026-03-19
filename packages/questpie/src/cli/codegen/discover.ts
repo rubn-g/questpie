@@ -330,6 +330,7 @@ interface ResolvedPattern {
 	keyFrom: "filename" | "exportName";
 	cardinality: "single" | "map";
 	mergeStrategy: "replace" | "spread";
+	destructure?: Record<string, string>;
 }
 
 /**
@@ -337,10 +338,10 @@ interface ResolvedPattern {
  */
 function resolveDiscoverPattern(pattern: DiscoverPattern): ResolvedPattern {
 	if (typeof pattern === "string") {
+		// A pattern is single-file if it has no glob wildcards AND ends with a TS extension.
+		// This correctly handles path-based patterns like "config/app.ts".
 		const isSingleFile =
-			!pattern.includes("*") &&
-			!pattern.includes("/") &&
-			pattern.endsWith(".ts");
+			!pattern.includes("*") && /\.\w+$/.test(pattern);
 		return {
 			pattern,
 			resolve: "auto",
@@ -350,15 +351,14 @@ function resolveDiscoverPattern(pattern: DiscoverPattern): ResolvedPattern {
 		};
 	}
 	const isSingleFile =
-		!pattern.pattern.includes("*") &&
-		!pattern.pattern.includes("/") &&
-		pattern.pattern.endsWith(".ts");
+		!pattern.pattern.includes("*") && /\.\w+$/.test(pattern.pattern);
 	return {
 		pattern: pattern.pattern,
 		resolve: pattern.resolve ?? "auto",
 		keyFrom: pattern.keyFrom ?? "filename",
 		cardinality: pattern.cardinality ?? (isSingleFile ? "single" : "map"),
 		mergeStrategy: pattern.mergeStrategy ?? "replace",
+		destructure: pattern.destructure,
 	};
 }
 
@@ -387,7 +387,7 @@ async function discoverSingleFile(
 		if (await fileExists(fullPath)) {
 			const importPath = relativeImport(outDir, fullPath);
 			const exportInfo = await detectExportType(fullPath);
-			singles.set(stateKey, {
+			const file: DiscoveredFile = {
 				absolutePath: fullPath,
 				key: stateKey,
 				importPath,
@@ -396,7 +396,11 @@ async function discoverSingleFile(
 				exportType: exportInfo.type,
 				namedExportName: exportInfo.namedExportName,
 				isBundle: exportInfo.isBundle,
-			});
+			};
+			if (resolved.destructure) {
+				file.destructure = resolved.destructure;
+			}
+			singles.set(stateKey, file);
 			break;
 		}
 	}
