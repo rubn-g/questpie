@@ -88,7 +88,7 @@ type CollectionCRUD<
 	): Promise<number>;
 };
 
-type CollectionAPI<
+export type CollectionAPI<
 	TCollection,
 	TCollections extends Record<string, AnyCollectionOrBuilder>,
 > = Omit<CollectionCRUD<TCollection, TCollections>, "upload" | "uploadMany"> &

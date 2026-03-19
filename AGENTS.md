@@ -179,6 +179,7 @@ Lives in `packages/admin/src/server/plugin.ts`. User registers in `questpie.conf
 - **2 module registries**: views, components — with placeholder tokens for type extraction.
 - **5 collection extensions**: admin, list, form, preview, actions.
 - **2 global extensions**: admin, form.
+- **2 field extensions**: admin (per-field admin meta), form (layout for object fields).
 - **4 singleton factories**: branding, adminLocale, sidebar, dashboard.
 - **3 callback params**: `v` (view proxy), `c` (component proxy), `a` (action proxy).
 - **1 type registry**: `ComponentTypeRegistry` in `@questpie/admin/server`.
@@ -201,6 +202,31 @@ Codegen generates `declare module` augmentations that extend these interfaces wi
 - **`CodegenPlugin`** (`cli/codegen/types.ts`): Top-level plugin interface — categories, discover, transform, registries, callbackParams.
 - **`ModuleRegistryConfig`** (`cli/codegen/types.ts`): Module-level type registries with placeholder tokens, registry keys, and optional `typeRegistry` for interface augmentation.
 - **`CallbackParamDefinition`** (`cli/codegen/types.ts`): Inline JS proxy code for callback context parameters.
+
+### Codegen Key Derivation — How Entity Keys Are Determined
+
+Every discovered entity (collection, view, block, component, route, etc.) gets a **key** that becomes:
+- The import variable name: `_view_{key}`, `_coll_{key}`, `_bloc_{key}`
+- The object key in module/app state: `{ [key]: entity }`
+- The type key in registry interfaces: `interface Views { [key]: typeof entity }`
+- The callback proxy key: `v.{key}(...)`, `f.{key}`
+
+**Key derivation rules** (in `discover.ts`, function `processFile`):
+
+| Scenario | Key source | Example |
+|---|---|---|
+| Category with `factoryFunctions`, **named exports** (multi-export), single match | Filename (camelCase) | `blocks/hero.ts` exports `heroBlock = block("hero")` → key: `hero` |
+| Category with `factoryFunctions`, **named exports**, multiple matches | Export name | Two exports in one file → keys: export names |
+| Category with `factoryFunctions`, **default export**, factory has string arg | **Factory string arg** (kebab→camelCase) | `views/table.ts` exports `default view("collection-table", ...)` → key: `collectionTable` |
+| Category with `factoryFunctions`, **default export**, no string arg | Filename (camelCase) | `views/custom.ts` exports `default view(config)` → key: `custom` |
+| Category **without** `factoryFunctions` | Filename (camelCase) | `fields/boolean.ts` → key: `boolean` |
+| Recursive category (routes) | Path segments (camelCase, joined by keySeparator) | `routes/webhooks/stripe.ts` → key: `webhooks/stripe` |
+
+**Why factory arg, not filename?** The factory string arg is the entity's **identity** — it's used at runtime for lookup, serialization, and API contracts. The filename is just file organization. A view named `"collection-table"` could live in `views/table.ts`, `views/default-list.ts`, or any file — the identity is the string passed to `view()`.
+
+**Consistency guarantee**: `collection("posts")` → `posts`, `block("hero")` → `hero`, `view("collection-table")` → `collectionTable`, `component("icon")` → `icon`. The factory arg is always the source of truth for the key when available.
+
+**`keyFromProperty`** (`CategoryDeclaration.keyFromProperty`): Some categories (admin-client views) use a runtime property (e.g. `.name`) as the object key at runtime: `[_view.name]: _view`. This is separate from the discover key — the discover key drives types and imports, `keyFromProperty` drives the runtime object emission in `module.ts`. When `keyFromProperty` is set, types for that category are skipped in module-template (the file-derived key would mismatch the runtime key).
 
 ### Runtime Merging (`create-app.ts`)
 
