@@ -156,8 +156,70 @@ You do **not** need to re-run codegen when you:
 The `#questpie` import in collection/global files resolves to a generated helper that provides typed builders:
 
 ```ts
-import { collection } from "#questpie/factories";
+import { collection } from "#questpie";
 // Provides field builder with autocompletion for relation targets, etc.
+```
+
+## How Discovery Works
+
+Codegen starts by scanning your project directories for files matching known conventions. Each entity category has a declared directory and file pattern:
+
+| Category      | Directory        | Pattern          | Key Strategy          |
+| ------------- | ---------------- | ---------------- | --------------------- |
+| `collections` | `collections/`   | `*.ts`           | Filename → camelCase  |
+| `globals`     | `globals/`       | `*.ts`           | Filename → camelCase  |
+| `routes`      | `routes/`        | `*.ts`           | Filename → camelCase  |
+| `jobs`        | `jobs/`          | `*.ts`           | Filename → camelCase  |
+| `services`    | `services/`      | `*.ts`           | Filename → camelCase  |
+| `emails`      | `emails/`        | `*.ts`           | Filename → camelCase  |
+| `seeds`       | `seeds/`         | `*.seed.ts`      | Filename → camelCase  |
+| `blocks`      | `blocks/`        | `*.ts`           | Filename → camelCase  |
+
+Files prefixed with `_` (e.g., `_helpers.ts`) are ignored — use them for shared utilities within a category directory.
+
+Discovery also excludes `.d.ts` and `.d.mts` files to avoid picking up stale declaration artifacts.
+
+## Plugin System
+
+Codegen is extensible through plugins. Each plugin can contribute category declarations, modify generated output, or add entirely new generated files.
+
+### Core Plugins
+
+| Plugin              | What It Does                                          |
+| ------------------- | ----------------------------------------------------- |
+| `coreCodegenPlugin` | Discovers collections, globals, routes, jobs, services, emails, seeds |
+| `adminPlugin`       | Discovers admin views, blocks, components, fields, branding |
+
+### Category Declarations
+
+Plugins declare categories with a `CategoryDeclaration` object:
+
+```ts
+{
+  name: "collections",
+  dirs: ["collections"],
+  prefix: "collection",
+  registryKey: "collections",
+  keyFromProperty: undefined, // Uses filename-based keys
+  extensions: [".ts", ".mts"],
+}
+```
+
+Key properties:
+
+- **`dirs`**: Which directories to scan
+- **`prefix`**: Used in generated variable names
+- **`registryKey`**: The key in the module registry (maps to `AppCollections`, etc.)
+- **`keyFromProperty`**: If set, reads the key from a property of the exported value (e.g., views use `name` property). Otherwise, derives the key from the filename.
+
+### Running Codegen
+
+```bash
+# One-time generation
+bunx questpie generate
+
+# Watch mode — re-generates on file changes
+bunx questpie dev
 ```
 
 ## Development Workflow
@@ -168,8 +230,16 @@ In development, use `questpie dev` which watches for file changes and re-runs co
 bunx questpie dev
 ```
 
+This watches for:
+- New, renamed, or deleted files in convention directories
+- Changes to `modules.ts` or `questpie.config.ts`
+- Plugin configuration changes
+
+Field option changes, hook logic changes, and access control rule changes do **not** require re-running codegen.
+
 ## Related Pages
 
 - [File Convention](/docs/backend/architecture/file-convention) — What files are discovered
 - [CLI](/docs/backend/architecture/cli) — CLI commands
 - [Type Inference](/docs/frontend/type-inference) — End-to-end type flow
+- [Plugins](/docs/backend/architecture/plugins) — Plugin architecture

@@ -1,148 +1,208 @@
 ---
 title: Seeds
-description: Database seeding for initial data and development fixtures.
+description: Database seeding for initial data, development fixtures, and test datasets.
 ---
 
-Seeds populate your database with initial data (required config, admin users) or development fixtures (demo content). Define them in `seeds/` using the file convention.
+Seeds populate your database with data using the full `AppContext` — collections, globals, services, and all infrastructure. Unlike migrations (which operate on raw SQL), seeds work through your application's typed API, ensuring data integrity and hook execution.
 
 ## Defining a Seed
 
-```ts title="src/questpie/server/seeds/site-settings.ts"
-import { seed } from "questpie"
+Place seed files in `seeds/`. Each file exports a seed definition using the `seed()` factory:
+
+```ts title="seeds/site-settings.seed.ts"
+import { seed } from "questpie";
 
 export default seed({
   id: "siteSettings",
+  description: "Default site settings",
   category: "required",
-  async run({ globals, log }) {
-    await globals.site_settings.upsert({
-      siteName: "My Site",
-      description: "A QUESTPIE-powered website",
-    })
-    log.info("Site settings seeded")
+  async run({ globals, createContext, log }) {
+    log("Seeding site settings...");
+
+    const ctx = await createContext({ accessMode: "system", locale: "en" });
+    await globals.site_settings.update(
+      { shopName: "My Shop", tagline: "Welcome to our store" },
+      ctx,
+    );
+
+    log("Site settings seeded");
   },
-})
+});
 ```
 
 ## Seed Options
 
-| Option | Type | Description |
-| --- | --- | --- |
-| `id` | `string` | Unique identifier — used to track which seeds have run |
-| `category` | `"required" \| "dev"` | `required` seeds always run; `dev` seeds only in development |
-| `run` | `(ctx) => Promise<void>` | The seed function — inserts/upserts data |
-| `undo` | `(ctx) => Promise<void>` | Optional — reverses the seed (for rollback) |
+| Option       | Type                     | Description                                     |
+| ------------ | ------------------------ | ----------------------------------------------- |
+| `id`         | `string`                 | Unique identifier for tracking execution         |
+| `description`| `string`                 | Human-readable description (shown in CLI output) |
+| `category`   | `SeedCategory`           | When this seed should run                        |
+| `run`        | `(ctx) => Promise<void>` | Seed logic — populate data                       |
+| `undo`       | `(ctx) => Promise<void>` | Optional: remove seeded data                     |
+| `dependsOn`  | `string[]`               | IDs of seeds that must run before this one        |
 
 ## Categories
 
-- **`required`** — Run in all environments. Use for essential data: default admin user, site settings, initial configuration.
-- **`dev`** — Run only in development. Use for demo content, test data, sample records.
+Categories control when seeds run:
 
-## Context
+| Category     | Purpose                               | Runs In                |
+| ------------ | ------------------------------------- | ---------------------- |
+| `"required"` | System bootstrap (admin user, default roles, settings) | Every environment |
+| `"dev"`      | Development/demo data (sample content, test users)     | Development only  |
+| `"test"`     | Test fixtures (known datasets for integration tests)   | Test suites only  |
 
-The `run` function receives the full app context:
+When you run `bunx questpie seed:run`, the `"required"` seeds always execute. Add `--category dev` to also run development seeds.
 
-```ts
-async run({ globals, collections, db, createContext, app, log }) {
-  // collections — typed CRUD for all collections
-  // globals — typed CRUD for all globals
-  // db — raw Drizzle database instance
-  // createContext — create a request-scoped context
-  // app — the full app instance
-  // log — Pino logger
-}
-```
+## Seed Context
 
-## Examples
+The `run` and `undo` handlers receive a `SeedContext` — the full `AppContext` plus seed-specific helpers:
 
-### Seed an admin user
+| Property      | Description                                              |
+| ------------- | -------------------------------------------------------- |
+| `collections` | Typed collection API (create, update, find, delete)      |
+| `globals`     | Typed globals API                                        |
+| `db`          | Raw database instance                                    |
+| `queue`       | Publish background jobs                                  |
+| `email`       | Send emails                                              |
+| `services`    | User-defined services                                    |
+| `log`         | Seed output logger (prints to CLI)                       |
+| `createContext` | Create locale-specific contexts for multi-locale data  |
 
-```ts title="src/questpie/server/seeds/admin-user.ts"
-import { seed } from "questpie"
+### Multi-Locale Seeding
+
+Use `createContext` to seed data in multiple locales:
+
+```ts title="seeds/site-settings.seed.ts"
+import { seed } from "questpie";
 
 export default seed({
-  id: "adminUser",
+  id: "siteSettings",
   category: "required",
-  async run({ app, log }) {
-    const existing = await app.auth.api.getUser({ query: { email: "admin@example.com" } })
-    if (existing) return
+  async run({ globals, createContext, log }) {
+    const ctxEn = await createContext({ accessMode: "system", locale: "en" });
+    const ctxSk = await createContext({ accessMode: "system", locale: "sk" });
 
-    await app.auth.api.createUser({
-      body: {
-        email: "admin@example.com",
-        password: "change-me-in-production",
-        name: "Admin",
-        role: "admin",
-      },
-    })
-    log.info("Admin user created")
+    await globals.site_settings.update(
+      { shopName: "Sharp Cuts", tagline: "Precision grooming" },
+      ctxEn,
+    );
+    await globals.site_settings.update(
+      { tagline: "Precízna starostlivosť" },
+      ctxSk,
+    );
+
+    log("Site settings seeded (EN + SK)");
   },
-})
+});
 ```
 
-### Seed demo posts
+## Idempotency
 
-```ts title="src/questpie/server/seeds/demo-posts.ts"
-import { seed } from "questpie"
+Seeds should be idempotent — safe to re-run without creating duplicates. Check for existing data before inserting:
+
+```ts title="seeds/demo-posts.seed.ts"
+import { seed } from "questpie";
 
 export default seed({
   id: "demoPosts",
+  description: "Demo blog posts",
   category: "dev",
-  async run({ collections, log }) {
-    const posts = [
-      { title: "Getting Started with QUESTPIE", status: "published" },
-      { title: "Advanced Field Types", status: "draft" },
-      { title: "Building Custom Modules", status: "draft" },
-    ]
+  dependsOn: ["siteSettings"],
+  async run({ collections, createContext, log }) {
+    const ctx = await createContext({ accessMode: "system", locale: "en" });
 
-    for (const post of posts) {
-      await collections.posts.create(post)
+    // Idempotency check
+    const existing = await collections.posts.find(
+      { where: { slug: { eq: "hello-world" } }, limit: 1 },
+      ctx,
+    );
+    if (existing.totalDocs > 0) {
+      log("Demo posts already exist, skipping");
+      return;
     }
-    log.info(`Seeded ${posts.length} demo posts`)
+
+    await collections.posts.create(
+      {
+        title: "Hello World",
+        slug: "hello-world",
+        content: "Welcome to our blog!",
+        isPublished: true,
+      },
+      ctx,
+    );
+    log("Demo posts created");
   },
-  async undo({ collections, log }) {
-    // Optional: remove seeded data
-    const posts = await collections.posts.find({
-      where: { title: { startsWith: "Getting Started" } },
-    })
-    for (const post of posts.docs) {
-      await collections.posts.delete(post.id)
-    }
-    log.info("Demo posts removed")
+});
+```
+
+## Dependencies
+
+Use `dependsOn` to declare execution order. The seed runner resolves dependencies via topological sort:
+
+```ts
+export default seed({
+  id: "demoData",
+  category: "dev",
+  dependsOn: ["siteSettings"], // Runs after siteSettings seed
+  async run({ collections, createContext, log }) {
+    // siteSettings is guaranteed to have run first
   },
-})
+});
+```
+
+## Undo
+
+Seeds can optionally define an `undo` function to remove seeded data:
+
+```ts
+export default seed({
+  id: "demoData",
+  category: "dev",
+  async run({ collections, createContext, log }) {
+    // ... create demo data
+  },
+  async undo({ collections, createContext, log }) {
+    const ctx = await createContext({ accessMode: "system" });
+    log("Cleaning demo data...");
+    await collections.posts.delete({ where: {} }, ctx);
+    await collections.services.delete({ where: {} }, ctx);
+    log("Demo data cleaned");
+  },
+});
 ```
 
 ## Running Seeds
 
-```bash
-# Run all required seeds
-bunx questpie seed
+### CLI Commands
 
-# Run all seeds (including dev)
-bunx questpie seed --all
+```bash
+# Run all pending seeds (required category by default)
+bunx questpie seed:run
+
+# Run seeds of a specific category
+bunx questpie seed:run --category dev
 
 # Run a specific seed by ID
-bunx questpie seed --id siteSettings
+bunx questpie seed:run --only siteSettings
+
+# Force re-run even if already executed
+bunx questpie seed:run --force
+
+# Dry-run: validate seeds without committing changes
+bunx questpie seed:run --validate
 ```
 
-Seeds track execution in a `_questpie_seeds` table. A seed only runs once unless you pass `--force`.
+### Execution Tracking
 
-## File Convention
+Seeds are tracked in the database. Once a seed has been executed, it will not run again unless you use `--force`. This prevents duplicate data when re-running seeds.
 
-Seeds are auto-discovered from the `seeds/` directory:
-
-```text
-src/questpie/server/
-  seeds/
-    site-settings.ts    → id: "siteSettings"
-    admin-user.ts       → id: "adminUser"
-    demo-posts.ts       → id: "demoPosts"
-```
-
-The filename is used for the import key in codegen. The `id` field inside the seed definition is the actual tracking identifier.
+<Callout type="info">
+The seed runner wraps each seed in a transaction. If a seed fails, its changes are rolled back and the seed is not marked as executed.
+</Callout>
 
 ## Related Pages
 
-- [Jobs](/docs/backend/business-logic/jobs) — Background job processing
-- [Migrations](/docs/production/migrations) — Schema changes
-- [CLI](/docs/reference/cli) — CLI commands reference
+- [Jobs](/docs/backend/business-logic/jobs) — Background tasks
+- [Services](/docs/backend/business-logic/services) — Reusable logic
+- [CLI](/docs/reference/cli) — All CLI commands
+- [Codegen](/docs/backend/architecture/codegen) — How seeds are discovered
