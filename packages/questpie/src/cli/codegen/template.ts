@@ -447,6 +447,43 @@ export function generateTemplate(options: TemplateOptions): string {
 		lines.push("");
 	}
 
+	// ── Context resolver return type auto-propagation ────────────
+	// If a context resolver is discovered (via appConfig.context or standalone context.ts),
+	// emit a type that extracts its return type and augments QuestpieContextExtension.
+	// This makes custom context properties available on all handler `ctx` parameters.
+	{
+		const appConfigFile = discovered.singles.get("appConfig");
+		const contextFile = discovered.singles.get("contextResolver");
+		let contextTypeExpr: string | null = null;
+
+		if (appConfigFile?.destructure && "context" in appConfigFile.destructure) {
+			// Composite config: context is a property of the appConfig export
+			contextTypeExpr = `typeof ${appConfigFile.varName}.context`;
+		} else if (contextFile) {
+			// Standalone context.ts
+			contextTypeExpr = `typeof ${contextFile.varName}`;
+		}
+
+		if (contextTypeExpr) {
+			lines.push("// Context resolver return type → auto-typed handler ctx");
+			lines.push(
+				`type _ContextReturn = ${contextTypeExpr} extends (...args: any[]) => any`,
+			);
+			lines.push(
+				`\t? Awaited<ReturnType<${contextTypeExpr}>>`,
+			);
+			lines.push("\t: {};");
+			lines.push("declare global {");
+			lines.push("\tnamespace Questpie {");
+			lines.push(
+				"\t\tinterface QuestpieContextExtension extends _ContextReturn {}",
+			);
+			lines.push("\t}");
+			lines.push("}");
+			lines.push("");
+		}
+	}
+
 	// ── App — the full Questpie<> app type ──────────────────────
 	{
 		const stateMembers: string[] = [];
