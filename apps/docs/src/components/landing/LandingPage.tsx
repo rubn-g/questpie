@@ -132,136 +132,68 @@ type AdapterOption = {
 	label: string;
 	fn: string;
 	code: string;
+	soon?: boolean;
 };
 
 type AdapterCategory = {
 	key: string;
 	label: string;
-	configKey: string;
 	options: AdapterOption[];
 };
 
 const ADAPTER_CATEGORIES: AdapterCategory[] = [
 	{
-		key: "db",
-		label: "Database",
-		configKey: "db",
+		key: "kv",
+		label: "KV / Cache",
 		options: [
-			{
-				label: "PostgreSQL",
-				fn: "postgresAdapter",
-				code: "db: { adapter: postgresAdapter() }",
-			},
-			{
-				label: "PGlite",
-				fn: "pgliteAdapter",
-				code: "db: { adapter: pgliteAdapter() }",
-			},
-			{
-				label: "Neon",
-				fn: "neonAdapter",
-				code: "db: { adapter: neonAdapter() }",
-			},
+			{ label: "IORedis", fn: "ioredisAdapter", code: "kv: { adapter: ioredisAdapter() }" },
+			{ label: "Memory", fn: "memoryAdapter", code: "kv: { adapter: memoryAdapter() }" },
+			{ label: "CF KV", fn: "cfKvAdapter", code: "kv: { adapter: cfKvAdapter() }", soon: true },
 		],
 	},
 	{
 		key: "queue",
 		label: "Queue",
-		configKey: "queue",
 		options: [
-			{
-				label: "pg-boss",
-				fn: "pgBossAdapter",
-				code: "queue: { adapter: pgBossAdapter() }",
-			},
-			{
-				label: "CF Queues",
-				fn: "cfQueuesAdapter",
-				code: "queue: { adapter: cfQueuesAdapter() }",
-			},
+			{ label: "pg-boss", fn: "pgBossAdapter", code: "queue: { adapter: pgBossAdapter() }" },
+			{ label: "CF Queues", fn: "cfQueuesAdapter", code: "queue: { adapter: cfQueuesAdapter() }" },
+			{ label: "BullMQ", fn: "bullmqAdapter", code: "queue: { adapter: bullmqAdapter() }", soon: true },
 		],
 	},
 	{
 		key: "search",
 		label: "Search",
-		configKey: "search",
 		options: [
-			{
-				label: "Postgres FTS",
-				fn: "postgresSearchAdapter",
-				code: "search: postgresSearchAdapter()",
-			},
-			{
-				label: "pgvector",
-				fn: "pgvectorAdapter",
-				code: "search: pgvectorAdapter()",
-			},
+			{ label: "Postgres FTS", fn: "postgresSearchAdapter", code: "search: postgresSearchAdapter()" },
+			{ label: "pgvector", fn: "pgvectorAdapter", code: "search: pgvectorAdapter()", soon: true },
+			{ label: "Meilisearch", fn: "meilisearchAdapter", code: "search: meilisearchAdapter()", soon: true },
 		],
 	},
 	{
 		key: "realtime",
 		label: "Realtime",
-		configKey: "realtime",
 		options: [
-			{
-				label: "PG NOTIFY",
-				fn: "pgNotifyAdapter",
-				code: "realtime: { adapter: pgNotifyAdapter() }",
-			},
-			{
-				label: "Redis Streams",
-				fn: "redisStreamsAdapter",
-				code: "realtime: { adapter: redisStreamsAdapter() }",
-			},
+			{ label: "PG NOTIFY", fn: "pgNotifyAdapter", code: "realtime: { adapter: pgNotifyAdapter() }" },
+			{ label: "Redis Streams", fn: "redisStreamsAdapter", code: "realtime: { adapter: redisStreamsAdapter() }" },
 		],
 	},
 	{
 		key: "storage",
 		label: "Storage",
-		configKey: "storage",
 		options: [
-			{
-				label: "S3",
-				fn: "s3Driver",
-				code: 'storage: { driver: s3Driver({ bucket: "assets" }) }',
-			},
-			{
-				label: "R2",
-				fn: "r2Driver",
-				code: 'storage: { driver: r2Driver({ bucket: "assets" }) }',
-			},
-			{
-				label: "GCS",
-				fn: "gcsDriver",
-				code: 'storage: { driver: gcsDriver({ bucket: "assets" }) }',
-			},
-			{
-				label: "Local",
-				fn: "localDriver",
-				code: 'storage: { driver: localDriver({ dir: "./uploads" }) }',
-			},
+			{ label: "S3", fn: "s3Driver", code: 'storage: { driver: s3Driver({ bucket: "assets" }) }' },
+			{ label: "R2", fn: "r2Driver", code: 'storage: { driver: r2Driver({ bucket: "assets" }) }' },
+			{ label: "GCS", fn: "gcsDriver", code: 'storage: { driver: gcsDriver({ bucket: "assets" }) }' },
+			{ label: "Local", fn: "localDriver", code: 'storage: { driver: localDriver({ dir: "./uploads" }) }' },
 		],
 	},
 	{
 		key: "email",
 		label: "Email",
-		configKey: "email",
 		options: [
-			{
-				label: "SMTP",
-				fn: "smtpAdapter",
-				code: "email: { adapter: smtpAdapter() }",
-			},
-			{
-				label: "Resend",
-				fn: "resendAdapter",
-				code: "email: { adapter: resendAdapter() }",
-			},
-			{
-				label: "Console",
-				fn: "consoleAdapter",
-				code: "email: { adapter: consoleAdapter() }",
-			},
+			{ label: "SMTP", fn: "smtpAdapter", code: "email: { adapter: smtpAdapter() }" },
+			{ label: "Console", fn: "consoleAdapter", code: "email: { adapter: consoleAdapter() }" },
+			{ label: "Resend", fn: "resendAdapter", code: "email: { adapter: resendAdapter() }", soon: true },
 		],
 	},
 ];
@@ -286,6 +218,12 @@ function AdapterDropdown({
 				className="text-[var(--syntax-function)] cursor-pointer border-b border-dashed border-[var(--syntax-function)]/40 transition-colors hover:border-[var(--syntax-function)]"
 			>
 				{current.fn}
+				<Icon
+					icon="ph:caret-down"
+					width={10}
+					height={10}
+					className="ml-0.5 inline-block opacity-50"
+				/>
 			</button>
 			{open && (
 				<>
@@ -295,28 +233,46 @@ function AdapterDropdown({
 						onKeyDown={() => {}}
 						role="presentation"
 					/>
-					<div className="bg-card border-border absolute top-full left-0 z-50 mt-1 min-w-[160px] border py-1">
+					<div className="bg-card border-border absolute bottom-full left-0 z-50 mb-1 min-w-[200px] border py-1">
 						{category.options.map((opt, i) => (
 							<button
 								key={opt.label}
 								type="button"
+								disabled={opt.soon}
 								onClick={() => {
-									onSelect(i);
-									setOpen(false);
+									if (!opt.soon) {
+										onSelect(i);
+										setOpen(false);
+									}
 								}}
 								className={cn(
-									"block w-full px-3 py-1.5 text-left font-mono text-[12px] transition-colors",
-									i === selected
-										? "text-primary bg-primary/10"
-										: "text-foreground hover:bg-secondary",
+									"flex w-full items-center gap-2 px-3 py-1.5 text-left font-mono text-[12px] transition-colors",
+									opt.soon
+										? "text-muted-foreground/40 cursor-default"
+										: i === selected
+											? "text-primary bg-primary/10"
+											: "text-foreground hover:bg-secondary",
 								)}
 							>
-								<span className="text-[var(--syntax-function)]">{opt.fn}</span>
-								<span className="text-muted-foreground ml-2 text-[10px]">
-									{opt.label}
+								<span className={opt.soon ? "text-muted-foreground/40" : "text-[var(--syntax-function)]"}>
+									{opt.fn}
 								</span>
+								{opt.soon && (
+									<span className="bg-border text-muted-foreground ml-auto px-1.5 py-0.5 text-[9px] tracking-wider uppercase">
+										soon
+									</span>
+								)}
 							</button>
 						))}
+						<Link
+							to="/docs/$"
+							params={{ _splat: "extend/custom-adapters" }}
+							className="text-primary hover:bg-secondary mt-1 flex w-full items-center gap-2 border-t border-border px-3 py-1.5 text-left font-mono text-[11px] transition-colors"
+							onClick={() => setOpen(false)}
+						>
+							<Icon icon="ph:code" width={12} height={12} />
+							Write your own
+						</Link>
 					</div>
 				</>
 			)}
@@ -326,7 +282,7 @@ function AdapterDropdown({
 
 function SwapAnythingSection() {
 	const [selections, setSelections] = useState<Record<string, number>>({
-		db: 0,
+		kv: 0,
 		queue: 0,
 		search: 0,
 		realtime: 0,
@@ -337,10 +293,6 @@ function SwapAnythingSection() {
 	const handleSelect = (key: string, index: number) => {
 		setSelections((prev) => ({ ...prev, [key]: index }));
 	};
-
-	const configLines = ADAPTER_CATEGORIES.map(
-		(cat) => cat.options[selections[cat.key]].code,
-	);
 
 	return (
 		<>
@@ -363,20 +315,42 @@ function SwapAnythingSection() {
 									<button
 										key={opt.label}
 										type="button"
-										onClick={() => handleSelect(cat.key, i)}
+										disabled={opt.soon}
+										onClick={() => !opt.soon && handleSelect(cat.key, i)}
 										className={cn(
 											"border px-2 py-0.5 font-mono text-[11px] transition-all",
-											selections[cat.key] === i
-												? "border-primary bg-primary/10 text-primary"
-												: "border-border text-muted-foreground hover:border-primary/40 hover:text-foreground",
+											opt.soon
+												? "border-border/50 text-muted-foreground/30 cursor-default"
+												: selections[cat.key] === i
+													? "border-primary bg-primary/10 text-primary"
+													: "border-border text-muted-foreground hover:border-primary/40 hover:text-foreground",
 										)}
 									>
 										{opt.label}
+										{opt.soon && (
+											<span className="text-muted-foreground/30 ml-1 text-[8px] uppercase">
+												soon
+											</span>
+										)}
 									</button>
 								))}
 							</div>
 						</div>
 					))}
+					<Link
+						to="/docs/$"
+						params={{ _splat: "extend/custom-adapters" }}
+						className="bg-background text-muted-foreground hover:text-primary flex flex-col justify-center p-5 transition-colors"
+					>
+						<div className="text-primary mb-2 font-mono text-[10px] tracking-[0.15em] uppercase">
+							Custom
+						</div>
+						<div className="flex items-center gap-1.5 font-mono text-[12px]">
+							<Icon icon="ph:code" width={14} height={14} />
+							Write your own adapter
+							<Icon icon="ph:arrow-right" width={12} height={12} className="ml-auto" />
+						</div>
+					</Link>
 				</div>
 
 				{/* Right: live config with inline dropdowns */}
@@ -389,7 +363,6 @@ function SwapAnythingSection() {
 						{"({\n"}
 						{ADAPTER_CATEGORIES.map((cat) => {
 							const opt = cat.options[selections[cat.key]];
-							// Split code at fn name to insert dropdown
 							const fnIdx = opt.code.indexOf(opt.fn);
 							const before = opt.code.slice(0, fnIdx);
 							const after = opt.code.slice(fnIdx + opt.fn.length);
@@ -415,7 +388,15 @@ function SwapAnythingSection() {
 						<span className="text-[var(--syntax-function)]">
 							highlighted adapters
 						</span>{" "}
-						above or the badges on the left to swap.
+						to swap. Under 50 lines to{" "}
+						<Link
+							to="/docs/$"
+							params={{ _splat: "extend/custom-adapters" }}
+							className="text-primary hover:underline"
+						>
+							write your own
+						</Link>
+						.
 					</div>
 				</div>
 			</div>
