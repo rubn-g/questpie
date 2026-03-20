@@ -53,7 +53,7 @@ function BrutalistGrid({
 	return (
 		<div
 			className={cn(
-				"bg-border border-border grid grid-cols-1 gap-[1px] border md:grid-cols-2 lg:grid-cols-3",
+				"bg-border border-border grid grid-cols-1 gap-[1px] border md:grid-cols-2",
 				className,
 			)}
 		>
@@ -233,7 +233,7 @@ function AdapterDropdown({
 						onKeyDown={() => {}}
 						role="presentation"
 					/>
-					<div className="bg-card border-border absolute bottom-full left-0 z-50 mb-1 min-w-[200px] border py-1">
+					<div className="bg-card border-border absolute bottom-full left-0 z-[100] mb-1 min-w-[200px] border py-1">
 						{category.options.map((opt, i) => (
 							<button
 								key={opt.label}
@@ -340,7 +340,7 @@ function SwapAnythingSection() {
 					<Link
 						to="/docs/$"
 						params={{ _splat: "extend/custom-adapters" }}
-						className="bg-background text-muted-foreground hover:text-primary flex flex-col justify-center p-5 transition-colors"
+						className="bg-background text-muted-foreground hover:text-primary col-span-2 flex flex-col justify-center p-5 transition-colors"
 					>
 						<div className="text-primary mb-2 font-mono text-[10px] tracking-[0.15em] uppercase">
 							Custom
@@ -354,11 +354,11 @@ function SwapAnythingSection() {
 				</div>
 
 				{/* Right: live config with inline dropdowns */}
-				<div className="bg-background border-border relative border-l-0 lg:border-l">
-					<div className="text-muted-foreground/40 border-border absolute top-0 left-0 border-r border-b px-2 py-1 font-mono text-[10px] tracking-[0.2em] uppercase">
+				<div className="bg-background border-border relative overflow-visible border-l-0 lg:border-l">
+					<div className="text-muted-foreground/40 border-border absolute top-0 left-0 z-10 border-r border-b px-2 py-1 font-mono text-[10px] tracking-[0.2em] uppercase">
 						questpie.config.ts
 					</div>
-					<div className="text-muted-foreground overflow-x-auto p-4 pt-10 font-mono text-[13px] leading-[1.8] whitespace-pre">
+					<div className="text-muted-foreground p-4 pt-10 font-mono text-[13px] leading-[1.8] whitespace-pre">
 						<span className="text-[var(--syntax-function)]">runtimeConfig</span>
 						{"({\n"}
 						{ADAPTER_CATEGORIES.map((cat) => {
