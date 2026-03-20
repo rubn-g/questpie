@@ -180,6 +180,15 @@ export function iconifyPreload(options: IconifyPreloadOptions = {}): Plugin {
 			parts.push("// No icons found");
 		}
 
+		// Log summary
+		const summary = [...byPrefix.entries()]
+			.filter(([p]) => loadIconSet(p))
+			.map(([p, names]) => `${p}:${names.size}`)
+			.join(", ");
+		if (totalIcons > 0) {
+			console.log(`[iconify-preload] Bundled ${totalIcons} icons (${summary})`);
+		}
+
 		return parts.join("\n");
 	}
 
@@ -190,7 +199,13 @@ export function iconifyPreload(options: IconifyPreloadOptions = {}): Plugin {
 		configResolved(resolvedConfig) {
 			config = resolvedConfig;
 			filter = createFilter(scan, ["**/node_modules/**"]);
-			iconJsonDir = resolve(config.root, "node_modules/@iconify/json/json");
+			// Resolve @iconify/json via require.resolve to handle monorepo hoisting
+			try {
+				const jsonPkg = require.resolve("@iconify/json/json/ph.json");
+				iconJsonDir = resolve(jsonPkg, "..");
+			} catch {
+				iconJsonDir = resolve(config.root, "node_modules/@iconify/json/json");
+			}
 		},
 
 		resolveId(id) {

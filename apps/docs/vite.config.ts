@@ -12,7 +12,12 @@ export default defineConfig({
 		port: 3000,
 	},
 	plugins: [
-		iconifyPreload(),
+		iconifyPreload({
+			scan: [
+				"src/**/*.{ts,tsx}",
+				"../../packages/admin/src/**/*.{ts,tsx}",
+			],
+		}),
 		mdx(await import("./source.config")),
 		nitro({ preset: "bun" }) as any,
 		tailwindcss(),

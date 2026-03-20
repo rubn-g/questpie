@@ -9,7 +9,12 @@ import { defineConfig } from "vite";
 
 const config = defineConfig({
 	plugins: [
-		iconifyPreload(),
+		iconifyPreload({
+			scan: [
+				"src/**/*.{ts,tsx}",
+				"../../packages/admin/src/**/*.{ts,tsx}",
+			],
+		}),
 		devtools(),
 		nitro({
 			preset: "bun",
