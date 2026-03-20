@@ -87,12 +87,29 @@ export function adminPlugin(): CodegenPlugin {
 					},
 				},
 				discover: {
-					sidebar: "sidebar.ts",
-					dashboard: "dashboard.ts",
-					branding: "branding.ts",
-					adminLocale: "admin-locale.ts",
+					adminConfig: {
+						pattern: "config/admin.ts",
+						destructure: {
+							sidebar: "sidebar",
+							dashboard: "dashboard",
+							branding: "branding",
+							locale: "adminLocale",
+						},
+					},
 				},
 				registries: {
+					builderFactories: {
+						block: {
+							builderClass: "BlockBuilder",
+							import: {
+								name: "BlockBuilder",
+								from: "@questpie/admin/server",
+							},
+							createMethod: "create",
+							returnType:
+								"import('@questpie/admin/server').BlockBuilder<{ name: TName }>",
+						},
+					},
 					fieldExtensions: {
 						admin: {
 							stateKey: "admin",
@@ -248,39 +265,11 @@ export function adminPlugin(): CodegenPlugin {
 						},
 					},
 					singletonFactories: {
-						branding: {
-							configType: "ServerBrandingConfig",
+						adminConfig: {
+							configType: "AdminConfigInput",
 							imports: [
 								{
-									name: "ServerBrandingConfig",
-									from: "@questpie/admin/server",
-								},
-							],
-						},
-						adminLocale: {
-							configType: "AdminLocaleConfig",
-							imports: [
-								{
-									name: "AdminLocaleConfig",
-									from: "@questpie/admin/server",
-								},
-							],
-						},
-						sidebar: {
-							configType: "SidebarContribution",
-							imports: [
-								{
-									name: "SidebarContribution",
-									from: "@questpie/admin/server",
-								},
-							],
-							isCallback: true,
-						},
-						dashboard: {
-							configType: "DashboardContribution",
-							imports: [
-								{
-									name: "DashboardContribution",
+									name: "AdminConfigInput",
 									from: "@questpie/admin/server",
 								},
 							],
@@ -289,8 +278,19 @@ export function adminPlugin(): CodegenPlugin {
 					},
 				},
 				transform(ctx) {
-					// Ensure dashboard exists as empty array when no dashboard.ts found
-					if (!ctx.singles.has("dashboard")) {
+					// Ensure dashboard exists as empty array when no dashboard config found.
+					// Check both standalone singles AND destructured properties (e.g. config/admin.ts
+					// with destructure: { dashboard: "dashboard" }).
+					let hasDashboard = ctx.singles.has("dashboard");
+					if (!hasDashboard) {
+						for (const file of ctx.singles.values()) {
+							if (file.destructure && Object.values(file.destructure).includes("dashboard")) {
+								hasDashboard = true;
+								break;
+							}
+						}
+					}
+					if (!hasDashboard) {
 						ctx.addRuntimeCode("dashboard: [] as const,");
 					}
 				},
@@ -313,7 +313,7 @@ export function adminPlugin(): CodegenPlugin {
 						dir: "blocks",
 						description: "Server-side block definition",
 						template: ({ kebab, camel }) =>
-							`import { block } from "@questpie/admin/server";\n\nexport const ${camel}Block = block("${kebab}")\n\t.fields(({ f }) => ({\n\t\ttitle: f.text("Title"),\n\t}));\n`,
+							`import { block } from "#questpie/factories";\n\nexport const ${camel}Block = block("${kebab}")\n\t.fields(({ f }) => ({\n\t\ttitle: f.text("Title"),\n\t}));\n`,
 					},
 					view: {
 						dir: "views",

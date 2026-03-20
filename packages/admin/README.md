@@ -200,9 +200,9 @@ export const {
 ```tsx
 // routes/admin.tsx
 import { AdminRouter } from "@questpie/admin/client";
-import { admin } from "~/questpie/admin/builder";
-import { appClient } from "~/lib/client";
-import { queryClient } from "~/lib/query-client";
+import { admin } from "@/questpie/admin/builder";
+import { appClient } from "@/lib/client";
+import { queryClient } from "@/lib/query-client";
 
 export default function AdminRoute() {
 	return (

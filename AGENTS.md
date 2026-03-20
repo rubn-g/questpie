@@ -168,19 +168,37 @@ The codegen pipeline is fully plugin-driven. Nothing is hardcoded in the CLI —
 Lives in `packages/questpie/src/cli/codegen/index.ts`. Always auto-prepended by `runCodegen()`. Declares:
 
 - **10 category declarations**: collections, globals, jobs, routes, messages, services, emails, migrations, seeds, and admin/plugin declarations — each with full `CategoryDeclaration` metadata (dirs, prefix, emit strategy, type emission, registry key).
-- **4 singleton factories**: locale, hooks, access, context.
+- **2 config/ discover patterns**: `config/auth.ts` (authConfig), `config/app.ts` (appConfig with `destructure` mapping locale, access, hooks, context to createApp keys).
+- **2 singleton factories**: appConfig (`AppConfigInput`), authConfig (`AuthConfig`).
 - **1 callback param**: `f` (field ref proxy: `f.title` → `"title"`).
+
+### Config Directory Convention
+
+All project configuration lives in `config/` inside the server directory:
+
+| File | Factory | Contains |
+|------|---------|----------|
+| `config/auth.ts` | `authConfig()` from `"questpie"` | Better Auth options (email/password, social providers, plugins) |
+| `config/app.ts` | `appConfig()` from `"questpie"` | `locale`, `access` (defaultAccess), `hooks`, `context` (contextResolver) |
+| `config/admin.ts` | `adminConfig()` from `"@questpie/admin/server"` | `sidebar`, `dashboard`, `branding`, `locale` (adminLocale) |
+| `config/openapi.ts` | `openApiConfig()` from `"@questpie/openapi"` | OpenAPI spec info, Scalar UI options |
+
+The `appConfig` pattern uses `destructure` on `DiscoverPattern` — a single file maps its properties to multiple createApp keys. Context resolver return type is auto-propagated to `Questpie.QuestpieContextExtension`.
+
+### Module Plugin Auto-Extraction
+
+Modules can declare `plugin` on `ModuleDefinition`. Codegen pre-pass imports `modules.ts`, traverses depth-first, and extracts all plugins. This means `openApiModule` and other module packages contribute their codegen plugins automatically — no manual `plugins: [openApiPlugin()]` in `questpie.config.ts` needed.
 
 ### Admin Plugin (`adminPlugin()`)
 
 Lives in `packages/admin/src/server/plugin.ts`. User registers in `questpie.config.ts` via `plugins: [adminPlugin()]`. Declares:
 
-- **7 discover patterns**: views, components, blocks, sidebar, dashboard, branding, adminLocale.
+- **4 discover patterns**: views, components, blocks, `config/admin.ts` (adminConfig with `destructure` mapping sidebar, dashboard, branding, adminLocale).
 - **2 module registries**: views, components — with placeholder tokens for type extraction.
 - **5 collection extensions**: admin, list, form, preview, actions.
 - **2 global extensions**: admin, form.
 - **2 field extensions**: admin (per-field admin meta), form (layout for object fields).
-- **4 singleton factories**: branding, adminLocale, sidebar, dashboard.
+- **1 singleton factory**: adminConfig (`AdminConfigInput`).
 - **3 callback params**: `v` (view proxy), `c` (component proxy), `a` (action proxy).
 - **1 type registry**: `ComponentTypeRegistry` in `@questpie/admin/server`.
 
@@ -418,7 +436,7 @@ Use `ctx.collections.*` directly — no app import needed:
 
 ```ts
 // blocks/team.ts
-import { block } from "@questpie/admin/server";
+import { block } from "#questpie/factories";
 
 export const teamBlock = block("team")
 	.fields(({ f }) => ({

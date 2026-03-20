@@ -60,7 +60,13 @@ import type * as React from "react";
 
 import { Admin, type AdminInput } from "../../builder/admin";
 import { AuthGuard } from "../../components/auth";
+import { getAdminConfigQueryOptions } from "../../hooks/use-admin-config";
 import { AdminProvider } from "../../runtime/provider";
+import {
+	getAdminLocalesQueryOptions,
+	getAdminTranslationsQueryOptions,
+	getUiLocaleFromCookie,
+} from "../../runtime/translations-provider";
 import { AdminLayout, type AdminLayoutSharedProps } from "./admin-layout";
 
 // ============================================================================
@@ -223,6 +229,7 @@ function getDefaultQueryClient(): QueryClient {
 			defaultOptions: {
 				queries: {
 					staleTime: 60 * 1000, // 1 minute
+					refetchOnWindowFocus: false, // Admin panel — no silent refetch on tab switch
 					retry: (failureCount, error) => {
 						// Don't retry on 401 (session expired)
 						const status =
@@ -325,6 +332,21 @@ export function AdminLayoutProvider({
 	children,
 }: AdminLayoutProviderProps): React.ReactElement {
 	const qc = queryClient ?? getDefaultQueryClient();
+
+	// Prefetch critical data BEFORE any Suspense boundary in the tree.
+	// This eliminates the sequential waterfall:
+	//   TranslationsProvider suspends → AdminRouter suspends → View suspends
+	// By starting all fetches in parallel here, each boundary resolves from
+	// cache instead of triggering a new network request.
+	// prefetchQuery is idempotent — skips if data is already cached or fetching.
+	if ((client as any)?.routes) {
+		qc.prefetchQuery(getAdminConfigQueryOptions(client));
+		if (useServerTranslations) {
+			const locale = initialUiLocale ?? getUiLocaleFromCookie() ?? "en";
+			qc.prefetchQuery(getAdminLocalesQueryOptions(client));
+			qc.prefetchQuery(getAdminTranslationsQueryOptions(client, locale));
+		}
+	}
 
 	// Normalize admin input - accepts plain state or Admin instance
 	const admin = Admin.normalize(adminInput);
