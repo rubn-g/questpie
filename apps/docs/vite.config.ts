@@ -1,4 +1,5 @@
 import babel from "@rolldown/plugin-babel";
+import { iconifyPreload } from "@questpie/vite-plugin-iconify";
 import tailwindcss from "@tailwindcss/vite";
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 import viteReact, { reactCompilerPreset } from "@vitejs/plugin-react";
@@ -11,6 +12,7 @@ export default defineConfig({
 		port: 3000,
 	},
 	plugins: [
+		iconifyPreload(),
 		mdx(await import("./source.config")),
 		nitro({ preset: "bun" }) as any,
 		tailwindcss(),

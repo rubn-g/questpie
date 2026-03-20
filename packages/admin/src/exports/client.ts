@@ -37,9 +37,6 @@
  * @packageDocumentation
  */
 
-// Preload bundled Phosphor icons — eliminates API calls and layout shift
-import "../client/icons/phosphor-bundle.js";
-
 // ============================================================================
 // CORE API
 // The essential exports for setting up admin

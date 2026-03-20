@@ -1,3 +1,5 @@
+import "virtual:iconify-preload";
+
 import {
 	createRootRoute,
 	HeadContent,

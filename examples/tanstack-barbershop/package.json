@@ -69,6 +69,8 @@
 	},
 	"devDependencies": {
 		"@playwright/test": "^1.58.2",
+		"@iconify/json": ">=2",
+		"@questpie/vite-plugin-iconify": "workspace:*",
 		"@rolldown/plugin-babel": "^0.2.0",
 		"@tanstack/devtools-vite": "^0.3.11",
 		"@testing-library/dom": "^10.4.0",

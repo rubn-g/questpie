@@ -1,4 +1,5 @@
 import babel from "@rolldown/plugin-babel";
+import { iconifyPreload } from "@questpie/vite-plugin-iconify";
 import tailwindcss from "@tailwindcss/vite";
 import { devtools } from "@tanstack/devtools-vite";
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
@@ -8,6 +9,7 @@ import { defineConfig } from "vite";
 
 const config = defineConfig({
 	plugins: [
+		iconifyPreload(),
 		devtools(),
 		nitro({
 			preset: "bun",

@@ -46,6 +46,8 @@
         "vite": "^8.0.0",
       },
       "devDependencies": {
+        "@iconify/json": ">=2",
+        "@questpie/vite-plugin-iconify": "workspace:*",
         "@rolldown/plugin-babel": "^0.2.0",
         "@tailwindcss/vite": "^4.1.18",
         "@types/mdx": "^2.0.13",
@@ -91,6 +93,8 @@
         "zod": "^4.2.1",
       },
       "devDependencies": {
+        "@iconify/json": ">=2",
+        "@questpie/vite-plugin-iconify": "workspace:*",
         "@tanstack/devtools-vite": "^0.3.11",
         "@types/node": "^22.10.2",
         "@types/react": "^19.2.0",
@@ -148,7 +152,9 @@
         "zod": "^4.2.1",
       },
       "devDependencies": {
+        "@iconify/json": ">=2",
         "@playwright/test": "^1.58.2",
+        "@questpie/vite-plugin-iconify": "workspace:*",
         "@rolldown/plugin-babel": "^0.2.0",
         "@tanstack/devtools-vite": "^0.3.11",
         "@testing-library/dom": "^10.4.0",
@@ -391,6 +397,19 @@
       "peerDependencies": {
         "@tanstack/react-query": "^5.0.0",
         "questpie": "^2.0.0",
+      },
+    },
+    "packages/vite-plugin-iconify": {
+      "name": "@questpie/vite-plugin-iconify",
+      "version": "0.0.1",
+      "devDependencies": {
+        "@iconify/json": ">=2",
+        "typescript": "^5.9.3",
+        "vite": ">=6",
+      },
+      "peerDependencies": {
+        "@iconify/json": ">=2",
+        "vite": ">=6",
       },
     },
   },
@@ -928,6 +947,8 @@
     "@questpie/openapi": ["@questpie/openapi@workspace:packages/openapi"],
 
     "@questpie/tanstack-query": ["@questpie/tanstack-query@workspace:packages/tanstack-query"],
+
+    "@questpie/vite-plugin-iconify": ["@questpie/vite-plugin-iconify@workspace:packages/vite-plugin-iconify"],
 
     "@radix-ui/number": ["@radix-ui/number@1.1.1", "", {}, "sha512-MkKCwxlXTgz6CFoJx3pCwn07GKp36+aZyu/u2Ln2VrA5DcdyCZkASEDBTd8x5whTQQL5CiYf4prXKLcgQdv29g=="],
 
@@ -3120,6 +3141,8 @@
     "@questpie/admin/typescript": ["typescript@5.9.3", "", { "bin": { "tsc": "bin/tsc", "tsserver": "bin/tsserver" } }, "sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw=="],
 
     "@questpie/docs/typescript": ["typescript@5.9.3", "", { "bin": { "tsc": "bin/tsc", "tsserver": "bin/tsserver" } }, "sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw=="],
+
+    "@questpie/vite-plugin-iconify/typescript": ["typescript@5.9.3", "", { "bin": { "tsc": "bin/tsc", "tsserver": "bin/tsserver" } }, "sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw=="],
 
     "@radix-ui/react-collection/@radix-ui/react-slot": ["@radix-ui/react-slot@1.2.3", "", { "dependencies": { "@radix-ui/react-compose-refs": "1.1.2" }, "peerDependencies": { "@types/react": "*", "react": "^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc" }, "optionalPeers": ["@types/react"] }, "sha512-aeNmHnBxbi2St0au6VBVC7JXFlhLlOnvIIlePNniyUNAClzmtAUEY8/pBiK3iHjufOlwA+c20/8jngo7xcrg8A=="],
 
