@@ -294,6 +294,101 @@
 }
 
 /* ============================================
+   LANDING PAGE — Interactive section animations
+   ============================================ */
+
+/* §01 — Hover highlight handled via React state + inline Tailwind classes */
+
+/* §02 — Staggered badge fade-in on toggle */
+@keyframes badge-fade-in {
+	from {
+		opacity: 0;
+		transform: translateY(6px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+.badge-stagger {
+	opacity: 0;
+	animation: badge-fade-in 300ms ease forwards;
+}
+
+/* §04 — Progress bar fill */
+@keyframes progress-fill {
+	from {
+		width: 0%;
+	}
+	to {
+		width: 100%;
+	}
+}
+
+.admin-progress-bar {
+	animation: progress-fill var(--progress-duration, 3s) linear forwards;
+}
+
+.admin-progress-bar[data-paused="true"] {
+	animation-play-state: paused;
+}
+
+/* §04 — Step content crossfade */
+.admin-step-content {
+	animation: step-fade-in 250ms ease;
+}
+
+@keyframes step-fade-in {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
+
+/* §07 — DX terminal line reveal */
+.dx-line {
+	opacity: 0;
+	transform: translateY(4px);
+	transition: opacity 400ms ease, transform 400ms ease;
+}
+
+[data-visible] .dx-line {
+	opacity: 1;
+	transform: translateY(0);
+}
+
+/* Reduced motion: respect prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+	[data-reveal] {
+		transition: none !important;
+		opacity: 1 !important;
+		transform: none !important;
+	}
+	.badge-stagger {
+		animation: none !important;
+		opacity: 1 !important;
+	}
+	.admin-progress-bar {
+		animation: none !important;
+		width: 100% !important;
+	}
+	.admin-step-content {
+		animation: none !important;
+	}
+	.dx-line {
+		transition: none !important;
+		opacity: 1 !important;
+		transform: none !important;
+	}
+	[data-line] {
+		transition: none !important;
+	}
+}
+
+/* ============================================
    BRUTALIST OVERRIDES — Fumadocs Docs Pages
    Zero rounded corners, zero shadows, zero blur
    Dense, structural, 1px borders as primary element

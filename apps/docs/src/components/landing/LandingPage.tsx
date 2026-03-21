@@ -66,14 +66,17 @@ function FeatureCell({
 	num,
 	title,
 	desc,
+	icon,
 }: {
 	num: string;
 	title: string;
 	desc: string;
+	icon?: string;
 }) {
 	return (
 		<div className="bg-background hover:outline-primary flex h-full flex-col p-6 transition-colors hover:outline hover:outline-1 hover:-outline-offset-1">
-			<div className="text-primary mb-4 font-mono text-[10px] tracking-[3px]">
+			<div className="text-primary mb-4 flex items-center gap-2 font-mono text-[10px] tracking-[3px]">
+				{icon && <Icon ssr icon={icon} width={16} height={16} />}
 				{num}
 			</div>
 			<h3 className="text-foreground mb-2 font-mono text-[14px] font-bold">
@@ -349,7 +352,9 @@ function AdapterDropdown({
 						))}
 						<Link
 							to="/docs/$"
-							params={{ _splat: "extend/custom-adapters" }}
+							params={{
+								_splat: `extend/custom-adapters/${category.key}`,
+							}}
 							className="text-primary hover:bg-secondary border-border mt-1 flex w-full items-center gap-2 border-t px-3 py-1.5 text-left font-mono text-[11px] transition-colors"
 							onClick={() => setOpen(false)}
 						>
@@ -492,7 +497,7 @@ function SwapAnythingSection() {
 	);
 }
 
-/* ─── File Conventions Section (with toggle) ─── */
+/* ─── File Conventions Section (with toggle + staggered badges) ─── */
 
 function FileConventionsSection() {
 	const [layout, setLayout] = useState<"by-type" | "by-feature">("by-type");
@@ -576,37 +581,95 @@ function FileConventionsSection() {
 		</>
 	);
 
-	const byTypeBadges = [
-		["posts.ts", "CRUD + API + ADMIN", "text-[var(--syntax-string)]"],
-		["users.ts", "AUTH-CONNECTED ENTITY", "text-[var(--syntax-string)]"],
-		["admin/stats.ts", "TYPE-SAFE ROUTE", "text-primary"],
-		["hero.ts", "VISUAL BLOCK", "text-[var(--syntax-number)]"],
-		["send-newsletter.ts", "BACKGROUND JOB", "text-[var(--syntax-type)]"],
-		["stripe.ts", "SINGLETON SERVICE", "text-muted-foreground"],
-		["demo-data.ts", "DB SEED", "text-muted-foreground"],
-		["auth.ts", "BETTER AUTH", "text-muted-foreground"],
+	type BadgeGroup = {
+		label: string;
+		icon: string;
+		color: string;
+		items: [string, string][];
+	};
+
+	const byTypeGroups: BadgeGroup[] = [
+		{
+			label: "Collections",
+			icon: "ph:database",
+			color: "text-[var(--syntax-string)]",
+			items: [
+				["posts.ts", "CRUD + API + Admin"],
+				["users.ts", "Auth-connected"],
+			],
+		},
+		{
+			label: "Routes",
+			icon: "ph:signpost",
+			color: "text-primary",
+			items: [["admin/stats.ts", "Type-safe route"]],
+		},
+		{
+			label: "Blocks",
+			icon: "ph:squares-four",
+			color: "text-[var(--syntax-number)]",
+			items: [["hero.ts", "Visual block"]],
+		},
+		{
+			label: "Jobs",
+			icon: "ph:lightning",
+			color: "text-[var(--syntax-type)]",
+			items: [["send-newsletter.ts", "Background job"]],
+		},
+		{
+			label: "Other",
+			icon: "ph:dots-three",
+			color: "text-muted-foreground",
+			items: [
+				["stripe.ts", "Singleton service"],
+				["demo-data.ts", "DB seed"],
+				["auth.ts", "Better Auth"],
+			],
+		},
 	];
 
-	const byFeatureBadges = [
-		["blog/collections/posts.ts", "COLLECTION", "text-[var(--syntax-string)]"],
-		["blog/blocks/hero.ts", "BLOCK", "text-[var(--syntax-number)]"],
-		["blog/jobs/newsletter.ts", "JOB", "text-[var(--syntax-type)]"],
-		[
-			"shop/collections/products.ts",
-			"COLLECTION",
-			"text-[var(--syntax-string)]",
-		],
-		["shop/collections/orders.ts", "COLLECTION", "text-[var(--syntax-string)]"],
-		["shop/services/stripe.ts", "SERVICE", "text-muted-foreground"],
-		[
-			"shared/collections/users.ts",
-			"COLLECTION",
-			"text-[var(--syntax-string)]",
-		],
-		["shared/routes/stats.ts", "ROUTE", "text-primary"],
+	const byFeatureGroups: BadgeGroup[] = [
+		{
+			label: "Collections",
+			icon: "ph:database",
+			color: "text-[var(--syntax-string)]",
+			items: [
+				["blog/posts.ts", "CRUD + API + Admin"],
+				["shop/products.ts", "CRUD + API + Admin"],
+				["shop/orders.ts", "CRUD + API + Admin"],
+				["shared/users.ts", "Auth-connected"],
+			],
+		},
+		{
+			label: "Routes",
+			icon: "ph:signpost",
+			color: "text-primary",
+			items: [["shared/stats.ts", "Type-safe route"]],
+		},
+		{
+			label: "Blocks",
+			icon: "ph:squares-four",
+			color: "text-[var(--syntax-number)]",
+			items: [["blog/hero.ts", "Visual block"]],
+		},
+		{
+			label: "Jobs",
+			icon: "ph:lightning",
+			color: "text-[var(--syntax-type)]",
+			items: [["blog/newsletter.ts", "Background job"]],
+		},
+		{
+			label: "Other",
+			icon: "ph:dots-three",
+			color: "text-muted-foreground",
+			items: [
+				["shop/stripe.ts", "Singleton service"],
+				["auth.ts", "Better Auth"],
+			],
+		},
 	];
 
-	const badges = layout === "by-type" ? byTypeBadges : byFeatureBadges;
+	const groups = layout === "by-type" ? byTypeGroups : byFeatureGroups;
 
 	return (
 		<>
@@ -628,7 +691,7 @@ function FileConventionsSection() {
 									"-mb-[9px] pb-2 font-mono text-[13px] transition-colors",
 									layout === mode
 										? "text-foreground border-primary border-b-2 font-bold"
-										: "text-muted-foreground hover:text-foreground",
+										: "text-muted-foreground hover:text-foreground animate-pulse",
 								)}
 							>
 								{mode === "by-type" ? "By type" : "By feature"}
@@ -639,22 +702,835 @@ function FileConventionsSection() {
 						{layout === "by-type" ? byTypeTree : byFeatureTree}
 					</pre>
 				</div>
-				<div className="bg-background flex flex-col justify-center gap-6 p-8">
-					{badges.map(([name, badge, color]) => (
-						<div key={name}>
-							<div className="text-foreground mb-1 font-mono text-[12px] font-bold">
-								{name}
-							</div>
+				<div className="bg-background flex flex-col justify-center p-6">
+					<div className="space-y-4">
+						{groups.map((group) => (
 							<div
-								className={cn(
-									"font-mono text-[10px] tracking-[0.1em] uppercase",
-									color,
-								)}
+								key={group.label}
 							>
-								{badge}
+								<div className="mb-2 flex items-center gap-1.5">
+									<Icon
+										ssr
+										icon={group.icon}
+										width={12}
+										height={12}
+										className={group.color}
+									/>
+									<span
+										className={cn(
+											"font-mono text-[10px] tracking-[0.1em] uppercase",
+											group.color,
+										)}
+									>
+										{group.label}
+									</span>
+								</div>
+								<div className="border-border border">
+									{group.items.map(([name, desc], ii) => (
+										<div
+											key={name}
+											className={cn(
+												"flex items-center justify-between gap-3 px-3 py-2",
+												ii > 0 && "border-border border-t",
+											)}
+										>
+											<div className="text-foreground flex items-center gap-1.5 font-mono text-[11px] font-bold">
+												<Icon
+													ssr
+													icon="ph:file-ts"
+													width={12}
+													height={12}
+													className="text-muted-foreground shrink-0"
+												/>
+												<span className="truncate">{name}</span>
+											</div>
+											<span className="text-muted-foreground shrink-0 font-mono text-[9px] tracking-[0.05em]">
+												{desc}
+											</span>
+										</div>
+									))}
+								</div>
+							</div>
+						))}
+						{/* Codegen output indicator */}
+						<div
+							className="border-border border-t pt-3"
+						>
+							<div className="text-muted-foreground flex items-center gap-2 font-mono text-[11px]">
+								<Icon
+									ssr
+									icon="ph:arrow-bend-down-right"
+									width={14}
+									height={14}
+									className="text-primary"
+								/>
+								<span>
+									codegen &rarr;{" "}
+									<span className="text-foreground font-bold">
+										.generated/module.ts
+									</span>
+								</span>
 							</div>
 						</div>
+					</div>
+				</div>
+			</div>
+		</>
+	);
+}
+
+/* ─── §04 Admin Showcase Section ─── */
+
+function AdminShowcaseSection() {
+	const [activeTab, setActiveTab] = useState(0);
+
+	type AdminTab = {
+		label: string;
+		codeLabel: string;
+		code: ReactNode;
+		mockup: ReactNode;
+	};
+
+	const tabs: AdminTab[] = [
+		{
+			label: "Collection",
+			codeLabel: "collections/posts.ts",
+			code: (
+				<>
+					<span className="text-primary font-semibold">collection</span>
+					(<span className="text-[var(--syntax-string)]">"posts"</span>)
+					{`\n  .`}
+					<span className="text-[var(--syntax-function)]">admin</span>
+					{`(({ c }) => ({
+    label: `}
+					<span className="text-[var(--syntax-string)]">"Posts"</span>
+					{`,
+    icon: c.icon(`}
+					<span className="text-[var(--syntax-string)]">"ph:article"</span>
+					{`),
+  }))
+  .`}
+					<span className="text-[var(--syntax-function)]">list</span>
+					{`(({ v }) => v.collectionTable({
+    columns: [`}
+					<span className="text-[var(--syntax-string)]">"title"</span>
+					{`, `}
+					<span className="text-[var(--syntax-string)]">"status"</span>
+					{`, `}
+					<span className="text-[var(--syntax-string)]">"author"</span>
+					{`, `}
+					<span className="text-[var(--syntax-string)]">"date"</span>
+					{`],
+  }))
+  .`}
+					<span className="text-[var(--syntax-function)]">form</span>
+					{`(({ v, f }) => v.collectionForm({
+    fields: [f.title, f.content],
+    sidebar: { fields: [f.status, f.author] },
+  }))
+  .`}
+					<span className="text-[var(--syntax-function)]">access</span>
+					{`({
+    create: ({ session }) => !!session,
+    update: ({ session, doc }) =>
+      doc.authorId === session?.user?.id,
+  })`}
+				</>
+			),
+			mockup: (
+				<>
+					<div className="border-border bg-card flex h-10 items-center justify-between border-b px-4">
+						<div className="font-mono text-[12px] font-bold">Posts</div>
+						<button
+							type="button"
+							className="bg-primary text-primary-foreground px-3 py-1 font-mono text-[10px] uppercase"
+						>
+							+ Create
+						</button>
+					</div>
+					<div className="flex flex-1">
+						<div className="border-border hidden w-28 border-r p-3 sm:block">
+							<ul className="text-muted-foreground space-y-2 font-mono text-[11px]">
+								<li className="text-primary font-bold">Posts</li>
+								<li>Users</li>
+								<li>Settings</li>
+							</ul>
+						</div>
+						<div className="flex-1 overflow-x-auto p-4">
+							<table className="w-full border-collapse text-left">
+								<thead>
+									<tr>
+										{["Title", "Status", "Author", "Date"].map((h) => (
+											<th
+												key={h}
+												className="text-muted-foreground border-border border-b pb-2 font-mono text-[10px] font-normal uppercase"
+											>
+												{h}
+											</th>
+										))}
+									</tr>
+								</thead>
+								<tbody className="text-[13px]">
+									{[
+										{
+											title: "Getting Started Guide",
+											status: "published",
+											author: "admin",
+											date: "Mar 15",
+										},
+										{
+											title: "Adapter Architecture",
+											status: "draft",
+											author: "admin",
+											date: "Mar 12",
+										},
+									].map((row) => (
+										<tr key={row.title}>
+											<td className="text-foreground border-border border-b py-3 pr-4">
+												{row.title}
+											</td>
+											<td className="border-border border-b py-3 pr-4">
+												{row.status === "published" ? (
+													<Badge>PUBLISHED</Badge>
+												) : (
+													<span className="bg-border text-muted-foreground px-2 py-0.5 font-mono text-[11px] uppercase">
+														DRAFT
+													</span>
+												)}
+											</td>
+											<td className="text-muted-foreground border-border border-b py-3 pr-4">
+												{row.author}
+											</td>
+											<td className="text-muted-foreground border-border border-b py-3">
+												{row.date}
+											</td>
+										</tr>
+									))}
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</>
+			),
+		},
+		{
+			label: "Global",
+			codeLabel: "globals/site-settings.ts",
+			code: (
+				<>
+					<span className="text-primary font-semibold">global</span>(
+					<span className="text-[var(--syntax-string)]">
+						"site_settings"
+					</span>
+					)
+					{`\n  .`}
+					<span className="text-[var(--syntax-function)]">fields</span>
+					{`(({ f }) => ({
+    siteName: f.`}
+					<span className="text-[var(--syntax-function)]">text</span>
+					{`(),
+    tagline:  f.`}
+					<span className="text-[var(--syntax-function)]">text</span>
+					{`(),
+    logo:     f.`}
+					<span className="text-[var(--syntax-function)]">upload</span>
+					{`(),
+  }))
+  .`}
+					<span className="text-[var(--syntax-function)]">options</span>
+					{`({ versioning: `}
+					<span className="text-primary font-semibold">true</span>
+					{` })`}
+				</>
+			),
+			mockup: (
+				<div className="flex flex-1 flex-col">
+					<div className="border-border bg-card flex h-10 items-center justify-between border-b px-4">
+						<div className="font-mono text-[12px] font-bold">
+							Site Settings
+						</div>
+						<button
+							type="button"
+							className="border-primary text-primary bg-primary/10 flex items-center gap-1 border px-2 py-0.5 font-mono text-[10px] uppercase"
+						>
+							<Icon
+								ssr
+								icon="ph:clock-counter-clockwise"
+								width={12}
+								height={12}
+							/>
+							History
+						</button>
+					</div>
+					<div className="flex flex-1">
+						<div className="flex-1 space-y-4 p-4">
+							{[
+								{ label: "Site Name", value: "QuestPie Docs" },
+								{
+									label: "Tagline",
+									value: "One backend. Ship everywhere.",
+								},
+							].map((field) => (
+								<div key={field.label}>
+									<label className="text-muted-foreground mb-1 block font-mono text-[10px] uppercase">
+										{field.label}
+									</label>
+									<div className="border-border bg-card text-foreground border px-3 py-2 font-mono text-[12px]">
+										{field.value}
+									</div>
+								</div>
+							))}
+							<div>
+								<label className="text-muted-foreground mb-1 block font-mono text-[10px] uppercase">
+									Logo
+								</label>
+								<div className="border-border bg-secondary flex h-16 items-center justify-center border font-mono text-[11px]">
+									<Icon
+										ssr
+										icon="ph:image"
+										width={20}
+										height={20}
+										className="text-muted-foreground"
+									/>
+								</div>
+							</div>
+						</div>
+						<div className="border-border w-40 border-l p-3">
+							<div className="text-muted-foreground mb-3 font-mono text-[9px] uppercase tracking-wider">
+								Version history
+							</div>
+							<div className="space-y-2">
+								{[
+									{
+										v: "v3 — current",
+										time: "2 min ago",
+										active: true,
+									},
+									{
+										v: "v2",
+										time: "1 hour ago",
+										active: false,
+									},
+									{ v: "v1", time: "Mar 14", active: false },
+								].map((ver) => (
+									<div
+										key={ver.v}
+										className={`border-l-2 pl-2 ${ver.active ? "border-primary" : "border-border"}`}
+									>
+										<div
+											className={`font-mono text-[10px] ${ver.active ? "text-foreground font-bold" : "text-muted-foreground"}`}
+										>
+											{ver.v}
+										</div>
+										<div className="text-muted-foreground font-mono text-[9px]">
+											{ver.time}
+										</div>
+									</div>
+								))}
+							</div>
+						</div>
+					</div>
+				</div>
+			),
+		},
+		{
+			label: "Admin config",
+			codeLabel: "config/admin.ts",
+			code: (
+				<>
+					<span className="text-primary font-semibold">export default</span>
+					{" "}
+					<span className="text-[var(--syntax-function)]">adminConfig</span>
+					{`({
+  sidebar: {
+    sections: [
+      { id: `}
+					<span className="text-[var(--syntax-string)]">"content"</span>
+					{`, label: `}
+					<span className="text-[var(--syntax-string)]">"Content"</span>
+					{` },
+    ],
+    items: [
+      { sectionId: `}
+					<span className="text-[var(--syntax-string)]">"content"</span>
+					{`, type: `}
+					<span className="text-[var(--syntax-string)]">"collection"</span>
+					{`,
+        collection: `}
+					<span className="text-[var(--syntax-string)]">"posts"</span>
+					{` },
+      { sectionId: `}
+					<span className="text-[var(--syntax-string)]">"content"</span>
+					{`, type: `}
+					<span className="text-[var(--syntax-string)]">"collection"</span>
+					{`,
+        collection: `}
+					<span className="text-[var(--syntax-string)]">"users"</span>
+					{` },
+    ],
+  },
+  dashboard: {
+    actions: [
+      { type: `}
+					<span className="text-[var(--syntax-string)]">"create"</span>
+					{`, collection: `}
+					<span className="text-[var(--syntax-string)]">"posts"</span>
+					{` },
+    ],
+  },
+  locale: {
+    locales: [`}
+					<span className="text-[var(--syntax-string)]">"en"</span>
+					{`, `}
+					<span className="text-[var(--syntax-string)]">"sk"</span>
+					{`],
+    defaultLocale: `}
+					<span className="text-[var(--syntax-string)]">"en"</span>
+					{`,
+  },
+})`}
+				</>
+			),
+			mockup: (
+				<div className="flex flex-1 flex-col">
+					<div className="border-border bg-card flex h-10 items-center justify-between border-b px-4">
+						<div className="font-mono text-[12px] font-bold">Admin</div>
+						<div className="border-border flex border">
+							<button
+								type="button"
+								className="bg-primary text-primary-foreground px-2 py-0.5 font-mono text-[10px]"
+							>
+								EN
+							</button>
+							<button
+								type="button"
+								className="text-muted-foreground border-border border-l px-2 py-0.5 font-mono text-[10px]"
+							>
+								SK
+							</button>
+						</div>
+					</div>
+					<div className="flex flex-1">
+						<div className="border-border w-36 border-r p-3">
+							<div className="text-muted-foreground mb-2 font-mono text-[9px] tracking-wider uppercase">
+								Content
+							</div>
+							<ul className="mb-4 space-y-3 pl-1 font-mono text-[12px]">
+								<li className="text-foreground flex items-center gap-2">
+									<Icon
+										ssr
+										icon="ph:article"
+										width={14}
+										height={14}
+										className="text-primary"
+									/>
+									Posts
+								</li>
+								<li className="text-muted-foreground flex items-center gap-2">
+									<Icon
+										ssr
+										icon="ph:users"
+										width={14}
+										height={14}
+									/>
+									Users
+								</li>
+							</ul>
+							<div className="border-border border-t pt-3">
+								<ul className="space-y-3 pl-1 font-mono text-[12px]">
+									<li className="text-muted-foreground flex items-center gap-2">
+										<Icon
+											ssr
+											icon="ph:gear"
+											width={14}
+											height={14}
+										/>
+										Settings
+									</li>
+								</ul>
+							</div>
+						</div>
+						<div className="flex-1 p-4">
+							<div className="mb-4 font-mono text-[11px] font-bold uppercase tracking-wider">
+								Quick actions
+							</div>
+							<div className="mb-5 flex flex-wrap gap-2">
+								<button
+									type="button"
+									className="border-border text-foreground flex items-center gap-1.5 border px-3 py-1.5 font-mono text-[11px]"
+								>
+									<Icon
+										ssr
+										icon="ph:plus"
+										width={12}
+										height={12}
+									/>
+									Create Post
+								</button>
+							</div>
+							<div className="grid grid-cols-2 gap-3">
+								{[
+									{ label: "Total posts", value: "142" },
+									{ label: "Published", value: "89" },
+								].map((s) => (
+									<div
+										key={s.label}
+										className="border-border border p-3"
+									>
+										<div className="text-muted-foreground font-mono text-[9px] uppercase">
+											{s.label}
+										</div>
+										<div className="text-foreground font-mono text-xl font-bold">
+											{s.value}
+										</div>
+									</div>
+								))}
+							</div>
+						</div>
+					</div>
+				</div>
+			),
+		},
+	];
+
+	const current = tabs[activeTab];
+
+	return (
+		<>
+			<SectionHeader
+				num="04"
+				title="Optional admin"
+				subtitle="Ship the admin panel only when you need it. Swappable package. Web, React Native, or build your own."
+			/>
+
+			{/* Tab bar */}
+			<div className="border-border border border-b-0">
+				<div className="flex">
+					{tabs.map((tab, i) => (
+						<button
+							key={tab.label}
+							type="button"
+							onClick={() => setActiveTab(i)}
+							className={cn(
+								"relative flex-1 py-3 font-mono text-[12px] tracking-[0.04em] uppercase transition-colors",
+								i === activeTab
+									? "text-foreground font-bold"
+									: "text-muted-foreground hover:text-foreground",
+								i > 0 && "border-border border-l",
+							)}
+						>
+							{tab.label}
+							{i === activeTab && (
+								<div className="bg-primary absolute inset-x-0 bottom-0 h-[2px]" />
+							)}
+						</button>
 					))}
+				</div>
+			</div>
+
+			{/* Content grid */}
+			<div className="bg-border border-border grid grid-cols-1 gap-[1px] border lg:grid-cols-2">
+				{/* Left: code */}
+				<div className="bg-background">
+					<TerminalBlock
+						label={current.codeLabel}
+						key={`code-${activeTab}`}
+					>
+						<div className="admin-step-content">{current.code}</div>
+					</TerminalBlock>
+				</div>
+
+				{/* Right: mockup */}
+				<div
+					className="bg-background flex flex-col"
+					key={`mockup-${activeTab}`}
+				>
+					<div className="border-border flex flex-1 flex-col border admin-step-content">
+						{current.mockup}
+					</div>
+				</div>
+			</div>
+		</>
+	);
+}
+
+/* ─── §05 End-to-End Types (clickable pipeline) ─── */
+
+function EndToEndTypesSection() {
+	const [activeStep, setActiveStep] = useState(4);
+
+	const steps = [
+		{ n: "1", label: "Field def" },
+		{ n: "2", label: "Codegen" },
+		{ n: "3", label: "Drizzle table" },
+		{ n: "4", label: "Zod schema" },
+		{ n: "5", label: "Client SDK" },
+	];
+
+	const snippetLabels = [
+		"collections/posts.ts",
+		".generated/module.ts",
+		"runtime — drizzle",
+		"runtime — zod",
+		"client.ts",
+	];
+
+	const snippets: ReactNode[] = [
+		// Step 0: Field def
+		<>
+			<span className="text-primary font-semibold">collection</span>
+			(<span className="text-[var(--syntax-string)]">"posts"</span>)
+			{`\n  .`}
+			<span className="text-[var(--syntax-function)]">fields</span>
+			{`(({ f }) => ({
+    title:   f.`}
+			<span className="text-[var(--syntax-function)]">text</span>(
+			<span className="text-[var(--syntax-number)]">255</span>).
+			<span className="text-[var(--syntax-function)]">required</span>
+			{`(),
+    content: f.`}
+			<span className="text-[var(--syntax-function)]">richText</span>
+			{`(),
+    status:  f.`}
+			<span className="text-[var(--syntax-function)]">select</span>
+			{`([
+      { value: `}
+			<span className="text-[var(--syntax-string)]">"draft"</span>
+			{`, label: `}
+			<span className="text-[var(--syntax-string)]">"Draft"</span>
+			{` },
+      { value: `}
+			<span className="text-[var(--syntax-string)]">"published"</span>
+			{`, label: `}
+			<span className="text-[var(--syntax-string)]">"Published"</span>
+			{` },
+    ]),
+    author:  f.`}
+			<span className="text-[var(--syntax-function)]">relation</span>
+			(<span className="text-[var(--syntax-string)]">"users"</span>).
+			<span className="text-[var(--syntax-function)]">required</span>
+			{`(),
+  }))`}
+		</>,
+		// Step 1: Codegen — actual generated module
+		<>
+			<span className="text-muted-foreground/60">
+				{"// AUTO-GENERATED — DO NOT EDIT"}
+			</span>
+			{"\n"}
+			<span className="text-primary font-semibold">import</span>
+			{" _coll_posts "}
+			<span className="text-primary font-semibold">from</span>
+			{" "}
+			<span className="text-[var(--syntax-string)]">"../collections/posts"</span>
+			{"\n"}
+			<span className="text-primary font-semibold">import</span>
+			{" _coll_users "}
+			<span className="text-primary font-semibold">from</span>
+			{" "}
+			<span className="text-[var(--syntax-string)]">"../collections/users"</span>
+			{"\n"}
+			<span className="text-primary font-semibold">import</span>
+			{" _job_newsletter "}
+			<span className="text-primary font-semibold">from</span>
+			{" "}
+			<span className="text-[var(--syntax-string)]">"../jobs/newsletter"</span>
+			{"\n\n"}
+			<span className="text-primary font-semibold">export interface</span>
+			{" AppCollections {\n"}
+			{"  posts: "}
+			<span className="text-[var(--syntax-type)]">typeof</span>
+			{" _coll_posts\n"}
+			{"  users: "}
+			<span className="text-[var(--syntax-type)]">typeof</span>
+			{" _coll_users\n}\n\n"}
+			<span className="text-primary font-semibold">const</span>
+			{` _module = {
+  name: `}
+			<span className="text-[var(--syntax-string)]">"app"</span>
+			{` as const,
+  collections: {
+    posts: _coll_posts,
+    users: _coll_users,
+  },
+  jobs: { newsletter: _job_newsletter },
+  globals: {},
+  routes: {},
+}
+
+`}
+			<span className="text-primary font-semibold">export default</span>
+			{" _module"}
+		</>,
+		// Step 2: Drizzle table — runtime-derived
+		<>
+			<span className="text-muted-foreground/60">
+				{"// Derived at runtime from .fields() definition"}
+			</span>
+			{"\n"}
+			<span className="text-muted-foreground/60">
+				{"// You never write this — questpie builds it"}
+			</span>
+			{"\n\n"}
+			<span className="text-primary font-semibold">const</span>
+			{" postsTable = "}
+			<span className="text-[var(--syntax-function)]">pgTable</span>
+			{`(`}
+			<span className="text-[var(--syntax-string)]">"posts"</span>
+			{`, {
+  id:       `}
+			<span className="text-[var(--syntax-function)]">serial</span>
+			{`().primaryKey(),
+  title:    `}
+			<span className="text-[var(--syntax-function)]">varchar</span>
+			{`({ length: `}
+			<span className="text-[var(--syntax-number)]">255</span>
+			{` }).notNull(),
+  content:  `}
+			<span className="text-[var(--syntax-function)]">jsonb</span>
+			{`(), `}
+			<span className="text-muted-foreground/60">{"// TipTap document"}</span>
+			{`
+  status:   `}
+			<span className="text-[var(--syntax-function)]">statusEnum</span>
+			{`(`}
+			<span className="text-[var(--syntax-string)]">"status"</span>
+			{`),
+  authorId: `}
+			<span className="text-[var(--syntax-function)]">integer</span>
+			{`()
+              .references(() => usersTable.id)
+              .notNull(),
+});`}
+		</>,
+		// Step 3: Zod schema — runtime-inferred
+		<>
+			<span className="text-muted-foreground/60">
+				{"// Inferred at runtime from .fields()"}
+			</span>
+			{"\n"}
+			<span className="text-muted-foreground/60">
+				{"// Fully typed — change a field, types update"}
+			</span>
+			{"\n\n"}
+			<span className="text-primary font-semibold">const</span>
+			{" postsSchema = "}
+			<span className="text-[var(--syntax-function)]">z</span>
+			{`.`}
+			<span className="text-[var(--syntax-function)]">object</span>
+			{`({
+  title:    z.`}
+			<span className="text-[var(--syntax-function)]">string</span>
+			{`().max(`}
+			<span className="text-[var(--syntax-number)]">255</span>
+			{`),
+  content:  `}
+			<span className="text-[var(--syntax-function)]">tiptapDocSchema</span>
+			{`
+              .optional(),
+  status:   z.`}
+			<span className="text-[var(--syntax-function)]">enum</span>
+			{`([`}
+			<span className="text-[var(--syntax-string)]">"draft"</span>
+			{`, `}
+			<span className="text-[var(--syntax-string)]">"published"</span>
+			{`]),
+  authorId: z.`}
+			<span className="text-[var(--syntax-function)]">number</span>
+			{`().int(),
+});
+
+`}
+			<span className="text-muted-foreground/60">
+				{"// type PostInput = z.infer<typeof postsSchema>"}
+			</span>
+		</>,
+		// Step 4: Client SDK (current snippet)
+		<>
+			<span className="text-primary font-semibold">const</span>
+			{` { docs } = `}
+			<span className="text-primary font-semibold">await</span>
+			{` client.collections.posts.`}
+			<span className="text-[var(--syntax-function)]">find</span>
+			{`({
+  where: { status: { eq: `}
+			<span className="text-[var(--syntax-string)]">"published"</span>
+			{` } },
+  orderBy: { createdAt: `}
+			<span className="text-[var(--syntax-string)]">"desc"</span>
+			{` },
+  with: { author: `}
+			<span className="text-primary font-semibold">true</span>
+			{`, tags: `}
+			<span className="text-primary font-semibold">true</span>
+			{` },
+  locale: `}
+			<span className="text-[var(--syntax-string)]">"sk"</span>
+			{`,
+});
+
+`}
+			<span className="text-muted-foreground/60">
+				{"// docs[0].title → string"}
+			</span>
+			{"\n"}
+			<span className="text-muted-foreground/60">
+				{"// docs[0].author → User"}
+			</span>
+			{"\n"}
+			<span className="text-muted-foreground/60">
+				{"// docs[0].tags → Tag[]"}
+			</span>
+		</>,
+	];
+
+	return (
+		<>
+			<SectionHeader
+				num="05"
+				title="End-to-end types"
+				subtitle="Schema to screen. Zero disconnect. Change a field — TypeScript catches it everywhere."
+			/>
+
+			<div className="bg-border border-border grid grid-cols-1 gap-[1px] border lg:grid-cols-12">
+				<div className="bg-background flex flex-col justify-center gap-4 p-8 lg:col-span-4">
+					{steps.map((step, i) => (
+						<div key={step.n}>
+							{i > 0 && <div className="bg-border mb-4 ml-4 h-4 w-px" />}
+							<button
+								type="button"
+								onClick={() => setActiveStep(i)}
+								className="flex w-full cursor-pointer items-center gap-4 text-left"
+							>
+								<div
+									className={cn(
+										"flex h-8 w-8 shrink-0 items-center justify-center font-mono text-[12px] transition-colors",
+										i === activeStep
+											? "bg-primary text-primary-foreground"
+											: "bg-secondary text-primary",
+									)}
+								>
+									{step.n}
+								</div>
+								<div
+									className={cn(
+										"text-foreground font-mono text-[13px] transition-colors",
+										i === activeStep && "font-bold",
+									)}
+								>
+									{step.label}
+								</div>
+							</button>
+						</div>
+					))}
+				</div>
+				<div className="bg-background lg:col-span-8">
+					<TerminalBlock
+						label={snippetLabels[activeStep]}
+						key={`e2e-${activeStep}`}
+					>
+						<div className="admin-step-content">{snippets[activeStep]}</div>
+					</TerminalBlock>
 				</div>
 			</div>
 		</>
@@ -994,6 +1870,322 @@ function LandingFooter() {
 	);
 }
 
+/* ─── §01 One Schema — hover tile swaps snippet ─── */
+
+type SchemaTile = {
+	icon: string;
+	title: string;
+	desc: string;
+	label: string;
+	snippet: ReactNode;
+};
+
+const fn = "text-[var(--syntax-function)]";
+const str = "text-[var(--syntax-string)]";
+const num = "text-[var(--syntax-number)]";
+const kw = "text-primary font-semibold";
+
+const SCHEMA_TILES: SchemaTile[] = [
+	{
+		icon: "ph:globe",
+		title: "REST API",
+		desc: "/api/collections/posts",
+		label: "generated — REST",
+		snippet: (
+			<>
+				<span className={fn}>GET</span>{`  /api/collections/posts\n`}
+				<span className={fn}>GET</span>{`  /api/collections/posts/`}<span className={num}>:id</span>{`\n`}
+				<span className={fn}>POST</span>{` /api/collections/posts\n`}
+				<span className={fn}>PUT</span>{`  /api/collections/posts/`}<span className={num}>:id</span>{`\n`}
+				<span className={fn}>DEL</span>{`  /api/collections/posts/`}<span className={num}>:id</span>
+			</>
+		),
+	},
+	{
+		icon: "ph:file-code",
+		title: "Typed routes",
+		desc: "typed, namespaced",
+		label: "routes/featured.ts",
+		snippet: (
+			<>
+				<span className={kw}>import</span>{" { route } "}<span className={kw}>from</span>{" "}<span className={str}>"questpie"</span>
+				{"\n\n"}
+				<span className={kw}>export default</span>{" "}
+				<span className={fn}>route</span>{`()
+  .`}<span className={fn}>get</span>{`()
+  .`}<span className={fn}>schema</span>{`(z.object({
+    tag: z.string().optional(),
+  }))
+  .`}<span className={fn}>handler</span>{`(async ({ input, db }) => {
+    `}<span className={kw}>return</span>{` db.posts.`}<span className={fn}>findMany</span>{`({
+      where: { tag: input.tag },
+    })
+  })`}
+			</>
+		),
+	},
+	{
+		icon: "ph:activity",
+		title: "Realtime via SSE",
+		desc: "subscribe to changes",
+		label: "client — realtime",
+		snippet: (
+			<>
+				{"client.collections.posts."}
+				<span className={fn}>subscribe</span>{`({
+  where: { status: { eq: `}<span className={str}>"published"</span>{` } },
+  on: {
+    `}<span className={fn}>created</span>{`: (doc) => addToList(doc),
+    `}<span className={fn}>updated</span>{`: (doc) => updateInList(doc),
+    `}<span className={fn}>deleted</span>{`: (id)  => removeFromList(id),
+  },
+})`}
+			</>
+		),
+	},
+	{
+		icon: "ph:cube",
+		title: "Typed client SDK",
+		desc: "auto-generated types",
+		label: "client.ts",
+		snippet: (
+			<>
+				<span className={kw}>const</span>{" { docs } = "}<span className={kw}>await</span>
+				{" client.collections.posts."}
+				<span className={fn}>find</span>{`({
+  where: { status: { eq: `}<span className={str}>"published"</span>{` } },
+  with: { author: `}<span className={kw}>true</span>{` },
+  locale: `}<span className={str}>"sk"</span>{`,
+});
+
+docs[`}<span className={num}>0</span>{`].title   `}<span className="text-muted-foreground/60">{" → string"}</span>{`
+docs[`}<span className={num}>0</span>{`].author  `}<span className="text-muted-foreground/60">{" → User"}</span>{`
+docs[`}<span className={num}>0</span>{`].content `}<span className="text-muted-foreground/60">{" → TiptapDoc"}</span>
+			</>
+		),
+	},
+	{
+		icon: "ph:layout",
+		title: "Admin panel",
+		desc: "table, form, block editor",
+		label: "collections/posts.ts",
+		snippet: (
+			<>
+				<span className={kw}>collection</span>
+				{"("}<span className={str}>"posts"</span>{")"}
+				{"\n  ."}
+				<span className={fn}>admin</span>{`(({ c }) => ({
+    label: `}<span className={str}>"Posts"</span>{`,
+    icon: c.icon(`}<span className={str}>"ph:article"</span>{`),
+  }))
+  .`}<span className={fn}>list</span>{`(({ v }) => v.collectionTable({
+    columns: [`}<span className={str}>"title"</span>{`, `}<span className={str}>"status"</span>{`, `}<span className={str}>"author"</span>{`],
+  }))
+  .`}<span className={fn}>form</span>{`(({ v, f }) => v.collectionForm({
+    fields: [f.title, f.content],
+    sidebar: { fields: [f.status, f.author] },
+  }))`}
+			</>
+		),
+	},
+	{
+		icon: "ph:check",
+		title: "Zod validation",
+		desc: "from field definitions",
+		label: "runtime — zod",
+		snippet: (
+			<>
+				<span className={kw}>const</span>{" postsSchema = z."}
+				<span className={fn}>object</span>{`({
+  title:   z.`}<span className={fn}>string</span>{`().max(`}<span className={num}>255</span>{`),
+  content: `}<span className={fn}>tiptapDocSchema</span>{`.optional(),
+  status:  z.`}<span className={fn}>enum</span>{`([`}
+				<span className={str}>"draft"</span>{`, `}
+				<span className={str}>"published"</span>{`]),
+  author:  z.`}<span className={fn}>number</span>{`().int(),
+  cover:   z.`}<span className={fn}>number</span>{`().int().optional(),
+})`}
+			</>
+		),
+	},
+	{
+		icon: "ph:lock",
+		title: "Access control",
+		desc: "row-level, field-level",
+		label: "collections/posts.ts",
+		snippet: (
+			<>
+				<span className={kw}>collection</span>
+				{"("}<span className={str}>"posts"</span>{")"}
+				{"\n  ."}
+				<span className={fn}>fields</span>{"(...)"}
+				{"\n  ."}
+				<span className={fn}>access</span>{`({
+    `}<span className={fn}>read</span>{`:   `}<span className={kw}>true</span>{`,
+    `}<span className={fn}>create</span>{`: ({ session }) =>
+      !!session,
+    `}<span className={fn}>update</span>{`: ({ session, doc }) =>
+      doc.authorId === session?.user?.id,
+    `}<span className={fn}>delete</span>{`: ({ session }) =>
+      session?.user?.role === `}<span className={str}>"admin"</span>{`,
+    `}<span className={fn}>fields</span>{`: {
+      status: ({ session }) =>
+        session?.user?.role === `}<span className={str}>"editor"</span>{`,
+    },
+  })`}
+			</>
+		),
+	},
+	{
+		icon: "ph:stack",
+		title: "Versioning",
+		desc: "workflow stages, drafts \u2192 published",
+		label: "collections/posts.ts",
+		snippet: (
+			<>
+				<span className={kw}>collection</span>
+				{"("}<span className={str}>"posts"</span>{")"}
+				{"\n  ."}
+				<span className={fn}>fields</span>{"(...)"}
+				{"\n  ."}
+				<span className={fn}>options</span>{`({
+    versioning: `}<span className={kw}>true</span>{`,
+    timestamps: `}<span className={kw}>true</span>{`,
+  })`}
+			</>
+		),
+	},
+	{
+		icon: "ph:globe",
+		title: "i18n",
+		desc: "two-table strategy, per-field localization",
+		label: "collections/posts.ts",
+		snippet: (
+			<>
+				<span className={kw}>collection</span>
+				{"("}<span className={str}>"posts"</span>{")"}
+				{"\n  ."}
+				<span className={fn}>fields</span>{`(({ f }) => ({
+    title:   f.`}<span className={fn}>text</span>{`().`}<span className={fn}>localized</span>{`(),
+    content: f.`}<span className={fn}>richText</span>{`().`}<span className={fn}>localized</span>{`(),
+    status:  f.`}<span className={fn}>select</span>{`([...]),
+  }))`}
+			</>
+		),
+	},
+	{
+		icon: "ph:hard-drives",
+		title: "File Storage",
+		desc: "auto-managed uploads & assets",
+		label: "collections/posts.ts",
+		snippet: (
+			<>
+				<span className={kw}>collection</span>
+				{"("}<span className={str}>"posts"</span>{")"}
+				{"\n  ."}
+				<span className={fn}>fields</span>{`(({ f }) => ({
+    cover: f.`}<span className={fn}>upload</span>{`({
+      to: `}<span className={str}>"assets"</span>{`,
+      mimeTypes: [`}<span className={str}>"image/*"</span>{`],
+    }),
+    pdf:   f.`}<span className={fn}>upload</span>{`({
+      to: `}<span className={str}>"documents"</span>{`,
+      mimeTypes: [`}<span className={str}>"application/pdf"</span>{`],
+    }),
+  }))`}
+			</>
+		),
+	},
+];
+
+function OneSchemaSection() {
+	const [activeTileIdx, setActiveTileIdx] = useState(0);
+	const activeTile = SCHEMA_TILES[activeTileIdx];
+
+	return (
+		<>
+			<SectionHeader
+				num="01"
+				title="One schema, everything generated"
+				subtitle="Define once. Get the rest for free."
+			/>
+
+			<div className="bg-border border-border grid grid-cols-1 gap-[1px] border lg:grid-cols-12">
+				<div className="bg-background lg:col-span-5">
+					<TerminalBlock label={activeTile.label} key={`s01-${activeTileIdx}`}>
+						<div className="admin-step-content">
+							{activeTile.snippet}
+						</div>
+					</TerminalBlock>
+				</div>
+				<div className="bg-border grid grid-cols-1 gap-[1px] sm:grid-cols-2 lg:col-span-7">
+					{SCHEMA_TILES.map(({ icon, title, desc }, i) => (
+						<div
+							key={title}
+							onMouseEnter={() => setActiveTileIdx(i)}
+							className={cn(
+								"bg-background cursor-default p-6 transition-colors",
+								activeTileIdx === i
+									? "bg-[oklch(from_var(--primary)_l_c_h_/_0.04)]"
+									: "",
+							)}
+						>
+							<div className="text-primary mb-2 flex items-center gap-2">
+								<Icon ssr icon={icon} width={16} height={16} />
+								<span className="text-foreground font-mono text-[13px] font-bold">
+									{title}
+								</span>
+							</div>
+							<p className="text-muted-foreground font-mono text-[11px]">
+								{desc}
+							</p>
+						</div>
+					))}
+				</div>
+			</div>
+		</>
+	);
+}
+
+/* ─── §07 DX cards data ─── */
+
+const DX_CARDS = [
+	{
+		label: "WATCH",
+		lines: [
+			{ content: <><span className="text-primary">$</span> questpie dev</>, delay: 0 },
+			{ content: <><span className="text-[var(--status-success)]">&#10003;</span> Watching...</>, delay: 300 },
+			{ content: <><span className="text-[var(--status-success)]">&#10003;</span> server (23 collections)</>, delay: 600 },
+			{ content: <><span className="text-[var(--status-success)]">&#10003;</span> admin-client (15 blocks)</>, delay: 900 },
+		],
+	},
+	{
+		label: "SCAFFOLD",
+		lines: [
+			{ content: <><span className="text-primary">$</span> questpie add collection products</>, delay: 0 },
+			{ content: <><span className="text-[var(--status-success)]">&#10003;</span> Created collections/products.ts</>, delay: 300 },
+			{ content: <><span className="text-[var(--status-success)]">&#10003;</span> Regenerated types</>, delay: 600 },
+		],
+	},
+	{
+		label: "VALIDATE",
+		lines: [
+			{ content: <span className="text-destructive">&#10007; Server defines blocks/hero</span>, delay: 0 },
+			{ content: <span className="text-destructive">{"  "}but no renderer found</span>, delay: 300 },
+			{ content: <span className="text-primary">&rarr; Create admin/blocks/hero.tsx</span>, delay: 600, blink: true },
+		],
+	},
+	{
+		label: "REALTIME",
+		lines: [
+			{ content: <>{`client.realtime.`}<span className="text-[var(--syntax-function)]">subscribe</span>{`(`}</>, delay: 0 },
+			{ content: <>{`  { resource: `}<span className="text-[var(--syntax-string)]">"posts"</span>{` },`}</>, delay: 300 },
+			{ content: <>{`  (event) => `}<span className="text-[var(--syntax-function)]">updateUI</span>{`(event)`}</>, delay: 600 },
+			{ content: <>{`);`}<span className="animate-pulse text-primary">|</span></>, delay: 900 },
+		],
+	},
+] as const;
+
 /* ═══════════════════════════════════════════════
    LANDING PAGE
    ═══════════════════════════════════════════════ */
@@ -1119,9 +2311,10 @@ export function LandingPage() {
 									</span>
 									{`(),
     cover:   f.`}
-									<span className="text-[var(--syntax-function)]">file</span>().
-									<span className="text-[var(--syntax-function)]">image</span>
-									{`(),
+									<span className="text-[var(--syntax-function)]">upload</span>
+									{`({ to: `}
+									<span className="text-[var(--syntax-string)]">"assets"</span>
+									{` }),
     tags:    f.`}
 									<span className="text-[var(--syntax-function)]">
 										relation
@@ -1155,12 +2348,10 @@ export function LandingPage() {
   })
   .`}
 									<span className="text-[var(--syntax-function)]">
-										versioning
+										options
 									</span>
-									{`({ enabled: `}
+									{`({ versioning: `}
 									<span className="text-primary font-semibold">true</span>
-									{`, maxVersions: `}
-									<span className="text-[var(--syntax-number)]">10</span>
 									{` })`}
 								</TerminalBlock>
 								<div className="bg-primary text-primary-foreground border-border absolute -top-6 -right-6 hidden border p-4 font-mono text-[12px] shadow-2xl md:block">
@@ -1184,122 +2375,10 @@ export function LandingPage() {
 						</div>
 					</section>
 
-					{/* ─── §01 ONE SCHEMA ─── */}
+					{/* ─── §01 ONE SCHEMA — Hover highlight ─── */}
 					<Reveal>
 						<section className="border-border border-t px-4 py-16 md:px-8 md:py-24">
-							<SectionHeader
-								num="01"
-								title="One schema, everything generated"
-								subtitle="Define once. Get the rest for free."
-							/>
-
-							<div className="bg-border border-border grid grid-cols-1 gap-[1px] border lg:grid-cols-12">
-								<div className="bg-background lg:col-span-5">
-									<TerminalBlock label="schema.ts">
-										<span className="text-muted-foreground/60">
-											{"// This one definition generates:"}
-										</span>
-										{"\n"}
-										<span className="text-muted-foreground/60">
-											{"// REST, Routes, Admin, Validation,"}
-										</span>
-										{"\n"}
-										<span className="text-muted-foreground/60">
-											{"// Client SDK, Realtime, Search"}
-										</span>
-										{"\n\n"}
-										<span className="text-primary font-semibold">
-											collection
-										</span>
-										(
-										<span className="text-[var(--syntax-string)]">"posts"</span>
-										)
-										{`
-  .`}
-										<span className="text-[var(--syntax-function)]">
-											fields
-										</span>
-										{`(({ f }) => ({
-    title:   f.`}
-										<span className="text-[var(--syntax-function)]">text</span>(
-										<span className="text-[var(--syntax-number)]">255</span>).
-										<span className="text-[var(--syntax-function)]">
-											required
-										</span>
-										{`(),
-    content: f.`}
-										<span className="text-[var(--syntax-function)]">
-											richText
-										</span>
-										().
-										<span className="text-[var(--syntax-function)]">
-											localized
-										</span>
-										{`(),
-    status:  f.`}
-										<span className="text-[var(--syntax-function)]">
-											select
-										</span>
-										{`([...]).`}
-										<span className="text-[var(--syntax-function)]">
-											required
-										</span>
-										{`(),
-    author:  f.`}
-										<span className="text-[var(--syntax-function)]">
-											relation
-										</span>
-										(
-										<span className="text-[var(--syntax-string)]">"users"</span>
-										)
-										{`,
-    cover:   f.`}
-										<span className="text-[var(--syntax-function)]">file</span>
-										().
-										<span className="text-[var(--syntax-function)]">image</span>
-										{`(),
-  }))`}
-									</TerminalBlock>
-								</div>
-								<div className="bg-border grid grid-cols-1 gap-[1px] sm:grid-cols-2 lg:col-span-7">
-									{[
-										["ph:globe", "REST API", "/api/collections/posts"],
-										["ph:file-code", "Typed routes", "typed, namespaced"],
-										["ph:activity", "Realtime via SSE", "subscribe to changes"],
-										["ph:cube", "Typed client SDK", "auto-generated types"],
-										["ph:layout", "Admin panel", "table, form, block editor"],
-										["ph:check", "Zod validation", "from field definitions"],
-										["ph:lock", "Access control", "row-level, field-level"],
-										[
-											"ph:stack",
-											"Versioning",
-											"workflow stages, drafts \u2192 published",
-										],
-										[
-											"ph:globe",
-											"i18n",
-											"two-table strategy, per-field localization",
-										],
-										[
-											"ph:hard-drives",
-											"File Storage",
-											"auto-managed uploads & assets",
-										],
-									].map(([icon, title, desc]) => (
-										<div key={title} className="bg-background p-6">
-											<div className="text-primary mb-2 flex items-center gap-2">
-												<Icon ssr icon={icon} width={16} height={16} />
-												<span className="text-foreground font-mono text-[13px] font-bold">
-													{title}
-												</span>
-											</div>
-											<p className="text-muted-foreground font-mono text-[11px]">
-												{desc}
-											</p>
-										</div>
-									))}
-								</div>
-							</div>
+							<OneSchemaSection />
 						</section>
 					</Reveal>
 
@@ -1317,246 +2396,17 @@ export function LandingPage() {
 						</section>
 					</Reveal>
 
-					{/* ─── §04 OPTIONAL ADMIN ─── */}
+					{/* ─── §04 ADMIN SHOWCASE ─── */}
 					<Reveal>
 						<section className="border-border border-t px-4 py-16 md:px-8 md:py-24">
-							<SectionHeader
-								num="04"
-								title="Optional admin"
-								subtitle="Ship the admin panel only when you need it. Swappable package. Web, React Native, or build your own."
-							/>
-
-							<div className="bg-border border-border grid grid-cols-1 gap-[1px] border lg:grid-cols-2">
-								<div className="bg-background">
-									<TerminalBlock label="admin.ts">
-										<span className="text-primary font-semibold">
-											collection
-										</span>
-										(
-										<span className="text-[var(--syntax-string)]">"posts"</span>
-										)
-										{`
-  .`}
-										<span className="text-[var(--syntax-function)]">admin</span>
-										{`(({ c }) => ({
-    label: { en: `}
-										<span className="text-[var(--syntax-string)]">"Posts"</span>
-										{`, sk: `}
-										<span className="text-[var(--syntax-string)]">
-											"Príspevky"
-										</span>
-										{` },
-    icon: c.`}
-										<span className="text-[var(--syntax-function)]">icon</span>(
-										<span className="text-[var(--syntax-string)]">
-											"ph:article"
-										</span>
-										)
-										{`,
-  }))
-  .`}
-										<span className="text-[var(--syntax-function)]">list</span>
-										{`(({ v, f }) => v.`}
-										<span className="text-[var(--syntax-function)]">table</span>
-										{`({
-    columns: [`}
-										<span className="text-[var(--syntax-string)]">"title"</span>
-										{`, `}
-										<span className="text-[var(--syntax-string)]">
-											"status"
-										</span>
-										{`, `}
-										<span className="text-[var(--syntax-string)]">
-											"author"
-										</span>
-										{`],
-    defaultSort: { field: f.createdAt, direction: `}
-										<span className="text-[var(--syntax-string)]">"desc"</span>
-										{` },
-  }))
-  .`}
-										<span className="text-[var(--syntax-function)]">form</span>
-										{`(({ v, f }) => v.`}
-										<span className="text-[var(--syntax-function)]">form</span>
-										{`({
-    fields: [f.title, f.content],
-    sidebar: { fields: [f.status, f.author] },
-  }))`}
-									</TerminalBlock>
-								</div>
-								<div className="bg-background flex flex-col p-6">
-									<div className="border-border flex flex-1 flex-col border">
-										<div className="border-border bg-card flex h-10 items-center justify-between border-b px-4">
-											<div className="font-mono text-[12px] font-bold">
-												Admin
-											</div>
-											<div className="flex gap-2">
-												<div className="bg-border h-2 w-2" />
-												<div className="bg-border h-2 w-2" />
-												<div className="bg-border h-2 w-2" />
-											</div>
-										</div>
-										<div className="flex flex-1">
-											<div className="border-border hidden w-32 border-r p-4 sm:block">
-												<ul className="text-muted-foreground space-y-3 font-mono text-[11px]">
-													<li className="text-primary font-bold">Posts</li>
-													<li>Users</li>
-													<li>Settings</li>
-													<li>Assets</li>
-													<li>Audit log</li>
-												</ul>
-											</div>
-											<div className="flex-1 overflow-x-auto p-4">
-												<table className="w-full border-collapse text-left">
-													<thead>
-														<tr>
-															<th className="text-muted-foreground border-border border-b pb-2 font-mono text-[10px] font-normal uppercase">
-																Title
-															</th>
-															<th className="text-muted-foreground border-border border-b pb-2 font-mono text-[10px] font-normal uppercase">
-																Status
-															</th>
-															<th className="text-muted-foreground border-border border-b pb-2 font-mono text-[10px] font-normal uppercase">
-																Author
-															</th>
-														</tr>
-													</thead>
-													<tbody className="text-[13px]">
-														<tr>
-															<td className="text-foreground border-border border-b py-3 pr-4 whitespace-nowrap">
-																Getting Started Guide
-															</td>
-															<td className="border-border border-b py-3 pr-4">
-																<Badge>PUBLISHED</Badge>
-															</td>
-															<td className="text-muted-foreground border-border border-b py-3 pr-4">
-																admin
-															</td>
-														</tr>
-														<tr>
-															<td className="text-foreground border-border border-b py-3 pr-4 whitespace-nowrap">
-																Adapter Architecture
-															</td>
-															<td className="border-border border-b py-3 pr-4">
-																<span className="bg-border text-muted-foreground px-2 py-0.5 font-mono text-[11px] uppercase">
-																	DRAFT
-																</span>
-															</td>
-															<td className="text-muted-foreground border-border border-b py-3 pr-4">
-																admin
-															</td>
-														</tr>
-														<tr>
-															<td className="text-foreground border-border border-b py-3 pr-4 whitespace-nowrap">
-																File Conventions
-															</td>
-															<td className="border-border border-b py-3 pr-4">
-																<Badge>PUBLISHED</Badge>
-															</td>
-															<td className="text-muted-foreground border-border border-b py-3 pr-4">
-																admin
-															</td>
-														</tr>
-													</tbody>
-												</table>
-											</div>
-										</div>
-									</div>
-								</div>
-							</div>
+							<AdminShowcaseSection />
 						</section>
 					</Reveal>
 
 					{/* ─── §05 END-TO-END TYPES ─── */}
 					<Reveal>
 						<section className="border-border border-t px-4 py-16 md:px-8 md:py-24">
-							<SectionHeader
-								num="05"
-								title="End-to-end types"
-								subtitle="Schema to screen. Zero disconnect. Change a field — TypeScript catches it everywhere."
-							/>
-
-							<div className="bg-border border-border grid grid-cols-1 gap-[1px] border lg:grid-cols-12">
-								<div className="bg-background flex flex-col justify-center gap-4 p-8 lg:col-span-4">
-									{[
-										{ n: "1", label: "Field def", active: false },
-										{ n: "2", label: "Codegen", active: false },
-										{
-											n: "3",
-											label: "Drizzle table & Zod schema",
-											active: false,
-										},
-										{ n: "4", label: "Client SDK", active: false },
-										{ n: "5", label: "React", active: true },
-									].map((step, i) => (
-										<div key={step.n}>
-											{i > 0 && (
-												<div className="bg-border mb-4 ml-4 h-4 w-px" />
-											)}
-											<div className="flex items-center gap-4">
-												<div
-													className={cn(
-														"flex h-8 w-8 items-center justify-center font-mono text-[12px]",
-														step.active
-															? "bg-primary text-primary-foreground"
-															: "bg-secondary text-primary",
-													)}
-												>
-													{step.n}
-												</div>
-												<div
-													className={cn(
-														"text-foreground font-mono text-[13px]",
-														step.active && "font-bold",
-													)}
-												>
-													{step.label}
-												</div>
-											</div>
-										</div>
-									))}
-								</div>
-								<div className="bg-background lg:col-span-8">
-									<TerminalBlock label="client.ts">
-										<span className="text-primary font-semibold">const</span>
-										{` { docs } = `}
-										<span className="text-primary font-semibold">await</span>
-										{` client.collections.posts.`}
-										<span className="text-[var(--syntax-function)]">find</span>
-										{`({
-  where: { status: { eq: `}
-										<span className="text-[var(--syntax-string)]">
-											"published"
-										</span>
-										{` } },
-  orderBy: { createdAt: `}
-										<span className="text-[var(--syntax-string)]">"desc"</span>
-										{` },
-  with: { author: `}
-										<span className="text-primary font-semibold">true</span>
-										{`, tags: `}
-										<span className="text-primary font-semibold">true</span>
-										{` },
-  locale: `}
-										<span className="text-[var(--syntax-string)]">"sk"</span>
-										{`,
-});
-
-`}
-										<span className="text-muted-foreground/60">
-											{"// docs[0].title → string"}
-										</span>
-										{"\n"}
-										<span className="text-muted-foreground/60">
-											{"// docs[0].author → User"}
-										</span>
-										{"\n"}
-										<span className="text-muted-foreground/60">
-											{"// docs[0].tags → Tag[]"}
-										</span>
-									</TerminalBlock>
-								</div>
-							</div>
+							<EndToEndTypesSection />
 						</section>
 					</Reveal>
 
@@ -1572,21 +2422,25 @@ export function LandingPage() {
 							<BrutalistGrid>
 								<FeatureCell
 									num="01"
+									icon="ph:package"
 									title="questpie-starter"
 									desc="Auth, users, sessions, API keys, assets. Better Auth integration. Default access. i18n messages."
 								/>
 								<FeatureCell
 									num="02"
+									icon="ph:layout"
 									title="questpie-admin"
 									desc="Admin UI. 18 field renderers, 3 view types, sidebar, dashboard widgets. Table, form, block editor."
 								/>
 								<FeatureCell
 									num="03"
+									icon="ph:clipboard-text"
 									title="questpie-audit"
 									desc="Change logging via global hooks. Every create, update, delete tracked. Zero config required."
 								/>
 								<FeatureCell
 									num="04"
+									icon="ph:puzzle-piece"
 									title="Your module"
 									desc="Same file conventions, same patterns. Build your own module. Publish to npm. No special APIs."
 								/>
@@ -1594,100 +2448,45 @@ export function LandingPage() {
 						</section>
 					</Reveal>
 
-					{/* ─── §07 DX ─── */}
-					<Reveal>
-						<section className="border-border border-t px-4 py-16 md:px-8 md:py-24">
+					{/* ─── §07 DX — Staggered terminal reveal ─── */}
+					<section className="border-border border-t px-4 py-16 md:px-8 md:py-24">
+						<Reveal>
 							<SectionHeader
 								num="07"
 								title="Developer experience"
 								subtitle="The details matter. Instant regeneration, typed scaffolding, build-time validation."
 							/>
+						</Reveal>
 
-							<div className="bg-border border-border grid grid-cols-1 gap-[1px] border md:grid-cols-2">
-								<div className="bg-background p-8">
-									<div className="text-muted-foreground mb-4 font-mono text-[11px] tracking-[0.1em] uppercase">
-										WATCH
-									</div>
-									<div className="text-muted-foreground font-mono text-[13px] leading-[1.6]">
-										<span className="text-primary">$</span> questpie dev
-										{"\n"}
-										<span className="text-[var(--status-success)]">
-											&#10003;
-										</span>{" "}
-										Watching...
-										{"\n"}
-										<span className="text-[var(--status-success)]">
-											&#10003;
-										</span>{" "}
-										server (23 collections)
-										{"\n"}
-										<span className="text-[var(--status-success)]">
-											&#10003;
-										</span>{" "}
-										admin-client (15 blocks)
-									</div>
-								</div>
-								<div className="bg-background p-8">
-									<div className="text-muted-foreground mb-4 font-mono text-[11px] tracking-[0.1em] uppercase">
-										SCAFFOLD
-									</div>
-									<div className="text-muted-foreground font-mono text-[13px] leading-[1.6]">
-										<span className="text-primary">$</span> questpie add
-										collection products
-										{"\n"}
-										<span className="text-[var(--status-success)]">
-											&#10003;
-										</span>{" "}
-										Created collections/products.ts
-										{"\n"}
-										<span className="text-[var(--status-success)]">
-											&#10003;
-										</span>{" "}
-										Regenerated types
+						<div className="bg-border border-border grid grid-cols-1 gap-[1px] border md:grid-cols-2">
+							{DX_CARDS.map((card, cardIdx) => (
+								<div
+									key={card.label}
+									data-reveal
+									style={{ transitionDelay: `${cardIdx * 120}ms` }}
+									className="bg-background translate-y-3 opacity-0 transition-all duration-500 [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] data-[visible]:translate-y-0 data-[visible]:opacity-100"
+								>
+									<div className="p-8">
+										<div className="text-muted-foreground mb-4 font-mono text-[11px] tracking-[0.1em] uppercase">
+											{card.label}
+										</div>
+										<div className="text-muted-foreground font-mono text-[13px] leading-[1.6]">
+											{card.lines.map((line, lineIdx) => (
+												<div
+													key={lineIdx}
+													className="dx-line"
+													style={{ transitionDelay: `${line.delay + cardIdx * 200}ms` }}
+												>
+													{line.content}
+													{lineIdx < card.lines.length - 1 && "\n"}
+												</div>
+											))}
+										</div>
 									</div>
 								</div>
-								<div className="bg-background p-8">
-									<div className="text-muted-foreground mb-4 font-mono text-[11px] tracking-[0.1em] uppercase">
-										VALIDATE
-									</div>
-									<div className="text-muted-foreground font-mono text-[13px] leading-[1.6]">
-										<span className="text-destructive">
-											&#10007; Server defines blocks/hero
-										</span>
-										{"\n"}
-										<span className="text-destructive">
-											{"  "}but no renderer found
-										</span>
-										{"\n"}
-										<span className="text-primary">
-											&rarr; Create admin/blocks/hero.tsx
-										</span>
-									</div>
-								</div>
-								<div className="bg-background p-8">
-									<div className="text-muted-foreground mb-4 font-mono text-[11px] tracking-[0.1em] uppercase">
-										REALTIME
-									</div>
-									<div className="text-muted-foreground font-mono text-[13px] leading-[1.6]">
-										{`client.realtime.`}
-										<span className="text-[var(--syntax-function)]">
-											subscribe
-										</span>
-										{`(
-  { resource: `}
-										<span className="text-[var(--syntax-string)]">"posts"</span>
-										{` },
-  (event) => `}
-										<span className="text-[var(--syntax-function)]">
-											updateUI
-										</span>
-										{`(event)
-);`}
-									</div>
-								</div>
-							</div>
-						</section>
-					</Reveal>
+							))}
+						</div>
+					</section>
 
 					{/* ─── CTA ─── */}
 					<section className="border-border border-t px-4 py-24 text-center md:px-8 md:py-32">

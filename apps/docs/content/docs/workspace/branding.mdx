@@ -3,18 +3,21 @@ title: Branding
 description: Customize the admin panel name, logo, and appearance.
 ---
 
-Configure the admin panel's branding using the `branding.ts` file convention. This controls the app name, logo, and visual identity shown in the sidebar and login page.
+Configure the admin panel's branding using the `config/admin.ts` file convention. This controls the app name, logo, and visual identity shown in the sidebar and login page.
 
 ## Basic Setup
 
-Create a `branding.ts` file in your questpie admin directory:
+Add a `branding` property to your `config/admin.ts`:
 
-```ts title="src/questpie/admin/branding.ts"
-import { branding } from "#questpie/factories"
+```ts title="src/questpie/server/config/admin.ts"
+import { adminConfig } from "@questpie/admin/server";
 
-export default branding({
-  name: { en: "My CMS", sk: "Moj CMS" },
-})
+export default adminConfig({
+  branding: {
+    name: { en: "My CMS", sk: "Moj CMS" },
+  },
+  // sidebar, dashboard, locale can also go here
+});
 ```
 
 The file is auto-discovered by codegen — no manual registration needed.
@@ -29,14 +32,17 @@ The file is auto-discovered by codegen — no manual registration needed.
 
 ## Full Example
 
-```ts title="src/questpie/admin/branding.ts"
-import { branding } from "#questpie/factories"
+```ts title="src/questpie/server/config/admin.ts"
+import { adminConfig } from "@questpie/admin/server";
 
-export default branding({
-  name: { en: "Barbershop Admin", sk: "Barbershop Admin" },
-  logo: "/images/logo.svg",
-  favicon: "/images/favicon.ico",
-})
+export default adminConfig({
+  branding: {
+    name: { en: "Barbershop Admin", sk: "Barbershop Admin" },
+    logo: "/images/logo.svg",
+    favicon: "/images/favicon.ico",
+  },
+  sidebar: { /* ... */ },
+});
 ```
 
 ## Localized Names
@@ -44,10 +50,12 @@ export default branding({
 The `name` field accepts a locale-keyed object. The admin panel shows the name matching the current UI locale:
 
 ```ts
-name: {
-  en: "Content Management",
-  sk: "Sprava obsahu",
-  de: "Inhaltsverwaltung",
+branding: {
+  name: {
+    en: "Content Management",
+    sk: "Sprava obsahu",
+    de: "Inhaltsverwaltung",
+  },
 }
 ```
 

@@ -43,10 +43,11 @@ my-app/
 │   │   │   ├── emails/                   # Email templates
 │   │   │   │   └── appointment-confirmation.ts
 │   │   │   │
-│   │   │   ├── sidebar.ts                # Admin sidebar config
-│   │   │   ├── dashboard.ts              # Admin dashboard config
-│   │   │   ├── branding.ts               # Admin branding
-│   │   │   ├── admin-locale.ts           # Admin UI locale
+│   │   │   ├── config/                   # Typed configuration files
+│   │   │   │   ├── auth.ts              # Auth config (Better Auth)
+│   │   │   │   ├── app.ts              # App config (locale, access, hooks)
+│   │   │   │   ├── admin.ts            # Admin config (sidebar, dashboard, branding)
+│   │   │   │   └── openapi.ts          # OpenAPI config
 │   │   │   │
 │   │   │   └── .generated/               # Codegen output (never edit)
 │   │   │       ├── index.ts              # App instance + types
@@ -88,16 +89,14 @@ Codegen discovers files based on **directory name** and **export pattern**:
 
 Some configs are single files instead of directories:
 
-| File                 | Purpose                                |
-| -------------------- | -------------------------------------- |
-| `questpie.config.ts` | Runtime config (DB, plugins, adapters) |
-| `modules.ts`         | Module dependencies array              |
-| `auth.ts`            | Authentication config                  |
-| `locale.ts`          | Content locale config                  |
-| `sidebar.ts`         | Admin sidebar sections                 |
-| `dashboard.ts`       | Admin dashboard widgets                |
-| `branding.ts`        | Admin branding (name, logo)            |
-| `admin-locale.ts`    | Admin UI locale                        |
+| File                 | Purpose                                                 |
+| -------------------- | ------------------------------------------------------- |
+| `questpie.config.ts` | Runtime config (DB, plugins, adapters)                   |
+| `modules.ts`         | Module dependencies array                                |
+| `config/auth.ts`     | Auth config via `authConfig()` (Better Auth options)     |
+| `config/app.ts`      | App config via `appConfig()` (locale, access, hooks)     |
+| `config/admin.ts`    | Admin config via `adminConfig()` (sidebar, dashboard, branding) |
+| `config/openapi.ts`  | OpenAPI config via `openApiConfig()` (spec info, Scalar) |
 
 ### Nested routes
 
