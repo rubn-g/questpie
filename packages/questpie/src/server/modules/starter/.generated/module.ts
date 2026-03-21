@@ -19,6 +19,7 @@ import _job_realtimeCleanup from "../jobs/realtime-cleanup";
 import _msg_en from "../messages/en";
 
 // ── Singles ────────────────────────────────────────────────
+import _appConfig from "../config/app";
 import _fields from "../fields";
 
 // ════════════════════════════════════════════════════════════
@@ -64,6 +65,9 @@ const _module = {
 	emails: {},
 	migrations: [] as const,
 	seeds: [] as const,
+	config: {
+		app: _appConfig,
+	},
 	fields: _fields,
 };
 

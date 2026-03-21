@@ -431,15 +431,13 @@ describe("discoverFiles", () => {
 		expect(file.exportType).toBe("default");
 	});
 
-	it("discovers config/app.ts as appConfig single with destructure", async () => {
+	it("discovers config/app.ts as appConfig single with configKey", async () => {
 		await write("config/app.ts", "export default {};");
 
 		const result = await discoverFiles(rootDir, outDir, coreDiscoverOptions());
 		expect(result.singles.has("appConfig")).toBe(true);
 		const file = result.singles.get("appConfig")!;
-		expect(file.destructure).toBeDefined();
-		expect(file.destructure!.locale).toBe("locale");
-		expect(file.destructure!.access).toBe("defaultAccess");
+		expect(file.configKey).toBe("app");
 	});
 
 	// ── Feature layout ────────────────────────────────────────────────────────

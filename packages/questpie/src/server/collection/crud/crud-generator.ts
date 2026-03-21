@@ -2750,6 +2750,34 @@ export class CRUDGenerator<TState extends CollectionBuilderState> {
 	 * Execute collection-specific hooks AND global collection hooks for a lifecycle event.
 	 * Global before* hooks run first; global after* hooks run last.
 	 */
+	/**
+	 * Cached collection key (camelCase record key).
+	 * Resolved lazily on first global hooks call.
+	 */
+	private _collectionKey: string | undefined;
+
+	/**
+	 * Resolve the collection key (camelCase record key) for this collection.
+	 * Falls back to slug if the key cannot be determined.
+	 * Used for include/exclude filtering in global hooks.
+	 */
+	private getCollectionKey(): string {
+		if (this._collectionKey !== undefined) return this._collectionKey;
+		if (!this.app) {
+			this._collectionKey = this.state.name;
+			return this._collectionKey;
+		}
+		const collections = this.app.getCollections();
+		for (const [key, coll] of Object.entries(collections)) {
+			if ((coll as any).state?.name === this.state.name) {
+				this._collectionKey = key;
+				return key;
+			}
+		}
+		this._collectionKey = this.state.name;
+		return this._collectionKey;
+	}
+
 	private async executeCollectionHooksWithGlobal(
 		hookName: "beforeChange" | "afterChange" | "beforeDelete" | "afterDelete",
 		collectionHooks: any | any[] | undefined,
@@ -2757,13 +2785,14 @@ export class CRUDGenerator<TState extends CollectionBuilderState> {
 	) {
 		const globalEntries = this.app?.globalHooks?.collections;
 		const isBefore = hookName.startsWith("before");
+		const collectionKey = this.getCollectionKey();
 
 		if (isBefore) {
 			// Global before* first, then collection-specific
 			await executeGlobalCollectionHooks(
 				globalEntries,
 				hookName,
-				this.state.name,
+				collectionKey,
 				ctx as any,
 			);
 			await this.executeHooks(collectionHooks, ctx);
@@ -2773,7 +2802,7 @@ export class CRUDGenerator<TState extends CollectionBuilderState> {
 			await executeGlobalCollectionHooks(
 				globalEntries,
 				hookName,
-				this.state.name,
+				collectionKey,
 				ctx as any,
 			);
 		}
@@ -2804,12 +2833,13 @@ export class CRUDGenerator<TState extends CollectionBuilderState> {
 	) {
 		const globalEntries = this.app?.globalHooks?.collections;
 		const isBefore = hookName === "beforeTransition";
+		const collectionKey = this.getCollectionKey();
 
 		if (isBefore) {
 			await executeGlobalCollectionTransitionHooks(
 				globalEntries,
 				hookName,
-				this.state.name,
+				collectionKey,
 				ctx as any,
 			);
 			await this.executeTransitionHooks(collectionHooks, ctx);
@@ -2818,7 +2848,7 @@ export class CRUDGenerator<TState extends CollectionBuilderState> {
 			await executeGlobalCollectionTransitionHooks(
 				globalEntries,
 				hookName,
-				this.state.name,
+				collectionKey,
 				ctx as any,
 			);
 		}

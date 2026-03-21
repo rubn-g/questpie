@@ -454,12 +454,14 @@ describe("generateModuleTemplate — singles", () => {
 	});
 });
 
-describe("generateModuleTemplate — singles with moduleEmit: array", () => {
+describe("generateModuleTemplate — config bucket singles", () => {
 	const result = emptyResult();
 	result.singles.set(
-		"sidebar",
-		makeFile("sidebar", { varName: "_sidebar", importPath: "../sidebar" }),
+		"adminConfig",
+		makeFile("adminConfig", { varName: "_adminConfig", importPath: "../config/admin" }),
 	);
+	// Add configKey to the discovered file
+	(result.singles.get("adminConfig") as any).configKey = "admin";
 
 	const { code: output } = generateModuleTemplate({
 		moduleName: "questpie-test",
@@ -467,8 +469,9 @@ describe("generateModuleTemplate — singles with moduleEmit: array", () => {
 		categoryMeta: new Map(),
 	});
 
-	it("wraps moduleEmit: array singles in array", () => {
-		expect(output).toContain("sidebar: [_sidebar],");
+	it("emits config bucket with configKey singles", () => {
+		expect(output).toContain("config: {");
+		expect(output).toContain("admin: _adminConfig,");
 	});
 });
 

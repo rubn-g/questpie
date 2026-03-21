@@ -41,20 +41,21 @@ describe("starterModule", () => {
 	});
 
 	test("sets default access to require authentication", () => {
-		expect(starterModule.defaultAccess).toBeDefined();
+		const access = starterModule.config?.app?.access;
+		expect(access).toBeDefined();
 
 		const ctx = { session: { id: "test" } } as any;
 		const noAuth = { session: null } as any;
 
-		expect(starterModule.defaultAccess.read(ctx)).toBe(true);
-		expect(starterModule.defaultAccess.create(ctx)).toBe(true);
-		expect(starterModule.defaultAccess.update(ctx)).toBe(true);
-		expect(starterModule.defaultAccess.delete(ctx)).toBe(true);
+		expect(access.read(ctx)).toBe(true);
+		expect(access.create(ctx)).toBe(true);
+		expect(access.update(ctx)).toBe(true);
+		expect(access.delete(ctx)).toBe(true);
 
-		expect(starterModule.defaultAccess.read(noAuth)).toBe(false);
-		expect(starterModule.defaultAccess.create(noAuth)).toBe(false);
-		expect(starterModule.defaultAccess.update(noAuth)).toBe(false);
-		expect(starterModule.defaultAccess.delete(noAuth)).toBe(false);
+		expect(access.read(noAuth)).toBe(false);
+		expect(access.create(noAuth)).toBe(false);
+		expect(access.update(noAuth)).toBe(false);
+		expect(access.delete(noAuth)).toBe(false);
 	});
 
 	test("has module name", () => {

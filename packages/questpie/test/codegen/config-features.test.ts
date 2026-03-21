@@ -66,6 +66,7 @@ function makeDiscoveryResult(opts: {
 		varName?: string;
 		exportType?: "default" | "named";
 		destructure?: Record<string, string>;
+		configKey?: string;
 	}>;
 	categories?: Array<{
 		name: string;
@@ -99,6 +100,7 @@ function makeDiscoveryResult(opts: {
 			source: `${s.key}.ts`,
 			exportType: s.exportType ?? "default",
 			destructure: s.destructure,
+			configKey: s.configKey,
 		});
 	}
 	for (const cat of opts.categories ?? []) {
@@ -222,7 +224,7 @@ describe("extractPluginsFromModules", () => {
 // 2. Destructure on DiscoverPattern (integration with discoverFiles)
 // ─────────────────────────────────────────────────────────────────────────────
 
-describe("discoverFiles — destructure on DiscoverPattern", () => {
+describe("discoverFiles — configKey on DiscoverPattern", () => {
 	let rootDir: string;
 	let outDir: string;
 
@@ -245,7 +247,7 @@ describe("discoverFiles — destructure on DiscoverPattern", () => {
 		await writeFile(full, content, "utf-8");
 	}
 
-	it("discovers config/app.ts as appConfig single with destructure metadata", async () => {
+	it("discovers config/app.ts as appConfig single with configKey", async () => {
 		await write("config/app.ts", "export default { locale: {}, access: {}, hooks: {}, context: () => ({}) };");
 
 		const result = await discoverFiles(rootDir, outDir, coreDiscoverOptions());
@@ -255,10 +257,10 @@ describe("discoverFiles — destructure on DiscoverPattern", () => {
 		expect(appConfig!.key).toBe("appConfig");
 		expect(appConfig!.varName).toBe("_appConfig");
 		expect(appConfig!.exportType).toBe("default");
-		expect(appConfig!.destructure).toBeDefined();
+		expect(appConfig!.configKey).toBe("app");
 	});
 
-	it("discovers config/auth.ts as authConfig single (path-based single detection with /)", async () => {
+	it("discovers config/auth.ts as authConfig single with configKey", async () => {
 		await write("config/auth.ts", "export default {};");
 
 		const result = await discoverFiles(rootDir, outDir, coreDiscoverOptions());
@@ -268,22 +270,17 @@ describe("discoverFiles — destructure on DiscoverPattern", () => {
 		expect(authConfig!.key).toBe("authConfig");
 		expect(authConfig!.varName).toBe("_authConfig");
 		expect(authConfig!.exportType).toBe("default");
-		// authConfig does not have destructure (it's a simple single)
-		expect(authConfig!.destructure).toBeUndefined();
+		expect(authConfig!.configKey).toBe("auth");
 	});
 
-	it("config/app.ts destructure has correct key mapping", async () => {
+	it("config/app.ts has configKey 'app' for config bucket emission", async () => {
 		await write("config/app.ts", "export default {};");
 
 		const result = await discoverFiles(rootDir, outDir, coreDiscoverOptions());
 		const appConfig = result.singles.get("appConfig");
 
 		expect(appConfig).toBeDefined();
-		const destructure = appConfig!.destructure!;
-		expect(destructure.locale).toBe("locale");
-		expect(destructure.access).toBe("defaultAccess");
-		expect(destructure.hooks).toBe("hooks");
-		expect(destructure.context).toBe("contextResolver");
+		expect(appConfig!.configKey).toBe("app");
 	});
 });
 
@@ -291,11 +288,11 @@ describe("discoverFiles — destructure on DiscoverPattern", () => {
 // 3. Template *Config → base key mapping
 // ─────────────────────────────────────────────────────────────────────────────
 
-describe("generateTemplate — *Config to base key mapping", () => {
-	it("authConfig emits as auth: _authConfig as any (not authConfig:)", () => {
+describe("generateTemplate — config bucket emission", () => {
+	it("authConfig with configKey emits into config bucket", () => {
 		const result = makeFullDiscoveryResult({
 			singles: [
-				{ key: "authConfig", varName: "_authConfig", exportType: "default" },
+				{ key: "authConfig", varName: "_authConfig", exportType: "default", configKey: "auth" },
 			],
 		});
 
@@ -307,26 +304,17 @@ describe("generateTemplate — *Config to base key mapping", () => {
 			discoverPatterns: coreDiscoverPatterns(),
 		});
 
-		// authConfig should be emitted under "auth" key (stripping "Config" suffix)
+		// authConfig should be emitted inside config bucket
+		expect(code).toContain("config: {");
 		expect(code).toContain("auth: _authConfig as any,");
-		// Should NOT emit "authConfig:" as a createApp key
+		// Should NOT emit "authConfig:" as a flat createApp key
 		expect(code).not.toMatch(/\bauthConfig:\s*_authConfig\s+as\s+any/);
 	});
 
-	it("appConfig destructure emits property-access assignments", () => {
+	it("appConfig with configKey emits as whole object into config bucket", () => {
 		const result = makeFullDiscoveryResult({
 			singles: [
-				{
-					key: "appConfig",
-					varName: "_appConfig",
-					exportType: "default",
-					destructure: {
-						locale: "locale",
-						access: "defaultAccess",
-						hooks: "hooks",
-						context: "contextResolver",
-					},
-				},
+				{ key: "appConfig", varName: "_appConfig", exportType: "default", configKey: "app" },
 			],
 		});
 
@@ -338,18 +326,16 @@ describe("generateTemplate — *Config to base key mapping", () => {
 			discoverPatterns: coreDiscoverPatterns(),
 		});
 
-		// Each destructured property should be emitted as property access
-		expect(code).toContain("locale: _appConfig.locale as any,");
-		expect(code).toContain("defaultAccess: _appConfig.access as any,");
-		expect(code).toContain("hooks: _appConfig.hooks as any,");
-		expect(code).toContain("contextResolver: _appConfig.context as any,");
+		// appConfig should be emitted as whole object in config bucket
+		expect(code).toContain("config: {");
+		expect(code).toContain("app: _appConfig as any,");
 	});
 
-	it("when both authConfig and auth exist, authConfig wins (auth is suppressed)", () => {
+	it("multiple config singles are grouped in a single config bucket", () => {
 		const result = makeFullDiscoveryResult({
 			singles: [
-				{ key: "authConfig", varName: "_authConfig", exportType: "default" },
-				{ key: "auth", varName: "_auth", exportType: "default" },
+				{ key: "authConfig", varName: "_authConfig", exportType: "default", configKey: "auth" },
+				{ key: "appConfig", varName: "_appConfig", exportType: "default", configKey: "app" },
 			],
 		});
 
@@ -361,29 +347,17 @@ describe("generateTemplate — *Config to base key mapping", () => {
 			discoverPatterns: coreDiscoverPatterns(),
 		});
 
-		// authConfig should emit as "auth:"
+		// Both should be inside config bucket
+		expect(code).toContain("config: {");
 		expect(code).toContain("auth: _authConfig as any,");
-		// Standalone auth should be suppressed (not emitted)
-		expect(code).not.toContain("auth: _auth as any,");
+		expect(code).toContain("app: _appConfig as any,");
 	});
 
-	it("when appConfig exists with destructure, flat locale/hooks/etc. are suppressed", () => {
+	it("non-config singles are emitted as flat keys alongside config bucket", () => {
 		const result = makeFullDiscoveryResult({
 			singles: [
-				{
-					key: "appConfig",
-					varName: "_appConfig",
-					exportType: "default",
-					destructure: {
-						locale: "locale",
-						access: "defaultAccess",
-						hooks: "hooks",
-						context: "contextResolver",
-					},
-				},
-				// These standalone singles should be suppressed by appConfig destructure
-				{ key: "locale", varName: "_locale", exportType: "default" },
-				{ key: "hooks", varName: "_hooks", exportType: "default" },
+				{ key: "appConfig", varName: "_appConfig", exportType: "default", configKey: "app" },
+				{ key: "fields", varName: "_fields", exportType: "default" },
 			],
 		});
 
@@ -395,12 +369,11 @@ describe("generateTemplate — *Config to base key mapping", () => {
 			discoverPatterns: coreDiscoverPatterns(),
 		});
 
-		// The destructured versions should appear
-		expect(code).toContain("locale: _appConfig.locale as any,");
-		expect(code).toContain("hooks: _appConfig.hooks as any,");
-		// The standalone versions should NOT appear
-		expect(code).not.toContain("locale: _locale as any,");
-		expect(code).not.toContain("hooks: _hooks as any,");
+		// config bucket for configKey singles
+		expect(code).toContain("config: {");
+		expect(code).toContain("app: _appConfig as any,");
+		// fields as flat key
+		expect(code).toContain("fields: _fields as any,");
 	});
 });
 
@@ -409,19 +382,14 @@ describe("generateTemplate — *Config to base key mapping", () => {
 // ─────────────────────────────────────────────────────────────────────────────
 
 describe("generateTemplate — context resolver type propagation", () => {
-	it("when appConfig has destructure with context key, template emits _ContextReturn type", () => {
+	it("when appConfig has configKey, template emits _ContextReturn type based on appConfig.context", () => {
 		const result = makeFullDiscoveryResult({
 			singles: [
 				{
 					key: "appConfig",
 					varName: "_appConfig",
 					exportType: "default",
-					destructure: {
-						locale: "locale",
-						access: "defaultAccess",
-						hooks: "hooks",
-						context: "contextResolver",
-					},
+					configKey: "app",
 				},
 			],
 		});
@@ -479,19 +447,14 @@ describe("generateTemplate — context resolver type propagation", () => {
 		expect(code).not.toContain("QuestpieContextExtension");
 	});
 
-	it("appConfig with destructure takes precedence over standalone contextResolver for _ContextReturn", () => {
+	it("appConfig with configKey takes precedence over standalone contextResolver for _ContextReturn", () => {
 		const result = makeFullDiscoveryResult({
 			singles: [
 				{
 					key: "appConfig",
 					varName: "_appConfig",
 					exportType: "default",
-					destructure: {
-						locale: "locale",
-						access: "defaultAccess",
-						hooks: "hooks",
-						context: "contextResolver",
-					},
+					configKey: "app",
 				},
 				{ key: "contextResolver", varName: "_contextResolver", exportType: "default" },
 			],
@@ -505,39 +468,9 @@ describe("generateTemplate — context resolver type propagation", () => {
 			discoverPatterns: coreDiscoverPatterns(),
 		});
 
-		// appConfig destructure context should be used, not standalone contextResolver
+		// appConfig context should be used, not standalone contextResolver
 		expect(code).toContain("typeof _appConfig.context");
 		// The _ContextReturn type should exist
 		expect(code).toContain("type _ContextReturn =");
-	});
-
-	it("appConfig without context in destructure falls through to standalone contextResolver", () => {
-		const result = makeFullDiscoveryResult({
-			singles: [
-				{
-					key: "appConfig",
-					varName: "_appConfig",
-					exportType: "default",
-					destructure: {
-						locale: "locale",
-						// No "context" key in destructure
-					},
-				},
-				{ key: "contextResolver", varName: "_contextResolver", exportType: "default" },
-			],
-		});
-
-		const code = generateTemplate({
-			configImportPath: "../questpie.config",
-			discovered: result,
-			categories: coreCategories(),
-			singletonFactories: coreSingletonFactories(),
-			discoverPatterns: coreDiscoverPatterns(),
-		});
-
-		// Should fall through to standalone contextResolver
-		expect(code).toContain("type _ContextReturn =");
-		expect(code).toContain("typeof _contextResolver");
-		expect(code).not.toContain("typeof _appConfig.context");
 	});
 });

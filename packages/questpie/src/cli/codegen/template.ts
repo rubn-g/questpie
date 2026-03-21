@@ -456,8 +456,11 @@ export function generateTemplate(options: TemplateOptions): string {
 		const contextFile = discovered.singles.get("contextResolver");
 		let contextTypeExpr: string | null = null;
 
-		if (appConfigFile?.destructure && "context" in appConfigFile.destructure) {
-			// Composite config: context is a property of the appConfig export
+		if (appConfigFile?.configKey) {
+			// Config bucket: context is a property of the appConfig export
+			contextTypeExpr = `typeof ${appConfigFile.varName}.context`;
+		} else if (appConfigFile?.destructure && "context" in appConfigFile.destructure) {
+			// Legacy destructure: context is a property of the appConfig export
 			contextTypeExpr = `typeof ${appConfigFile.varName}.context`;
 		} else if (contextFile) {
 			// Standalone context.ts

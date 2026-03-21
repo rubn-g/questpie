@@ -44,17 +44,20 @@ export async function executeGlobalCollectionHooks(
 
 	const isBefore = hookName.startsWith("before");
 
+	// Enrich context with collection name for global hooks
+	const enrichedCtx = { ...ctx, collection: collectionName };
+
 	for (const entry of entries) {
 		const hookFn = entry[hookName];
 		if (!hookFn || !matchesFilter(entry, collectionName)) continue;
 
 		if (isBefore) {
-			await hookFn(ctx);
+			await hookFn(enrichedCtx);
 		} else {
 			try {
-				await hookFn(ctx);
+				await hookFn(enrichedCtx);
 			} catch (err) {
-				ctx.logger.error(
+				enrichedCtx.logger.error(
 					`[QUESTPIE] Global collection hook "${hookName}" error for "${collectionName}":`,
 					err,
 				);
@@ -79,17 +82,20 @@ export async function executeGlobalCollectionTransitionHooks(
 
 	const isBefore = hookName === "beforeTransition";
 
+	// Enrich context with collection name for global hooks
+	const enrichedCtx = { ...ctx, collection: collectionName };
+
 	for (const entry of entries) {
 		const hookFn = entry[hookName];
 		if (!hookFn || !matchesFilter(entry, collectionName)) continue;
 
 		if (isBefore) {
-			await hookFn(ctx);
+			await hookFn(enrichedCtx);
 		} else {
 			try {
-				await hookFn(ctx);
+				await hookFn(enrichedCtx);
 			} catch (err) {
-				ctx.logger.error(
+				enrichedCtx.logger.error(
 					`[QUESTPIE] Global collection hook "${hookName}" error for "${collectionName}":`,
 					err,
 				);

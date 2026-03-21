@@ -780,12 +780,10 @@ export class Questpie<TConfig extends QuestpieConfig = QuestpieConfig> {
 	 */
 	private injectGlobalHooks(): void {
 		const {
-			collections: rawCollectionEntries = [],
 			globals: rawGlobalEntries = [],
 		} = this.globalHooks;
 
 		// Deduplicate entries (same object ref can appear multiple times via .use() merges)
-		const collectionEntries = [...new Set(rawCollectionEntries)];
 		const globalEntries = [...new Set(rawGlobalEntries)];
 
 		// Helper: check if a hook entry matches a given entity name
@@ -813,72 +811,8 @@ export class Questpie<TConfig extends QuestpieConfig = QuestpieConfig> {
 			}
 		};
 
-		// Inject global collection hooks
-		for (const [name, collection] of Object.entries(this._collections)) {
-			const state = collection.state as any;
-
-			for (const entry of collectionEntries) {
-				if (!matchesFilter(entry, name)) continue;
-
-				if (!state.hooks) state.hooks = {};
-
-				// Standard hooks: beforeChange, afterChange, beforeDelete, afterDelete
-				for (const hookName of [
-					"beforeChange",
-					"afterChange",
-					"beforeDelete",
-					"afterDelete",
-				] as const) {
-					const globalFn = entry[hookName];
-					if (!globalFn) continue;
-
-					const isAfter = hookName.startsWith("after");
-					const wrapped = isAfter
-						? async (ctx: any) => {
-								try {
-									await globalFn({ ...ctx, collection: name });
-								} catch (err) {
-									this.logger.error(
-										`[QUESTPIE] Global collection hook "${hookName}" error for "${name}":`,
-										err,
-									);
-								}
-							}
-						: async (ctx: any) => {
-								await globalFn({ ...ctx, collection: name });
-							};
-
-					appendHook(state.hooks, hookName, wrapped);
-				}
-
-				// Transition hooks: beforeTransition, afterTransition
-				for (const hookName of [
-					"beforeTransition",
-					"afterTransition",
-				] as const) {
-					const globalFn = entry[hookName];
-					if (!globalFn) continue;
-
-					const isAfter = hookName === "afterTransition";
-					const wrapped = isAfter
-						? async (ctx: any) => {
-								try {
-									await globalFn({ ...ctx, collection: name });
-								} catch (err) {
-									this.logger.error(
-										`[QUESTPIE] Global collection hook "${hookName}" error for "${name}":`,
-										err,
-									);
-								}
-							}
-						: async (ctx: any) => {
-								await globalFn({ ...ctx, collection: name });
-							};
-
-					appendHook(state.hooks, hookName, wrapped);
-				}
-			}
-		}
+		// NOTE: Collection global hooks are handled by executeCollectionHooksWithGlobal
+		// in crud-generator.ts — no injection needed here.
 
 		// Inject global global hooks
 		for (const [name, global] of Object.entries(this._globals)) {

@@ -1,5 +1,5 @@
 /**
- * Default access rules for the starter module.
+ * Default app config for the starter module.
  * Requires an authenticated session for all CRUD operations.
  *
  * To make a specific collection publicly readable, override on the collection:
@@ -10,8 +10,10 @@
  * ```
  */
 export default {
-	read: ({ session }: any) => !!session,
-	create: ({ session }: any) => !!session,
-	update: ({ session }: any) => !!session,
-	delete: ({ session }: any) => !!session,
+	access: {
+		read: ({ session }: any) => !!session,
+		create: ({ session }: any) => !!session,
+		update: ({ session }: any) => !!session,
+		delete: ({ session }: any) => !!session,
+	},
 };
