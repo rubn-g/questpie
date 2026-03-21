@@ -1,7 +1,6 @@
 import { Icon } from "@iconify/react";
 import { Link } from "@tanstack/react-router";
-import { type ReactNode, useEffect, useRef, useState } from "react";
-import { createPortal } from "react-dom";
+import { type ReactNode, useCallback, useEffect, useRef, useState } from "react";
 
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { cn } from "@/lib/utils";
@@ -290,14 +289,28 @@ function AdapterDropdown({
 }) {
 	const [open, setOpen] = useState(false);
 	const btnRef = useRef<HTMLButtonElement>(null);
-	const [pos, setPos] = useState({ top: 0, left: 0 });
+	const menuRef = useRef<HTMLDivElement>(null);
 	const current = category.options[selected];
 
+	const updatePosition = useCallback(() => {
+		const btn = btnRef.current;
+		const menu = menuRef.current;
+		if (!btn || !menu) return;
+		const rect = btn.getBoundingClientRect();
+		menu.style.top = `${rect.top}px`;
+		menu.style.left = `${rect.left}px`;
+	}, []);
+
 	useEffect(() => {
-		if (!open || !btnRef.current) return;
-		const rect = btnRef.current.getBoundingClientRect();
-		setPos({ top: rect.top + window.scrollY, left: rect.left + window.scrollX });
-	}, [open]);
+		if (!open) return;
+		updatePosition();
+		window.addEventListener("scroll", updatePosition, true);
+		window.addEventListener("resize", updatePosition);
+		return () => {
+			window.removeEventListener("scroll", updatePosition, true);
+			window.removeEventListener("resize", updatePosition);
+		};
+	}, [open, updatePosition]);
 
 	return (
 		<span className="inline-block">
@@ -315,70 +328,69 @@ function AdapterDropdown({
 					className="ml-0.5 inline-block opacity-50"
 				/>
 			</button>
-			{open &&
-				createPortal(
-					<>
-						<div
-							className="fixed inset-0 z-40"
-							onClick={() => setOpen(false)}
-							onKeyDown={() => {}}
-							role="presentation"
-						/>
-						<div
-							className="bg-card border-border fixed z-[100] min-w-[200px] border py-1"
-							style={{ top: pos.top, left: pos.left, transform: "translateY(calc(-100% - 4px))" }}
-						>
-							{category.options.map((opt, i) => (
-								<button
-									key={opt.label}
-									type="button"
-									disabled={opt.soon}
-									onClick={() => {
-										if (!opt.soon) {
-											onSelect(i);
-											setOpen(false);
-										}
-									}}
-									className={cn(
-										"flex w-full items-center gap-2 px-3 py-1.5 text-left font-mono text-[12px] transition-colors",
-										opt.soon
-											? "text-muted-foreground/40 cursor-default"
-											: i === selected
-												? "text-primary bg-primary/10"
-												: "text-foreground hover:bg-secondary",
-									)}
-								>
-									<span
-										className={
-											opt.soon
-												? "text-muted-foreground/40"
-												: "text-[var(--syntax-function)]"
-										}
-									>
-										{opt.fn}
-									</span>
-									{opt.soon && (
-										<span className="bg-border text-muted-foreground ml-auto px-1.5 py-0.5 text-[9px] tracking-wider uppercase">
-											soon
-										</span>
-									)}
-								</button>
-							))}
-							<Link
-								to="/docs/$"
-								params={{
-									_splat: `extend/custom-adapters/${category.key}`,
+			{open && (
+				<>
+					<div
+						className="fixed inset-0 z-40"
+						onClick={() => setOpen(false)}
+						onKeyDown={() => {}}
+						role="presentation"
+					/>
+					<div
+						ref={menuRef}
+						className="bg-card border-border fixed z-[100] min-w-[200px] -translate-y-full border py-1"
+						style={{ top: 0, left: 0 }}
+					>
+						{category.options.map((opt, i) => (
+							<button
+								key={opt.label}
+								type="button"
+								disabled={opt.soon}
+								onClick={() => {
+									if (!opt.soon) {
+										onSelect(i);
+										setOpen(false);
+									}
 								}}
-								className="text-primary hover:bg-secondary border-border mt-1 flex w-full items-center gap-2 border-t px-3 py-1.5 text-left font-mono text-[11px] transition-colors"
-								onClick={() => setOpen(false)}
+								className={cn(
+									"flex w-full items-center gap-2 px-3 py-1.5 text-left font-mono text-[12px] transition-colors",
+									opt.soon
+										? "text-muted-foreground/40 cursor-default"
+										: i === selected
+											? "text-primary bg-primary/10"
+											: "text-foreground hover:bg-secondary",
+								)}
 							>
-								<Icon ssr icon="ph:code" width={12} height={12} />
-								Write your own
-							</Link>
-						</div>
-					</>,
-					document.body,
-				)}
+								<span
+									className={
+										opt.soon
+											? "text-muted-foreground/40"
+											: "text-[var(--syntax-function)]"
+									}
+								>
+									{opt.fn}
+								</span>
+								{opt.soon && (
+									<span className="bg-border text-muted-foreground ml-auto px-1.5 py-0.5 text-[9px] tracking-wider uppercase">
+										soon
+									</span>
+								)}
+							</button>
+						))}
+						<Link
+							to="/docs/$"
+							params={{
+								_splat: `extend/custom-adapters/${category.key}`,
+							}}
+							className="text-primary hover:bg-secondary border-border mt-1 flex w-full items-center gap-2 border-t px-3 py-1.5 text-left font-mono text-[11px] transition-colors"
+							onClick={() => setOpen(false)}
+						>
+							<Icon ssr icon="ph:code" width={12} height={12} />
+							Write your own
+						</Link>
+					</div>
+				</>
+			)}
 		</span>
 	);
 }
