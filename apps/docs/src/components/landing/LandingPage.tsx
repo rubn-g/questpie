@@ -1,8 +1,15 @@
 import { Icon } from "@iconify/react";
 import { Link } from "@tanstack/react-router";
-import { type ReactNode, useCallback, useEffect, useRef, useState } from "react";
+import { type ReactNode, useEffect, useState } from "react";
 
 import { ThemeToggle } from "@/components/ThemeToggle";
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuSeparator,
+	DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 
 /* ─── Helpers ─── */
@@ -287,39 +294,11 @@ function AdapterDropdown({
 	selected: number;
 	onSelect: (index: number) => void;
 }) {
-	const [open, setOpen] = useState(false);
-	const btnRef = useRef<HTMLButtonElement>(null);
-	const menuRef = useRef<HTMLDivElement>(null);
 	const current = category.options[selected];
 
-	const updatePosition = useCallback(() => {
-		const btn = btnRef.current;
-		const menu = menuRef.current;
-		if (!btn || !menu) return;
-		const rect = btn.getBoundingClientRect();
-		menu.style.top = `${rect.top}px`;
-		menu.style.left = `${rect.left}px`;
-	}, []);
-
-	useEffect(() => {
-		if (!open) return;
-		updatePosition();
-		window.addEventListener("scroll", updatePosition, true);
-		window.addEventListener("resize", updatePosition);
-		return () => {
-			window.removeEventListener("scroll", updatePosition, true);
-			window.removeEventListener("resize", updatePosition);
-		};
-	}, [open, updatePosition]);
-
 	return (
-		<span className="inline-block">
-			<button
-				ref={btnRef}
-				type="button"
-				onClick={() => setOpen((v) => !v)}
-				className="cursor-pointer border-b border-dashed border-[var(--syntax-function)]/40 text-[var(--syntax-function)] transition-colors hover:border-[var(--syntax-function)]"
-			>
+		<DropdownMenu>
+			<DropdownMenuTrigger className="cursor-pointer border-b border-dashed border-[var(--syntax-function)]/40 text-[var(--syntax-function)] transition-colors hover:border-[var(--syntax-function)]">
 				{current.fn}
 				<Icon
 					icon="ph:caret-down"
@@ -327,71 +306,52 @@ function AdapterDropdown({
 					height={10}
 					className="ml-0.5 inline-block opacity-50"
 				/>
-			</button>
-			{open && (
-				<>
-					<div
-						className="fixed inset-0 z-40"
-						onClick={() => setOpen(false)}
-						onKeyDown={() => {}}
-						role="presentation"
-					/>
-					<div
-						ref={menuRef}
-						className="bg-card border-border fixed z-[100] min-w-[200px] -translate-y-full border py-1"
-						style={{ top: 0, left: 0 }}
+			</DropdownMenuTrigger>
+			<DropdownMenuContent
+				side="top"
+				align="start"
+				className="min-w-[200px] rounded-none border p-0 py-1 shadow-none"
+			>
+				{category.options.map((opt, i) => (
+					<DropdownMenuItem
+						key={opt.label}
+						disabled={opt.soon}
+						onClick={() => {
+							if (!opt.soon) onSelect(i);
+						}}
+						className={cn(
+							"rounded-none px-3 py-1.5 font-mono text-[12px]",
+							!opt.soon && i === selected && "text-primary bg-primary/10",
+						)}
 					>
-						{category.options.map((opt, i) => (
-							<button
-								key={opt.label}
-								type="button"
-								disabled={opt.soon}
-								onClick={() => {
-									if (!opt.soon) {
-										onSelect(i);
-										setOpen(false);
-									}
-								}}
-								className={cn(
-									"flex w-full items-center gap-2 px-3 py-1.5 text-left font-mono text-[12px] transition-colors",
-									opt.soon
-										? "text-muted-foreground/40 cursor-default"
-										: i === selected
-											? "text-primary bg-primary/10"
-											: "text-foreground hover:bg-secondary",
-								)}
-							>
-								<span
-									className={
-										opt.soon
-											? "text-muted-foreground/40"
-											: "text-[var(--syntax-function)]"
-									}
-								>
-									{opt.fn}
-								</span>
-								{opt.soon && (
-									<span className="bg-border text-muted-foreground ml-auto px-1.5 py-0.5 text-[9px] tracking-wider uppercase">
-										soon
-									</span>
-								)}
-							</button>
-						))}
-						<Link
-							to="/docs/$"
-							params={{
-								_splat: `extend/custom-adapters/${category.key}`,
-							}}
-							className="text-primary hover:bg-secondary border-border mt-1 flex w-full items-center gap-2 border-t px-3 py-1.5 text-left font-mono text-[11px] transition-colors"
-							onClick={() => setOpen(false)}
+						<span
+							className={
+								opt.soon
+									? "text-muted-foreground/40"
+									: "text-[var(--syntax-function)]"
+							}
 						>
-							<Icon ssr icon="ph:code" width={12} height={12} />
-							Write your own
-						</Link>
-					</div>
-				</>
-			)}
-		</span>
+							{opt.fn}
+						</span>
+						{opt.soon && (
+							<span className="bg-border text-muted-foreground ml-auto px-1.5 py-0.5 text-[9px] tracking-wider uppercase">
+								soon
+							</span>
+						)}
+					</DropdownMenuItem>
+				))}
+				<DropdownMenuSeparator />
+				<DropdownMenuItem className="rounded-none px-3 py-1.5 font-mono text-[11px]" render={
+					<Link
+						to="/docs/$"
+						params={{ _splat: `extend/custom-adapters/${category.key}` }}
+					/>
+				}>
+					<Icon ssr icon="ph:code" width={12} height={12} />
+					Write your own
+				</DropdownMenuItem>
+			</DropdownMenuContent>
+		</DropdownMenu>
 	);
 }
 
@@ -474,7 +434,7 @@ function SwapAnythingSection() {
 				</div>
 
 				{/* Right: live config with inline dropdowns */}
-				<div className="bg-background border-border relative overflow-x-auto border-l-0 lg:overflow-visible lg:border-l">
+				<div className="bg-background border-border relative overflow-visible border-l-0 lg:border-l">
 					<div className="text-muted-foreground/40 border-border absolute top-0 left-0 z-10 border-r border-b px-2 py-1 font-mono text-[10px] tracking-[0.2em] uppercase">
 						questpie.config.ts
 					</div>
