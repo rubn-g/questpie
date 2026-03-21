@@ -32,8 +32,8 @@ const _allFieldDefs = Object.fromEntries(
 ) as unknown as typeof _rawFieldDefs;
 
 // ── Plugin Imports ─────────────────────────────────────────
-import { type AdminCollectionConfig, type AdminConfigContext, type ListViewConfig, type ListViewConfigContext, type FilterViewsByKind, type FormViewConfig, type FormViewConfigContext, type PreviewConfig, type ServerActionsConfig, type ActionsConfigContext, type AdminGlobalConfig, type ServerBrandingConfig, type AdminLocaleConfig, type SidebarContribution, type DashboardContribution, createViewCallbackProxy, createComponentCallbackProxy, createActionCallbackProxy } from "@questpie/admin/server";
-import { type LocaleConfig, type GlobalHooksInput, type CollectionAccess, type ContextResolver, createFieldNameProxy } from "questpie";
+import { type AdminCollectionConfig, type AdminConfigContext, type ListViewConfig, type ListViewConfigContext, type FilterViewsByKind, type FormViewConfig, type FormViewConfigContext, type PreviewConfig, type ServerActionsConfig, type ActionsConfigContext, type AdminGlobalConfig, type AdminConfigInput, createViewCallbackProxy, createComponentCallbackProxy, createActionCallbackProxy } from "@questpie/admin/server";
+import { type AppConfigInput, type AuthConfig, createFieldNameProxy } from "questpie";
 
 // ════════════════════════════════════════════════════════════
 // Type extraction — driven by CategoryDeclaration
@@ -163,33 +163,28 @@ export function global<TName extends string>(name: TName): GlobalBuilder<EmptyGl
 }
 
 // ════════════════════════════════════════════════════════════
+// Builder factory functions (plugin-contributed)
+// ════════════════════════════════════════════════════════════
+
+import { BlockBuilder } from "@questpie/admin/server";
+/**
+ * Create a typed block builder with wrapped field defs.
+ */
+export function block<TName extends string>(name: TName): import('@questpie/admin/server').BlockBuilder<{ name: TName }> {
+	return BlockBuilder.create(name, _allFieldDefs) as any;
+}
+
+// ════════════════════════════════════════════════════════════
 // Singleton factory functions
 // ════════════════════════════════════════════════════════════
 
-/** Typed factory for locale config. */
-export function locale<T extends LocaleConfig>(config: T): T { return config; }
+/** Typed factory for appConfig config. */
+export function appConfig<T extends AppConfigInput>(config: T): T { return config; }
 
-/** Typed factory for hooks config. */
-export function hooks<T extends GlobalHooksInput>(config: T): T { return config; }
+/** Typed factory for authConfig config. */
+export function authConfig<T extends AuthConfig>(config: T): T { return config; }
 
-/** Typed factory for access config. */
-export function access<T extends CollectionAccess>(config: T): T { return config; }
-
-/** Typed factory for context config. */
-export function context<T extends ContextResolver>(config: T): T { return config; }
-
-/** Typed factory for branding config. */
-export function branding<T extends ServerBrandingConfig>(config: T): T { return config; }
-
-/** Typed factory for adminLocale config. */
-export function adminLocale<T extends AdminLocaleConfig>(config: T): T { return config; }
-
-/** Typed factory for sidebar config. Accepts plain config or callback. */
-export function sidebar<T extends SidebarContribution>(config: T): T;
-export function sidebar<T extends (...args: any[]) => SidebarContribution>(cb: T): T;
-export function sidebar(v: any): any { return v; }
-
-/** Typed factory for dashboard config. Accepts plain config or callback. */
-export function dashboard<T extends DashboardContribution>(config: T): T;
-export function dashboard<T extends (...args: any[]) => DashboardContribution>(cb: T): T;
-export function dashboard(v: any): any { return v; }
+/** Typed factory for adminConfig config. Accepts plain config or callback. */
+export function adminConfig<T extends AdminConfigInput>(config: T): T;
+export function adminConfig<T extends (...args: any[]) => AdminConfigInput>(cb: T): T;
+export function adminConfig(v: any): any { return v; }

@@ -3,9 +3,8 @@
  *
  * Consolidates sidebar, dashboard, branding, and admin locale settings.
  */
-import { adminConfig } from "#questpie/factories";
 import getRevenueStats from "@/questpie/server/routes/get-revenue-stats";
-import type { WidgetFetchContext } from "@questpie/admin/server";
+import { adminConfig, type WidgetFetchContext } from "@questpie/admin/server";
 
 export default adminConfig({
 	branding: {

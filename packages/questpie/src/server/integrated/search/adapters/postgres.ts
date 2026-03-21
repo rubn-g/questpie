@@ -86,6 +86,8 @@ export class PostgresSearchAdapter implements SearchAdapter {
 		ctx.logger.info("[PostgresSearchAdapter] Initialized");
 	}
 
+	// TODO: this should return the standard migration format and type, and we should make sure this is actually run upon generate -> this should not be implicit, but really appear inside the generated migrations folder
+	// if we need to add to this it should be additive
 	/**
 	 * Get migrations for backwards compatibility.
 	 *

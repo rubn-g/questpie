@@ -28,7 +28,7 @@ const config = defineConfig({
 		}),
 	],
 	optimizeDeps: {
-		exclude: ["drizzle-kit"],
+		exclude: ["bun", "drizzle-kit"],
 	},
 	resolve: {
 		tsconfigPaths: true,

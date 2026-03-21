@@ -1155,7 +1155,10 @@ export function AdminSidebar({
 	);
 
 	return (
-		<Sidebar collapsible="icon" className={cn("qa-sidebar", className)}>
+		<Sidebar
+			collapsible="icon"
+			className={cn("qa-sidebar border-l", className)}
+		>
 			{/* Brand Header */}
 			<SidebarHeader className="qa-sidebar__header border-sidebar-border border-b p-2">
 				<SidebarMenu>
