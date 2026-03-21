@@ -1,6 +1,7 @@
 import { Icon } from "@iconify/react";
 import { Link } from "@tanstack/react-router";
-import { type ReactNode, useEffect, useState } from "react";
+import { type ReactNode, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { cn } from "@/lib/utils";
@@ -288,11 +289,20 @@ function AdapterDropdown({
 	onSelect: (index: number) => void;
 }) {
 	const [open, setOpen] = useState(false);
+	const btnRef = useRef<HTMLButtonElement>(null);
+	const [pos, setPos] = useState({ top: 0, left: 0 });
 	const current = category.options[selected];
 
+	useEffect(() => {
+		if (!open || !btnRef.current) return;
+		const rect = btnRef.current.getBoundingClientRect();
+		setPos({ top: rect.top + window.scrollY, left: rect.left + window.scrollX });
+	}, [open]);
+
 	return (
-		<span className="relative inline-block">
+		<span className="inline-block">
 			<button
+				ref={btnRef}
 				type="button"
 				onClick={() => setOpen((v) => !v)}
 				className="cursor-pointer border-b border-dashed border-[var(--syntax-function)]/40 text-[var(--syntax-function)] transition-colors hover:border-[var(--syntax-function)]"
@@ -305,65 +315,70 @@ function AdapterDropdown({
 					className="ml-0.5 inline-block opacity-50"
 				/>
 			</button>
-			{open && (
-				<>
-					<div
-						className="fixed inset-0 z-40"
-						onClick={() => setOpen(false)}
-						onKeyDown={() => {}}
-						role="presentation"
-					/>
-					<div className="bg-card border-border absolute bottom-full left-0 z-[100] mb-1 min-w-[200px] border py-1">
-						{category.options.map((opt, i) => (
-							<button
-								key={opt.label}
-								type="button"
-								disabled={opt.soon}
-								onClick={() => {
-									if (!opt.soon) {
-										onSelect(i);
-										setOpen(false);
-									}
-								}}
-								className={cn(
-									"flex w-full items-center gap-2 px-3 py-1.5 text-left font-mono text-[12px] transition-colors",
-									opt.soon
-										? "text-muted-foreground/40 cursor-default"
-										: i === selected
-											? "text-primary bg-primary/10"
-											: "text-foreground hover:bg-secondary",
-								)}
-							>
-								<span
-									className={
-										opt.soon
-											? "text-muted-foreground/40"
-											: "text-[var(--syntax-function)]"
-									}
-								>
-									{opt.fn}
-								</span>
-								{opt.soon && (
-									<span className="bg-border text-muted-foreground ml-auto px-1.5 py-0.5 text-[9px] tracking-wider uppercase">
-										soon
-									</span>
-								)}
-							</button>
-						))}
-						<Link
-							to="/docs/$"
-							params={{
-								_splat: `extend/custom-adapters/${category.key}`,
-							}}
-							className="text-primary hover:bg-secondary border-border mt-1 flex w-full items-center gap-2 border-t px-3 py-1.5 text-left font-mono text-[11px] transition-colors"
+			{open &&
+				createPortal(
+					<>
+						<div
+							className="fixed inset-0 z-40"
 							onClick={() => setOpen(false)}
+							onKeyDown={() => {}}
+							role="presentation"
+						/>
+						<div
+							className="bg-card border-border fixed z-[100] min-w-[200px] border py-1"
+							style={{ top: pos.top, left: pos.left, transform: "translateY(calc(-100% - 4px))" }}
 						>
-							<Icon ssr icon="ph:code" width={12} height={12} />
-							Write your own
-						</Link>
-					</div>
-				</>
-			)}
+							{category.options.map((opt, i) => (
+								<button
+									key={opt.label}
+									type="button"
+									disabled={opt.soon}
+									onClick={() => {
+										if (!opt.soon) {
+											onSelect(i);
+											setOpen(false);
+										}
+									}}
+									className={cn(
+										"flex w-full items-center gap-2 px-3 py-1.5 text-left font-mono text-[12px] transition-colors",
+										opt.soon
+											? "text-muted-foreground/40 cursor-default"
+											: i === selected
+												? "text-primary bg-primary/10"
+												: "text-foreground hover:bg-secondary",
+									)}
+								>
+									<span
+										className={
+											opt.soon
+												? "text-muted-foreground/40"
+												: "text-[var(--syntax-function)]"
+										}
+									>
+										{opt.fn}
+									</span>
+									{opt.soon && (
+										<span className="bg-border text-muted-foreground ml-auto px-1.5 py-0.5 text-[9px] tracking-wider uppercase">
+											soon
+										</span>
+									)}
+								</button>
+							))}
+							<Link
+								to="/docs/$"
+								params={{
+									_splat: `extend/custom-adapters/${category.key}`,
+								}}
+								className="text-primary hover:bg-secondary border-border mt-1 flex w-full items-center gap-2 border-t px-3 py-1.5 text-left font-mono text-[11px] transition-colors"
+								onClick={() => setOpen(false)}
+							>
+								<Icon ssr icon="ph:code" width={12} height={12} />
+								Write your own
+							</Link>
+						</div>
+					</>,
+					document.body,
+				)}
 		</span>
 	);
 }
