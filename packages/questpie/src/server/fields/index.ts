@@ -88,7 +88,6 @@ export type {
 	FieldHooks,
 	FieldMetadata,
 	FieldMetadataBase,
-	FieldMetadataMeta,
 	FieldType,
 	FieldTypeRegistry,
 	JoinBuilder,
