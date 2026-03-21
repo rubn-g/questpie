@@ -1,8 +1,8 @@
 import type {
 	ComponentReference,
-	DashboardContribution,
 	WidgetFetchContext,
-} from "../../augmentation.js";
+} from "../../../augmentation.js";
+import { adminConfig } from "../../../augmentation.js";
 
 // ============================================================================
 // Dashboard helpers
@@ -56,29 +56,40 @@ function createAuditTimelineLoader(maxItems: number) {
 }
 
 // ============================================================================
-// Dashboard contribution
+// Audit admin config
 // ============================================================================
 
 /**
- * Dashboard contribution from the audit module.
- * Provides a timeline widget showing recent audit activity.
+ * Admin config from the audit module.
+ * Adds audit log to the "administration" sidebar section
+ * and provides a timeline dashboard widget.
  */
-const dashboardContribution: DashboardContribution = {
-	sections: [{ id: "activity", label: { key: "audit.section.activity" } }],
-	items: [
-		{
-			sectionId: "activity",
-			id: "audit-recent-activity",
-			type: "timeline",
-			label: { key: "audit.widget.recentActivity.title" },
-			maxItems: 10,
-			showTimestamps: true,
-			timestampFormat: "relative",
-			emptyMessage: { key: "audit.widget.recentActivity.empty" },
-			span: 2,
-			loader: createAuditTimelineLoader(10),
-		},
-	],
-};
-
-export default dashboardContribution;
+export default adminConfig({
+	sidebar: {
+		items: [
+			{
+				sectionId: "administration",
+				type: "collection",
+				collection: "admin_audit_log",
+				icon: { type: "icon", props: { name: "ph:clipboard-text" } },
+			},
+		],
+	},
+	dashboard: {
+		sections: [{ id: "activity", label: { key: "audit.section.activity" } }],
+		items: [
+			{
+				sectionId: "activity",
+				id: "audit-recent-activity",
+				type: "timeline",
+				label: { key: "audit.widget.recentActivity.title" },
+				maxItems: 10,
+				showTimestamps: true,
+				timestampFormat: "relative",
+				emptyMessage: { key: "audit.widget.recentActivity.empty" },
+				span: 2,
+				loader: createAuditTimelineLoader(10),
+			},
+		],
+	},
+});

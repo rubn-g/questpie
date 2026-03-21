@@ -6,9 +6,7 @@ import {
 } from "#questpie/server/config/cloud-env.js";
 import type { GlobalHooksState } from "#questpie/server/config/global-hooks-types.js";
 import type {
-	AppConfig,
 	AppDefinition,
-	AppEntities,
 	ModuleDefinition,
 	RuntimeConfig,
 	RuntimeConfigInput,
@@ -52,19 +50,6 @@ export function module<T extends ModuleDefinition>(definition: T): T {
 // ============================================================================
 // config() — identity function for type inference (legacy)
 // ============================================================================
-
-/**
- * Define the application config — the shape of `questpie.config.ts`.
- * Composes modules with runtime settings (db, app url, adapters).
- *
- * For new code, use `runtimeConfig()` instead — runtime-only config
- * without entity definitions.
- *
- * @see RFC §12 (config() Full API)
- */
-export function config<T extends AppConfig>(input: T): T {
-	return input;
-}
 
 // ============================================================================
 // runtimeConfig() — cloud-aware runtime config with env auto-detection
@@ -222,6 +207,93 @@ function mergeGlobalHooks(
  * MERGE_FNS.set("auditRules", mergeConcat);
  * ```
  */
+// ============================================================================
+// Config bucket merge
+// ============================================================================
+
+/**
+ * Per-config-key sub-property merge strategies.
+ * Each config key (app, admin, auth, etc.) can declare how its sub-properties
+ * should be merged when multiple modules contribute the same config key.
+ *
+ * Keys not listed here use lastWins (incoming replaces existing).
+ * Config keys not in this map at all use lastWins on the whole object.
+ */
+const CONFIG_KEY_MERGE = new Map<string, Map<string, MergeFn>>([
+	[
+		"app",
+		new Map<string, MergeFn>([
+			["locale", lastWins],
+			["access", lastWins],
+			["hooks", (a, b) => mergeGlobalHooks(a, b)],
+			["context", lastWins],
+		]),
+	],
+	[
+		"admin",
+		new Map<string, MergeFn>([
+			["sidebar", mergeConcat],
+			["dashboard", mergeConcat],
+			["branding", lastWins],
+			["locale", lastWins],
+		]),
+	],
+]);
+
+/**
+ * Merge a single config key using its declared sub-property merge strategies.
+ * Falls back to lastWins for unknown sub-keys.
+ */
+function mergeConfigKey(
+	configKey: string,
+	existing: any,
+	incoming: any,
+): any {
+	// Special case: auth is deep-merged as a whole via mergeAuthOptions
+	if (configKey === "auth") {
+		return mergeAuthOptions(existing ?? {}, incoming ?? {});
+	}
+
+	const subKeyMerges = CONFIG_KEY_MERGE.get(configKey);
+	if (!subKeyMerges) {
+		// No sub-key merge declared — lastWins on the whole config key
+		return incoming;
+	}
+
+	// Sub-key-level merge
+	const result = { ...(existing || {}) };
+	for (const [key, value] of Object.entries(incoming || {})) {
+		const subMerge = subKeyMerges.get(key);
+		if (subMerge && result[key] !== undefined) {
+			result[key] = subMerge(result[key], value);
+		} else {
+			result[key] = value;
+		}
+	}
+	return result;
+}
+
+/**
+ * Merge the `config` bucket from two module-like objects.
+ * Each key in the config bucket (app, auth, admin, openapi, etc.)
+ * is merged independently using its per-key merge strategy.
+ */
+function mergeConfigBucket(existing: any, incoming: any): any {
+	const result = { ...(existing || {}) };
+	for (const [key, value] of Object.entries(incoming || {})) {
+		if (result[key] !== undefined) {
+			result[key] = mergeConfigKey(key, result[key], value);
+		} else {
+			result[key] = value;
+		}
+	}
+	return result;
+}
+
+// ============================================================================
+// Module merge functions
+// ============================================================================
+
 const MERGE_FNS = new Map<string, MergeFn>([
 	["collections", mergeRecord],
 	["globals", mergeRecord],
@@ -229,12 +301,10 @@ const MERGE_FNS = new Map<string, MergeFn>([
 	["routes", mergeRecord],
 	["fields", mergeRecord],
 	["services", mergeRecord],
-	["auth", (a, b) => mergeAuthOptions(a, b ?? {})],
 	["messages", (a, b) => mergeMessages(a, b)],
-	["hooks", (a, b) => mergeGlobalHooks(a, b)],
 	["migrations", mergeConcat],
 	["seeds", mergeConcat],
-	["defaultAccess", lastWins],
+	["config", mergeConfigBucket],
 ]);
 
 /** Keys skipped during module merging (structural, not data). */
@@ -278,8 +348,6 @@ const CONFIG_CONSUMED_KEYS = new Set([
 	// Derived key (computed from messages + config, not from modules directly)
 	"translations",
 	// Definition-only keys (used directly in config construction, not merged)
-	"locale",
-	"contextResolver",
 	"emailTemplates",
 	// Structural
 	"name",
@@ -297,12 +365,10 @@ function emptyMergedState(): Record<string, any> {
 		routes: {},
 		fields: {},
 		services: {},
-		auth: {},
 		migrations: [],
 		seeds: [],
 		messages: {},
-		defaultAccess: undefined,
-		hooks: undefined,
+		config: {},
 		translations: undefined,
 	};
 }
@@ -467,60 +533,21 @@ function extractRuntimeExtensions(
 // ============================================================================
 
 /**
- * Detect whether the second argument is a RuntimeConfig (new signature)
- * or AppEntities/undefined (legacy signature).
+ * Create and return a fully initialized Questpie CMS app.
  *
- * RuntimeConfig always has `db` and `app` keys. AppEntities does not.
- */
-function isRuntimeConfig(arg: unknown): arg is RuntimeConfig {
-	return (
-		arg != null &&
-		typeof arg === "object" &&
-		"db" in arg &&
-		"app" in arg &&
-		typeof (arg as Record<string, unknown>).app === "object" &&
-		typeof (arg as Record<string, unknown>).db === "object"
-	);
-}
-
-/**
- * Create a Questpie app instance.
- *
- * Supports two calling conventions:
- *
- * **New architecture** (RFC-MODULE-ARCHITECTURE):
  * ```ts
  * createApp(definition, runtime)
  * ```
- * - `definition` — generated by codegen, contains modules + user entities
+ * - `definition` — generated by codegen, contains modules + user entities + config bucket
  * - `runtime` — from `questpie.config.ts`, contains db/adapters/secret/plugins
- *
- * **Legacy** (RFC-FILE-CONVENTION):
- * ```ts
- * createApp(appConfig, entities?)
- * ```
- * - `appConfig` — mixed config (modules + runtime)
- * - `entities` — codegen-discovered user entities
  *
  * @see RFC-MODULE-ARCHITECTURE §9.1 (Root App — .generated/index.ts)
  */
 export async function createApp(
-	configOrDefinition: AppConfig | AppDefinition,
-	entitiesOrRuntime?: AppEntities | RuntimeConfig,
+	definition: AppDefinition,
+	runtime: RuntimeConfig,
 ): Promise<Questpie<QuestpieConfig>> {
-	// Detect new vs legacy signature
-	if (isRuntimeConfig(entitiesOrRuntime)) {
-		return createAppFromDefinition(
-			configOrDefinition as AppDefinition,
-			entitiesOrRuntime,
-		);
-	}
-
-	// Legacy signature: createApp(appConfig, entities?)
-	return createAppLegacy(
-		configOrDefinition as AppConfig,
-		entitiesOrRuntime as AppEntities | undefined,
-	);
+	return createAppFromDefinition(definition, runtime);
 }
 
 // ============================================================================
@@ -560,9 +587,14 @@ async function createAppFromDefinition(
 		? mergeTranslationsConfig(mergedTranslations, runtime.translations)
 		: mergedTranslations;
 
-	// 5. Build QuestpieConfig
+	// 5. Build QuestpieConfig — extract consumed config keys
 	const allJobs = merged.jobs;
 	const hasJobs = Object.keys(allJobs).length > 0;
+
+	// Extract config bucket values
+	const cfg = merged.config ?? {};
+	const appCfg = cfg.app ?? {};
+	const authCfg = cfg.auth ?? {};
 
 	const cmsConfig: QuestpieConfig = {
 		app: runtime.app,
@@ -570,8 +602,8 @@ async function createAppFromDefinition(
 		secret: runtime.secret,
 		collections: merged.collections,
 		globals: merged.globals,
-		locale: definition.locale,
-		auth: mergeAuthOptions(merged.auth, {}),
+		locale: appCfg.locale,
+		auth: authCfg,
 		storage: runtime.storage,
 		email: definition.emailTemplates
 			? { ...(runtime.email ?? {}), templates: definition.emailTemplates }
@@ -597,9 +629,9 @@ async function createAppFromDefinition(
 		autoMigrate: runtime.autoMigrate,
 		autoSeed: runtime.autoSeed,
 		translations: finalTranslations,
-		contextResolver: definition.contextResolver,
-		globalHooks: merged.hooks,
-		defaultAccess: definition.defaultAccess ?? merged.defaultAccess,
+		contextResolver: appCfg.context,
+		globalHooks: appCfg.hooks,
+		defaultAccess: appCfg.access,
 		services:
 			Object.keys(merged.services).length > 0 ? merged.services : undefined,
 	};
@@ -607,13 +639,19 @@ async function createAppFromDefinition(
 	// 6. Create Questpie instance
 	const instance = new Questpie(cmsConfig);
 
-	// 7. Store plugin extension state (sidebar, dashboard, branding, blocks, views, etc.)
-	// Also forward unknown RuntimeConfig extension keys (e.g. channels, workflows)
-	// — same mechanism as legacy createAppLegacy() uses via configOverrides.
+	// 7. Store extension state + config bucket on instance.state
 	const runtimeExtensions = extractRuntimeExtensions(
 		runtime as Record<string, unknown>,
 	);
 	const extensionState = buildExtensionState(merged, runtimeExtensions);
+
+	// The entire merged config bucket goes to instance.state.config — no filtering.
+	// Runtime already extracted what it needs (locale, hooks, auth, etc.) into cmsConfig.
+	// state.config is the single source of truth for all plugin configs at runtime.
+	if (Object.keys(cfg).length > 0) {
+		extensionState.config = cfg;
+	}
+
 	instance.state = extensionState;
 
 	await instance._initServices();
@@ -621,94 +659,3 @@ async function createAppFromDefinition(
 	return instance;
 }
 
-// ============================================================================
-// Legacy: createApp(appConfig, entities?)
-// ============================================================================
-
-/**
- * Legacy createApp — takes mixed config + optional entities.
- */
-async function createAppLegacy(
-	appConfig: AppConfig,
-	entities?: AppEntities,
-): Promise<Questpie<QuestpieConfig>> {
-	// 1. Resolve modules depth-first
-	const flatModules = resolveModules(appConfig.modules ?? []);
-
-	// 2. Merge all module contributions
-	let merged = emptyMergedState();
-	for (const mod of flatModules) {
-		merged = mergeModuleIntoState(merged, mod);
-	}
-
-	// 3. Merge user entities on top (user always wins over modules)
-	if (entities) {
-		merged = mergeModuleIntoState(merged, { name: "user", ...entities });
-	}
-
-	// 4. Convert messages to translations config
-	const mergedTranslations = mergeMessagesIntoConfig(
-		merged.translations,
-		merged.messages,
-	);
-	// Also merge with any config-level translations
-	const finalTranslations = appConfig.translations
-		? mergeTranslationsConfig(mergedTranslations, appConfig.translations)
-		: mergedTranslations;
-
-	// 5. Build QuestpieConfig
-	const allJobs = merged.jobs;
-	const hasJobs = Object.keys(allJobs).length > 0;
-
-	const cmsConfig: QuestpieConfig = {
-		app: appConfig.app,
-		db: appConfig.db,
-		secret: appConfig.secret,
-		collections: merged.collections,
-		globals: merged.globals,
-		locale: appConfig.locale,
-		auth: mergeAuthOptions(merged.auth, appConfig.auth ?? {}),
-		storage: appConfig.storage,
-		email: appConfig.email,
-		queue:
-			hasJobs && appConfig.queue
-				? {
-						jobs: allJobs,
-						adapter: appConfig.queue.adapter,
-					}
-				: undefined,
-		routes: Object.keys(merged.routes).length > 0 ? merged.routes : undefined,
-		search: appConfig.search,
-		realtime: appConfig.realtime,
-		logger: appConfig.logger,
-		kv: appConfig.kv,
-		migrations: {
-			migrations: [...merged.migrations, ...(appConfig.migrations || [])],
-		},
-		seeds: {
-			seeds: [...merged.seeds, ...(appConfig.seeds || [])],
-		},
-		autoMigrate: appConfig.autoMigrate,
-		autoSeed: appConfig.autoSeed,
-		translations: finalTranslations,
-		contextResolver: appConfig.contextResolver,
-		globalHooks: mergeGlobalHooks(merged.hooks, appConfig.hooks),
-		defaultAccess: appConfig.defaultAccess ?? merged.defaultAccess,
-		services:
-			Object.keys(merged.services).length > 0 ? merged.services : undefined,
-	};
-
-	// 6. Create Questpie instance
-	const instance = new Questpie(cmsConfig);
-
-	// 7. Store plugin extension state (sidebar, dashboard, branding, blocks, views, etc.)
-	const extensionState = buildExtensionState(
-		merged,
-		appConfig as Record<string, unknown>,
-	);
-	instance.state = extensionState;
-
-	await instance._initServices();
-
-	return instance;
-}

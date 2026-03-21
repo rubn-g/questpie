@@ -789,6 +789,7 @@ const getAdminConfig = route()
 	.handler(async (ctx) => {
 		const app = getApp(ctx);
 		const state = (app as any).state || {};
+		const adminCfg = state.config?.admin || {};
 
 		// 1. Compute accessible collections and globals
 		const collections = app.getCollections();
@@ -855,20 +856,20 @@ const getAdminConfig = route()
 		};
 
 		// Branding config
-		if (state.branding) {
-			response.branding = state.branding;
+		if (adminCfg.branding) {
+			response.branding = adminCfg.branding;
 		}
 
 		// 3. Dashboard: merge contributions → process access → strip non-serializable
-		if (state.dashboard) {
+		if (adminCfg.dashboard) {
 			let dashboard: ServerDashboardConfig;
 
-			if (isLegacyDashboardConfig(state.dashboard)) {
-				// Legacy: state.dashboard is already a ServerDashboardConfig (from .dashboard() builder)
-				dashboard = state.dashboard;
+			if (isLegacyDashboardConfig(adminCfg.dashboard)) {
+				// Legacy: adminCfg.dashboard is already a ServerDashboardConfig (from .dashboard() builder)
+				dashboard = adminCfg.dashboard;
 			} else {
-				// New: state.dashboard is DashboardContribution[] or mixed
-				const contributions = normalizeDashboardContributions(state.dashboard);
+				// New: adminCfg.dashboard is DashboardContribution[] or mixed
+				const contributions = normalizeDashboardContributions(adminCfg.dashboard);
 				dashboard = mergeDashboardContributions(contributions);
 			}
 
@@ -888,15 +889,15 @@ const getAdminConfig = route()
 		}
 
 		// 4. Sidebar: merge contributions → filter by access → auto-append unlisted
-		if (state.sidebar) {
+		if (adminCfg.sidebar) {
 			let sidebarConfig: ServerSidebarConfig;
 
-			if (isLegacySidebarConfig(state.sidebar)) {
-				// Legacy: state.sidebar is already a ServerSidebarConfig (from .sidebar() builder)
-				sidebarConfig = state.sidebar;
+			if (isLegacySidebarConfig(adminCfg.sidebar)) {
+				// Legacy: adminCfg.sidebar is already a ServerSidebarConfig (from .sidebar() builder)
+				sidebarConfig = adminCfg.sidebar;
 			} else {
-				// New: state.sidebar is SidebarContribution[] or mixed
-				const contributions = normalizeSidebarContributions(state.sidebar);
+				// New: adminCfg.sidebar is SidebarContribution[] or mixed
+				const contributions = normalizeSidebarContributions(adminCfg.sidebar);
 				sidebarConfig = mergeSidebarContributions(contributions);
 			}
 

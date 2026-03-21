@@ -772,52 +772,36 @@ function emitNewArchitectureRuntime(
 		}
 	}
 
-	// Collect state keys that are covered by destructured or *Config singles,
-	// so we can skip flat singles that would be overridden.
-	const suppressedKeys = new Set<string>();
+	// Separate config-bucket singles from plain singles
 	const allSingles = [...coreSingles.core, ...coreSingles.plugin];
+	const configEntries: Array<{ configKey: string; file: DiscoveredFile }> = [];
+	const plainSingles: DiscoveredFile[] = [];
+
 	for (const file of allSingles) {
-		if (file.destructure) {
-			for (const stateKey of Object.values(file.destructure)) {
-				suppressedKeys.add(stateKey);
-			}
-		}
-		// *Config singles (e.g. authConfig) suppress their base key (auth)
-		if (file.key.endsWith("Config")) {
-			suppressedKeys.add(file.key.slice(0, -"Config".length));
+		if (file.configKey) {
+			configEntries.push({ configKey: file.configKey, file });
+		} else if (file.key !== "modules") {
+			plainSingles.push(file);
 		}
 	}
 
-	// Helper to emit a single file entry in createApp
-	const emitSingle = (file: DiscoveredFile) => {
-		if (file.destructure) {
-			// Destructured single: emit property-access assignments
-			for (const [prop, stateKey] of Object.entries(file.destructure)) {
-				lines.push(`\t\t${safeKey(stateKey)}: ${file.varName}.${prop} as any,`);
-			}
-		} else if (file.key.endsWith("Config")) {
-			// *Config single: emit under the base key name
-			const baseKey = file.key.slice(0, -"Config".length);
-			lines.push(`\t\t${safeKey(baseKey)}: ${file.varName} as any,`);
-		} else if (!suppressedKeys.has(file.key)) {
-			lines.push(`\t\t${safeKey(file.key)}: ${file.varName} as any,`);
+	// Emit config bucket — each config file = one key
+	if (configEntries.length > 0) {
+		lines.push("\t\tconfig: {");
+		for (const { configKey, file } of configEntries) {
+			lines.push(`\t\t\t${safeKey(configKey)}: ${file.varName} as any,`);
 		}
-	};
-
-	// Core singles (auth, locale, hooks, access, context)
-	// Cast with `as any` because user files may use `as const` (readonly),
-	// and the whole expression is cast to App anyway.
-	for (const file of coreSingles.core) {
-		emitSingle(file);
+		lines.push("\t\t},");
 	}
 
-	// Plugin singles (sidebar, dashboard, branding, adminLocale, etc.)
-	for (const file of coreSingles.plugin) {
-		emitSingle(file);
+	// Plain singles (fields, etc.) — NOT config files
+	for (const file of plainSingles) {
+		lines.push(`\t\t${safeKey(file.key)}: ${file.varName} as any,`);
 	}
 
 	// Spread singles (sidebar, dashboard — mergeStrategy: "spread")
-	// Each stateKey maps to an array of files spread into one array.
+	// NOTE: With the config bucket, spreads from features should flow into
+	// the config bucket too. For now, keep spread emission for backward compat.
 	for (const [stateKey, files] of discovered.spreads) {
 		if (files.length > 0) {
 			const spread = files

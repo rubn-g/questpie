@@ -331,6 +331,7 @@ interface ResolvedPattern {
 	cardinality: "single" | "map";
 	mergeStrategy: "replace" | "spread";
 	destructure?: Record<string, string>;
+	configKey?: string;
 }
 
 /**
@@ -359,6 +360,7 @@ function resolveDiscoverPattern(pattern: DiscoverPattern): ResolvedPattern {
 		cardinality: pattern.cardinality ?? (isSingleFile ? "single" : "map"),
 		mergeStrategy: pattern.mergeStrategy ?? "replace",
 		destructure: pattern.destructure,
+		configKey: pattern.configKey,
 	};
 }
 
@@ -399,6 +401,9 @@ async function discoverSingleFile(
 			};
 			if (resolved.destructure) {
 				file.destructure = resolved.destructure;
+			}
+			if (resolved.configKey) {
+				file.configKey = resolved.configKey;
 			}
 			singles.set(stateKey, file);
 			break;

@@ -38,8 +38,8 @@ import _comp_badge from "../components/badge";
 import _comp_icon from "../components/icon";
 
 // ── Singles ────────────────────────────────────────────────
+import _adminConfig from "../config/admin";
 import _fields from "../fields";
-import _sidebar from "../sidebar";
 
 // ════════════════════════════════════════════════════════════
 // TYPES — composed from typeof references (zero inference cost)
@@ -115,9 +115,10 @@ const _module = {
 	migrations: [] as const,
 	seeds: [] as const,
 	blocks: {},
+	config: {
+		admin: _adminConfig,
+	},
 	fields: _fields,
-	sidebar: [_sidebar],
-	dashboard: [] as const,
 };
 
 export type AdminModule = typeof _module;

@@ -87,15 +87,7 @@ export function adminPlugin(): CodegenPlugin {
 					},
 				},
 				discover: {
-					adminConfig: {
-						pattern: "config/admin.ts",
-						destructure: {
-							sidebar: "sidebar",
-							dashboard: "dashboard",
-							branding: "branding",
-							locale: "adminLocale",
-						},
-					},
+					adminConfig: { pattern: "config/admin.ts", configKey: "admin" },
 				},
 				registries: {
 					builderFactories: {
@@ -277,22 +269,9 @@ export function adminPlugin(): CodegenPlugin {
 						},
 					},
 				},
-				transform(ctx) {
-					// Ensure dashboard exists as empty array when no dashboard config found.
-					// Check both standalone singles AND destructured properties (e.g. config/admin.ts
-					// with destructure: { dashboard: "dashboard" }).
-					let hasDashboard = ctx.singles.has("dashboard");
-					if (!hasDashboard) {
-						for (const file of ctx.singles.values()) {
-							if (file.destructure && Object.values(file.destructure).includes("dashboard")) {
-								hasDashboard = true;
-								break;
-							}
-						}
-					}
-					if (!hasDashboard) {
-						ctx.addRuntimeCode("dashboard: [] as const,");
-					}
+				transform(_ctx) {
+					// Dashboard is now part of config.admin — no need for empty stubs.
+					// Admin reads it from app.state.config.admin.dashboard at runtime.
 				},
 				callbackParams: {
 					v: {

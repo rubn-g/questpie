@@ -70,7 +70,6 @@ export type {
 export * from "#questpie/server/config/context.js";
 export * from "#questpie/server/config/create-app.js";
 export {
-	config,
 	createApp,
 	module,
 	runtimeConfig,
@@ -88,7 +87,7 @@ export { global } from "#questpie/server/global/builder/global-builder.js";
 export * from "#questpie/server/global/builder/index.js";
 export * from "#questpie/server/global/crud/index.js";
 export * from "#questpie/server/i18n/types.js";
-export { auth } from "#questpie/server/integrated/auth/config.js";
+export { auth } from "#questpie/server/integrated/auth/merge.js";
 export * from "#questpie/server/integrated/auth/index.js";
 export * from "#questpie/server/integrated/mailer/adapters/index.js";
 export * from "#questpie/server/integrated/mailer/index.js";

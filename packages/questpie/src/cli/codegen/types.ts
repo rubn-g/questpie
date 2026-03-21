@@ -54,8 +54,15 @@ export interface DiscoveredFile {
 	 * Values = createApp argument keys (state keys).
 	 *
 	 * @see DiscoverPattern.destructure
+	 * @deprecated Use `configKey` instead — maps the whole file to one key in the `config` bucket.
 	 */
 	destructure?: Record<string, string>;
+
+	/**
+	 * When set, the file is emitted as a whole-object entry under `config.<configKey>`
+	 * instead of being destructured into flat keys.
+	 */
+	configKey?: string;
 }
 
 // ============================================================================
@@ -155,8 +162,22 @@ export type DiscoverPattern =
 			 * // locale: _appConfig.locale,
 			 * // defaultAccess: _appConfig.access,
 			 * ```
+			 * @deprecated Use `configKey` instead.
 			 */
 			destructure?: Record<string, string>;
+
+			/**
+			 * When set, the discovered file is emitted as `config.<configKey>` in the
+			 * createApp definition. Each config file = one key in the config bucket.
+			 * Modules can contribute the same config key — merged per sub-key strategy.
+			 *
+			 * @example
+			 * ```ts
+			 * appConfig: { pattern: "config/app.ts", configKey: "app" }
+			 * // Generated: config: { app: _appConfig }
+			 * ```
+			 */
+			configKey?: string;
 	  };
 
 // ============================================================================

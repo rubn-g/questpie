@@ -14,4 +14,4 @@ export type { AuditModule } from "./.generated/module.js";
 export { default as auditModule } from "./.generated/module.js";
 
 // Re-export collection for direct access
-export { auditLogCollection } from "./collections/audit-log.collection.js";
+export { auditLogCollection } from "./collections/audit-log.js";

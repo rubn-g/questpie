@@ -50,7 +50,7 @@ All QUESTPIE projects follow this split:
 New projects use **standalone factories** and **file convention** with codegen:
 
 ```ts
-// collections/posts.collection.ts
+// collections/posts.ts
 import { collection } from "#questpie/factories";
 
 export const posts = collection("posts").fields(({ f }) => ({

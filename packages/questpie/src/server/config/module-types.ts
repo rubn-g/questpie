@@ -114,9 +114,6 @@ export interface ModuleDefinition {
 		import("#questpie/server/services/define-service.js").ServiceBuilder<any>
 	>;
 
-	/** Partial auth config — deep-merged with other modules and user config. */
-	auth?: BetterAuthOptions | Record<string, any>;
-
 	/** Migrations this module contributes — concatenated with others. */
 	migrations?: Migration[];
 
@@ -129,13 +126,12 @@ export interface ModuleDefinition {
 	 */
 	messages?: Record<string, Record<string, string>>;
 
-	/** Default access control. Last module with this set wins. */
-	defaultAccess?: CollectionAccess;
-
 	/**
-	 * Global lifecycle hooks. Arrays are concatenated across modules.
+	 * Config bucket — each config file maps to one key.
+	 * Plugins augment AppStateConfig to declare their config keys.
+	 * Merged per-key across modules using plugin-declared strategies.
 	 */
-	hooks?: GlobalHooksState;
+	config?: import("./app-state-config.js").ResolvedAppStateConfig;
 
 	/**
 	 * Codegen plugin(s) this module contributes.
@@ -147,8 +143,8 @@ export interface ModuleDefinition {
 		| import("#questpie/cli/codegen/types.js").CodegenPlugin[];
 
 	/**
-	 * Extensible — admin module augments this interface to add:
-	 * listViews, formViews, components, blocks, sidebar, dashboard, branding, adminLocale.
+	 * Extensible — plugins add category keys via declaration merging
+	 * (views, components, blocks, etc.)
 	 */
 	[key: string]: unknown;
 }

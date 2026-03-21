@@ -2047,3 +2047,13 @@ interface GlobalBuilderAdminMethods<
 		) => FormViewConfig,
 	): this;
 }
+
+// ============================================================================
+// AppStateConfig augmentation — admin config bucket key
+// ============================================================================
+
+declare module "questpie" {
+	interface AppStateConfig {
+		admin?: AdminConfigInput;
+	}
+}

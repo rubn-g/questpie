@@ -66,12 +66,32 @@ export async function buildMockApp(
 	const testDb = usesCustomDb ? null : await createTestDb();
 	const dbConfig = runtimeOverrides.db ?? { pglite: testDb };
 
-	// Extract top-level keys that createApp reads from definition (not from modules)
-	const { locale, contextResolver, ...moduleDef } = definition as any;
-	const normalizedDef = module({ name: "test", ...moduleDef });
+	// Normalize module definition — move flat config keys into config bucket
+	const { locale, contextResolver, hooks, defaultAccess, auth, config: existingConfig, ...moduleDef } = definition as any;
+
+	// Build config bucket from flat keys + any existing config
+	const appConfigPart: Record<string, unknown> = {};
+	if (locale) appConfigPart.locale = locale;
+	if (contextResolver) appConfigPart.context = contextResolver;
+	if (hooks) appConfigPart.hooks = hooks;
+	if (defaultAccess) appConfigPart.access = defaultAccess;
+
+	const moduleConfig: Record<string, unknown> = { ...(existingConfig ?? {}) };
+	if (Object.keys(appConfigPart).length > 0) {
+		moduleConfig.app = { ...(moduleConfig.app as any ?? {}), ...appConfigPart };
+	}
+	if (auth) {
+		moduleConfig.auth = auth;
+	}
+
+	const normalizedDef = module({
+		name: "test",
+		...moduleDef,
+		...(Object.keys(moduleConfig).length > 0 ? { config: moduleConfig } : {}),
+	});
 
 	const app = await createApp(
-		{ modules: [normalizedDef], locale, contextResolver },
+		{ modules: [normalizedDef] },
 		{
 			app: runtimeOverrides.app ?? { url: "http://localhost:3000" },
 			db: dbConfig,

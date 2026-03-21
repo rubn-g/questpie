@@ -104,8 +104,8 @@ src/
 
 ### File Naming Conventions
 
-- Collections: `*.collection.ts` in `collections/` (e.g., `posts.collection.ts`) — named exports
-- Globals: `*.global.ts` in `globals/` (e.g., `site-settings.global.ts`) — named exports
+- Collections: `*.ts` in `collections/` (e.g., `posts.ts`) — named exports
+- Globals: `*.ts` in `globals/` (e.g., `site-settings.ts`) — named exports
 - Routes: `*.ts` in `routes/` (e.g., `get-stats.ts`) — default exports
 - Jobs: `*.ts` in `jobs/` (e.g., `send-email.ts`) — default exports
 - Blocks: `*.ts` in `blocks/` (e.g., `hero.ts`) — named exports

@@ -26,7 +26,7 @@ export function openApiPlugin(): CodegenPlugin {
 				root: ".",
 				outputFile: "index.ts",
 				discover: {
-					openapi: "config/openapi.ts",
+					openapi: { pattern: "config/openapi.ts", configKey: "openapi" },
 				},
 				registries: {
 					singletonFactories: {

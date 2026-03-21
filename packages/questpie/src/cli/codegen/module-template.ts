@@ -321,14 +321,22 @@ export function generateModuleTemplate(
 		}
 	}
 
-	// Singles (auth, hooks, access, sidebar as array, etc.)
-	for (const file of singles) {
-		// Some singles are arrays (sidebar, dashboard contributions)
-		if (file.key === "sidebar" || file.key === "dashboard") {
-			lines.push(`\t${safeKey(file.key)}: [${file.varName}],`);
-		} else {
-			lines.push(`\t${safeKey(file.key)}: ${file.varName},`);
+	// Separate config-bucket singles from plain singles
+	const configSingles = singles.filter((f) => f.configKey);
+	const plainSingles = singles.filter((f) => !f.configKey);
+
+	// Config bucket — each config file = one key
+	if (configSingles.length > 0) {
+		lines.push("\tconfig: {");
+		for (const file of configSingles) {
+			lines.push(`\t\t${safeKey(file.configKey!)}: ${file.varName},`);
 		}
+		lines.push("\t},");
+	}
+
+	// Plain singles (fields, etc.)
+	for (const file of plainSingles) {
+		lines.push(`\t${safeKey(file.key)}: ${file.varName},`);
 	}
 
 	// Extra module properties from plugins

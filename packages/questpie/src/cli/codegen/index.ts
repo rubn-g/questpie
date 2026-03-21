@@ -134,16 +134,8 @@ export function coreCodegenPlugin(): CodegenPlugin {
 				discover: {
 					modules: "modules.ts",
 					fields: { pattern: "fields.ts", registryKey: "~fieldTypes" },
-					authConfig: "config/auth.ts",
-					appConfig: {
-						pattern: "config/app.ts",
-						destructure: {
-							locale: "locale",
-							access: "defaultAccess",
-							hooks: "hooks",
-							context: "contextResolver",
-						},
-					},
+					authConfig: { pattern: "config/auth.ts", configKey: "auth" },
+					appConfig: { pattern: "config/app.ts", configKey: "app" },
 				},
 				registries: {
 					singletonFactories: {
