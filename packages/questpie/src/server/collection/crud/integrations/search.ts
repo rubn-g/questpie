@@ -178,7 +178,7 @@ async function indexAllLocalesSync(
 
 		try {
 			// Fetch localized version of the record
-			const crud = app.api.collections[state.name];
+			const crud = app.collections[state.name];
 			if (!crud) continue;
 
 			const localizedRecord = await crud.findOne({

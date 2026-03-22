@@ -157,12 +157,12 @@ export class Questpie<TConfig extends QuestpieConfig = QuestpieConfig> {
 	public seeds: QuestpieSeedsAPI<TConfig>;
 	public api: QuestpieApi<TConfig>;
 
-	/** Direct access to collection CRUD APIs (shorthand for app.api.collections) */
+	/** Direct access to collection CRUD APIs (shorthand for app.collections) */
 	get collections(): QuestpieApi<TConfig>["collections"] {
 		return this.api.collections;
 	}
 
-	/** Direct access to global CRUD APIs (shorthand for app.api.globals) */
+	/** Direct access to global CRUD APIs (shorthand for app.globals) */
 	get globals(): QuestpieApi<TConfig>["globals"] {
 		return this.api.globals;
 	}

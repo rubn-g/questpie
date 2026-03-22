@@ -77,7 +77,7 @@ export const createStorageRoutes = <
 
 			try {
 				// Use the collection's upload method which handles validation and storage
-				const crud = app.api.collections[collection as any] as any;
+				const crud = app.collections[collection as any] as any;
 				if (!crud?.upload) {
 					return errorResponse(
 						ApiError.badRequest(
@@ -140,7 +140,7 @@ export const createStorageRoutes = <
 			}
 
 			// Get record metadata to check visibility
-			const crud = app.api.collections[collection as any];
+			const crud = app.collections[collection as any];
 			const record = await crud.findOne({
 				where: { key } as any,
 			});

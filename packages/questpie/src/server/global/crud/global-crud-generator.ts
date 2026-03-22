@@ -1813,7 +1813,7 @@ export class GlobalCRUDGenerator<TState extends GlobalBuilderState> {
 			const relation = this.state.relations[relationName];
 			if (!relation) continue;
 
-			const relatedCrud = this.app.api.collections[relation.collection];
+			const relatedCrud = this.app.collections[relation.collection];
 
 			if (relation.fields && relation.fields.length > 0) {
 				const sourceField = relation.fields[0];
@@ -2041,7 +2041,7 @@ export class GlobalCRUDGenerator<TState extends GlobalBuilderState> {
 
 				if (!sourceField || !targetField) continue;
 
-				const junctionCrud = this.app.api.collections[relation.through];
+				const junctionCrud = this.app.collections[relation.through];
 
 				const sourceIds = new Set(
 					rows
@@ -2191,7 +2191,7 @@ export class GlobalCRUDGenerator<TState extends GlobalBuilderState> {
 			return undefined;
 		}
 
-		const relatedCrud = this.app.api.collections[relation.collection];
+		const relatedCrud = this.app.collections[relation.collection];
 		const relatedTable = relatedCrud["~internalRelatedTable"];
 		const relatedState = relatedCrud["~internalState"];
 
@@ -2242,7 +2242,7 @@ export class GlobalCRUDGenerator<TState extends GlobalBuilderState> {
 	) {
 		if (!this.app || relation.fields) return undefined;
 
-		const relatedCrud = this.app.api.collections[relation.collection];
+		const relatedCrud = this.app.collections[relation.collection];
 		const relatedTable = relatedCrud["~internalRelatedTable"];
 		const relatedState = relatedCrud["~internalState"];
 		const reverseRelationName = relation.relationName;
@@ -2301,8 +2301,8 @@ export class GlobalCRUDGenerator<TState extends GlobalBuilderState> {
 	) {
 		if (!this.app || !relation.through) return undefined;
 
-		const relatedCrud = this.app.api.collections[relation.collection];
-		const junctionCrud = this.app.api.collections[relation.through];
+		const relatedCrud = this.app.collections[relation.collection];
+		const junctionCrud = this.app.collections[relation.through];
 		const relatedTable = relatedCrud["~internalRelatedTable"];
 		const junctionTable = junctionCrud["~internalRelatedTable"];
 		const relatedState = relatedCrud["~internalState"];

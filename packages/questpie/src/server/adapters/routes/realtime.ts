@@ -144,7 +144,7 @@ export const createRealtimeRoutes = <
 				}
 
 				if (topic.resourceType === "collection") {
-					const crud = app.api.collections[topic.resource as any];
+					const crud = app.collections[topic.resource as any];
 					if (!crud) {
 						topicErrors.push({
 							id: topic.id,

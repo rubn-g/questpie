@@ -124,8 +124,8 @@ export class QuestpieAPI<TConfig extends QuestpieConfig = QuestpieConfig> {
 	/**
 	 * Access collections CRUD operations
 	 * @example
-	 * await app.api.collections.users.create({ email: '...' }, context)
-	 * await app.api.collections.posts.find({ where: { status: 'published' } })
+	 * await app.collections.users.create({ email: '...' }, context)
+	 * await app.collections.posts.find({ where: { status: 'published' } })
 	 */
 	public get collections(): {
 		[K in keyof TConfig["collections"]]: CollectionAPI<

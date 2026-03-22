@@ -913,7 +913,7 @@ export class CRUDGenerator<TState extends CollectionBuilderState> {
 			const relation = this.state.relations?.[relationName];
 			if (!relation) continue;
 
-			const relatedCrud = this.app.api.collections[
+			const relatedCrud = this.app.collections[
 				relation.collection
 			] as unknown as CRUD;
 
@@ -984,7 +984,7 @@ export class CRUDGenerator<TState extends CollectionBuilderState> {
 			}
 			// ManyToMany relation (through junction table)
 			else if (relation.type === "manyToMany" && relation.through) {
-				const junctionCrud = this.app.api.collections[
+				const junctionCrud = this.app.collections[
 					relation.through
 				] as unknown as CRUD;
 				await resolveManyToManyRelation({

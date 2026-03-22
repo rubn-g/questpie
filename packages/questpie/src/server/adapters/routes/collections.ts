@@ -35,7 +35,7 @@ export const createCollectionRoutes = <
 			context?: AdapterContext,
 		): Promise<Response> => {
 			const resolved = await resolveContext(app, request, config, context);
-			const crud = app.api.collections[params.collection as any];
+			const crud = app.collections[params.collection as any];
 
 			if (!crud) {
 				return errorResponse(
@@ -60,7 +60,7 @@ export const createCollectionRoutes = <
 			context?: AdapterContext,
 		): Promise<Response> => {
 			const resolved = await resolveContext(app, request, config, context);
-			const crud = app.api.collections[params.collection as any];
+			const crud = app.collections[params.collection as any];
 
 			if (!crud) {
 				return errorResponse(
@@ -89,7 +89,7 @@ export const createCollectionRoutes = <
 			input?: unknown,
 		): Promise<Response> => {
 			const resolved = await resolveContext(app, request, config, context);
-			const crud = app.api.collections[params.collection as any];
+			const crud = app.collections[params.collection as any];
 
 			if (!crud) {
 				return errorResponse(
@@ -122,7 +122,7 @@ export const createCollectionRoutes = <
 			context?: AdapterContext,
 		): Promise<Response> => {
 			const resolved = await resolveContext(app, request, config, context);
-			const crud = app.api.collections[params.collection as any];
+			const crud = app.collections[params.collection as any];
 
 			if (!crud) {
 				return errorResponse(
@@ -155,7 +155,7 @@ export const createCollectionRoutes = <
 			input?: unknown,
 		): Promise<Response> => {
 			const resolved = await resolveContext(app, request, config, context);
-			const crud = app.api.collections[params.collection as any];
+			const crud = app.collections[params.collection as any];
 
 			if (!crud) {
 				return errorResponse(
@@ -191,7 +191,7 @@ export const createCollectionRoutes = <
 			context?: AdapterContext,
 		): Promise<Response> => {
 			const resolved = await resolveContext(app, request, config, context);
-			const crud = app.api.collections[params.collection as any];
+			const crud = app.collections[params.collection as any];
 
 			if (!crud) {
 				return errorResponse(
@@ -215,7 +215,7 @@ export const createCollectionRoutes = <
 			context?: AdapterContext,
 		): Promise<Response> => {
 			const resolved = await resolveContext(app, request, config, context);
-			const crud = app.api.collections[params.collection as any];
+			const crud = app.collections[params.collection as any];
 
 			if (!crud) {
 				return errorResponse(
@@ -261,7 +261,7 @@ export const createCollectionRoutes = <
 			input?: unknown,
 		): Promise<Response> => {
 			const resolved = await resolveContext(app, request, config, context);
-			const crud = app.api.collections[params.collection as any];
+			const crud = app.collections[params.collection as any];
 
 			if (!crud) {
 				return errorResponse(
@@ -307,7 +307,7 @@ export const createCollectionRoutes = <
 			input?: unknown,
 		): Promise<Response> => {
 			const resolved = await resolveContext(app, request, config, context);
-			const crud = app.api.collections[params.collection as any];
+			const crud = app.collections[params.collection as any];
 
 			if (!crud) {
 				return errorResponse(
@@ -358,7 +358,7 @@ export const createCollectionRoutes = <
 			context?: AdapterContext,
 		): Promise<Response> => {
 			const resolved = await resolveContext(app, request, config, context);
-			const crud = app.api.collections[params.collection as any];
+			const crud = app.collections[params.collection as any];
 
 			if (!crud) {
 				return errorResponse(
@@ -386,7 +386,7 @@ export const createCollectionRoutes = <
 			input?: unknown,
 		): Promise<Response> => {
 			const resolved = await resolveContext(app, request, config, context);
-			const crud = app.api.collections[params.collection as any];
+			const crud = app.collections[params.collection as any];
 
 			if (!crud) {
 				return errorResponse(
@@ -421,7 +421,7 @@ export const createCollectionRoutes = <
 			input?: unknown,
 		): Promise<Response> => {
 			const resolved = await resolveContext(app, request, config, context);
-			const crud = app.api.collections[params.collection as any];
+			const crud = app.collections[params.collection as any];
 
 			if (!crud) {
 				return errorResponse(
@@ -455,7 +455,7 @@ export const createCollectionRoutes = <
 			context?: AdapterContext,
 		): Promise<Response> => {
 			const resolved = await resolveContext(app, request, config, context);
-			const crud = app.api.collections[params.collection as any];
+			const crud = app.collections[params.collection as any];
 
 			if (!crud) {
 				return errorResponse(
@@ -479,7 +479,7 @@ export const createCollectionRoutes = <
 				// Audit collection name is configurable; defaults to admin_audit_log for backwards compat
 				const auditCollectionName =
 					(app.config as any).auditCollection ?? "admin_audit_log";
-				const auditCrud = app.api.collections[
+				const auditCrud = app.collections[
 					auditCollectionName as any
 				] as any;
 				if (!auditCrud) {
