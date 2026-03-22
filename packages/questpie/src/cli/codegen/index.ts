@@ -130,6 +130,14 @@ export function coreCodegenPlugin(): CodegenPlugin {
 						includeInAppState: false,
 						extractFromModules: false,
 					},
+					fieldTypes: {
+						dirs: ["fields"],
+						prefix: "ftype",
+						factoryFunctions: ["fieldType"],
+						registryKey: "~fieldTypes",
+						includeInAppState: false,
+						extractFromModules: true,
+					},
 				},
 				discover: {
 					modules: "modules.ts",
