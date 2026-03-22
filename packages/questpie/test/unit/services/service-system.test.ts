@@ -191,14 +191,14 @@ describe("service system", () => {
 		}
 	});
 
-	it("throws when request-scoped service uses non-default namespace", async () => {
+	it("throws when request-scoped service uses custom namespace", async () => {
 		const invalid = service()
 			.lifecycle("request")
 			.namespace("analytics")
 			.create(() => ({}));
 
 		await expect(createServiceApp({ invalid })).rejects.toThrow(
-			"only singleton services may use non-default namespaces",
+			"only singleton services may use custom namespaces",
 		);
 	});
 

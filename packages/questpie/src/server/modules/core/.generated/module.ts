@@ -6,6 +6,10 @@ import _job_indexRecords from "../jobs/index-records";
 import _job_scheduledTransition from "../jobs/scheduled-transition";
 import _appConfig from "../config/app";
 
+// NOTE: session and locale scoped services exist in ../services/ but are
+// NOT registered yet. They need the HTTP adapter to provide `request` in
+// the service create context. See QUE-261 for ALS bridge migration.
+
 // ════════════════════════════════════════════════════════════
 // TYPES — composed from typeof references (zero inference cost)
 // ════════════════════════════════════════════════════════════
