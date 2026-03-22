@@ -456,10 +456,15 @@ export class Questpie<TConfig extends QuestpieConfig = QuestpieConfig> {
 				state.namespace as string | null | undefined,
 			);
 
-			if (lifecycle === "request" && namespace !== "services") {
-				const formattedNamespace = namespace === null ? "null" : namespace;
+			// Request-scoped services can use namespace: null (top-level on ctx)
+			// or namespace: "services" (default). Custom namespaces are singleton-only.
+			if (
+				lifecycle === "request" &&
+				namespace !== "services" &&
+				namespace !== null
+			) {
 				throw new Error(
-					`[QUESTPIE] Service "${name}" uses namespace "${formattedNamespace}" but only singleton services may use non-default namespaces.`,
+					`[QUESTPIE] Service "${name}" uses namespace "${namespace}" but only singleton services may use custom namespaces. Use namespace: null or "services" for request-scoped services.`,
 				);
 			}
 
