@@ -97,6 +97,8 @@ export { job } from "#questpie/server/integrated/queue/job.js";
 export * from "#questpie/server/integrated/realtime/index.js";
 export * from "#questpie/server/integrated/search/index.js";
 export * from "#questpie/server/integrated/storage/signed-url.js";
+export type { KVConfig } from "#questpie/server/integrated/kv/types.js";
+export type { LoggerConfig } from "#questpie/server/integrated/logger/types.js";
 export { migration } from "#questpie/server/migration/define-migration.js";
 export * from "#questpie/server/migration/index.js";
 export * from "#questpie/server/modules/starter/index.js";
