@@ -522,3 +522,89 @@ Always use these exact versions — check `package.json` before upgrading:
 - **Using Radix UI or Lucide icons** — Use `@base-ui/react` and `@iconify/react` with `ph:` prefix.
 - **Adding UI config to database schema** — Admin UI config is UI-only, defined in builder chain.
 - **Importing `app` from `#questpie` in blocks/collections/hooks** — Files inside `collections/`, `globals/`, `routes/`, `hooks/`, `blocks/` are imported BY `.generated/index.ts`, so importing from it back creates circular dependencies. Use the `ctx` parameters instead.
+
+## Live Preview
+
+QUESTPIE supports live preview with a split-screen editor. The preview architecture uses a direct `postMessage` patch bus for instant feedback — NOT save-driven iframe reloads.
+
+### Key Principles
+
+- **Same-tab preview** = direct patch bus via `postMessage` (editor iframe and preview share the same browser tab)
+- **Save/autosave** = persistence only, NOT the live transport mechanism
+- **Realtime** = extension for detached/shared preview only (e.g., another browser tab or collaborator)
+- **Hybrid model**: local draft patches give instant response; server reconciles derived data (slugs, relations, computed fields)
+- **Preview wrappers must prevent accidental navigation** inside the iframe
+
+### Server Config
+
+Add `.preview()` to a collection to enable the split-screen editor:
+
+```ts
+// src/questpie/server/collections/pages.ts
+import { collection } from "questpie";
+
+export const pages = collection("pages")
+	.fields(({ f }) => ({
+		title: f.text(255).label("Title").required(),
+		slug: f.text(255).label("Slug").required(),
+		content: f.blocks().label("Content"),
+	}))
+	.preview({
+		url: ({ record }) => {
+			const slug = record.slug as string;
+			return slug === "home" ? "/?preview=true" : `/${slug}?preview=true`;
+		},
+		watch: ["title", "slug", "content"],
+		strategy: "hybrid", // "instant" | "server" | "hybrid"
+	});
+```
+
+| Strategy    | Behavior                                                                 |
+| ----------- | ------------------------------------------------------------------------ |
+| `"instant"` | Patches applied locally only — no server round-trip                      |
+| `"server"`  | Every change round-trips through the server before preview updates       |
+| `"hybrid"`  | Local patches for instant response + server reconcile for derived fields |
+
+### Frontend Integration
+
+Use `useQuestpiePreview` in your frontend page components to receive live patches:
+
+```tsx
+// src/routes/[slug].tsx
+import { useQuestpiePreview } from "@questpie/admin/client";
+
+function PageComponent({ initialData }) {
+	const { data } = useQuestpiePreview({
+		initialData,
+		reconcile: true, // merge server-reconciled data (slugs, relations)
+	});
+
+	return (
+		<PreviewRoot>
+			<h1>
+				<PreviewField path="title">{data.title}</PreviewField>
+			</h1>
+			<PreviewBlock id="content">{/* block renderers */}</PreviewBlock>
+		</PreviewRoot>
+	);
+}
+```
+
+#### Protocol
+
+Each `postMessage` carries a structured envelope:
+
+| Field             | Description                            |
+| ----------------- | -------------------------------------- |
+| `sessionId`       | Unique preview session identifier      |
+| `seq`             | Monotonic sequence number              |
+| `timestamp`       | ISO 8601 timestamp                     |
+| `protocolVersion` | Protocol version for forward compat    |
+| `patches`         | Array of field path + value patch ops  |
+
+### Anti-Patterns (Preview)
+
+- **Using `router.invalidate()` as the core live-preview mechanism** — this causes full data refetches and visible flicker. Use the patch bus instead.
+- **Tying preview freshness to save/autosave** — save is for persistence. Preview updates flow through `postMessage` patches.
+- **Using realtime transport for same-tab preview** — realtime (SSE/WebSocket) is for detached or shared preview sessions, not the default same-tab flow.
+- **Allowing navigation inside the preview iframe** — preview wrappers must intercept link clicks and route changes to prevent the iframe from navigating away.
