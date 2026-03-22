@@ -14,6 +14,7 @@ import type { I18nText } from "#questpie/shared/i18n/types.js";
 
 import type { DefaultFieldState } from "../field-class-types.js";
 import { field, Field } from "../field-class.js";
+import { fieldType } from "../field-type.js";
 import { selectMultiOps, selectSingleOps } from "../operators/builtin.js";
 import type { OptionsConfig } from "../reactive.js";
 import type { SelectFieldMetadata } from "../types.js";
@@ -165,3 +166,90 @@ Field.prototype.enum = function (enumName: string) {
 		columnFactory: (name: string) => (enumDef as any)(name),
 	});
 };
+
+// ---- fieldType() definition (QUE-265) ----
+
+export const selectFieldType = fieldType("select", {
+	create: (options: readonly SelectOption[] | OptionsConfig) => {
+		const staticOpts = getStaticOptions(options);
+
+		const maxLength =
+			staticOpts.length > 0
+				? Math.max(...staticOpts.map((o) => String(o.value).length), 50)
+				: 255;
+
+		return {
+			type: "select",
+			columnFactory: (name: string) => varchar(name, { length: maxLength }),
+			schemaFactory: () => {
+				if (!isStaticOptions(options)) {
+					return z.string();
+				}
+				const values = staticOpts.map((o) => String(o.value));
+				if (values.length > 0) {
+					return z.enum(values as [string, ...string[]]);
+				}
+				return z.string();
+			},
+			operatorSet: selectSingleOps,
+			notNull: false,
+			hasDefault: false,
+			localized: false,
+			virtual: false,
+			input: true,
+			output: true,
+			isArray: false,
+			options,
+			metadataFactory: (state: any) => {
+				const opts = state.options as readonly SelectOption[] | OptionsConfig;
+				const staticOptions = getStaticOptions(opts);
+				const hasDynamic = !isStaticOptions(opts);
+
+				return {
+					type: "select",
+					label: state.label,
+					description: state.description,
+					required: state.notNull ?? false,
+					localized: state.localized ?? false,
+					readOnly: state.input === false,
+					writeOnly: state.output === false,
+					options: hasDynamic
+						? []
+						: staticOptions.map((o) => ({ value: o.value, label: o.label })),
+					multiple: state.isArray || state.multiple,
+					meta: state.extensions?.admin,
+				} as SelectFieldMetadata;
+			},
+		};
+	},
+	methods: {
+		enum: (f: Field<any>, enumName: string) => {
+			const state = f._state;
+			const staticOpts = getStaticOptions(
+				(state.options ?? []) as readonly SelectOption[] | OptionsConfig,
+			);
+
+			if (staticOpts.length === 0) {
+				return f.derive({ enumType: true, enumName } as any);
+			}
+
+			const enumValues = staticOpts.map((o) => String(o.value)) as [
+				string,
+				...string[],
+			];
+
+			let enumDef = enumCache.get(enumName);
+			if (!enumDef) {
+				enumDef = pgEnum(enumName, enumValues);
+				enumCache.set(enumName, enumDef);
+			}
+
+			return new Field({
+				...state,
+				enumType: true,
+				enumName,
+				columnFactory: (name: string) => (enumDef as any)(name),
+			});
+		},
+	},
+});

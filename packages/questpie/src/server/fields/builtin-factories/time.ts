@@ -7,6 +7,7 @@ import { z } from "zod";
 
 import type { DefaultFieldState } from "../field-class-types.js";
 import { field } from "../field-class.js";
+import { fieldType } from "../field-type.js";
 import { dateOps } from "../operators/builtin.js";
 
 declare global {
@@ -70,3 +71,34 @@ export function time(config?: TimeConfig): Field<TimeFieldState> {
 }
 
 import type { Field } from "../field-class.js";
+
+// ---- fieldType() definition (QUE-265) ----
+
+export const timeFieldType = fieldType("time", {
+	create: (config?: TimeConfig) => {
+		const { precision = 0, withSeconds = true } = config ?? {};
+
+		const timePattern = withSeconds
+			? /^([01]\d|2[0-3]):([0-5]\d):([0-5]\d)(\.\d+)?$/
+			: /^([01]\d|2[0-3]):([0-5]\d)$/;
+
+		return {
+			type: "time",
+			columnFactory: (name: string) => pgTime(name, { precision }),
+			schemaFactory: () =>
+				z.string().regex(timePattern, {
+					message: withSeconds
+						? "Invalid time format. Expected HH:MM:SS"
+						: "Invalid time format. Expected HH:MM",
+				}),
+			operatorSet: dateOps,
+			notNull: false,
+			hasDefault: false,
+			localized: false,
+			virtual: false,
+			input: true,
+			output: true,
+			isArray: false,
+		};
+	},
+});

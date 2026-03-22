@@ -11,6 +11,7 @@ import { z } from "zod";
 
 import type { DefaultFieldState } from "../field-class-types.js";
 import { field } from "../field-class.js";
+import { fieldType } from "../field-type.js";
 import { basicOps } from "../operators/builtin.js";
 
 declare global {
@@ -72,3 +73,26 @@ export function json(config?: {
 }
 
 import type { Field } from "../field-class.js";
+
+// ---- fieldType() definition (QUE-265) ----
+
+export const jsonFieldType = fieldType("json", {
+	create: (config?: { mode?: "jsonb" | "json" }) => {
+		const mode = config?.mode ?? "jsonb";
+
+		return {
+			type: "json",
+			columnFactory: (name: string) =>
+				mode === "json" ? pgJson(name) : jsonb(name),
+			schemaFactory: () => z.any(),
+			operatorSet: basicOps,
+			notNull: false,
+			hasDefault: false,
+			localized: false,
+			virtual: false,
+			input: true,
+			output: true,
+			isArray: false,
+		};
+	},
+});

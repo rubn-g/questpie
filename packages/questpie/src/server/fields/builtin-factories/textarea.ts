@@ -7,6 +7,7 @@ import { z } from "zod";
 
 import type { DefaultFieldState } from "../field-class-types.js";
 import { field } from "../field-class.js";
+import { fieldType } from "../field-type.js";
 import { stringOps } from "../operators/builtin.js";
 
 declare global {
@@ -52,3 +53,25 @@ export function textarea(): Field<TextareaFieldState> {
 
 // Re-export Field to avoid missing import in return type
 import type { Field } from "../field-class.js";
+
+// ---- fieldType() definition (QUE-265) ----
+
+export const textareaFieldType = fieldType("textarea", {
+	create: () => ({
+		type: "textarea",
+		columnFactory: (name: string) => pgText(name),
+		schemaFactory: () => z.string(),
+		operatorSet: stringOps,
+		notNull: false,
+		hasDefault: false,
+		localized: false,
+		virtual: false,
+		input: true,
+		output: true,
+		isArray: false,
+	}),
+	methods: {
+		min: (f: Field<any>, n: number) => f.derive({ minLength: n }),
+		max: (f: Field<any>, n: number) => f.derive({ maxLength: n }),
+	},
+});

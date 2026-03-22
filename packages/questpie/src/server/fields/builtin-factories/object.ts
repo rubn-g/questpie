@@ -7,6 +7,7 @@ import { z } from "zod";
 
 import type { DefaultFieldState, FieldState } from "../field-class-types.js";
 import { field } from "../field-class.js";
+import { fieldType } from "../field-type.js";
 import { objectOps } from "../operators/builtin.js";
 import type { NestedFieldMetadata } from "../types.js";
 
@@ -108,3 +109,54 @@ export function object<TFields extends Record<string, Field<any>>>(
 }
 
 import type { Field } from "../field-class.js";
+
+// ---- fieldType() definition (QUE-265) ----
+
+export const objectFieldType = fieldType("object", {
+	create: (fields: Record<string, Field<any>>) => ({
+		type: "object",
+		columnFactory: (name: string) => jsonb(name),
+		schemaFactory: () => {
+			const shape: Record<string, z.ZodTypeAny> = {};
+			for (const [key, f] of Object.entries(fields)) {
+				shape[key] = (f as Field<any>).toZodSchema();
+			}
+			return z.object(shape);
+		},
+		operatorSet: objectOps,
+		notNull: false,
+		hasDefault: false,
+		localized: false,
+		virtual: false,
+		input: true,
+		output: true,
+		isArray: false,
+		nestedFields: fields,
+		metadataFactory: (state: any) => {
+			const nested = state.nestedFields as
+				| Record<string, Field<any>>
+				| undefined;
+			const nestedMetadata: Record<string, any> = {};
+			if (nested) {
+				for (const [key, f] of Object.entries(nested)) {
+					nestedMetadata[key] = (f as Field<any>).getMetadata();
+				}
+			}
+			const result: NestedFieldMetadata = {
+				type: "object",
+				label: state.label,
+				description: state.description,
+				required: state.notNull ?? false,
+				localized: state.localized ?? false,
+				readOnly: state.input === false,
+				writeOnly: state.output === false,
+				nestedFields: nestedMetadata,
+				meta: state.extensions?.admin as any,
+			};
+			if (state.extensions?.form) {
+				(result as any).form = state.extensions.form;
+			}
+			return result;
+		},
+	}),
+});

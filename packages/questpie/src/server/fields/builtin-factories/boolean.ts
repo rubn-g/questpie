@@ -10,6 +10,7 @@ import { z } from "zod";
 
 import type { DefaultFieldState } from "../field-class-types.js";
 import { field } from "../field-class.js";
+import { fieldType } from "../field-type.js";
 import { booleanOps } from "../operators/builtin.js";
 
 declare global {
@@ -55,3 +56,21 @@ export function boolean(): Field<BooleanFieldState> {
 }
 
 import type { Field } from "../field-class.js";
+
+// ---- fieldType() definition (QUE-265) ----
+
+export const booleanFieldType = fieldType("boolean", {
+	create: () => ({
+		type: "boolean",
+		columnFactory: (name: string) => pgBoolean(name),
+		schemaFactory: () => z.boolean(),
+		operatorSet: booleanOps,
+		notNull: false,
+		hasDefault: false,
+		localized: false,
+		virtual: false,
+		input: true,
+		output: true,
+		isArray: false,
+	}),
+});

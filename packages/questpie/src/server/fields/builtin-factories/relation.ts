@@ -15,6 +15,7 @@ import { z } from "zod";
 
 import type { DefaultFieldState } from "../field-class-types.js";
 import { Field, field } from "../field-class.js";
+import { fieldType } from "../field-type.js";
 import { belongsToOps, multipleOps, toManyOps } from "../operators/builtin.js";
 import type {
 	InferredRelationType,
@@ -311,3 +312,62 @@ Field.prototype.onUpdate = function (action) {
 Field.prototype.relationName = function (name) {
 	return new Field({ ...this._state, relationName: name });
 };
+
+// ---- fieldType() definition (QUE-265) ----
+
+export const relationFieldType = fieldType("relation", {
+	create: (target: string) => ({
+		type: "relation",
+		columnFactory: (name: string) => varchar(name, { length: 36 }),
+		schemaFactory: () => z.string().uuid(),
+		operatorSet: belongsToOps,
+		notNull: false,
+		hasDefault: false,
+		localized: false,
+		virtual: false,
+		input: true,
+		output: true,
+		isArray: false,
+		to: target,
+		metadataFactory: buildRelationMetadata,
+	}),
+	methods: {
+		hasMany: (f: Field<any>, config: { foreignKey: string; onDelete?: ReferentialAction; relationName?: string }) =>
+			new Field({
+				...f._state,
+				hasMany: true,
+				foreignKey: config.foreignKey,
+				onDelete: config.onDelete,
+				relationName: config.relationName,
+				columnFactory: null,
+				virtual: true,
+				operatorSet: toManyOps,
+			}),
+		manyToMany: (f: Field<any>, config: { through: string; sourceField?: string; targetField?: string; relationName?: string }) =>
+			new Field({
+				...f._state,
+				hasMany: true,
+				through: config.through,
+				sourceField: config.sourceField,
+				targetField: config.targetField,
+				relationName: config.relationName,
+				columnFactory: null,
+				virtual: true,
+				operatorSet: toManyOps,
+			}),
+		multiple: (f: Field<any>) =>
+			new Field({
+				...f._state,
+				multiple: true,
+				columnFactory: (name: string) => jsonb(name),
+				schemaFactory: () => z.array(z.string().uuid()),
+				operatorSet: multipleOps,
+			}),
+		onDelete: (f: Field<any>, action: ReferentialAction) =>
+			f.derive({ onDelete: action }),
+		onUpdate: (f: Field<any>, action: ReferentialAction) =>
+			f.derive({ onUpdate: action }),
+		relationName: (f: Field<any>, name: string) =>
+			f.derive({ relationName: name }),
+	},
+});

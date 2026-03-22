@@ -11,6 +11,7 @@ import { z } from "zod";
 
 import type { DefaultFieldState } from "../field-class-types.js";
 import { field, Field } from "../field-class.js";
+import { fieldType } from "../field-type.js";
 import { stringOps } from "../operators/builtin.js";
 
 declare global {
@@ -84,3 +85,34 @@ Field.prototype.lowercase = function () {
 Field.prototype.uppercase = function () {
 	return new Field({ ...this._state, uppercase: true });
 };
+
+// ---- fieldType() definition (QUE-265) ----
+
+export const textFieldType = fieldType("text", {
+	create: (maxLength: number = 255) => ({
+		type: "text",
+		columnFactory: (name: string) => varchar(name, { length: maxLength }),
+		schemaFactory: () => {
+			let s = z.string();
+			if (maxLength !== undefined) s = s.max(maxLength);
+			return s;
+		},
+		operatorSet: stringOps,
+		notNull: false,
+		hasDefault: false,
+		localized: false,
+		virtual: false,
+		input: true,
+		output: true,
+		isArray: false,
+		maxLength,
+	}),
+	methods: {
+		pattern: (f: Field<any>, re: RegExp) => f.derive({ pattern: re }),
+		trim: (f: Field<any>) => f.derive({ trim: true }),
+		lowercase: (f: Field<any>) => f.derive({ lowercase: true }),
+		uppercase: (f: Field<any>) => f.derive({ uppercase: true }),
+		min: (f: Field<any>, n: number) => f.derive({ minLength: n }),
+		max: (f: Field<any>, n: number) => f.derive({ maxLength: n }),
+	},
+});

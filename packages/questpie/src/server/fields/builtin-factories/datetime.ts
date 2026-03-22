@@ -7,6 +7,7 @@ import { z } from "zod";
 
 import type { DefaultFieldState } from "../field-class-types.js";
 import { field } from "../field-class.js";
+import { fieldType } from "../field-type.js";
 import { dateOps } from "../operators/builtin.js";
 
 declare global {
@@ -64,3 +65,26 @@ export function datetime(config?: DatetimeConfig): Field<DatetimeFieldState> {
 }
 
 import type { Field } from "../field-class.js";
+
+// ---- fieldType() definition (QUE-265) ----
+
+export const datetimeFieldType = fieldType("datetime", {
+	create: (config?: DatetimeConfig) => {
+		const { precision = 3, withTimezone = true } = config ?? {};
+
+		return {
+			type: "datetime",
+			columnFactory: (name: string) =>
+				timestamp(name, { precision, withTimezone, mode: "date" }),
+			schemaFactory: () => z.coerce.date(),
+			operatorSet: dateOps,
+			notNull: false,
+			hasDefault: false,
+			localized: false,
+			virtual: false,
+			input: true,
+			output: true,
+			isArray: false,
+		};
+	},
+});

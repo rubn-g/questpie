@@ -15,6 +15,7 @@ import { z } from "zod";
 
 import type { DefaultFieldState } from "../field-class-types.js";
 import { field, Field } from "../field-class.js";
+import { fieldType } from "../field-type.js";
 import { numberOps } from "../operators/builtin.js";
 
 declare global {
@@ -156,3 +157,55 @@ Field.prototype.int = function () {
 Field.prototype.step = function (n: number) {
 	return new Field({ ...this._state, step: n });
 };
+
+// ---- fieldType() definition (QUE-265) ----
+
+export const numberFieldType = fieldType("number", {
+	create: (mode: NumberMode = "integer") => {
+		const isInt = mode === "integer" || mode === "smallint";
+
+		const columnFactory = (name: string) => {
+			switch (mode) {
+				case "smallint":
+					return smallint(name);
+				case "bigint":
+					return pgBigint(name, { mode: "number" });
+				case "real":
+					return real(name);
+				case "double":
+					return doublePrecision(name);
+				case "decimal":
+					return numeric(name, { precision: 10, scale: 2, mode: "number" });
+				case "integer":
+				default:
+					return integer(name);
+			}
+		};
+
+		return {
+			type: "number",
+			columnFactory,
+			schemaFactory: () => {
+				let s = z.number();
+				if (isInt) s = s.int();
+				return s;
+			},
+			operatorSet: numberOps,
+			notNull: false,
+			hasDefault: false,
+			localized: false,
+			virtual: false,
+			input: true,
+			output: true,
+			isArray: false,
+			int: isInt,
+		};
+	},
+	methods: {
+		min: (f: Field<any>, n: number) => f.derive({ min: n }),
+		max: (f: Field<any>, n: number) => f.derive({ max: n }),
+		positive: (f: Field<any>) => f.derive({ positive: true }),
+		int: (f: Field<any>) => f.derive({ int: true }),
+		step: (f: Field<any>, n: number) => f.derive({ step: n }),
+	},
+});

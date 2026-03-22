@@ -7,6 +7,7 @@ import { z } from "zod";
 
 import type { DefaultFieldState } from "../field-class-types.js";
 import { field } from "../field-class.js";
+import { fieldType } from "../field-type.js";
 import { emailOps } from "../operators/builtin.js";
 
 declare global {
@@ -54,3 +55,26 @@ export function email(maxLength = 255): Field<EmailFieldState> {
 }
 
 import type { Field } from "../field-class.js";
+
+// ---- fieldType() definition (QUE-265) ----
+
+export const emailFieldType = fieldType("email", {
+	create: (maxLength: number = 255) => ({
+		type: "email",
+		columnFactory: (name: string) => varchar(name, { length: maxLength }),
+		schemaFactory: () => z.string().email().max(maxLength),
+		operatorSet: emailOps,
+		notNull: false,
+		hasDefault: false,
+		localized: false,
+		virtual: false,
+		input: true,
+		output: true,
+		isArray: false,
+		maxLength,
+	}),
+	methods: {
+		min: (f: Field<any>, n: number) => f.derive({ minLength: n }),
+		max: (f: Field<any>, n: number) => f.derive({ maxLength: n }),
+	},
+});

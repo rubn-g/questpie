@@ -7,6 +7,7 @@ import { z } from "zod";
 
 import type { DefaultFieldState } from "../field-class-types.js";
 import { field } from "../field-class.js";
+import { fieldType } from "../field-type.js";
 import { urlOps } from "../operators/builtin.js";
 
 declare global {
@@ -55,3 +56,26 @@ export function url(maxLength = 2048): Field<UrlFieldState> {
 }
 
 import type { Field } from "../field-class.js";
+
+// ---- fieldType() definition (QUE-265) ----
+
+export const urlFieldType = fieldType("url", {
+	create: (maxLength: number = 2048) => ({
+		type: "url",
+		columnFactory: (name: string) => varchar(name, { length: maxLength }),
+		schemaFactory: () => z.string().url().max(maxLength),
+		operatorSet: urlOps,
+		notNull: false,
+		hasDefault: false,
+		localized: false,
+		virtual: false,
+		input: true,
+		output: true,
+		isArray: false,
+		maxLength,
+	}),
+	methods: {
+		min: (f: Field<any>, n: number) => f.derive({ minLength: n }),
+		max: (f: Field<any>, n: number) => f.derive({ maxLength: n }),
+	},
+});

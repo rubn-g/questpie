@@ -11,6 +11,7 @@ import { z } from "zod";
 import type { KnownCollectionNames } from "../../config/app-context.js";
 import type { DefaultFieldState } from "../field-class-types.js";
 import { field } from "../field-class.js";
+import { fieldType } from "../field-type.js";
 import { belongsToOps, toManyOps } from "../operators/builtin.js";
 import type { ReferentialAction, RelationFieldMetadata } from "../types.js";
 
@@ -126,3 +127,58 @@ export function upload<TTo extends string = "assets">(
 }
 
 import type { Field } from "../field-class.js";
+
+// ---- fieldType() definition (QUE-265) ----
+
+export const uploadFieldType = fieldType("upload", {
+	create: (config?: UploadConfig) => {
+		const {
+			to = "assets",
+			through,
+			mimeTypes,
+			maxSize,
+			sourceField,
+			targetField,
+		} = config ?? ({} as UploadConfig);
+
+		const isM2M = !!through;
+
+		return {
+			type: "upload",
+			columnFactory: isM2M
+				? (null as any)
+				: (name: string) => varchar(name, { length: 36 }),
+			schemaFactory: () =>
+				isM2M ? z.array(z.string().uuid()) : z.string().uuid(),
+			operatorSet: isM2M ? toManyOps : belongsToOps,
+			notNull: false,
+			hasDefault: false,
+			localized: false,
+			virtual: isM2M,
+			input: true,
+			output: true,
+			isArray: false,
+			to,
+			through,
+			sourceField,
+			targetField,
+			metadataFactory: (state: any) =>
+				({
+					type: "relation",
+					label: state.label,
+					description: state.description,
+					required: state.notNull ?? false,
+					localized: state.localized ?? false,
+					readOnly: state.input === false,
+					writeOnly: state.output === false,
+					targetCollection: (state.to as string) ?? "assets",
+					relationType: state.through ? "manyToMany" : "belongsTo",
+					through: state.through as string | undefined,
+					sourceField: state.sourceField,
+					targetField: state.targetField,
+					isUpload: true,
+					meta: state.extensions?.admin,
+				}) as RelationFieldMetadata,
+		};
+	},
+});
