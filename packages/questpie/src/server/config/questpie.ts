@@ -254,6 +254,15 @@ export class Questpie<TConfig extends QuestpieConfig = QuestpieConfig> {
 			this.queue = {} as any; // Empty queue client if no jobs defined
 		}
 
+		// Wire search service → queue for per-instance debounced indexing
+		if (
+			this.search &&
+			typeof (this.queue as any)["index-records"]?.publish === "function"
+		) {
+			(this.search as any)._queuePublish = (payload: any) =>
+				(this.queue as any)["index-records"].publish(payload);
+		}
+
 		// For critical infrastructure, we currently require config or throw
 		// In the future, we could provide safe "dev" defaults (e.g. local storage, console mail)
 

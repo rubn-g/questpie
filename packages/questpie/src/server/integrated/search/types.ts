@@ -851,6 +851,19 @@ export interface SearchService {
 	 * More efficient than calling index() multiple times.
 	 */
 	indexBatch(params: IndexParams[]): Promise<void>;
+
+	/**
+	 * Schedule a record for debounced async indexing via queue.
+	 * Returns true if scheduled (queue available), false otherwise.
+	 * Callers should fall back to sync indexing when false.
+	 */
+	scheduleIndex(collection: string, recordId: string): boolean;
+
+	/**
+	 * Force flush any pending debounced index items immediately.
+	 * Useful for tests or graceful shutdown.
+	 */
+	flushPending(): Promise<void>;
 }
 
 // ============================================================================

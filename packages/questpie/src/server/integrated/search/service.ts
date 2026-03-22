@@ -29,6 +29,21 @@ import type {
 export class SearchServiceWrapper implements SearchService {
 	private initialized = false;
 
+	// Per-instance debounce state for scheduleIndex()
+	private _pendingIndexItems = new Map<
+		string,
+		{ collection: string; recordId: string }
+	>();
+	private _flushTimeout: ReturnType<typeof setTimeout> | null = null;
+	private _debounceDelayMs = 100;
+
+	/** Queue dispatch function — set by QUESTPIE after queue is ready */
+	_queuePublish:
+		| ((payload: {
+				items: { collection: string; recordId: string }[];
+		  }) => Promise<string | null>)
+		| null = null;
+
 	constructor(
 		private adapter: SearchAdapter,
 		private db: PostgresJsDatabase<any>,
@@ -115,6 +130,75 @@ export class SearchServiceWrapper implements SearchService {
 		// Fallback: sequential indexing
 		for (const param of params) {
 			await this.adapter.index(param);
+		}
+	}
+
+	// ========================================================================
+	// Debounced Index Scheduling (per-instance)
+	// ========================================================================
+
+	/**
+	 * Schedule a record for async indexing with per-instance debouncing.
+	 *
+	 * If a queue dispatch function is set (`_queuePublish`), items are batched
+	 * and flushed after a 100ms debounce window via the `index-records` job.
+	 *
+	 * Returns `true` if the item was scheduled (async), `false` if no queue
+	 * is available (caller should fall back to sync indexing).
+	 */
+	scheduleIndex(collection: string, recordId: string): boolean {
+		if (!this._queuePublish) return false;
+
+		const key = `${collection}:${recordId}`;
+		this._pendingIndexItems.set(key, { collection, recordId });
+
+		// Reset debounce timer
+		if (this._flushTimeout) {
+			clearTimeout(this._flushTimeout);
+		}
+
+		this._flushTimeout = setTimeout(() => {
+			this._flushTimeout = null;
+			this._flushPending().catch((err) => {
+				this.logger.error("[Search] Error in debounced flush:", err);
+			});
+		}, this._debounceDelayMs);
+
+		return true;
+	}
+
+	/**
+	 * Force flush any pending index items immediately.
+	 * Useful for tests or graceful shutdown.
+	 */
+	async flushPending(): Promise<void> {
+		if (this._flushTimeout) {
+			clearTimeout(this._flushTimeout);
+			this._flushTimeout = null;
+		}
+		await this._flushPending();
+	}
+
+	private async _flushPending(): Promise<void> {
+		if (this._pendingIndexItems.size === 0) return;
+
+		const items = Array.from(this._pendingIndexItems.values());
+		this._pendingIndexItems.clear();
+
+		if (!this._queuePublish) {
+			this.logger.warn(
+				"[Search] flushPending called but no queue available — items lost",
+			);
+			return;
+		}
+
+		try {
+			await this._queuePublish({ items });
+		} catch (error) {
+			this.logger.error(
+				"[Search] Failed to dispatch index-records job:",
+				error,
+			);
 		}
 	}
 
