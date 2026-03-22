@@ -574,9 +574,10 @@ Use `useQuestpiePreview` in your frontend page components to receive live patche
 import { useQuestpiePreview } from "@questpie/admin/client";
 
 function PageComponent({ initialData }) {
+	const router = useRouter();
 	const { data } = useQuestpiePreview({
 		initialData,
-		reconcile: true, // merge server-reconciled data (slugs, relations)
+		reconcile: () => router.invalidate(), // called on COMMIT — refetch server data
 	});
 
 	return (
@@ -598,7 +599,7 @@ Each `postMessage` carries a structured envelope:
 | ----------------- | -------------------------------------- |
 | `sessionId`       | Unique preview session identifier      |
 | `seq`             | Monotonic sequence number              |
-| `timestamp`       | ISO 8601 timestamp                     |
+| `timestamp`       | `Date.now()` at send time (number)     |
 | `protocolVersion` | Protocol version for forward compat    |
 | `patches`         | Array of field path + value patch ops  |
 

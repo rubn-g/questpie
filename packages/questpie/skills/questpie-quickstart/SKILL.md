@@ -532,7 +532,8 @@ export default collection("pages")
 import { useQuestpiePreview, PreviewRoot, PreviewField } from "@questpie/admin/client";
 
 function PageView({ initialData }) {
-	const { data } = useQuestpiePreview({ initialData, reconcile: true });
+	const router = useRouter();
+	const { data } = useQuestpiePreview({ initialData, reconcile: () => router.invalidate() });
 
 	return (
 		<PreviewRoot>

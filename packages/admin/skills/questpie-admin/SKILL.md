@@ -255,9 +255,10 @@ Use `useQuestpiePreview` (replaces the old `useCollectionPreview`) with `<Previe
 import { useQuestpiePreview, PreviewRoot, PreviewField } from "@questpie/admin/client";
 
 function PagePreview({ initialData }) {
+	const router = useRouter();
 	const { data } = useQuestpiePreview({
 		initialData,
-		reconcile: true,
+		reconcile: () => router.invalidate(),
 	});
 
 	return (
