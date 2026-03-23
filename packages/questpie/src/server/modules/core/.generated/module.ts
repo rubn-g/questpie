@@ -4,6 +4,9 @@
 
 import _job_indexRecords from "../jobs/index-records";
 import _job_scheduledTransition from "../jobs/scheduled-transition";
+import _route_health from "../routes/health";
+import _route_search from "../routes/search";
+import _route_searchReindex from "../routes/search-reindex-[collection]";
 import _appConfig from "../config/app";
 
 // NOTE: session and locale scoped services exist in ../services/ but are
@@ -19,6 +22,12 @@ export interface CoreJobs {
 	scheduledTransition: typeof _job_scheduledTransition;
 }
 
+export interface CoreRoutes {
+	health: typeof _route_health;
+	search: typeof _route_search;
+	"search/reindex/[collection]": typeof _route_searchReindex;
+}
+
 // ════════════════════════════════════════════════════════════
 // MODULE DEFINITION — static plain object
 // ════════════════════════════════════════════════════════════
@@ -31,7 +40,11 @@ const _module = {
 		indexRecords: _job_indexRecords,
 		scheduledTransition: _job_scheduledTransition,
 	} as CoreJobs,
-	routes: {},
+	routes: {
+		health: _route_health,
+		search: _route_search,
+		"search/reindex/[collection]": _route_searchReindex,
+	} as CoreRoutes,
 	messages: {},
 	services: {},
 	emails: {},
