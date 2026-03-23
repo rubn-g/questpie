@@ -68,7 +68,7 @@ export class MailerService<
 	 * Resolve the handler context from AsyncLocalStorage.
 	 * Returns AppContext services if running inside a request/job scope.
 	 */
-	private resolveHandlerContext(): Record<string, unknown> {
+	private resolveHandlerContext(): any {
 		const stored = tryGetContext();
 		if (!stored?.app) return {};
 		return extractAppServices(stored.app, {

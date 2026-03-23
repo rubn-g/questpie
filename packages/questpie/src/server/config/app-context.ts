@@ -134,8 +134,8 @@ export function extractAppServices(
 		locale?: string;
 		scope?: import("#questpie/server/config/request-scope.js").RequestScope;
 	},
-): Record<string, unknown> {
-	if (!app) return { db: overrides?.db };
+): AppContext {
+	if (!app) return { db: overrides?.db } as AppContext;
 	const result: Record<string, unknown> = {
 		app,
 		db: overrides?.db ?? app.db,
@@ -196,5 +196,5 @@ export function extractAppServices(
 		result.services = services;
 	}
 
-	return result;
+	return result as unknown as AppContext;
 }
