@@ -10,6 +10,5 @@ export default service()
 	.create((ctx: any) => {
 		const app = ctx.app;
 		if (app?.collections) return app.collections;
-		if (app?.api?.collections) return app.api.collections;
 		return {};
 	});

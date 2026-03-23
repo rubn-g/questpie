@@ -10,6 +10,5 @@ export default service()
 	.create((ctx: any) => {
 		const app = ctx.app;
 		if (app?.globals) return app.globals;
-		if (app?.api?.globals) return app.api.globals;
 		return {};
 	});
