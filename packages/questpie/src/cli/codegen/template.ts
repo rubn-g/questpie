@@ -521,6 +521,7 @@ export function generateTemplate(options: TemplateOptions): string {
 			" * the generated index. Use the context parameters provided to handlers instead.",
 		);
 		lines.push(" */");
+		lines.push("/** @deprecated Use `typeof app` instead of the App god type. */");
 		lines.push("export type App = Questpie<QuestpieConfig & {");
 		for (const member of stateMembers) {
 			lines.push(member);
