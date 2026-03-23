@@ -544,6 +544,27 @@ function extractRuntimeExtensions(
  *
  * @see RFC-MODULE-ARCHITECTURE §9.1 (Root App — .generated/index.ts)
  */
+/**
+ * Simplified createApp: modules-only form.
+ * All entities come from modules — no flat root-level entities needed.
+ *
+ * @example
+ * ```ts
+ * const app = await createApp({ modules: [starterModule, myModule] }, runtime);
+ * ```
+ */
+export async function createApp(
+	definition: { modules: ModuleDefinition[] },
+	runtime: RuntimeConfig,
+): Promise<Questpie<QuestpieConfig>>;
+/**
+ * Full createApp: modules + root-level entities.
+ * Root-level entities are wrapped into an implicit "user" module and merged last.
+ */
+export async function createApp(
+	definition: AppDefinition,
+	runtime: RuntimeConfig,
+): Promise<Questpie<QuestpieConfig>>;
 export async function createApp(
 	definition: AppDefinition,
 	runtime: RuntimeConfig,
