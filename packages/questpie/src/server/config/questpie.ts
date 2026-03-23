@@ -1053,6 +1053,8 @@ export class Questpie<TConfig extends QuestpieConfig = QuestpieConfig> {
 			locale?: string;
 			accessMode?: AccessMode;
 			db?: any;
+			/** Incoming request (if in HTTP scope) */
+			request?: Request;
 			[key: string]: any;
 		} = {},
 	): Promise<RequestContext> {
@@ -1072,12 +1074,19 @@ export class Questpie<TConfig extends QuestpieConfig = QuestpieConfig> {
 			}
 		}
 
+		// accessMode defaults:
+		// - explicit override has highest precedence
+		// - with request → "user" (HTTP scope, access rules apply)
+		// - without request → "system" (job/script scope, bypass access)
+		const accessMode: AccessMode =
+			userCtx.accessMode ?? (userCtx.request ? "user" : "system");
+
 		return {
 			...userCtx,
 			session: userCtx.session,
 			locale,
 			defaultLocale,
-			accessMode: userCtx.accessMode ?? ("system" as AccessMode), // Default to system
+			accessMode,
 			db: userCtx.db ?? this.db,
 		};
 	}
