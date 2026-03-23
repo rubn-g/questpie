@@ -193,7 +193,7 @@ export default function ChartWidget({ config }: ChartWidgetProps) {
 
 	// Empty state content
 	const emptyContent = (
-		<div className="text-muted-foreground flex h-48 items-center justify-center">
+		<div className="text-muted-foreground flex h-24 items-center justify-center">
 			<p className="text-sm">No data available</p>
 		</div>
 	);

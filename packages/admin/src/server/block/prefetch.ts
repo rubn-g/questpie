@@ -192,11 +192,15 @@ async function expandDeclaredFields(
 
 				// Pass nested `with` through to collection's find — reuses existing
 				// relation resolution machinery (same as find({ with: { ... } }))
-				const result = await appApi.find({
-					where: { id: { in: [...ids] } },
-					limit: ids.size,
-					...(nestedWith ? { with: nestedWith } : {}),
-				});
+				// Use system access mode — prefetch is an internal server-side data fetch
+				const result = await appApi.find(
+					{
+						where: { id: { in: [...ids] } },
+						limit: ids.size,
+						...(nestedWith ? { with: nestedWith } : {}),
+					},
+					{ accessMode: "system" as const, locale: ctx.locale },
+				);
 
 				const recordMap = new Map<string, unknown>();
 				for (const doc of result?.docs || []) {
@@ -346,11 +350,14 @@ async function executePrefetchFunctions(
 		if (!blockDef) continue;
 
 		const blockValues = values[node.id] || {};
+		const appApi = (ctx.app as any)?.api;
 		const prefetchCtx: BlockPrefetchContext = {
 			blockId: node.id,
 			blockType: node.type,
 			...(ctx as any),
 			locale: (ctx as any).locale,
+			collections: appApi?.collections ?? {},
+			globals: appApi?.globals ?? {},
 		};
 
 		// Shape 3: with + loader
