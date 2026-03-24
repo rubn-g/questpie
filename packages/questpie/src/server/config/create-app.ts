@@ -21,7 +21,6 @@ import {
 	mergeTranslationsConfig,
 } from "#questpie/server/i18n/translator.js";
 import { mergeAuthOptions } from "#questpie/server/integrated/auth/merge.js";
-import coreModule from "#questpie/server/modules/core/.generated/module.js";
 
 // ============================================================================
 // module() — identity function for type inference
@@ -157,6 +156,21 @@ export const mergeRecord: MergeFn = (a, b) => ({
 /** Concatenate two arrays: `[...a, ...b]`. */
 export const mergeConcat: MergeFn = (a, b) => [...(a || []), ...(b || [])];
 
+/** Merge two objects by concatenating any array-valued properties and merging the rest. */
+export const mergeDeepConcat: MergeFn = (a, b) => {
+	const result = { ...(a || {}) };
+	for (const [key, value] of Object.entries(b || {})) {
+		if (Array.isArray(result[key]) && Array.isArray(value)) {
+			result[key] = [...result[key], ...value];
+		} else if (result[key] !== undefined && typeof result[key] === "object" && typeof value === "object" && !Array.isArray(value)) {
+			result[key] = { ...result[key], ...value };
+		} else {
+			result[key] = value;
+		}
+	}
+	return result;
+};
+
 /** Last value wins (incoming replaces existing). */
 export const lastWins: MergeFn = (_a, b) => b;
 
@@ -173,7 +187,14 @@ function mergeMessages(
 	return result;
 }
 
-/** Concatenate global hook arrays. */
+/** Normalize a hooks value into an array (handles single entry or already-array). */
+function normalizeHookEntries<T>(value: T | T[] | undefined): T[] {
+	if (!value) return [];
+	if (Array.isArray(value)) return value;
+	return [value];
+}
+
+/** Concatenate global hook arrays (normalizes single-entry inputs). */
 function mergeGlobalHooks(
 	a: GlobalHooksState | undefined,
 	b: GlobalHooksState | undefined,
@@ -182,8 +203,8 @@ function mergeGlobalHooks(
 	if (!a) return b;
 	if (!b) return a;
 	return {
-		collections: [...(a.collections || []), ...(b.collections || [])],
-		globals: [...(a.globals || []), ...(b.globals || [])],
+		collections: [...normalizeHookEntries(a.collections), ...normalizeHookEntries(b.collections)],
+		globals: [...normalizeHookEntries(a.globals), ...normalizeHookEntries(b.globals)],
 	};
 }
 
@@ -233,8 +254,8 @@ const CONFIG_KEY_MERGE = new Map<string, Map<string, MergeFn>>([
 	[
 		"admin",
 		new Map<string, MergeFn>([
-			["sidebar", mergeConcat],
-			["dashboard", mergeConcat],
+			["sidebar", mergeDeepConcat],
+			["dashboard", mergeDeepConcat],
 			["branding", lastWins],
 			["locale", lastWins],
 		]),
@@ -544,27 +565,6 @@ function extractRuntimeExtensions(
  *
  * @see RFC-MODULE-ARCHITECTURE §9.1 (Root App — .generated/index.ts)
  */
-/**
- * Simplified createApp: modules-only form.
- * All entities come from modules — no flat root-level entities needed.
- *
- * @example
- * ```ts
- * const app = await createApp({ modules: [starterModule, myModule] }, runtime);
- * ```
- */
-export async function createApp(
-	definition: { modules: ModuleDefinition[] },
-	runtime: RuntimeConfig,
-): Promise<Questpie<QuestpieConfig>>;
-/**
- * Full createApp: modules + root-level entities.
- * Root-level entities are wrapped into an implicit "user" module and merged last.
- */
-export async function createApp(
-	definition: AppDefinition,
-	runtime: RuntimeConfig,
-): Promise<Questpie<QuestpieConfig>>;
 export async function createApp(
 	definition: AppDefinition,
 	runtime: RuntimeConfig,
@@ -585,29 +585,29 @@ async function createAppFromDefinition(
 	definition: AppDefinition,
 	runtime: RuntimeConfig,
 ): Promise<Questpie<QuestpieConfig>> {
-	// 1. Resolve modules depth-first
-	// Auto-prepend coreModule so its hooks/jobs are always available.
-	// Core goes first → user modules can override via last-wins merge.
-	const userModules = definition.modules ?? [];
-	const hasCoreModule = userModules.some(
-		(m) => m.name === coreModule.name,
+	// 1. Extract root-level entities into an implicit __user module.
+	//    This wraps user-provided collections/globals/etc. into a proper module
+	//    so they participate in the same merge pipeline as all other modules.
+	//    The __user module is appended last → user entities override module contributions.
+	const { modules: defModules, ...rootEntities } = definition;
+	const hasRootEntities = Object.keys(rootEntities).some(
+		(k) => rootEntities[k] !== undefined,
 	);
-	const allModules = hasCoreModule
-		? userModules
-		: [coreModule as unknown as ModuleDefinition, ...userModules];
+	const allModules = [
+		...(defModules ?? []),
+		...(hasRootEntities
+			? [{ name: "__user", ...rootEntities } as ModuleDefinition]
+			: []),
+	];
+
+	// 2. Resolve modules depth-first
 	const flatModules = resolveModules(allModules);
 
-	// 2. Merge all module contributions
+	// 3. Merge all module contributions (including __user)
 	let merged = emptyMergedState();
 	for (const mod of flatModules) {
 		merged = mergeModuleIntoState(merged, mod);
 	}
-
-	// 3. Merge user entities on top (user always wins over modules)
-	// All keys flow through: known keys use MERGE_FNS, extensions use auto-detect.
-	// Definition-only keys (locale, emailTemplates) pass through
-	// merged state but are filtered from extension state by CONFIG_CONSUMED_KEYS.
-	merged = mergeModuleIntoState(merged, { name: "user", ...definition });
 
 	// 4. Convert messages to translations config
 	const mergedTranslations = mergeMessagesIntoConfig(
