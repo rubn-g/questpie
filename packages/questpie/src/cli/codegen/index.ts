@@ -315,9 +315,23 @@ export function resolveTargetGraph(
 				target.moduleRoot = contribution.moduleRoot;
 			}
 
-			// Merge categories
+			// Merge categories (deep per category key — arrays are concatenated)
 			if (contribution.categories) {
-				Object.assign(target.categories, contribution.categories);
+				for (const [catKey, catDecl] of Object.entries(contribution.categories)) {
+					const existing = target.categories[catKey];
+					if (existing) {
+						// Collect array fields before Object.assign overwrites them
+						const prevFactoryImports = existing.factoryImports;
+						// Shallow merge scalar/object properties
+						Object.assign(existing, catDecl);
+						// Concatenate array properties
+						if (catDecl.factoryImports && prevFactoryImports) {
+							existing.factoryImports = [...prevFactoryImports, ...catDecl.factoryImports];
+						}
+					} else {
+						target.categories[catKey] = catDecl;
+					}
+				}
 			}
 
 			// Merge discover patterns

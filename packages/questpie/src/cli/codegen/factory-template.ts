@@ -150,7 +150,14 @@ export function generateFactoryTemplate(
 	// These are spread-merged with builtinFields to create _allFieldDefs, which is
 	// passed to CollectionBuilder.create() / GlobalBuilder.create() so that
 	// .fields(({ f }) => ...) callbacks have access to ALL field types at runtime.
-	const runtimeFieldImports = target.runtimeFieldImports;
+	//
+	// Prefer factoryImports from the fieldTypes category (new API), falling back
+	// to deprecated runtimeFieldImports for backward compatibility.
+	const fieldTypesCategory = target.categories.fieldTypes;
+	const runtimeFieldImports: Array<{ name: string; from: string }> = [
+		...(fieldTypesCategory?.factoryImports ?? []),
+		...target.runtimeFieldImports,
+	];
 	if (runtimeFieldImports.length > 0 || userFieldsImportPath) {
 		lines.push(
 			"// ── Runtime Field Imports ──────────────────────────────────",
