@@ -63,7 +63,6 @@ const RESERVED_PREFIXES = new Set([
 	"realtime",
 	"storage",
 	"globals",
-	"health",
 ]);
 
 // ============================================================================
@@ -329,14 +328,13 @@ export const createAdapterRoutes = <
  * Create the main fetch handler with URL routing.
  *
  * Dispatch order:
- * 1. `/health` → health check
- * 2. `/auth/*` → Better Auth
- * 3. `/search/*` → search
- * 4. `/realtime` → SSE
- * 5. `/storage/files/*` → file serving
- * 6. `/globals/:name/*` → global CRUD
- * 7. **Custom routes** → lookup from route map
- * 8. `/:collection/*` → collection CRUD (fallback)
+ * 1. `/auth/*` → Better Auth
+ * 2. `/search/*` → search
+ * 3. `/realtime` → SSE
+ * 4. `/storage/files/*` → file serving
+ * 5. `/globals/:name/*` → global CRUD
+ * 6. **Route map** → custom + module routes (incl. `/health`)
+ * 7. `/:collection/*` → collection CRUD (fallback)
  */
 export const createFetchHandler = (
 	app: unknown,
@@ -387,51 +385,12 @@ export const createFetchHandler = (
 			return errorResponse(ApiError.notFound("Route"), request);
 		}
 
-		// 1. Health check — public endpoint, no auth required
-		if (segments[0] === "health") {
-			const checks: Record<string, { status: string; latency_ms?: number }> =
-				{};
-			let overall: "ok" | "degraded" | "unhealthy" = "ok";
-
-			// Database check
-			try {
-				const dbStart = Date.now();
-				const db = (_app as any).db;
-				if (db) {
-					await (db.execute?.("SELECT 1") ?? Promise.resolve());
-				}
-				checks.database = { status: "ok", latency_ms: Date.now() - dbStart };
-			} catch {
-				checks.database = { status: "unhealthy" };
-				overall = "unhealthy";
-			}
-
-			// Search check
-			if ((_app as any).search) {
-				checks.search = {
-					status: (_app as any).search.isInitialized?.() ? "ok" : "degraded",
-				};
-				if (checks.search.status === "degraded" && overall === "ok")
-					overall = "degraded";
-			}
-
-			// Storage check
-			if ((_app as any).storage) {
-				checks.storage = { status: "ok" };
-			}
-
-			return Response.json(
-				{ status: overall, timestamp: new Date().toISOString(), checks },
-				{ status: overall === "unhealthy" ? 503 : 200 },
-			);
-		}
-
-		// 2. Auth routes
+		// 1. Auth routes
 		if (segments[0] === "auth") {
 			return routes.auth(request);
 		}
 
-		// 3. Search routes: POST /search, POST /search/reindex/:collection
+		// 2. Search routes: POST /search, POST /search/reindex/:collection
 		if (segments[0] === "search") {
 			if (request.method === "POST") {
 				if (segments[1] === "reindex" && segments[2]) {
@@ -446,12 +405,12 @@ export const createFetchHandler = (
 			return errorResponse(ApiError.badRequest("Method not allowed"), request);
 		}
 
-		// 4. Realtime route
+		// 3. Realtime route
 		if (segments[0] === "realtime") {
 			return routes.realtime.subscribe(request, {}, context);
 		}
 
-		// 5. Storage file serving
+		// 4. Storage file serving
 		if (segments[0] === "storage" && segments[1] === "files") {
 			const key = decodeURIComponent(segments.slice(2).join("/"));
 			if (!key) {
@@ -480,7 +439,7 @@ export const createFetchHandler = (
 			return errorResponse(ApiError.badRequest("Method not allowed"), request);
 		}
 
-		// 6. Global routes
+		// 5. Global routes
 		if (segments[0] === "globals") {
 			const globalName = segments[1];
 			const globalAction = segments[2];
@@ -578,7 +537,7 @@ export const createFetchHandler = (
 			return errorResponse(ApiError.badRequest("Method not allowed"), request);
 		}
 
-		// 7. Custom routes — matched before collection CRUD
+		// 6. Route map — custom + module routes (incl. /health)
 		if (routeMap) {
 			const routeResponse = await handleRouteDispatch(
 				_app,
@@ -593,7 +552,7 @@ export const createFetchHandler = (
 			}
 		}
 
-		// 8. Collection routes (fallback)
+		// 7. Collection routes (fallback)
 		const collection = segments[0];
 		const id = segments[1];
 		const action = segments[2];

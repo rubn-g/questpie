@@ -1,22 +1,26 @@
-/**
- * Health check route — public, no auth required.
- * Reports database, search, and storage status.
- */
 import { route } from "#questpie/server/routes/define-route.js";
 
+/**
+ * Health check route — public endpoint, no auth required.
+ *
+ * Returns overall status + per-subsystem checks (database, search, storage).
+ * Status codes: 200 (ok/degraded), 503 (unhealthy).
+ *
+ * GET /health
+ */
 export default route()
 	.get()
+	.access(true)
 	.raw()
 	.handler(async (ctx) => {
 		const app = (ctx as any).app;
-		const checks: Record<string, { status: string; latency_ms?: number }> =
-			{};
+		const checks: Record<string, { status: string; latency_ms?: number }> = {};
 		let overall: "ok" | "degraded" | "unhealthy" = "ok";
 
 		// Database check
 		try {
 			const dbStart = Date.now();
-			const db = app?.db;
+			const db = app.db;
 			if (db) {
 				await (db.execute?.("SELECT 1") ?? Promise.resolve());
 			}
@@ -27,7 +31,7 @@ export default route()
 		}
 
 		// Search check
-		if (app?.search) {
+		if (app.search) {
 			checks.search = {
 				status: app.search.isInitialized?.() ? "ok" : "degraded",
 			};
@@ -36,7 +40,7 @@ export default route()
 		}
 
 		// Storage check
-		if (app?.storage) {
+		if (app.storage) {
 			checks.storage = { status: "ok" };
 		}
 
