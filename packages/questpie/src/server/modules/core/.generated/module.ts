@@ -21,6 +21,11 @@ import _svc_queue from "../services/queue";
 import _svc_realtime from "../services/realtime";
 import _svc_search from "../services/search";
 import _svc_storage from "../services/storage";
+// NOTE: locale + session are request-scoped context values managed by
+// createContext() / extractAppServices(), NOT module services.
+// Registering them here would override ctx.session/ctx.locale with
+// the service factory output, breaking access control and i18n.
+// Service definition files remain in services/ as documentation.
 
 // ════════════════════════════════════════════════════════════
 // TYPES — composed from typeof references (zero inference cost)
