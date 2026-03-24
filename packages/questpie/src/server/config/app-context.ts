@@ -120,7 +120,12 @@ export type KnownComponentNames = RegistryNames<"components">;
 
 /**
  * Extract flat AppContext services from a Questpie app instance.
- * Used by all context creation functions (hooks, access, routes, jobs).
+ * Used internally by context creation functions (hooks, access, routes, jobs).
+ *
+ * @deprecated Prefer `createContext()` from your generated index — it returns a fully
+ * typed `AppContext` and handles service resolution automatically.
+ * `extractAppServices` remains for internal framework use but should not be called
+ * directly in user code.
  *
  * @param app - Questpie app instance (typed as `any` to avoid circular deps)
  * @param overrides - Optional overrides (e.g. db from transaction, session from request)
