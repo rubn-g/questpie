@@ -391,7 +391,7 @@ export {
 	useFocusOptional,
 	useIsBlockFocused,
 	useIsFieldFocused,
-} from "#questpie/admin/client/context/focus-context.js";
+} from "#questpie/admin/client/contexts/focus-context.js";
 // I18n types
 export type {
 	I18nContext,
