@@ -353,7 +353,7 @@ type _postsStateFieldsHasSlug = Expect<
 // ============================================================================
 
 type PostsFindOptions = Parameters<
-	CmsFromBuilder["api"]["collections"]["posts"]["find"]
+	CmsFromBuilder["collections"]["posts"]["find"]
 >[0];
 type PostsWhere = NonNullable<PostsFindOptions>["where"];
 
@@ -378,7 +378,7 @@ const _postsWhereByCommentsEvery: PostsWhere = {
 };
 
 type CommentsFindOptions = Parameters<
-	CmsFromBuilder["api"]["collections"]["comments"]["find"]
+	CmsFromBuilder["collections"]["comments"]["find"]
 >[0];
 type CommentsWhere = NonNullable<CommentsFindOptions>["where"];
 
