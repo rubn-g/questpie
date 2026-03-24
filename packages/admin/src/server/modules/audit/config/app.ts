@@ -6,6 +6,8 @@ import type {
 } from "questpie";
 import { appConfig, tryGetContext } from "questpie";
 
+import { AUDIT_LOG_COLLECTION } from "../collections/audit-log.js";
+
 /**
  * Check if a collection/global has `audit: false` in its `.admin()` config.
  */
@@ -158,7 +160,7 @@ async function collectionAfterChange(ctx: GlobalCollectionHookContext) {
 			ctx.collection,
 		);
 
-		await collections.admin_audit_log.create(
+		await collections[AUDIT_LOG_COLLECTION].create(
 			{
 				action,
 				resourceType: "collection",
@@ -205,7 +207,7 @@ async function collectionAfterDelete(ctx: GlobalCollectionHookContext) {
 			ctx.collection,
 		);
 
-		await collections.admin_audit_log.create(
+		await collections[AUDIT_LOG_COLLECTION].create(
 			{
 				action: "delete",
 				resourceType: "collection",
@@ -254,7 +256,7 @@ async function collectionAfterTransition(
 			ctx.collection,
 		);
 
-		await collections.admin_audit_log.create(
+		await collections[AUDIT_LOG_COLLECTION].create(
 			{
 				action: "transition",
 				resourceType: "collection",
@@ -302,7 +304,7 @@ async function globalAfterChange(ctx: GlobalGlobalHookContext) {
 			ctx.session?.user?.name || ctx.session?.user?.email || null;
 		const resourceTypeLabel = getResourceTypeLabel("global", ctx.global);
 
-		await collections.admin_audit_log.create(
+		await collections[AUDIT_LOG_COLLECTION].create(
 			{
 				action: "update",
 				resourceType: "global",
@@ -347,7 +349,7 @@ async function globalAfterTransition(
 			ctx.session?.user?.name || ctx.session?.user?.email || null;
 		const resourceTypeLabel = getResourceTypeLabel("global", ctx.global);
 
-		await collections.admin_audit_log.create(
+		await collections[AUDIT_LOG_COLLECTION].create(
 			{
 				action: "transition",
 				resourceType: "global",
