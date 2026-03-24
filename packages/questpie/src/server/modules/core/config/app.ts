@@ -2,6 +2,7 @@
  * Core module app config — contributes global hooks for:
  * 1. Realtime events (afterChange/afterDelete → append + post-commit broadcast)
  * 2. Search indexing (afterChange → scheduleIndex, afterDelete → remove)
+ * 3. Workflow scheduled transitions (beforeTransition → queue dispatch)
  *
  * Uses bulk metadata (isBatch, count) from QUE-238 and
  * onAfterCommit from QUE-243 for post-commit side effects.
@@ -10,7 +11,14 @@
  * Phase 3: Direct CRUD calls will be removed, these hooks become sole source.
  */
 
-import type { GlobalCollectionHookContext } from "#questpie/server/config/global-hooks-types.js";
+import type {
+	GlobalCollectionHookContext,
+	GlobalCollectionTransitionHookContext,
+} from "#questpie/server/config/global-hooks-types.js";
+import {
+	TransitionScheduledError,
+	scheduleCollectionTransition,
+} from "#questpie/server/modules/core/workflow/schedule-transition.js";
 
 // ============================================================================
 // Realtime helpers
@@ -153,12 +161,40 @@ const searchHook = {
 };
 
 // ============================================================================
+// Workflow scheduled transition hook
+// ============================================================================
+
+/**
+ * Scheduled transition hook — intercepts beforeTransition when
+ * scheduledAt is a future date, dispatches to queue, and aborts
+ * the immediate transition by throwing TransitionScheduledError.
+ *
+ * The CRUD generator catches TransitionScheduledError and returns
+ * the existing record unchanged.
+ */
+const scheduledTransitionHook = {
+	beforeTransition: async (ctx: GlobalCollectionTransitionHookContext) => {
+		if (!ctx.scheduledAt) return;
+		if (ctx.scheduledAt.getTime() <= Date.now()) return;
+
+		await scheduleCollectionTransition(ctx.queue, {
+			collection: ctx.collection,
+			recordId: String(ctx.recordId),
+			stage: ctx.toStage,
+			scheduledAt: ctx.scheduledAt,
+		});
+
+		throw new TransitionScheduledError();
+	},
+};
+
+// ============================================================================
 // Export
 // ============================================================================
 
 export default {
 	hooks: {
-		collections: [realtimeHook, searchHook],
+		collections: [realtimeHook, searchHook, scheduledTransitionHook],
 		globals: [],
 	},
 };

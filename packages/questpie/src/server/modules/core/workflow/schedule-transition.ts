@@ -7,6 +7,18 @@
 
 import { ApiError } from "#questpie/server/errors/base.js";
 
+/**
+ * Thrown by the scheduledTransitionHook's beforeTransition to signal
+ * that the transition was scheduled for a future date and the
+ * CRUD generator should return the existing record unchanged.
+ */
+export class TransitionScheduledError extends Error {
+	constructor() {
+		super("Transition scheduled for future execution");
+		this.name = "TransitionScheduledError";
+	}
+}
+
 export interface ScheduleCollectionTransitionParams {
 	collection: string;
 	recordId: string;

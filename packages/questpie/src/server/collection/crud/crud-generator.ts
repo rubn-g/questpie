@@ -2462,25 +2462,6 @@ export class CRUDGenerator<TState extends CollectionBuilderState> {
 
 			const { id, stage: toStage, scheduledAt } = params;
 
-			// If scheduledAt is in the future, schedule via queue job
-			if (scheduledAt && scheduledAt.getTime() > Date.now()) {
-				const { scheduleCollectionTransition } = await import(
-					"#questpie/server/modules/core/workflow/schedule-transition.js"
-				);
-				await scheduleCollectionTransition(this.app?.queue, {
-					collection: this.state.name,
-					recordId: id as string,
-					stage: toStage,
-					scheduledAt,
-				});
-				// Return the existing record unchanged
-				const rows = await this.getDb(this.normalizeContext(context))
-					.select()
-					.from(this.table)
-					.where(eq(getColumn(this.table, "id")!, id))
-					.limit(1);
-				return rows[0] ?? null;
-			}
 			const normalized = this.normalizeContext(context);
 			const db = this.getDb(normalized);
 
@@ -2553,17 +2534,31 @@ export class CRUDGenerator<TState extends CollectionBuilderState> {
 			const transitionCtx: TransitionHookContext = {
 				...transitionServices,
 				data: existing,
+				recordId: id,
 				fromStage,
 				toStage,
+				scheduledAt,
 				locale: normalized.locale,
 			} as TransitionHookContext;
 
-			// Execute beforeTransition hooks (throw to abort)
-			await this.executeTransitionHooksWithGlobal(
-				"beforeTransition",
-				this.state.hooks?.beforeTransition,
-				transitionCtx,
-			);
+			// Execute beforeTransition hooks (throw to abort).
+			// TransitionScheduledError signals the transition was deferred to a queue job.
+			try {
+				await this.executeTransitionHooksWithGlobal(
+					"beforeTransition",
+					this.state.hooks?.beforeTransition,
+					transitionCtx,
+				);
+			} catch (err) {
+				if (
+					err instanceof Error &&
+					err.name === "TransitionScheduledError"
+				) {
+					// Transition was scheduled for future execution — return record unchanged
+					return existing;
+				}
+				throw err;
+			}
 
 			// Create version snapshot at target stage (no data mutation)
 			await withTransaction(db, async (tx: any) => {

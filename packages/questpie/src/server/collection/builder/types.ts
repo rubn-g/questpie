@@ -578,10 +578,14 @@ export type AfterDeleteHook<TSelect = any> = HookFunction<
 export type TransitionHookContext<TData = any> = AppContext & {
 	/** Record being transitioned */
 	data: TData;
+	/** Record ID (string or number) */
+	recordId: string | number;
 	/** Stage the record is transitioning from */
 	fromStage: string;
 	/** Stage the record is transitioning to */
 	toStage: string;
+	/** When set, the transition should be scheduled for this future date instead of executing immediately */
+	scheduledAt?: Date;
 	/** Current locale */
 	locale?: string;
 };

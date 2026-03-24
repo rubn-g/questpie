@@ -65,9 +65,14 @@ export interface GlobalCollectionHookContext<TData = any, TOriginal = any> {
 export interface GlobalCollectionTransitionHookContext<TData = any> {
 	/** The name/slug of the collection being operated on */
 	collection: string;
+	/** The record being transitioned */
 	data: TData;
+	/** Record ID (string or number) */
+	recordId: string | number;
 	fromStage: string;
 	toStage: string;
+	/** When set, the transition should be scheduled for this future date instead of executing immediately */
+	scheduledAt?: Date;
 	/** @deprecated Use flat context properties instead */
 	app?: any;
 	session?: any | null;
@@ -151,9 +156,12 @@ export interface GlobalGlobalHookContext<TData = any> {
 export interface GlobalGlobalTransitionHookContext<TData = any> {
 	/** The name/slug of the global being operated on */
 	global: string;
+	/** The record being transitioned */
 	data: TData;
 	fromStage: string;
 	toStage: string;
+	/** When set, the transition should be scheduled for this future date instead of executing immediately */
+	scheduledAt?: Date;
 	/** @deprecated Use flat context properties instead */
 	app?: any;
 	session?: any | null;
