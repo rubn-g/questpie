@@ -22,6 +22,7 @@ import {
 	type RouteMatcher,
 	compileMatcher,
 } from "../routes/route-matcher.js";
+// RouteMatch is imported for type-level use (e.g., buildCompiledRouteMap return)
 import { isJsonRoute, type RouteDefinition } from "../routes/types.js";
 
 // Re-export types
@@ -127,10 +128,10 @@ function buildRouteMap(
  */
 function buildCompiledRouteMap(
 	routes: Record<string, RouteDefinition> | undefined,
-): RouteMatcher<{ def: RouteDefinition; method: string }> | null {
+): RouteMatcher<RouteDefinition> | null {
 	if (!routes || Object.keys(routes).length === 0) return null;
 
-	const entries: [string, { def: RouteDefinition; method: string }][] = [];
+	const entries: [string, string, RouteDefinition][] = [];
 
 	for (const [key, def] of Object.entries(routes)) {
 		let path: string;
@@ -149,9 +150,8 @@ function buildCompiledRouteMap(
 		path = path.split("/").map(camelToKebab).join("/");
 		const pattern = filePathToRoutePattern(path);
 
-		// Combine method into pattern for per-method matching
-		// Use separate entries per method-path pair
-		entries.push([pattern, { def, method }]);
+		// Use 3-tuple: [pattern, method, handler] for method-grouped matching
+		entries.push([pattern, method, def]);
 	}
 
 	try {

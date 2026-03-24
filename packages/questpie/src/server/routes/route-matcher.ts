@@ -5,6 +5,9 @@
  * Collision: throws at compile time when two routes produce
  * the same match specificity for any possible path.
  *
+ * Terminal nodes store a Map<method, THandler> so that multiple HTTP methods
+ * can share the same path pattern (e.g., GET + PATCH on /:collection/:id).
+ *
  * @module
  */
 
@@ -12,10 +15,10 @@
 // Types
 // ============================================================================
 
-/** Matched route result with extracted params. */
+/** Matched route result with extracted params — returns all methods for the path. */
 export interface RouteMatch<T = unknown> {
-	/** The matched handler/value */
-	handler: T;
+	/** Map of HTTP method to handler (e.g., GET -> handler, PATCH -> handler) */
+	methods: Map<string, T>;
 	/** Extracted path parameters (e.g., { id: "123" }) */
 	params: Record<string, string>;
 	/** The route pattern that matched */
@@ -36,9 +39,9 @@ interface TrieNode<T> {
 	/** Param child (:name) — at most one */
 	param: { name: string; child: TrieNode<T> } | null;
 	/** Wildcard child (*name or *) — terminal */
-	wildcard: { name: string; handler: T; pattern: string } | null;
-	/** Terminal handler for this node */
-	terminal: { handler: T; pattern: string } | null;
+	wildcard: { name: string; methods: Map<string, T>; pattern: string } | null;
+	/** Terminal method-grouped handlers for this node */
+	terminal: { methods: Map<string, T>; pattern: string } | null;
 }
 
 // ============================================================================
@@ -141,9 +144,11 @@ export class RouteCollisionError extends Error {
 	constructor(
 		public patternA: string,
 		public patternB: string,
+		public method?: string,
 	) {
+		const methodInfo = method ? ` for method ${method}` : "";
 		super(
-			`Route collision: "${patternA}" and "${patternB}" are ambiguous — they can match the same paths with equal specificity`,
+			`Route collision: "${patternA}" and "${patternB}" are ambiguous${methodInfo} — they can match the same paths with equal specificity`,
 		);
 		this.name = "RouteCollisionError";
 	}
@@ -152,39 +157,78 @@ export class RouteCollisionError extends Error {
 /**
  * Compile a set of route patterns into an optimized matcher.
  *
- * @param routes - Map or array of [pattern, handler] entries
+ * @param routes - Array of [pattern, method, handler] entries
  * @returns Compiled matcher
- * @throws RouteCollisionError if two patterns are ambiguous
+ * @throws RouteCollisionError if two patterns with the same method are ambiguous
  */
 export function compileMatcher<T>(
-	routes: Map<string, T> | [string, T][],
+	routes:
+		| Map<string, T>
+		| [string, T][]
+		| [string, string, T][],
 ): RouteMatcher<T> {
 	const root = createNode<T>();
-	const entries: [string, T][] =
-		routes instanceof Map ? [...routes.entries()] : routes;
-	const patterns = entries.map(([p]) => p);
 
-	// --- Collision detection ---
-	// Group by specificity key and check for collisions within groups
-	const specGroups = new Map<string, string[]>();
-	for (const pattern of patterns) {
+	// Normalize input: detect whether we have 2-tuples or 3-tuples
+	const entries: [string, string, T][] = [];
+
+	if (routes instanceof Map) {
+		// Legacy: Map<pattern, handler> — use "*" as wildcard method
+		for (const [pattern, handler] of routes) {
+			entries.push([pattern, "*", handler]);
+		}
+	} else if (routes.length > 0) {
+		const first = routes[0];
+		if (first.length === 3) {
+			// 3-tuples: [pattern, method, handler]
+			entries.push(...(routes as [string, string, T][]));
+		} else {
+			// 2-tuples: [pattern, handler] — use "*" as wildcard method
+			for (const entry of routes as [string, T][]) {
+				entries.push([entry[0], "*", entry[1]]);
+			}
+		}
+	}
+
+	// Group entries by pattern for collision detection
+	// Per-method collision: same pattern + same method = collision
+	const patternMethodMap = new Map<string, Map<string, string>>();
+
+	for (const [pattern, method] of entries) {
+		const key = specificityKey(pattern);
+		let methodMap = patternMethodMap.get(key);
+		if (!methodMap) {
+			methodMap = new Map();
+			patternMethodMap.set(key, methodMap);
+		}
+	}
+
+	// Cross-pattern collision detection (same as before, but per-method)
+	const specGroups = new Map<string, [string, string][]>();
+	for (const [pattern, method] of entries) {
 		const key = specificityKey(pattern);
 		const group = specGroups.get(key);
 		if (group) {
-			// Check pairwise within group
-			for (const existing of group) {
-				if (patternsCollide(pattern, existing)) {
-					throw new RouteCollisionError(existing, pattern);
+			for (const [existingPattern, existingMethod] of group) {
+				// Only collision if same method (or either is wildcard "*")
+				if (
+					existingMethod === method ||
+					existingMethod === "*" ||
+					method === "*"
+				) {
+					if (patternsCollide(pattern, existingPattern)) {
+						throw new RouteCollisionError(existingPattern, pattern, method);
+					}
 				}
 			}
-			group.push(pattern);
+			group.push([pattern, method]);
 		} else {
-			specGroups.set(key, [pattern]);
+			specGroups.set(key, [[pattern, method]]);
 		}
 	}
 
 	// --- Build trie ---
-	for (const [pattern, handler] of entries) {
+	for (const [pattern, method, handler] of entries) {
 		const segments = pattern.split("/").filter(Boolean);
 		let node = root;
 
@@ -192,13 +236,17 @@ export function compileMatcher<T>(
 			const { kind, name } = parseSegment(segments[i]);
 
 			if (kind === SegmentKind.Wildcard) {
-				if (node.wildcard) {
+				if (!node.wildcard) {
+					node.wildcard = { name, methods: new Map(), pattern };
+				}
+				if (node.wildcard.methods.has(method)) {
 					throw new RouteCollisionError(
 						node.wildcard.pattern,
 						pattern,
+						method,
 					);
 				}
-				node.wildcard = { name, handler, pattern };
+				node.wildcard.methods.set(method, handler);
 				break; // Wildcard consumes rest
 			}
 
@@ -219,13 +267,17 @@ export function compileMatcher<T>(
 
 			// If last segment, mark as terminal
 			if (i === segments.length - 1) {
-				if (node.terminal) {
+				if (!node.terminal) {
+					node.terminal = { methods: new Map(), pattern };
+				}
+				if (node.terminal.methods.has(method)) {
 					throw new RouteCollisionError(
 						node.terminal.pattern,
 						pattern,
+						method,
 					);
 				}
-				node.terminal = { handler, pattern };
+				node.terminal.methods.set(method, handler);
 			}
 		}
 	}
@@ -265,7 +317,7 @@ export class RouteMatcher<T> {
 		if (idx === segments.length) {
 			if (node.terminal) {
 				return {
-					handler: node.terminal.handler,
+					methods: node.terminal.methods,
 					params: { ...params },
 					pattern: node.terminal.pattern,
 				};
@@ -297,7 +349,7 @@ export class RouteMatcher<T> {
 		if (node.wildcard) {
 			const rest = segments.slice(idx).join("/");
 			return {
-				handler: node.wildcard.handler,
+				methods: node.wildcard.methods,
 				params: { ...params, [node.wildcard.name]: rest },
 				pattern: node.wildcard.pattern,
 			};

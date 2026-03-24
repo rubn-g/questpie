@@ -115,6 +115,7 @@ export async function executeRawRoute(
 	definition: RawRouteDefinition,
 	request: Request,
 	context?: RequestContext,
+	params?: Record<string, string>,
 ): Promise<Response> {
 	const resolvedContext =
 		context ?? (await app.createContext({ accessMode: "system" }));
@@ -136,9 +137,10 @@ export async function executeRawRoute(
 		() =>
 			definition.handler({
 				...services,
+				app,
 				request,
 				locale: resolvedContext.locale,
-				params: {},
+				params: params ?? {},
 			} as any),
 	);
 }

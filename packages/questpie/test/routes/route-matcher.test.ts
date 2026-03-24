@@ -3,6 +3,8 @@
  *
  * Tests priority (literal > parameterized > wildcard),
  * collision detection, and edge cases.
+ *
+ * Updated for method-grouped terminals (QUE-273 Phase 0a).
  */
 import { describe, expect, it } from "bun:test";
 
@@ -21,6 +23,12 @@ function routes(
 	return new Map(pairs);
 }
 
+/** Helper to get the handler from a match (uses "*" wildcard method for legacy tests). */
+function getHandler<T>(match: { methods: Map<string, T> } | null): T | null {
+	if (!match) return null;
+	return match.methods.get("*") ?? null;
+}
+
 // ============================================================================
 // Priority Tests
 // ============================================================================
@@ -36,7 +44,7 @@ describe("Route Matcher — Priority", () => {
 
 		const match = m.match("/users/admin");
 		expect(match).not.toBeNull();
-		expect(match!.handler).toBe("literal-handler");
+		expect(getHandler(match)).toBe("literal-handler");
 		expect(match!.params).toEqual({});
 	});
 
@@ -50,7 +58,7 @@ describe("Route Matcher — Priority", () => {
 
 		const match = m.match("/users/123");
 		expect(match).not.toBeNull();
-		expect(match!.handler).toBe("param-handler");
+		expect(getHandler(match)).toBe("param-handler");
 		expect(match!.params).toEqual({ id: "123" });
 	});
 
@@ -64,7 +72,7 @@ describe("Route Matcher — Priority", () => {
 
 		const match = m.match("/users/123");
 		expect(match).not.toBeNull();
-		expect(match!.handler).toBe("param-handler");
+		expect(getHandler(match)).toBe("param-handler");
 		expect(match!.params).toEqual({ id: "123" });
 	});
 
@@ -78,7 +86,7 @@ describe("Route Matcher — Priority", () => {
 
 		const match = m.match("/users/123/posts/456");
 		expect(match).not.toBeNull();
-		expect(match!.handler).toBe("wildcard-handler");
+		expect(getHandler(match)).toBe("wildcard-handler");
 		expect(match!.params).toEqual({ rest: "123/posts/456" });
 	});
 
@@ -91,10 +99,10 @@ describe("Route Matcher — Priority", () => {
 			),
 		);
 
-		expect(m.match("/api/users/me")!.handler).toBe("literal-me");
-		expect(m.match("/api/users/42")!.handler).toBe("param-id");
+		expect(getHandler(m.match("/api/users/me"))).toBe("literal-me");
+		expect(getHandler(m.match("/api/users/42"))).toBe("param-id");
 		expect(m.match("/api/users/42")!.params).toEqual({ id: "42" });
-		expect(m.match("/api/docs/intro")!.handler).toBe("wildcard-api");
+		expect(getHandler(m.match("/api/docs/intro"))).toBe("wildcard-api");
 		expect(m.match("/api/docs/intro")!.params).toEqual({
 			path: "docs/intro",
 		});
@@ -108,10 +116,10 @@ describe("Route Matcher — Priority", () => {
 			),
 		);
 
-		expect(m.match("/users/admin/posts")!.handler).toBe(
+		expect(getHandler(m.match("/users/admin/posts"))).toBe(
 			"literal-admin-posts",
 		);
-		expect(m.match("/users/john/posts")!.handler).toBe("param-posts");
+		expect(getHandler(m.match("/users/john/posts"))).toBe("param-posts");
 		expect(m.match("/users/john/posts")!.params).toEqual({ id: "john" });
 	});
 });
@@ -301,8 +309,8 @@ describe("Route Matcher — Edge Cases", () => {
 		expect(compileMs).toBeLessThan(50);
 
 		// All 200 literals should match before param
-		expect(m.match("/api/v42/resource")!.handler).toBe("handler-42");
-		expect(m.match("/api/v999/resource")!.handler).toBe("param-handler");
+		expect(getHandler(m.match("/api/v42/resource"))).toBe("handler-42");
+		expect(getHandler(m.match("/api/v999/resource"))).toBe("param-handler");
 
 		// Match should be fast
 		const matchStart = performance.now();
@@ -323,6 +331,113 @@ describe("Route Matcher — Edge Cases", () => {
 
 		expect(m.match("/users/42")!.pattern).toBe("users/:id");
 		expect(m.match("/posts/hello")!.pattern).toBe("posts/:slug");
+	});
+});
+
+// ============================================================================
+// Method-grouped terminals (QUE-273)
+// ============================================================================
+
+describe("Route Matcher — Method-Grouped Terminals", () => {
+	it("stores multiple methods on the same path", () => {
+		const m = compileMatcher<string>([
+			[":collection/:id", "GET", "findOne-handler"],
+			[":collection/:id", "PATCH", "update-handler"],
+			[":collection/:id", "DELETE", "remove-handler"],
+		]);
+
+		const match = m.match("/users/42");
+		expect(match).not.toBeNull();
+		expect(match!.methods.get("GET")).toBe("findOne-handler");
+		expect(match!.methods.get("PATCH")).toBe("update-handler");
+		expect(match!.methods.get("DELETE")).toBe("remove-handler");
+		expect(match!.params).toEqual({ collection: "users", id: "42" });
+	});
+
+	it("stores multiple methods on the same literal path", () => {
+		const m = compileMatcher<string>([
+			["globals/:name", "GET", "global-get"],
+			["globals/:name", "PATCH", "global-update"],
+		]);
+
+		const match = m.match("/globals/settings");
+		expect(match).not.toBeNull();
+		expect(match!.methods.get("GET")).toBe("global-get");
+		expect(match!.methods.get("PATCH")).toBe("global-update");
+		expect(match!.params).toEqual({ name: "settings" });
+	});
+
+	it("detects collision: same pattern + same method", () => {
+		expect(() =>
+			compileMatcher<string>([
+				["users/:id", "GET", "handler-a"],
+				["users/:userId", "GET", "handler-b"],
+			]),
+		).toThrow(RouteCollisionError);
+	});
+
+	it("allows: same pattern structure but different methods", () => {
+		expect(() =>
+			compileMatcher<string>([
+				[":collection", "GET", "find-handler"],
+				[":collection", "POST", "create-handler"],
+				[":collection", "PATCH", "update-many-handler"],
+			]),
+		).not.toThrow();
+	});
+
+	it("supports wildcard with multiple methods", () => {
+		const m = compileMatcher<string>([
+			["auth/*path", "GET", "auth-get"],
+			["auth/*path", "POST", "auth-post"],
+		]);
+
+		const match = m.match("/auth/login");
+		expect(match).not.toBeNull();
+		expect(match!.methods.get("GET")).toBe("auth-get");
+		expect(match!.methods.get("POST")).toBe("auth-post");
+		expect(match!.params).toEqual({ path: "login" });
+	});
+
+	it("mixed 3-tuple routes with priority", () => {
+		const m = compileMatcher<string>([
+			["health", "GET", "health-check"],
+			["auth/*path", "GET", "auth-get"],
+			["auth/*path", "POST", "auth-post"],
+			["globals/:name", "GET", "global-get"],
+			["globals/:name", "PATCH", "global-update"],
+			[":collection", "GET", "collection-find"],
+			[":collection", "POST", "collection-create"],
+			[":collection/:id", "GET", "collection-findOne"],
+			[":collection/:id", "PATCH", "collection-update"],
+			[":collection/:id", "DELETE", "collection-remove"],
+		]);
+
+		// Literal beats param
+		const healthMatch = m.match("/health");
+		expect(healthMatch).not.toBeNull();
+		expect(healthMatch!.methods.get("GET")).toBe("health-check");
+
+		// Globals literal beats collection param
+		const globalMatch = m.match("/globals/settings");
+		expect(globalMatch).not.toBeNull();
+		expect(globalMatch!.methods.get("GET")).toBe("global-get");
+		expect(globalMatch!.methods.get("PATCH")).toBe("global-update");
+
+		// Collection param when no literal matches
+		const collMatch = m.match("/users");
+		expect(collMatch).not.toBeNull();
+		expect(collMatch!.methods.get("GET")).toBe("collection-find");
+		expect(collMatch!.methods.get("POST")).toBe("collection-create");
+		expect(collMatch!.params).toEqual({ collection: "users" });
+
+		// Collection/:id
+		const itemMatch = m.match("/users/42");
+		expect(itemMatch).not.toBeNull();
+		expect(itemMatch!.methods.get("GET")).toBe("collection-findOne");
+		expect(itemMatch!.methods.get("PATCH")).toBe("collection-update");
+		expect(itemMatch!.methods.get("DELETE")).toBe("collection-remove");
+		expect(itemMatch!.params).toEqual({ collection: "users", id: "42" });
 	});
 });
 
@@ -362,10 +477,10 @@ describe("Route Matcher — HTTP Dispatch Simulation", () => {
 		);
 
 		// Framework routes
-		expect(m.match("/health")!.handler).toBe("health-check");
-		expect(m.match("/auth/login")!.handler).toBe("auth-handler");
+		expect(getHandler(m.match("/health"))).toBe("health-check");
+		expect(getHandler(m.match("/auth/login"))).toBe("auth-handler");
 		expect(m.match("/auth/login")!.params).toEqual({ path: "login" });
-		expect(m.match("/storage/files/uploads/img.png")!.handler).toBe(
+		expect(getHandler(m.match("/storage/files/uploads/img.png"))).toBe(
 			"storage-handler",
 		);
 		expect(m.match("/storage/files/uploads/img.png")!.params).toEqual({
@@ -373,36 +488,36 @@ describe("Route Matcher — HTTP Dispatch Simulation", () => {
 		});
 
 		// Global CRUD
-		expect(m.match("/globals/settings")!.handler).toBe("global-read");
-		expect(m.match("/globals/settings/update")!.handler).toBe(
+		expect(getHandler(m.match("/globals/settings"))).toBe("global-read");
+		expect(getHandler(m.match("/globals/settings/update"))).toBe(
 			"global-update",
 		);
-		expect(m.match("/globals/settings/audit")!.handler).toBe(
+		expect(getHandler(m.match("/globals/settings/audit"))).toBe(
 			"global-audit",
 		);
 
 		// Custom routes (literal beats param)
-		expect(m.match("/admin/stats")!.handler).toBe("admin-stats");
-		expect(m.match("/admin/export/csv")!.handler).toBe("admin-export");
+		expect(getHandler(m.match("/admin/stats"))).toBe("admin-stats");
+		expect(getHandler(m.match("/admin/export/csv"))).toBe("admin-export");
 		expect(m.match("/admin/export/csv")!.params).toEqual({
 			format: "csv",
 		});
 
 		// Collection CRUD
-		expect(m.match("/users")!.handler).toBe("collection-list");
+		expect(getHandler(m.match("/users"))).toBe("collection-list");
 		expect(m.match("/users")!.params).toEqual({ collection: "users" });
-		expect(m.match("/users/create")!.handler).toBe("collection-create");
-		expect(m.match("/users/42")!.handler).toBe("collection-read");
-		expect(m.match("/users/42/update")!.handler).toBe(
+		expect(getHandler(m.match("/users/create"))).toBe("collection-create");
+		expect(getHandler(m.match("/users/42"))).toBe("collection-read");
+		expect(getHandler(m.match("/users/42/update"))).toBe(
 			"collection-update",
 		);
-		expect(m.match("/users/42/versions")!.handler).toBe(
+		expect(getHandler(m.match("/users/42/versions"))).toBe(
 			"collection-versions",
 		);
 
 		// Search routes (literal beats param)
-		expect(m.match("/search")!.handler).toBe("search-handler");
-		expect(m.match("/search/reindex/posts")!.handler).toBe(
+		expect(getHandler(m.match("/search"))).toBe("search-handler");
+		expect(getHandler(m.match("/search/reindex/posts"))).toBe(
 			"reindex-handler",
 		);
 	});

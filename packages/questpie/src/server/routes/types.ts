@@ -70,6 +70,8 @@ export type RawRouteHandlerArgs = AppContext & {
 	locale?: string;
 	/** URL path parameters (if pattern-matched) */
 	params: Record<string, string>;
+	/** App instance — for accessing collections, globals, auth, etc. */
+	app: any;
 };
 
 // ============================================================================
