@@ -605,7 +605,7 @@ async function createAppFromDefinition(
 
 	// 3. Merge user entities on top (user always wins over modules)
 	// All keys flow through: known keys use MERGE_FNS, extensions use auto-detect.
-	// Definition-only keys (locale, contextResolver, emailTemplates) pass through
+	// Definition-only keys (locale, emailTemplates) pass through
 	// merged state but are filtered from extension state by CONFIG_CONSUMED_KEYS.
 	merged = mergeModuleIntoState(merged, { name: "user", ...definition });
 
@@ -660,7 +660,6 @@ async function createAppFromDefinition(
 		autoMigrate: runtime.autoMigrate,
 		autoSeed: runtime.autoSeed,
 		translations: finalTranslations,
-		contextResolver: appCfg.context,
 		globalHooks: appCfg.hooks,
 		defaultAccess: appCfg.access,
 		services:

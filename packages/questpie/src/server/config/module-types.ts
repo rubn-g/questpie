@@ -383,9 +383,6 @@ export interface AppDefinition {
 	/** Default access rules from `access.ts`. */
 	defaultAccess?: CollectionAccess;
 
-	/** @deprecated Use scoped services instead. See QUE-280. */
-	contextResolver?: ContextResolver;
-
 	/**
 	 * Messages from `messages/` directory, keyed by locale.
 	 * Deep-merged on top of module messages.
@@ -463,9 +460,6 @@ export interface AppConfig {
 
 	/** Global lifecycle hooks. */
 	hooks?: GlobalHooksState;
-
-	/** @deprecated Use scoped services instead. See QUE-280. */
-	contextResolver?: ContextResolver;
 
 	/** I18n translations config (backend messages). */
 	translations?: TranslationsConfig;

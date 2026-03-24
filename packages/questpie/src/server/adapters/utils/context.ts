@@ -93,11 +93,11 @@ export const createAdapterContext = async <
 		? await config.extendContext({ request, app, context: baseContext })
 		: undefined;
 
-	// 2. Apply app-level context resolver (from .context() on builder)
+	// 2. Apply app-level context resolver (from config/app.ts context property)
 	// This is where custom headers like x-tenant-id are extracted
 	let cmsExtension: Record<string, any> | undefined;
-	const contextResolver = app.config.contextResolver;
-	if (contextResolver) {
+	const contextResolver = (app.state as any)?.config?.app?.context;
+	if (typeof contextResolver === "function") {
 		cmsExtension = await contextResolver({
 			request,
 			session: sessionData,
