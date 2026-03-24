@@ -1,8 +1,8 @@
 /**
  * QUE-250: Behavioral equivalence gate test
  *
- * Verifies that core module global hooks (search + realtime) produce
- * the same observable results as the direct CRUD integration calls.
+ * Verifies that core module global hooks (search + realtime + workflow)
+ * produce the same observable results as the direct CRUD integration calls.
  *
  * This is the Phase 2 → Phase 3 gate. Until this passes, CRUD direct
  * calls must NOT be removed.
@@ -11,6 +11,7 @@
  * 1. Realtime: log entries with correct operation/payload
  * 2. Search: queue dispatches via index-records job
  * 3. Bulk operations: correct isBatch/count semantics
+ * 4. Workflow: scheduled transitions dispatched via beforeTransition hook
  */
 // @ts-nocheck
 import { afterEach, beforeEach, describe, expect, it } from "bun:test";
@@ -22,6 +23,7 @@ import {
 	type RealtimeAdapter,
 	type RealtimeChangeEvent,
 } from "../../src/server/index.js";
+import { scheduledTransitionJob } from "../../src/server/workflow/index.js";
 import { buildMockApp } from "../utils/mocks/mock-app-builder";
 import { createTestContext } from "../utils/test-context";
 import { runTestDbMigrations } from "../utils/test-db";
@@ -358,5 +360,177 @@ describe("Core hooks behavioral equivalence (QUE-250)", () => {
 			expect(createIdx).toBeLessThan(updateIdx);
 			expect(updateIdx).toBeLessThan(deleteIdx);
 		});
+	});
+});
+
+// ============================================================================
+// Workflow / Scheduled Transition Equivalence (QUE-250)
+// ============================================================================
+
+describe("Workflow scheduled-transition equivalence (QUE-250)", () => {
+	let setup: Awaited<ReturnType<typeof buildMockApp>>;
+	let ctx: ReturnType<typeof createTestContext>;
+
+	const createWorkflowModule = () => ({
+		collections: {
+			articles: collection("articles")
+				.fields(({ f }) => ({
+					title: f.textarea().required(),
+				}))
+				.options({
+					versioning: {
+						workflow: {
+							stages: ["draft", "published"],
+							initialStage: "draft",
+						},
+					},
+				}),
+			// Collection without workflow — should never schedule
+			notes: collection("notes").fields(({ f }) => ({
+				body: f.textarea().required(),
+			})),
+		},
+		jobs: {
+			"scheduled-transition": scheduledTransitionJob,
+		},
+	});
+
+	beforeEach(async () => {
+		setup = await buildMockApp(createWorkflowModule());
+		await runTestDbMigrations(setup.app);
+		ctx = createTestContext(setup.app);
+	});
+
+	afterEach(async () => {
+		await setup.cleanup();
+	});
+
+	it("beforeTransition hook dispatches to queue when scheduledAt is future", async () => {
+		const article = await setup.app.collections.articles.create(
+			{ title: "Schedule Test" },
+			ctx,
+		);
+
+		const futureDate = new Date(Date.now() + 60_000);
+
+		const result = await setup.app.collections.articles.transitionStage(
+			{ id: article.id, stage: "published", scheduledAt: futureDate },
+			ctx,
+		);
+
+		// Should return the existing record unchanged
+		expect(result.id).toBe(article.id);
+		expect(result.title).toBe("Schedule Test");
+
+		// Verify job was published to the queue
+		const jobs = setup.app.mocks.queue.getJobsByName("scheduled-transition");
+		expect(jobs.length).toBe(1);
+		expect(jobs[0].payload).toEqual({
+			type: "collection",
+			collection: "articles",
+			recordId: article.id,
+			stage: "published",
+		});
+		expect(jobs[0].options?.startAfter).toEqual(futureDate);
+	});
+
+	it("no scheduling happens for collections without workflow config", async () => {
+		// The notes collection has no workflow — transitionStage should throw
+		const note = await setup.app.collections.notes.create(
+			{ body: "No workflow here" },
+			ctx,
+		);
+
+		await expect(
+			setup.app.collections.notes.transitionStage(
+				{ id: note.id, stage: "published" },
+				ctx,
+			),
+		).rejects.toThrow(/[Ww]orkflow is not enabled/);
+
+		// No queue jobs
+		const jobs = setup.app.mocks.queue.getJobsByName("scheduled-transition");
+		expect(jobs.length).toBe(0);
+	});
+
+	it("immediate transition does not dispatch to queue", async () => {
+		const article = await setup.app.collections.articles.create(
+			{ title: "Immediate" },
+			ctx,
+		);
+
+		await setup.app.collections.articles.transitionStage(
+			{ id: article.id, stage: "published" },
+			ctx,
+		);
+
+		// No queue jobs — transition happened immediately
+		const jobs = setup.app.mocks.queue.getJobsByName("scheduled-transition");
+		expect(jobs.length).toBe(0);
+
+		// Verify the transition actually happened
+		const published = await setup.app.collections.articles.findOne(
+			{ where: { id: article.id }, stage: "published" },
+			ctx,
+		);
+		expect(published).not.toBeNull();
+		expect(published?.title).toBe("Immediate");
+	});
+
+	it("past scheduledAt executes transition immediately (no queue)", async () => {
+		const article = await setup.app.collections.articles.create(
+			{ title: "Past Schedule" },
+			ctx,
+		);
+
+		const pastDate = new Date(Date.now() - 60_000);
+
+		await setup.app.collections.articles.transitionStage(
+			{ id: article.id, stage: "published", scheduledAt: pastDate },
+			ctx,
+		);
+
+		// No queue jobs — past date should execute immediately
+		const jobs = setup.app.mocks.queue.getJobsByName("scheduled-transition");
+		expect(jobs.length).toBe(0);
+
+		// Verify the transition actually happened
+		const published = await setup.app.collections.articles.findOne(
+			{ where: { id: article.id }, stage: "published" },
+			ctx,
+		);
+		expect(published).not.toBeNull();
+	});
+
+	it("scheduled job executes the transition when processed", async () => {
+		const article = await setup.app.collections.articles.create(
+			{ title: "Deferred Publish" },
+			ctx,
+		);
+
+		const futureDate = new Date(Date.now() + 60_000);
+
+		await setup.app.collections.articles.transitionStage(
+			{ id: article.id, stage: "published", scheduledAt: futureDate },
+			ctx,
+		);
+
+		// Not yet published
+		const beforeJob = await setup.app.collections.articles.findOne(
+			{ where: { id: article.id }, stage: "published" },
+			ctx,
+		);
+		expect(beforeJob).toBeNull();
+
+		// Process the queued job
+		await (setup.app as any).queue.runOnce();
+
+		// Now published
+		const afterJob = await setup.app.collections.articles.findOne(
+			{ where: { id: article.id }, stage: "published" },
+			ctx,
+		);
+		expect(afterJob).not.toBeNull();
+		expect(afterJob?.title).toBe("Deferred Publish");
 	});
 });
