@@ -1,4 +1,5 @@
-export * from "./adapter.js";
-export * from "./adapters/index.js";
-export * from "./service.js";
-export * from "./types.js";
+/**
+ * @deprecated Import from '#questpie/server/modules/core/integrated/kv/index.js' instead.
+ * This file is a backward-compatibility re-export.
+ */
+export * from "../../modules/core/integrated/kv/index.js";

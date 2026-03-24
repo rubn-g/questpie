@@ -1,17 +1,6 @@
 /**
- * Workflow
- *
- * Workflow configuration and scheduled transition job.
+ * @deprecated Import from `#questpie/server/modules/core/workflow/` instead.
+ * This file is a backward-compatibility re-export.
  */
-
-export {
-	type ResolvedWorkflowConfig,
-	type ResolvedWorkflowStage,
-	resolveWorkflowConfig,
-} from "./config.js";
-
-export {
-	type ScheduledTransitionPayload,
-	scheduledTransitionJob,
-	scheduledTransitionSchema,
-} from "./scheduled-transition.job.js";
+export * from "../modules/core/workflow/config.js";
+export * from "../modules/core/workflow/scheduled-transition.job.js";

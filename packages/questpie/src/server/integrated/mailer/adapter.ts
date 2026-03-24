@@ -1,8 +1,5 @@
-import type { SerializableMailOptions } from "./types.js";
-
 /**
- * Abstract base class for mail adapters
+ * @deprecated Import from '#questpie/server/modules/core/integrated/mailer/adapter.js' instead.
+ * This file is a backward-compatibility re-export.
  */
-export abstract class MailAdapter {
-	abstract send(options: SerializableMailOptions): Promise<void>;
-}
+export * from "../../modules/core/integrated/mailer/adapter.js";

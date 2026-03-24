@@ -1,17 +1,5 @@
-import type { KVAdapter } from "./adapter.js";
-
 /**
- * Configuration for the KV Module
+ * @deprecated Import from '#questpie/server/modules/core/integrated/kv/types.js' instead.
+ * This file is a backward-compatibility re-export.
  */
-export interface KVConfig {
-	/**
-	 * Custom adapter instance.
-	 * If not provided, defaults to MemoryKVAdapter.
-	 */
-	adapter?: KVAdapter;
-
-	/**
-	 * Default TTL in seconds for set operations if not specified
-	 */
-	defaultTtl?: number;
-}
+export * from "../../modules/core/integrated/kv/types.js";

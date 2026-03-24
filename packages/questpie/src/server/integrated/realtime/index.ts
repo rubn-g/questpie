@@ -1,6 +1,5 @@
-export * from "./adapter.js";
-export * from "./adapters/pg-notify.js";
-export * from "./adapters/redis-streams.js";
-export * from "./collection.js";
-export * from "./service.js";
-export * from "./types.js";
+/**
+ * @deprecated Import from '#questpie/server/modules/core/integrated/realtime/index.js' instead.
+ * This file is a backward-compatibility re-export.
+ */
+export * from "../../modules/core/integrated/realtime/index.js";

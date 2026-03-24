@@ -1,14 +1,5 @@
 /**
- * Search Providers
- *
- * Utility providers for search functionality (embeddings, etc.)
+ * @deprecated Import from '#questpie/server/modules/core/integrated/search/providers/index.js' instead.
+ * This file is a backward-compatibility re-export.
  */
-
-export {
-	CustomEmbeddingProvider,
-	type CustomEmbeddingProviderOptions,
-	createCustomEmbeddingProvider,
-	createOpenAIEmbeddingProvider,
-	OpenAIEmbeddingProvider,
-	type OpenAIEmbeddingProviderOptions,
-} from "./embeddings.js";
+export * from "../../../modules/core/integrated/search/providers/index.js";

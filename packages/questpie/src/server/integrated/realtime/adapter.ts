@@ -1,11 +1,5 @@
-import type { RealtimeChangeEvent, RealtimeNotice } from "./types.js";
-
 /**
- * Transport adapter for realtime change notifications.
+ * @deprecated Import from '#questpie/server/modules/core/integrated/realtime/adapter.js' instead.
+ * This file is a backward-compatibility re-export.
  */
-export interface RealtimeAdapter {
-	start(): Promise<void>;
-	stop(): Promise<void>;
-	notify(event: RealtimeChangeEvent): Promise<void>;
-	subscribe(handler: (notice: RealtimeNotice) => void): () => void;
-}
+export * from "../../modules/core/integrated/realtime/adapter.js";

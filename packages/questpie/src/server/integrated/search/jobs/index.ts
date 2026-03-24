@@ -1,11 +1,5 @@
 /**
- * Search Jobs
- *
- * Background jobs for search operations.
+ * @deprecated Import from '#questpie/server/modules/core/integrated/search/jobs/index.js' instead.
+ * This file is a backward-compatibility re-export.
  */
-
-export {
-	type IndexRecordsPayload,
-	indexRecordsJob,
-	indexRecordsSchema,
-} from "./index-records.job.js";
+export * from "../../../modules/core/integrated/search/jobs/index.js";
