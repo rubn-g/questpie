@@ -6,7 +6,7 @@
  * 1. Imports the runtime config, modules, and all discovered entities
  * 2. Emits type interfaces using typeof references (zero inference cost)
  * 3. Calls createApp(definition, runtime) to create the app instance
- * 4. Exports the app and composed App type
+ * 4. Exports the app instance and composed types
  *
  * All category-specific behavior (imports, types, runtime emission) is driven
  * by CategoryDeclaration metadata from plugins. Categories without explicit
@@ -88,7 +88,7 @@ export function generateTemplate(options: TemplateOptions): string {
 
 	// Import createApp + types
 	lines.push(
-		'import { createApp, createContextFactory, extractAppServices, type AppDefinition, type Questpie, type AppContext, type Registry, type QuestpieConfig, type QueueClient, type CollectionAPI } from "questpie";',
+		'import { createApp, createContextFactory, extractAppServices, type AppDefinition, type AppContext, type Registry, type QueueClient, type CollectionAPI } from "questpie";',
 	);
 	lines.push("");
 
@@ -487,49 +487,6 @@ export function generateTemplate(options: TemplateOptions): string {
 		}
 	}
 
-	// ── App — the full Questpie<> app type ──────────────────────
-	{
-		const stateMembers: string[] = [];
-
-		for (const [catName] of discovered.categories) {
-			const decl = allDecls.get(catName);
-			const include = decl ? decl.includeInAppState !== false : true;
-			if (!include) continue;
-			const appTypeName = deriveAppTypeName(catName, decl);
-			stateMembers.push(`\t${catName}: ${appTypeName};`);
-		}
-
-		// Messages — special ~messageKeys member
-		const messagesMap = discovered.categories.get("messages");
-		if (messagesMap && messagesMap.size > 0) {
-			stateMembers.push('\t"~messageKeys": AppMessageKeys;');
-		}
-
-		lines.push("/**");
-		lines.push(" * The fully-typed app instance type.");
-		lines.push(
-			" * Use `typeof app` or this alias when you need to reference the app type.",
-		);
-		lines.push(" *");
-		lines.push(
-			" * **Note:** Do NOT import `app` inside framework-defined files (collections,",
-		);
-		lines.push(
-			" * globals, routes, hooks, blocks) — it creates circular dependencies with",
-		);
-		lines.push(
-			" * the generated index. Use the context parameters provided to handlers instead.",
-		);
-		lines.push(" */");
-		lines.push("/** @deprecated Use `typeof app` instead of the App god type. */");
-		lines.push("export type App = Questpie<QuestpieConfig & {");
-		for (const member of stateMembers) {
-			lines.push(member);
-		}
-		lines.push("}>;");
-		lines.push("");
-	}
-
 	// ── AppContext augmentation — auto-types ALL handlers ──────
 	{
 		const emailsCat = discovered.categories.get("emails");
@@ -542,7 +499,7 @@ export function generateTemplate(options: TemplateOptions): string {
 		const servicesCat = discovered.categories.get("services");
 		const hasServices = !!servicesCat;
 
-		// Skip App['collections'] class getter indirection — map directly over AppCollections
+		// Skip App['api']['collections'] class getter indirection — map directly over AppCollections
 		lines.push(
 			"type _CollectionsAPI = { [K in keyof AppCollections]: CollectionAPI<AppCollections[K], AppCollections> };",
 		);
@@ -561,27 +518,27 @@ export function generateTemplate(options: TemplateOptions): string {
 			lines.push("\t\tinterface AppContext {");
 		}
 		lines.push("\t\t\t// Infrastructure");
-		lines.push("\t\t\tdb: App['db'];");
+		lines.push("\t\t\tdb: (typeof app)['db'];");
 		if (hasEmails) {
 			lines.push(`\t\t\temail: MailerService<${emailsTypeName}>;`);
 		} else {
-			lines.push("\t\t\temail: App['email'];");
+			lines.push("\t\t\temail: (typeof app)['email'];");
 		}
 		lines.push("\t\t\tqueue: QueueClient<AppJobs>;");
-		lines.push("\t\t\tstorage: App['storage'];");
-		lines.push("\t\t\tkv: App['kv'];");
-		lines.push("\t\t\tlogger: App['logger'];");
-		lines.push("\t\t\tsearch: App['search'];");
-		lines.push("\t\t\trealtime: App['realtime'];");
+		lines.push("\t\t\tstorage: (typeof app)['storage'];");
+		lines.push("\t\t\tkv: (typeof app)['kv'];");
+		lines.push("\t\t\tlogger: (typeof app)['logger'];");
+		lines.push("\t\t\tsearch: (typeof app)['search'];");
+		lines.push("\t\t\trealtime: (typeof app)['realtime'];");
 		lines.push("");
 		lines.push("\t\t\t// Entity APIs");
 		lines.push("\t\t\tcollections: _CollectionsAPI;");
-		lines.push("\t\t\tglobals: App['globals'];");
-		lines.push("\t\t\ttables: App['tables'];");
+		lines.push("\t\t\tglobals: (typeof app)['api']['globals'];");
+		lines.push("\t\t\ttables: (typeof app)['tables'];");
 		lines.push("");
 		lines.push("\t\t\t// Request-scoped");
 		lines.push(
-			"\t\t\tsession: App['auth'] extends { api: { getSession: (...args: any[]) => Promise<infer TSession> } } ? NonNullable<TSession> | null : null;",
+			"\t\t\tsession: (typeof app)['auth'] extends { api: { getSession: (...args: any[]) => Promise<infer TSession> } } ? NonNullable<TSession> | null : null;",
 		);
 		if (hasMessages) {
 			lines.push(
@@ -824,7 +781,7 @@ function emitNewArchitectureRuntime(
 
 	lines.push("\t}) satisfies AppDefinition,");
 	lines.push("\t_runtime,");
-	lines.push(") as unknown as App;");
+	lines.push(");");
 	lines.push("");
 }
 

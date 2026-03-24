@@ -196,8 +196,8 @@ describe("generateTemplate — minimal (modules.ts only)", () => {
 
 	it("emits AppConfig type", () => {
 		expect(code).toContain("export type AppConfig = {");
-		expect(code).toContain("collections: AppCollections;");
-		expect(code).toContain("globals: AppGlobals;");
+		expect(code).toContain("collections: AppCollections & Record<string, any>;");
+		expect(code).toContain("globals: AppGlobals & Record<string, any>;");
 	});
 
 	it("emits createApp call with modules", () => {
