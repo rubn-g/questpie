@@ -47,12 +47,10 @@ import _svc_email from "../services/email";
 import _svc_globalsApi from "../services/globals-api";
 import _svc_i18n from "../services/i18n";
 import _svc_kv from "../services/kv";
-import _svc_locale from "../services/locale";
 import _svc_logger from "../services/logger";
 import _svc_queue from "../services/queue";
 import _svc_realtime from "../services/realtime";
 import _svc_search from "../services/search";
-import _svc_session from "../services/session";
 import _svc_storage from "../services/storage";
 
 // ── Singles ────────────────────────────────────────────────
@@ -109,12 +107,10 @@ export interface CoreServices {
 	globalsApi: typeof _svc_globalsApi;
 	i18n: typeof _svc_i18n;
 	kv: typeof _svc_kv;
-	locale: typeof _svc_locale;
 	logger: typeof _svc_logger;
 	queue: typeof _svc_queue;
 	realtime: typeof _svc_realtime;
 	search: typeof _svc_search;
-	session: typeof _svc_session;
 	storage: typeof _svc_storage;
 }
 
@@ -169,12 +165,10 @@ const _module = {
 		globalsApi: _svc_globalsApi,
 		i18n: _svc_i18n,
 		kv: _svc_kv,
-		locale: _svc_locale,
 		logger: _svc_logger,
 		queue: _svc_queue,
 		realtime: _svc_realtime,
 		search: _svc_search,
-		session: _svc_session,
 		storage: _svc_storage,
 	} as CoreServices,
 	collections: {},

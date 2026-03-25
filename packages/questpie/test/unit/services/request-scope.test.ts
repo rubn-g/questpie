@@ -36,18 +36,12 @@ describe("RequestScope (QUE-255)", () => {
 		expect(b.id).toBe(2);
 	});
 
-	it("caches async factory result (Promise) and returns same instance", async () => {
+	it("throws on async factory (must be pre-resolved)", () => {
 		const scope = new RequestScope();
 
-		const result = scope.getOrCreate("async-svc", () => Promise.resolve("async-value"));
-		expect(result).toBeInstanceOf(Promise);
-
-		// Same Promise is returned on second access (memoized)
-		const result2 = scope.getOrCreate("async-svc", () => Promise.resolve("should-not-be-called"));
-		expect(result2).toBe(result);
-
-		// Resolved value is correct
-		expect(await result).toBe("async-value");
+		expect(() => {
+			scope.getOrCreate("async-svc", () => Promise.resolve("nope") as any);
+		}).toThrow("returned a Promise from sync resolution");
 	});
 
 	it("pre-populated async services work via set()", () => {
