@@ -12,6 +12,7 @@ import {
 	runWithContext,
 } from "#questpie/server/config/context.js";
 import type { Questpie } from "#questpie/server/config/questpie.js";
+import { ApiError } from "#questpie/server/errors/index.js";
 
 import type {
 	JsonRouteDefinition,
@@ -76,6 +77,19 @@ export async function executeJsonRoute<TInput, TOutput>(
 		session: resolvedContext.session,
 	});
 
+	// Access control — reject before handler runs
+	const allowed = await evaluateRouteAccess(definition.access, {
+		...services,
+		locale: resolvedContext.locale,
+	});
+	if (!allowed) {
+		throw ApiError.forbidden({
+			operation: "read",
+			resource: "route",
+			reason: "Access denied",
+		});
+	}
+
 	const result = await runWithContext(
 		{
 			app,
@@ -124,6 +138,20 @@ export async function executeRawRoute(
 		db: resolvedContext.db ?? app.db,
 		session: resolvedContext.session,
 	});
+
+	// Access control — reject before handler runs
+	const allowed = await evaluateRouteAccess(definition.access, {
+		...services,
+		locale: resolvedContext.locale,
+		request,
+	});
+	if (!allowed) {
+		throw ApiError.forbidden({
+			operation: "read",
+			resource: "route",
+			reason: "Access denied",
+		});
+	}
 
 	return runWithContext(
 		{
