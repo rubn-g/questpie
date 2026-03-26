@@ -3,7 +3,6 @@
  */
 
 import {
-	jsonb,
 	type PgVarcharBuilder,
 	pgEnum,
 	varchar,
@@ -45,9 +44,6 @@ export interface SelectOption {
 	description?: I18nText;
 	disabled?: boolean;
 }
-
-// Cache for dynamically created enum types
-const enumCache = new Map<string, any>();
 
 function isStaticOptions(
 	options: readonly SelectOption[] | OptionsConfig,
@@ -207,16 +203,14 @@ export const selectFieldType = fieldType("select", {
 				...string[],
 			];
 
-			let enumDef = enumCache.get(enumName);
-			if (!enumDef) {
-				enumDef = pgEnum(enumName, enumValues);
-				enumCache.set(enumName, enumDef);
-			}
+			// Create fresh pgEnum per .enum() call — no module-level cache
+			const enumDef = pgEnum(enumName, enumValues);
 
 			return new Field({
 				...state,
 				enumType: true,
 				enumName,
+				enumDef,
 				columnFactory: (name: string) => (enumDef as any)(name),
 			});
 		},
