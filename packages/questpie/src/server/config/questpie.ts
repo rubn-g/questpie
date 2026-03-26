@@ -187,122 +187,20 @@ export class Questpie<TConfig extends QuestpieConfig = QuestpieConfig> {
 		// Validate all relations point to existing collections
 		this.validateRelations();
 
-		// Initialize database client from config
-		if ("url" in config.db) {
-			// Postgres via Bun SQL
-			const bunSqlClient = new SQL({ url: config.db.url });
-			this._sqlClient = bunSqlClient;
-			this.db = drizzleBun({
-				client: bunSqlClient,
-				schema: this.getSchema(),
-			}) as any;
-			// Store connection string for pg client (used by realtime, migrations, etc.)
-			this.pgConnectionString = config.db.url;
-		} else {
-			// PGlite for testing
-			this.db = drizzlePgLite({
-				client: config.db.pglite,
-				schema: this.getSchema(),
-			}) as any;
-		}
+		// Register and resolve core services via the service container
+		this._registerCoreServiceDefs();
+		this._initCoreServicesSync();
 
-		// Batteries Included - Guaranteed Initialization with sensible defaults
-		this.kv = new KVService(config.kv);
-		this.logger = new LoggerService(config.logger);
-
-		// Initialize search service with adapter
-		// config.search is now a SearchAdapter (or undefined for default)
-		this.search = createSearchService(
-			config.search,
-			this.db as any,
-			this.logger,
-		);
-
-		// Initialize search adapter asynchronously
-		// This is done here but the actual initialization happens on first use
-		// or can be explicitly called via app.search.initialize()
-		this.search.initialize().catch((err: unknown) => {
-			this.logger.error("[QUESTPIE] Failed to initialize search adapter:", err);
-		});
-
-		// Initialize realtime service with auto-configured adapter
-		this.realtime = new RealtimeService(
-			this.db as any,
-			config.realtime,
-			this.pgConnectionString,
-		);
-
-		// Set subscription context for dependency resolution
-		this.realtime.setSubscriptionContext({
-			resolveCollectionDependencies: (baseCollection, withConfig) => {
-				return this.resolveCollectionDependencies(baseCollection, withConfig);
-			},
-			resolveGlobalDependencies: (globalName, withConfig) => {
-				return this.resolveGlobalDependencies(globalName, withConfig);
-			},
-		});
-
-		// Initialize queue if configured
-		if (config.queue) {
-			if (!config.queue.adapter) {
-				throw new Error(
-					"QUESTPIE: Queue adapter is required when jobs are defined. Provide adapter in .build({ queue: { adapter: ... } })",
-				);
-			}
-			this.queue = createQueueClient(config.queue.jobs, config.queue.adapter, {
-				createContext: async () => this.createContext({ accessMode: "system" }),
-				getApp: () => this,
-				logger: this.logger,
-			}) as any;
-		} else {
-			this.queue = {} as any; // Empty queue client if no jobs defined
-		}
-
-		// For critical infrastructure, we currently require config or throw
-		// In the future, we could provide safe "dev" defaults (e.g. local storage, console mail)
-
-		// Resolve auth config - could be a factory function
-
-		this.auth = betterAuth({
-			...(config.auth ?? {}),
-			database: drizzleAdapter(this.db, {
-				provider: "pg",
-				schema: this.getSchema(),
-				transaction: true,
-			}),
-		}) as typeof this.auth;
-
-		// Initialize storage with default or custom driver
-		this.storage = new DriveManager({
-			default: Questpie.__internal.storageDriverServiceName,
-			fakes: {
-				location: new URL(
-					join(tmpdir(), "fakes", crypto.randomUUID()),
-					import.meta.url,
-				),
-				urlBuilder: {
-					// TODO: is this correct?
-					generateSignedURL(key, _filePath, _options) {
-						return Promise.resolve(`http://fake-storage.local/${key}`);
-					},
-					generateURL(key, _filePath) {
-						return Promise.resolve(`http://fake-storage.local/${key}`);
-					},
-				},
-			},
-			services: {
-				[Questpie.__internal.storageDriverServiceName]: () =>
-					createDiskDriver(this.config),
-			},
-		});
-
-		if (config.email?.adapter) {
-			this.email = new MailerService(config.email as any);
-		} else {
-			throw new Error(
-				"QUESTPIE: 'email.adapter' is required. Provide adapter in .build({ email: { adapter: ... } })",
-			);
-		}
+		// Assign class properties from service cache
+		this.db = this._singletonServices["~db"];
+		this.kv = this._singletonServices["~kv"];
+		this.logger = this._singletonServices["~logger"];
+		this.search = this._singletonServices["~search"];
+		this.realtime = this._singletonServices["~realtime"];
+		this.queue = this._singletonServices["~queue"];
+		this.auth = this._singletonServices["~auth"];
+		this.storage = this._singletonServices["~storage"];
+		this.email = this._singletonServices["~email"];
 
 		this.migrations = new QuestpieMigrationsAPI(this);
 		this.seeds = new QuestpieSeedsAPI(this);
@@ -319,6 +217,186 @@ export class Questpie<TConfig extends QuestpieConfig = QuestpieConfig> {
 				(existing as Questpie).destroy().catch(() => {});
 			}
 			(globalThis as Record<string, unknown>)[hmrKey] = this;
+		}
+	}
+
+	// ========================================================================
+	// Core Service Factories
+	// ========================================================================
+
+	private _createDb(): DrizzleClientFromQuestpieConfig<TConfig> {
+		if ("url" in this.config.db) {
+			const bunSqlClient = new SQL({ url: this.config.db.url });
+			this._sqlClient = bunSqlClient;
+			this.pgConnectionString = this.config.db.url;
+			return drizzleBun({
+				client: bunSqlClient,
+				schema: this.getSchema(),
+			}) as any;
+		}
+		return drizzlePgLite({
+			client: this.config.db.pglite,
+			schema: this.getSchema(),
+		}) as any;
+	}
+
+	private _createKv(): KVService {
+		return new KVService(this.config.kv);
+	}
+
+	private _createLogger(): LoggerService {
+		return new LoggerService(this.config.logger);
+	}
+
+	private _createSearch(): SearchService {
+		const db = this._singletonServices["~db"];
+		const logger = this._singletonServices["~logger"] as LoggerService;
+		const svc = createSearchService(
+			this.config.search,
+			db as any,
+			logger,
+		);
+		svc.initialize().catch((err: unknown) => {
+			logger.error("[QUESTPIE] Failed to initialize search adapter:", err);
+		});
+		return svc;
+	}
+
+	private _createRealtime(): RealtimeService {
+		const db = this._singletonServices["~db"];
+		const svc = new RealtimeService(
+			db as any,
+			this.config.realtime,
+			this.pgConnectionString,
+		);
+		svc.setSubscriptionContext({
+			resolveCollectionDependencies: (baseCollection, withConfig) =>
+				this.resolveCollectionDependencies(baseCollection, withConfig),
+			resolveGlobalDependencies: (globalName, withConfig) =>
+				this.resolveGlobalDependencies(globalName, withConfig),
+		});
+		return svc;
+	}
+
+	private _createQueue(): QueueClient<NonNullable<TConfig["queue"]>["jobs"]> {
+		const logger = this._singletonServices["~logger"] as LoggerService;
+		if (this.config.queue) {
+			if (!this.config.queue.adapter) {
+				throw new Error(
+					"QUESTPIE: Queue adapter is required when jobs are defined. Provide adapter in .build({ queue: { adapter: ... } })",
+				);
+			}
+			return createQueueClient(this.config.queue.jobs, this.config.queue.adapter, {
+				createContext: async () => this.createContext({ accessMode: "system" }),
+				getApp: () => this,
+				logger,
+			}) as any;
+		}
+		return {} as any;
+	}
+
+	private _createAuth(): typeof this.auth {
+		const db = this._singletonServices["~db"];
+		return betterAuth({
+			...(this.config.auth ?? {}),
+			database: drizzleAdapter(db, {
+				provider: "pg",
+				schema: this.getSchema(),
+				transaction: true,
+			}),
+		}) as typeof this.auth;
+	}
+
+	private _createStorage(): typeof this.storage {
+		return new DriveManager({
+			default: Questpie.__internal.storageDriverServiceName,
+			fakes: {
+				location: new URL(
+					join(tmpdir(), "fakes", crypto.randomUUID()),
+					import.meta.url,
+				),
+				urlBuilder: {
+					generateSignedURL(key, _filePath, _options) {
+						return Promise.resolve(`http://fake-storage.local/${key}`);
+					},
+					generateURL(key, _filePath) {
+						return Promise.resolve(`http://fake-storage.local/${key}`);
+					},
+				},
+			},
+			services: {
+				[Questpie.__internal.storageDriverServiceName]: () =>
+					createDiskDriver(this.config),
+			},
+		});
+	}
+
+	private _createEmail(): MailerService {
+		if (this.config.email?.adapter) {
+			return new MailerService(this.config.email as any);
+		}
+		throw new Error(
+			"QUESTPIE: 'email.adapter' is required. Provide adapter in .build({ email: { adapter: ... } })",
+		);
+	}
+
+	// ========================================================================
+	// Core Service Registration & Resolution
+	// ========================================================================
+
+	/**
+	 * Register core services as internal service definitions.
+	 * Uses `~` prefix to avoid name collisions with user services.
+	 * Order matters — services are resolved sequentially in insertion order.
+	 */
+	private _registerCoreServiceDefs(): void {
+		const core: Record<string, { create: () => unknown; dispose?: (instance: unknown) => void | Promise<void> }> = {
+			"~db": {
+				create: () => this._createDb(),
+				dispose: () => this._sqlClient?.close({ timeout: 5 }),
+			},
+			"~kv": { create: () => this._createKv() },
+			"~logger": { create: () => this._createLogger() },
+			"~search": { create: () => this._createSearch() },
+			"~realtime": {
+				create: () => this._createRealtime(),
+				dispose: (instance) => (instance as RealtimeService)?.destroy(),
+			},
+			"~queue": {
+				create: () => this._createQueue(),
+				dispose: (instance) => (instance as any)?.stop?.(),
+			},
+			"~auth": { create: () => this._createAuth() },
+			"~storage": { create: () => this._createStorage() },
+			"~email": { create: () => this._createEmail() },
+		};
+
+		for (const [name, def] of Object.entries(core)) {
+			this._serviceDefs[name] = {
+				lifecycle: "singleton" as ServiceLifecycle,
+				create: () => def.create(),
+				dispose: def.dispose,
+				namespace: null,
+			};
+		}
+	}
+
+	/**
+	 * Synchronously resolve all core services (prefixed with `~`).
+	 * Called from constructor before any custom services.
+	 */
+	private _initCoreServicesSync(): void {
+		for (const [name, def] of Object.entries(this._serviceDefs)) {
+			if (!name.startsWith("~")) continue;
+			if (this._singletonServices[name] !== undefined) continue;
+
+			const instance = def.create({} as any);
+			if (instance instanceof Promise) {
+				throw new Error(
+					`QUESTPIE: Core service "${name}" returned a Promise. Core services must be synchronous.`,
+				);
+			}
+			this._singletonServices[name] = instance;
 		}
 	}
 
@@ -377,12 +455,6 @@ export class Questpie<TConfig extends QuestpieConfig = QuestpieConfig> {
 		}
 
 		this._singletonServices = {};
-
-		await Promise.allSettled([
-			this._sqlClient?.close({ timeout: 5 }),
-			this.realtime?.destroy(),
-			this.queue?.stop?.(),
-		]);
 	}
 
 	private async _autoInit(): Promise<void> {
@@ -417,7 +489,12 @@ export class Questpie<TConfig extends QuestpieConfig = QuestpieConfig> {
 	}
 
 	private _resolveServiceDefs(): void {
-		this._serviceDefs = {};
+		// Preserve core service defs (prefixed with ~), clear custom ones
+		const coreDefs: Record<string, ResolvedServiceDefinition> = {};
+		for (const [name, def] of Object.entries(this._serviceDefs)) {
+			if (name.startsWith("~")) coreDefs[name] = def;
+		}
+		this._serviceDefs = coreDefs;
 		this._customServiceNamespaces.clear();
 
 		if (!this.config.services) return;

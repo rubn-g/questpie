@@ -36,37 +36,12 @@ import {
 	resolveSidebarCallback,
 } from "../../../proxy-factories.js";
 
-// ============================================================================
-// Type Helpers
-// ============================================================================
-
-type WorkflowMeta = {
-	enabled: boolean;
-	initialStage: string;
-	stages: Array<{
-		name: string;
-		label?: string;
-		description?: string;
-		transitions?: string[];
-	}>;
-};
-
-type AdminConfigItemMeta = {
-	label?: unknown;
-	description?: unknown;
-	icon?: ComponentReference;
-	hidden?: boolean;
-	group?: string;
-	order?: number;
-	workflow?: WorkflowMeta;
-};
-
-/**
- * Helper to get typed app from handler context.
- */
-function getApp(ctx: any): Questpie<any> {
-	return ctx.app as Questpie<any>;
-}
+import {
+	type AdminConfigItemMeta,
+	asAdminCtx,
+	getAppState,
+	getEntityState,
+} from "./route-context.js";
 
 // ============================================================================
 // Access Control Helpers
@@ -160,7 +135,7 @@ function extractCollectionsMeta(
 	const collections = app.getCollections();
 
 	for (const [name, collection] of Object.entries(collections)) {
-		const state = (collection as any).state;
+		const state = getEntityState(collection);
 		const admin: AdminCollectionConfig | undefined = state?.admin;
 		const workflow = extractWorkflowMeta(state);
 		if (admin) {
@@ -191,7 +166,7 @@ function extractGlobalsMeta(
 	const globals = app.getGlobals();
 
 	for (const [name, global] of Object.entries(globals)) {
-		const state = (global as any).state;
+		const state = getEntityState(global);
 		const admin: AdminGlobalConfig | undefined = state?.admin;
 		const workflow = extractWorkflowMeta(state);
 		if (admin) {
@@ -262,7 +237,7 @@ function buildAutoSidebar(
 			items: ungrouped.map(({ name, meta }) => ({
 				type: "collection" as const,
 				collection: name,
-				label: meta.label as any,
+				label: meta.label,
 				icon: meta.icon,
 			})),
 		});
@@ -278,7 +253,7 @@ function buildAutoSidebar(
 			items: items.map(({ name, meta }) => ({
 				type: "collection" as const,
 				collection: name,
-				label: meta.label as any,
+				label: meta.label,
 				icon: meta.icon,
 			})),
 		});
@@ -296,7 +271,7 @@ function buildAutoSidebar(
 			items: visibleGlobals.map(([name, meta]) => ({
 				type: "global" as const,
 				global: name,
-				label: meta.label as any,
+				label: meta.label,
 				icon: meta.icon,
 			})),
 		});
@@ -479,8 +454,8 @@ function mergeSidebarContributions(
 
 		sections.push({
 			id: sectionId,
-			title: def?.title as any,
-			icon: def?.icon as any,
+			title: def?.title,
+			icon: def?.icon,
 			collapsible: def?.collapsible,
 			items: items.map(
 				({ sectionId: _sid, position: _pos, ...rest }) => rest as any,
@@ -584,8 +559,8 @@ function mergeDashboardContributions(
 	}
 
 	return {
-		title: title as any,
-		description: description as any,
+		title: title,
+		description: description,
 		columns,
 		realtime,
 		actions: allActions.length > 0 ? (allActions as any) : undefined,
@@ -798,8 +773,8 @@ const getAdminConfig = route()
 	.schema(getAdminConfigSchema)
 	.outputSchema(getAdminConfigOutputSchema)
 	.handler(async (ctx) => {
-		const app = getApp(ctx);
-		const state = (app as any).state || {};
+		const app = asAdminCtx(ctx).app;
+		const state = getAppState(app);
 		const adminCfg = state.config?.admin || {};
 
 		// 1. Compute accessible collections and globals
@@ -807,22 +782,22 @@ const getAdminConfig = route()
 		const globals = app.getGlobals();
 		const accessCtx = {
 			app: app,
-			session: (ctx as any).session,
-			db: (ctx as any).db,
-			locale: (ctx as any).locale,
+			session: asAdminCtx(ctx).session,
+			db: asAdminCtx(ctx).db,
+			locale: asAdminCtx(ctx).locale,
 		};
 
 		const [accessibleCollections, accessibleGlobals] = await Promise.all([
 			Promise.all(
 				Object.entries(collections).map(async ([name, col]) =>
-					(await hasReadAccess((col as any).state?.access?.read, accessCtx))
+					(await hasReadAccess(getEntityState(col)?.access?.read, accessCtx))
 						? name
 						: null,
 				),
 			).then((names) => new Set(names.filter(Boolean) as string[])),
 			Promise.all(
 				Object.entries(globals).map(async ([name, g]) =>
-					(await hasReadAccess((g as any).state?.access?.read, accessCtx))
+					(await hasReadAccess(getEntityState(g)?.access?.read, accessCtx))
 						? name
 						: null,
 				),
@@ -856,7 +831,7 @@ const getAdminConfig = route()
 			.filter(
 				([name, collection]) =>
 					accessibleCollections.has(name) &&
-					Boolean((collection as any)?.state?.upload),
+					Boolean(getEntityState(collection)?.upload),
 			)
 			.map(([name]) => name);
 

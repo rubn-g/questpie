@@ -19,6 +19,8 @@
 import { type Questpie, route } from "questpie";
 import { z } from "zod";
 
+import { asAdminCtx, getAppState } from "./route-context.js";
+
 import type {
 	ServerActionContext,
 	ServerActionDefinition,
@@ -68,7 +70,7 @@ export function getActionsConfig(
 	builtin: string[];
 	custom: Array<Omit<ServerActionDefinition, "handler">>;
 } | null {
-	const state = (app as any).state as any;
+	const state = getAppState(app);
 	const collection = state.collections?.[collectionSlug];
 
 	if (!collection) {
@@ -134,7 +136,7 @@ export async function executeAction(
 		locale,
 	} = request;
 
-	const state = (app as any).state as any;
+	const state = getAppState(app);
 	const collection = state.collections?.[collectionSlug];
 
 	if (!collection) {
@@ -205,10 +207,10 @@ export async function executeAction(
 			data: data || {},
 			itemId,
 			itemIds,
-			auth: (app as any).auth,
-			collections: (app as any).api?.collections,
-			globals: (app as any).api?.globals,
-			db: (app as any).db,
+			auth: app.auth,
+			collections: app.api?.collections,
+			globals: app.api?.globals,
+			db: app.db,
 			session,
 			locale,
 		};
@@ -250,9 +252,9 @@ async function executeBuiltinAction(
 	},
 ): Promise<ExecuteActionResponse> {
 	const { collectionSlug, actionId, itemId, itemIds, data } = params;
-	const collectionCrud = (app as any).api?.collections?.[collectionSlug];
+	const collectionCrud = app.api?.collections?.[collectionSlug];
 	const crudContext = {
-		db: (app as any).db,
+		db: app.db,
 		session: params.session,
 		locale: params.locale,
 	};
@@ -638,8 +640,8 @@ export const executeActionFn = route()
 	.schema(executeActionRequestSchema)
 	.outputSchema(executeActionResponseSchema)
 	.handler(async (ctx) => {
-		const app = (ctx as any).app as App;
-		const session = (ctx as any).session;
+		const app = asAdminCtx(ctx).app as App;
+		const session = asAdminCtx(ctx).session;
 		return executeAction(app, ctx.input, session);
 	});
 
@@ -652,7 +654,7 @@ export const getActionsConfigFn = route()
 	.schema(getActionsConfigRequestSchema)
 	.outputSchema(getActionsConfigResponseSchema)
 	.handler((ctx) => {
-		const app = (ctx as any).app as App;
+		const app = asAdminCtx(ctx).app as App;
 		return getActionsConfig(app, ctx.input.collection);
 	});
 
