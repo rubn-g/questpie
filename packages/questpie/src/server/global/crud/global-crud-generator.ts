@@ -27,6 +27,10 @@ import {
 } from "#questpie/server/collection/crud/relation-resolvers/index.js";
 import { resolveFieldKey } from "#questpie/server/collection/crud/shared/field-resolver.js";
 import {
+	executeGlobalGlobalHooks,
+	executeGlobalGlobalTransitionHooks,
+} from "#questpie/server/collection/crud/shared/global-hooks.js";
+import {
 	appendRealtimeChange,
 	executeAccessRule,
 	extractNestedLocalizationSchemas,
@@ -63,7 +67,7 @@ import {
 	extractWorkflowFromVersioning,
 	type ResolvedWorkflowConfig,
 	resolveWorkflowConfig,
-} from "#questpie/server/workflow/config.js";
+} from "#questpie/server/modules/core/workflow/config.js";
 import { DEFAULT_LOCALE } from "#questpie/shared/constants.js";
 
 import type {
@@ -700,7 +704,8 @@ export class GlobalCRUDGenerator<TState extends GlobalBuilderState> {
 				existing,
 			);
 
-			await this.executeHooks(
+			await this.executeHooksWithGlobal(
+				"beforeChange",
 				this.state.hooks?.beforeChange,
 				this.createHookContext({
 					data: existing,
@@ -827,7 +832,8 @@ export class GlobalCRUDGenerator<TState extends GlobalBuilderState> {
 						db: tx,
 					}),
 				);
-				await this.executeHooks(
+				await this.executeHooksWithGlobal(
+					"afterChange",
 					this.state.hooks?.afterChange,
 					this.createHookContext({
 						data: updatedRecord,
@@ -1036,7 +1042,8 @@ export class GlobalCRUDGenerator<TState extends GlobalBuilderState> {
 				}),
 			);
 
-			await this.executeHooks(
+			await this.executeHooksWithGlobal(
+				"beforeChange",
 				this.state.hooks?.beforeChange,
 				this.createHookContext({
 					data: existing,
@@ -1164,7 +1171,8 @@ export class GlobalCRUDGenerator<TState extends GlobalBuilderState> {
 						db: tx,
 					}),
 				);
-				await this.executeHooks(
+				await this.executeHooksWithGlobal(
+					"afterChange",
 					this.state.hooks?.afterChange,
 					this.createHookContext({
 						data: updatedRecord,
@@ -1288,7 +1296,8 @@ export class GlobalCRUDGenerator<TState extends GlobalBuilderState> {
 			} as GlobalTransitionHookContext;
 
 			// Execute beforeTransition hooks (throw to abort)
-			await this.executeTransitionHooks(
+			await this.executeTransitionHooksWithGlobal(
+				"beforeTransition",
 				this.state.hooks?.beforeTransition,
 				transitionCtx,
 			);
@@ -1322,7 +1331,8 @@ export class GlobalCRUDGenerator<TState extends GlobalBuilderState> {
 			});
 
 			// Execute afterTransition hooks
-			await this.executeTransitionHooks(
+			await this.executeTransitionHooksWithGlobal(
+				"afterTransition",
 				this.state.hooks?.afterTransition,
 				transitionCtx,
 			);
@@ -1582,6 +1592,50 @@ export class GlobalCRUDGenerator<TState extends GlobalBuilderState> {
 		const hookArray = Array.isArray(hooks) ? hooks : [hooks];
 		for (const hook of hookArray) {
 			await hook(ctx);
+		}
+	}
+
+	/**
+	 * Execute change hooks AND global global hooks.
+	 * before*: global first, then entity-specific.
+	 * after*: entity-specific first, then global.
+	 */
+	private async executeHooksWithGlobal(
+		hookName: "beforeChange" | "afterChange",
+		entityHooks: GlobalHookFunction | GlobalHookFunction[] | undefined,
+		ctx: GlobalHookContext,
+	) {
+		const globalEntries = this.app?.globalHooks?.globals;
+		const isBefore = hookName === "beforeChange";
+		const globalKey = this.state.name;
+
+		if (isBefore) {
+			await executeGlobalGlobalHooks(globalEntries, hookName, globalKey, ctx as any);
+			await this.executeHooks(entityHooks, ctx);
+		} else {
+			await this.executeHooks(entityHooks, ctx);
+			await executeGlobalGlobalHooks(globalEntries, hookName, globalKey, ctx as any);
+		}
+	}
+
+	/**
+	 * Execute transition hooks AND global global transition hooks.
+	 */
+	private async executeTransitionHooksWithGlobal(
+		hookName: "beforeTransition" | "afterTransition",
+		entityHooks: any | any[] | undefined,
+		ctx: GlobalTransitionHookContext,
+	) {
+		const globalEntries = this.app?.globalHooks?.globals;
+		const isBefore = hookName === "beforeTransition";
+		const globalKey = this.state.name;
+
+		if (isBefore) {
+			await executeGlobalGlobalTransitionHooks(globalEntries, hookName, globalKey, ctx as any);
+			await this.executeTransitionHooks(entityHooks, ctx);
+		} else {
+			await this.executeTransitionHooks(entityHooks, ctx);
+			await executeGlobalGlobalTransitionHooks(globalEntries, hookName, globalKey, ctx as any);
 		}
 	}
 

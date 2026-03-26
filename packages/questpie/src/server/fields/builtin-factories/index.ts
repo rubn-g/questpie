@@ -5,13 +5,22 @@
  * with chain methods (max, min, pattern, trim, etc.)
  */
 
-// Side-effect imports: patch Field.prototype
-import "./text.js";
-import "./number.js";
-import "./date.js";
-import "./select.js";
-import "./from.js";
-import "./relation.js";
+// Value imports for builtinFields map (also triggers side effects)
+import { boolean } from "./boolean.js";
+import { date } from "./date.js";
+import { datetime } from "./datetime.js";
+import { email } from "./email.js";
+import { from } from "./from.js";
+import { json } from "./json.js";
+import { number } from "./number.js";
+import { object } from "./object.js";
+import { relation } from "./relation.js";
+import { select } from "./select.js";
+import { text } from "./text.js";
+import { textarea } from "./textarea.js";
+import { time } from "./time.js";
+import { upload } from "./upload.js";
+import { url } from "./url.js";
 
 export {
 	type BooleanFieldMeta,
@@ -53,7 +62,6 @@ export {
 	type SelectOption,
 	select,
 } from "./select.js";
-// Named re-exports (factories + state types + meta augmentation interfaces)
 export { type TextFieldMeta, type TextFieldState, text } from "./text.js";
 export {
 	type TextareaFieldMeta,
@@ -67,3 +75,29 @@ export {
 	upload,
 } from "./upload.js";
 export { type UrlFieldMeta, type UrlFieldState, url } from "./url.js";
+
+/**
+ * Map of all builtin field factory functions keyed by type name.
+ */
+export const builtinFields = {
+	text,
+	textarea,
+	email,
+	url,
+	number,
+	boolean,
+	date,
+	datetime,
+	time,
+	select,
+	upload,
+	relation,
+	object,
+	json,
+	from,
+} as const;
+
+/**
+ * Type for the builtin fields map.
+ */
+export type BuiltinFields = typeof builtinFields;

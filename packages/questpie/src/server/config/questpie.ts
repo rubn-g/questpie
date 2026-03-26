@@ -36,22 +36,22 @@ import {
 	GlobalBuilder,
 } from "#questpie/server/global/builder/index.js";
 import { createTranslator } from "#questpie/server/i18n/translator.js";
-import { KVService } from "#questpie/server/integrated/kv/index.js";
-import { LoggerService } from "#questpie/server/integrated/logger/index.js";
-import { MailerService } from "#questpie/server/integrated/mailer/index.js";
+import { KVService } from "#questpie/server/modules/core/integrated/kv/index.js";
+import { LoggerService } from "#questpie/server/modules/core/integrated/logger/index.js";
+import { MailerService } from "#questpie/server/modules/core/integrated/mailer/index.js";
 import {
 	createQueueClient,
 	type QueueClient,
-} from "#questpie/server/integrated/queue/index.js";
+} from "#questpie/server/modules/core/integrated/queue/index.js";
 import {
 	questpieRealtimeLogTable,
 	RealtimeService,
-} from "#questpie/server/integrated/realtime/index.js";
+} from "#questpie/server/modules/core/integrated/realtime/index.js";
 import {
 	createSearchService,
 	type SearchService,
-} from "#questpie/server/integrated/search/index.js";
-import { createDiskDriver } from "#questpie/server/integrated/storage/create-driver.js";
+} from "#questpie/server/modules/core/integrated/search/index.js";
+import { createDiskDriver } from "#questpie/server/modules/core/integrated/storage/create-driver.js";
 import { resolveAutoSeedCategories } from "#questpie/server/seed/types.js";
 import {
 	ServiceBuilder,
@@ -782,103 +782,13 @@ export class Questpie<TConfig extends QuestpieConfig = QuestpieConfig> {
 	 * - `after*` hooks are wrapped with try/catch (errors logged, not propagated).
 	 * - Deduplicates entries that appear multiple times due to `.use()` composition.
 	 */
+	/**
+	 * Global hooks are now handled directly in CRUD generators:
+	 * - Collection: executeCollectionHooksWithGlobal in crud-generator.ts
+	 * - Global: executeHooksWithGlobal in global-crud-generator.ts
+	 */
 	private injectGlobalHooks(): void {
-		const {
-			globals: rawGlobalEntries = [],
-		} = this.globalHooks;
-
-		// Deduplicate entries (same object ref can appear multiple times via .use() merges)
-		const globalEntries = [...new Set(rawGlobalEntries)];
-
-		// Helper: check if a hook entry matches a given entity name
-		const matchesFilter = (
-			entry: { include?: string[]; exclude?: string[] },
-			name: string,
-		): boolean => {
-			if (entry.include && !entry.include.includes(name)) return false;
-			if (entry.exclude && entry.exclude.includes(name)) return false;
-			return true;
-		};
-
-		// Helper: append a hook fn to an entity's hooks (supports array or single)
-		const appendHook = (
-			hooks: Record<string, any>,
-			hookName: string,
-			fn: (...args: any[]) => any,
-		) => {
-			const existing = hooks[hookName];
-			if (existing) {
-				const arr = Array.isArray(existing) ? existing : [existing];
-				hooks[hookName] = [...arr, fn];
-			} else {
-				hooks[hookName] = [fn];
-			}
-		};
-
-		// NOTE: Collection global hooks are handled by executeCollectionHooksWithGlobal
-		// in crud-generator.ts — no injection needed here.
-
-		// Inject global global hooks
-		for (const [name, global] of Object.entries(this._globals)) {
-			const state = (global as any).state as any;
-
-			for (const entry of globalEntries) {
-				if (!matchesFilter(entry, name)) continue;
-
-				if (!state.hooks) state.hooks = {};
-
-				// Standard hooks: beforeChange, afterChange
-				for (const hookName of ["beforeChange", "afterChange"] as const) {
-					const globalFn = entry[hookName];
-					if (!globalFn) continue;
-
-					const isAfter = hookName === "afterChange";
-					const wrapped = isAfter
-						? async (ctx: any) => {
-								try {
-									await globalFn({ ...ctx, global: name });
-								} catch (err) {
-									this.logger.error(
-										`[QUESTPIE] Global global hook "${hookName}" error for "${name}":`,
-										err,
-									);
-								}
-							}
-						: async (ctx: any) => {
-								await globalFn({ ...ctx, global: name });
-							};
-
-					appendHook(state.hooks, hookName, wrapped);
-				}
-
-				// Transition hooks: beforeTransition, afterTransition
-				for (const hookName of [
-					"beforeTransition",
-					"afterTransition",
-				] as const) {
-					const globalFn = entry[hookName];
-					if (!globalFn) continue;
-
-					const isAfter = hookName === "afterTransition";
-					const wrapped = isAfter
-						? async (ctx: any) => {
-								try {
-									await globalFn({ ...ctx, global: name });
-								} catch (err) {
-									this.logger.error(
-										`[QUESTPIE] Global global hook "${hookName}" error for "${name}":`,
-										err,
-									);
-								}
-							}
-						: async (ctx: any) => {
-								await globalFn({ ...ctx, global: name });
-							};
-
-					appendHook(state.hooks, hookName, wrapped);
-				}
-			}
-		}
+		// No-op — kept for call-site compatibility.
 	}
 
 	/**

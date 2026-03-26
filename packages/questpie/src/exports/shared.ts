@@ -8,8 +8,8 @@
  */
 
 // Config types (needed for type exports from client)
-export type { KVConfig } from "#questpie/server/integrated/kv/types.js";
-export type { LoggerConfig } from "#questpie/server/integrated/logger/types.js";
+export type { KVConfig } from "#questpie/server/modules/core/integrated/kv/types.js";
+export type { LoggerConfig } from "#questpie/server/modules/core/integrated/logger/types.js";
 export * from "#questpie/shared/collection-meta.js";
 export * from "#questpie/shared/constants.js";
 export * from "#questpie/shared/global-meta.js";

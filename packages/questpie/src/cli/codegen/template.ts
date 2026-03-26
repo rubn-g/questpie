@@ -783,7 +783,7 @@ function emitNewArchitectureRuntime(
 	for (const file of allSingles) {
 		if (file.configKey) {
 			configEntries.push({ configKey: file.configKey, file });
-		} else if (file.key !== "modules") {
+		} else if (file.key !== "modules" && file.key !== "plugin") {
 			plainSingles.push(file);
 		}
 	}

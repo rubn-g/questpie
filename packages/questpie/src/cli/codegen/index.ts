@@ -133,6 +133,7 @@ export function coreCodegenPlugin(): CodegenPlugin {
 				},
 				discover: {
 					modules: "modules.ts",
+					plugin: "plugin.ts",
 					fields: { pattern: "fields.ts", registryKey: "~fieldTypes" },
 					authConfig: { pattern: "config/auth.ts", configKey: "auth" },
 					appConfig: { pattern: "config/app.ts", configKey: "app" },
