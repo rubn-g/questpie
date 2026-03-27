@@ -8,6 +8,8 @@
 import { ApiError, route, tryGetContext } from "questpie";
 import { z } from "zod";
 
+import { getAppState } from "./route-context.js";
+
 import type { ServerDashboardItem } from "../../../augmentation.js";
 
 // ============================================================================
