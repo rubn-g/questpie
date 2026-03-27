@@ -1,5 +1,5 @@
 import { service } from "#questpie/server/services/define-service.js";
-import { createSearchService } from "#questpie/server/modules/core/integrated/search/index.js";
+import { createSearchService } from "#questpie/server/modules/core/integrated/search/service.js";
 
 /**
  * Search service — creates the SearchService from app config.

@@ -15,7 +15,7 @@ import {
 
 import { sql } from "drizzle-orm";
 
-import { collection } from "../../src/server/index.js";
+import { collection } from "../../src/exports/index.js";
 import {
 	createPostgresSearchAdapter,
 	type PostgresSearchAdapter,

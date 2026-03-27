@@ -1,5 +1,5 @@
 import { service } from "#questpie/server/services/define-service.js";
-import { createQueueClient } from "#questpie/server/modules/core/integrated/queue/index.js";
+import { createQueueClient } from "#questpie/server/modules/core/integrated/queue/service.js";
 
 /**
  * Queue service — creates the QueueClient from app config.

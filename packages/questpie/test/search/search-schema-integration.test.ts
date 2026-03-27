@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it } from "bun:test";
 
-import { collection } from "../../src/server/index.js";
+import { collection } from "../../src/exports/index.js";
 import {
 	createPgVectorSearchAdapter,
 	type PgVectorSearchAdapter,

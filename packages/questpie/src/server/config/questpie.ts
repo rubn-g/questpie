@@ -25,19 +25,17 @@ import type {
 	Locale,
 	TablesFromConfig,
 } from "#questpie/server/config/types.js";
-import {
-	type Global,
-	GlobalBuilder,
-} from "#questpie/server/global/builder/index.js";
-import type { KVService } from "#questpie/server/modules/core/integrated/kv/index.js";
-import type { LoggerService } from "#questpie/server/modules/core/integrated/logger/index.js";
-import type { MailerService } from "#questpie/server/modules/core/integrated/mailer/index.js";
-import type { QueueClient } from "#questpie/server/modules/core/integrated/queue/index.js";
+import type { Global } from "#questpie/server/global/builder/global.js";
+import { GlobalBuilder } from "#questpie/server/global/builder/global-builder.js";
+import type { KVService } from "#questpie/server/modules/core/integrated/kv/service.js";
+import type { LoggerService } from "#questpie/server/modules/core/integrated/logger/service.js";
+import type { MailerService } from "#questpie/server/modules/core/integrated/mailer/service.js";
+import type { QueueClient } from "#questpie/server/modules/core/integrated/queue/types.js";
 import {
 	questpieRealtimeLogTable,
-} from "#questpie/server/modules/core/integrated/realtime/index.js";
-import type { RealtimeService } from "#questpie/server/modules/core/integrated/realtime/index.js";
-import type { SearchService } from "#questpie/server/modules/core/integrated/search/index.js";
+} from "#questpie/server/modules/core/integrated/realtime/collection.js";
+import type { RealtimeService } from "#questpie/server/modules/core/integrated/realtime/service.js";
+import type { SearchService } from "#questpie/server/modules/core/integrated/search/types.js";
 import { resolveAutoSeedCategories } from "#questpie/server/seed/types.js";
 import {
 	ServiceBuilder,

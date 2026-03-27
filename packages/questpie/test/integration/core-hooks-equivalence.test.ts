@@ -22,7 +22,7 @@ import {
 	questpieRealtimeLogTable,
 	type RealtimeAdapter,
 	type RealtimeChangeEvent,
-} from "../../src/server/index.js";
+} from "../../src/exports/index.js";
 import { scheduledTransitionJob } from "../../src/server/modules/core/workflow/scheduled-transition.job.js";
 import { buildMockApp } from "../utils/mocks/mock-app-builder";
 import { createTestContext } from "../utils/test-context";

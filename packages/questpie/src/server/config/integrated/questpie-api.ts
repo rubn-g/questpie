@@ -14,7 +14,7 @@ import type { QuestpieConfig } from "#questpie/server/config/types.js";
 import type {
 	GlobalCRUD,
 	GlobalSelectFromApp,
-} from "#questpie/server/global/crud/index.js";
+} from "#questpie/server/global/crud/types.js";
 import type {
 	AnyCollectionOrBuilder,
 	CollectionInsert,

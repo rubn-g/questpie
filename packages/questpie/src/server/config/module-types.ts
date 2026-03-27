@@ -59,15 +59,15 @@ import type {
 	StorageConfig,
 } from "#questpie/server/config/types.js";
 import type { TranslationsConfig } from "#questpie/server/i18n/types.js";
-import type { KVConfig } from "#questpie/server/modules/core/integrated/kv/index.js";
-import type { LoggerConfig } from "#questpie/server/modules/core/integrated/logger/index.js";
-import type { MailerConfig } from "#questpie/server/modules/core/integrated/mailer/index.js";
+import type { KVConfig } from "#questpie/server/modules/core/integrated/kv/types.js";
+import type { LoggerConfig } from "#questpie/server/modules/core/integrated/logger/types.js";
+import type { MailerConfig } from "#questpie/server/modules/core/integrated/mailer/types.js";
 import type {
 	JobDefinition,
 	QueueAdapter,
 } from "#questpie/server/modules/core/integrated/queue/types.js";
-import type { RealtimeConfig } from "#questpie/server/modules/core/integrated/realtime/index.js";
-import type { SearchAdapter } from "#questpie/server/modules/core/integrated/search/index.js";
+import type { RealtimeConfig } from "#questpie/server/modules/core/integrated/realtime/types.js";
+import type { SearchAdapter } from "#questpie/server/modules/core/integrated/search/types.js";
 import type { Migration } from "#questpie/server/migration/types.js";
 import type { RouteDefinition } from "#questpie/server/routes/types.js";
 import type { Seed, SeedCategory } from "#questpie/server/seed/types.js";
@@ -365,7 +365,7 @@ export interface AppDefinition {
 	/** Email templates discovered from `emails/` directory. */
 	emailTemplates?: Record<
 		string,
-		import("#questpie/server/modules/core/integrated/mailer/index.js").EmailTemplateDefinition<
+		import("#questpie/server/modules/core/integrated/mailer/template.js").EmailTemplateDefinition<
 			any,
 			any
 		>

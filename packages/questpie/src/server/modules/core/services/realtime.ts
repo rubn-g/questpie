@@ -1,5 +1,5 @@
 import { service } from "#questpie/server/services/define-service.js";
-import { RealtimeService } from "#questpie/server/modules/core/integrated/realtime/index.js";
+import { RealtimeService } from "#questpie/server/modules/core/integrated/realtime/service.js";
 
 /**
  * Realtime service — creates the RealtimeService from app config.

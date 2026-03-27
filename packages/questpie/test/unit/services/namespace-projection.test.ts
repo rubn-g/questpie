@@ -9,7 +9,7 @@
  */
 import { afterEach, beforeEach, describe, expect, it } from "bun:test";
 
-import { collection, service } from "../../../src/server/index.js";
+import { collection, service } from "../../../src/exports/index.js";
 import { extractAppServices } from "../../../src/server/config/app-context.js";
 import { buildMockApp } from "../../utils/mocks/mock-app-builder";
 import { createTestContext } from "../../utils/test-context";

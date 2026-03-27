@@ -35,7 +35,7 @@ import {
 	builtinFields,
 } from "#questpie/server/modules/core/fields/index.js";
 import type { RelationFieldMetadata } from "#questpie/server/fields/types.js";
-import type { SearchableConfig } from "#questpie/server/modules/core/integrated/search/index.js";
+import type { SearchableConfig } from "#questpie/server/modules/core/integrated/search/types.js";
 import type { Override } from "#questpie/shared/type-utils.js";
 
 /**

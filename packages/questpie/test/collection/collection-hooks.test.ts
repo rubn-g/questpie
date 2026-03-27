@@ -2,8 +2,8 @@ import { afterEach, beforeEach, describe, expect, it } from "bun:test";
 
 import { z } from "zod";
 
-import { collection, job } from "../../src/server/index.js";
-import { isNullish } from "../../src/shared/utils/index.js";
+import { collection, job } from "../../src/exports/index.js";
+import { isNullish } from "../../src/shared/utils/data-utils.js";
 import { buildMockApp } from "../utils/mocks/mock-app-builder";
 import { createTestContext } from "../utils/test-context";
 import { runTestDbMigrations } from "../utils/test-db";

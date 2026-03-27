@@ -8,7 +8,7 @@ import {
 	questpieRealtimeLogTable,
 	type RealtimeAdapter,
 	type RealtimeChangeEvent,
-} from "../../src/server/index.js";
+} from "../../src/exports/index.js";
 import { buildMockApp } from "../utils/mocks/mock-app-builder";
 import { createTestContext } from "../utils/test-context";
 import { runTestDbMigrations } from "../utils/test-db";
