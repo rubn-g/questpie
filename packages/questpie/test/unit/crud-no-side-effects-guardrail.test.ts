@@ -42,13 +42,16 @@ describe("CRUD no-side-effects guardrail (QUE-253)", () => {
 		expect(code).not.toContain("'scheduled-transition'");
 	});
 
-	// NOTE: Global CRUD generator still uses appendRealtimeChange/notifyRealtimeChange
-	// because globals don't have the same global hook infrastructure as collections.
-	// This will be addressed when globals get hook support equivalent to collections.
+	it("global crud-generator does not import realtime utilities", () => {
+		const code = readFile(GLOBAL_CRUD_DIR, "global-crud-generator.ts");
+		expect(code).not.toContain("appendRealtimeChange");
+		expect(code).not.toContain("notifyRealtimeChange");
+	});
 
 	it("global crud-generator does not hardcode scheduled-transition", () => {
 		const code = readFile(GLOBAL_CRUD_DIR, "global-crud-generator.ts");
 		expect(code).not.toContain('"scheduled-transition"');
 		expect(code).not.toContain("'scheduled-transition'");
+		expect(code).not.toContain("scheduleCollectionTransition");
 	});
 });
