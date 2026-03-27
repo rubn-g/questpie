@@ -1,12 +1,12 @@
 /**
- * Reactive Field System — Serialization Runtime
+ * Reactive Field System — Core Runtime
  *
  * Re-exports plain types from reactive-types.ts and provides
  * Proxy-based dependency tracking for introspection serialization.
  *
- * Note: Reactive handler EXECUTION lives in admin package
- * (server/modules/admin/routes/reactive.ts). Core only handles
- * serialization (extractDependencies → watch arrays for introspection).
+ * Higher-level serialization helpers (serializeReactiveConfig,
+ * serializeOptionsConfig, getHandler) have been moved to
+ * `@questpie/admin` (server/fields/reactive-runtime.ts).
  *
  * For type-only imports (no runtime dependency), use reactive-types.ts.
  */
@@ -30,15 +30,8 @@ export type {
 import type {
 	ReactiveContext,
 	ReactiveConfig,
-	ReactiveHandler,
-	OptionsContext,
-	OptionsConfig,
-	SerializedReactiveConfig,
-	SerializedOptionsConfig,
 	TrackingResult,
 } from "./reactive-types.js";
-
-import type { I18nText } from "#questpie/shared/i18n/types.js";
 
 // ============================================================================
 // Dependency Tracking (Runtime — uses Proxy)
@@ -149,13 +142,6 @@ export function extractDependencies(config: ReactiveConfig<any>): string[] {
 }
 
 /**
- * Get handler function from ReactiveConfig.
- */
-export function getHandler<T>(config: ReactiveConfig<T>): ReactiveHandler<T> {
-	return typeof config === "function" ? config : config.handler;
-}
-
-/**
  * Get debounce value from ReactiveConfig.
  */
 export function getDebounce(config: ReactiveConfig<any>): number | undefined {
@@ -173,73 +159,4 @@ export function isReactiveConfig(value: unknown): value is ReactiveConfig<any> {
 		return typeof (value as any).handler === "function";
 	}
 	return false;
-}
-
-// ============================================================================
-// Serialization (uses dependency tracking)
-// ============================================================================
-
-/**
- * Serialize a ReactiveConfig for introspection response.
- */
-export function serializeReactiveConfig(
-	config: ReactiveConfig<any>,
-): SerializedReactiveConfig {
-	return {
-		watch: extractDependencies(config),
-		debounce: getDebounce(config),
-	};
-}
-
-/**
- * Serialize an OptionsConfig for introspection response.
- */
-export function serializeOptionsConfig(
-	config: OptionsConfig<any>,
-): SerializedOptionsConfig {
-	let watch: string[];
-
-	if (Array.isArray(config.deps)) {
-		watch = config.deps;
-	} else if (typeof config.deps === "function") {
-		watch = trackDepsFunction(config.deps as any);
-	} else {
-		// Track from handler (create dummy OptionsContext)
-		const deps = new Set<string>();
-
-		const createProxy = (prefix: string): any =>
-			new Proxy({} as any, {
-				get(_, prop: string | symbol) {
-					if (typeof prop === "symbol" || prop === "then") {
-						return undefined;
-					}
-					const path = prefix ? `${prefix}.${prop}` : prop;
-					deps.add(path);
-					return createProxy(path);
-				},
-			});
-
-		const ctx: OptionsContext = {
-			data: createProxy(""),
-			sibling: createProxy("$sibling"),
-			search: "",
-			page: 0,
-			limit: 20,
-			ctx: {} as any,
-		};
-
-		try {
-			config.handler(ctx);
-		} catch {
-			// Ignore
-		}
-
-		watch = [...deps];
-	}
-
-	return {
-		watch,
-		searchable: true, // Options handlers always support search
-		paginated: true, // Options handlers always support pagination
-	};
 }

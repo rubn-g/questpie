@@ -54,10 +54,10 @@ export type {
 } from "./field-class-types.js";
 
 // Reactive field system
+// Note: getHandler, serializeReactiveConfig, serializeOptionsConfig moved to @questpie/admin
 export {
 	extractDependencies,
 	getDebounce,
-	getHandler,
 	isReactiveConfig,
 	type OptionsConfig,
 	type OptionsContext,
@@ -70,8 +70,6 @@ export {
 	type ReactiveServerContext,
 	type SerializedOptionsConfig,
 	type SerializedReactiveConfig,
-	serializeOptionsConfig,
-	serializeReactiveConfig,
 	type TrackingResult,
 	trackDependencies,
 	trackDepsFunction,
