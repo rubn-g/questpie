@@ -1,10 +1,9 @@
 {
   "name": "server",
   "cmd": "bun dev",
-  "pid": 59823,
+  "pid": 55554,
   "port": 3000,
   "ready": "ready in",
-  "cwd": "/Users/drepkovsky/questpie/repos/questpie-cms/examples/tanstack-barbershop",
   "timeout": 60000,
-  "startedAt": "2026-03-27T00:28:13.184Z"
+  "startedAt": "2026-03-27T15:23:48.934Z"
 }
