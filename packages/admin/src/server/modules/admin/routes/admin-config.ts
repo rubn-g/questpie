@@ -300,9 +300,9 @@ function filterSidebarConfig(
 				...s,
 				items: (s.items ?? []).filter((item) => {
 					if (item.type === "collection")
-						return accessibleCollections.has((item as any).collection);
+						return accessibleCollections.has((item as Record<string, any>).collection);
 					if (item.type === "global")
-						return accessibleGlobals.has((item as any).global);
+						return accessibleGlobals.has((item as Record<string, any>).global);
 					return true; // pages, links, dividers always pass
 				}),
 			}))
@@ -324,8 +324,8 @@ function collectSidebarReferences(config: ServerSidebarConfig): {
 
 	function collectFromSection(section: ServerSidebarSection): void {
 		for (const item of section.items ?? []) {
-			if (item.type === "collection") collections.add((item as any).collection);
-			else if (item.type === "global") globals.add((item as any).global);
+			if (item.type === "collection") collections.add((item as Record<string, any>).collection);
+			else if (item.type === "global") globals.add((item as Record<string, any>).global);
 		}
 		for (const subSection of section.sections ?? []) {
 			collectFromSection(subSection);
@@ -458,7 +458,7 @@ function mergeSidebarContributions(
 			icon: def?.icon,
 			collapsible: def?.collapsible,
 			items: items.map(
-				({ sectionId: _sid, position: _pos, ...rest }) => rest as any,
+				({ sectionId: _sid, position: _pos, ...rest }) => rest as Record<string, unknown>,
 			),
 		});
 	}
@@ -552,7 +552,7 @@ function mergeDashboardContributions(
 				layout: def?.layout ?? "grid",
 				columns: def?.columns,
 				items: items.map(
-					({ sectionId: _sid, position: _pos, ...rest }) => rest as any,
+					({ sectionId: _sid, position: _pos, ...rest }) => rest as Record<string, unknown>,
 				),
 			} as Record<string, any>);
 		}
@@ -611,15 +611,15 @@ function assignWidgetIds(items: ServerDashboardItem[]): void {
 	function walk(items: ServerDashboardItem[]) {
 		for (const item of items) {
 			if (item.type === "section") {
-				walk((item as any).items || []);
+				walk((item as Record<string, any>).items || []);
 			} else if (item.type === "tabs") {
-				for (const tab of (item as any).tabs || []) {
+				for (const tab of (item as Record<string, any>).tabs || []) {
 					walk(tab.items || []);
 				}
 			} else {
 				// Widget — assign ID if missing
-				if (!(item as any).id) {
-					(item as any).id = `__auto_${item.type}_${counter++}`;
+				if (!(item as Record<string, any>).id) {
+					(item as Record<string, any>).id = `__auto_${item.type}_${counter++}`;
 				}
 			}
 		}
@@ -642,7 +642,7 @@ async function processDashboardItems(
 		// Recurse into sections
 		if (item.type === "section") {
 			const filtered = await processDashboardItems(
-				(item as any).items || [],
+				(item as Record<string, any>).items || [],
 				accessibleCollections,
 				accessCtx,
 			);
@@ -655,7 +655,7 @@ async function processDashboardItems(
 		// Recurse into tabs
 		if (item.type === "tabs") {
 			const tabs = await Promise.all(
-				((item as any).tabs || []).map(async (tab: any) => {
+				((item as Record<string, any>).tabs || []).map(async (tab: any) => {
 					const filtered = await processDashboardItems(
 						tab.items || [],
 						accessibleCollections,
@@ -669,7 +669,7 @@ async function processDashboardItems(
 		}
 
 		// Widget processing
-		const widget = item as any;
+		const widget = item as Record<string, any>;
 
 		// 1. Check per-widget access
 		if (widget.access !== undefined) {
