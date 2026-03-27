@@ -841,6 +841,7 @@ function getCategorizedSingles(
 
 	for (const [key, file] of singles) {
 		if (key === "modules") continue; // handled separately
+		if (key === "plugin") continue; // codegen-only, not passed to createApp
 		if (coreSingleKeys.has(key)) {
 			core.push(file);
 		} else {
