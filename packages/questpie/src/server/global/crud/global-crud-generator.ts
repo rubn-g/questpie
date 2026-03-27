@@ -49,7 +49,6 @@ import type {
 	With,
 } from "#questpie/server/collection/crud/types.js";
 import { createVersionRecord } from "#questpie/server/collection/crud/versioning/index.js";
-import { extractAppServices } from "#questpie/server/config/app-context.js";
 import { ApiError } from "#questpie/server/errors/index.js";
 import {
 	applyFieldInputHooks,
@@ -1283,7 +1282,7 @@ export class GlobalCRUDGenerator<TState extends GlobalBuilderState> {
 			this.assertTransitionAllowed(fromStage, toStage);
 
 			// Build transition hook context
-			const transitionServices = extractAppServices(this.app, {
+			const transitionServices = this.app.extractContext( {
 				db,
 				session: normalized.session,
 			});
@@ -1556,7 +1555,7 @@ export class GlobalCRUDGenerator<TState extends GlobalBuilderState> {
 		db: any;
 	}): GlobalHookContext {
 		const normalized = this.normalizeContext(params.context);
-		const services = extractAppServices(this.app, {
+		const services = this.app.extractContext( {
 			db: params.db,
 			session: normalized.session,
 		});

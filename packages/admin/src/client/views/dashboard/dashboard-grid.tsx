@@ -279,7 +279,11 @@ function DashboardHeader({
 							<DropdownMenuTrigger
 								render={
 									<Button variant="outline" size="icon" className="md:hidden">
-										<Icon icon="ph:dots-three-vertical" className="size-4" />
+										<Icon
+											ssr
+											icon="ph:dots-three-vertical"
+											className="size-4"
+										/>
 									</Button>
 								}
 							/>
@@ -595,10 +599,7 @@ function TabContentRenderer({
 
 	return (
 		<div
-			className={cn(
-				"@container grid items-start gap-4",
-				getGridClass(columns),
-			)}
+			className={cn("@container grid items-start gap-4", getGridClass(columns))}
 		>
 			{tab.items.map((item, index) => (
 				<LayoutItemRenderer

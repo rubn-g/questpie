@@ -4,7 +4,6 @@
 
 import {
 	createApp,
-	extractAppServices,
 	type Questpie,
 	type AppContext,
 	type QuestpieConfig,
@@ -126,7 +125,7 @@ export async function createContext(options?: {
 	const reqCtx = await (app as any).createContext({
 		accessMode: options?.accessMode ?? "system",
 	});
-	const services = extractAppServices(app, {
+	const services = app.extractContext( {
 		db: (app as any).db,
 		session: reqCtx.session,
 	});

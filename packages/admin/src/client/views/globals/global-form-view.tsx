@@ -531,7 +531,11 @@ export default function GlobalFormView({
 	if (dataError) {
 		return (
 			<div className="text-muted-foreground flex h-64 flex-col items-center justify-center gap-3">
-				<Icon icon="ph:warning-circle" className="text-destructive size-8" />
+				<Icon
+					ssr
+					icon="ph:warning-circle"
+					className="text-destructive size-8"
+				/>
 				<p className="text-sm">
 					{dataError instanceof Error
 						? dataError.message
@@ -551,7 +555,7 @@ export default function GlobalFormView({
 	if (dataLoading) {
 		return (
 			<div className="text-muted-foreground flex h-64 items-center justify-center">
-				<Icon icon="ph:spinner-gap" className="size-6 animate-spin" />
+				<Icon ssr icon="ph:spinner-gap" className="size-6 animate-spin" />
 			</div>
 		);
 	}
@@ -585,7 +589,7 @@ export default function GlobalFormView({
 							{/* Workflow stage badge */}
 							{workflowEnabled && currentStage && (
 								<Badge variant="outline" className="gap-1.5">
-									<Icon icon="ph:git-branch" className="size-3" />
+									<Icon ssr icon="ph:git-branch" className="size-3" />
 									{currentStageLabel}
 								</Badge>
 							)}
@@ -608,7 +612,7 @@ export default function GlobalFormView({
 										<Button type="button" variant="outline" className="gap-2" />
 									}
 								>
-									<Icon icon="ph:arrows-left-right" className="size-4" />
+									<Icon ssr icon="ph:arrows-left-right" className="size-4" />
 									{t("workflow.transition")}
 								</DropdownMenuTrigger>
 								<DropdownMenuContent align="end">
@@ -622,7 +626,7 @@ export default function GlobalFormView({
 												})
 											}
 										>
-											<Icon icon="ph:arrow-right" className="mr-2 size-4" />
+											<Icon ssr icon="ph:arrow-right" className="mr-2 size-4" />
 											{stage.label || stage.name}
 										</DropdownMenuItem>
 									))}
@@ -638,18 +642,22 @@ export default function GlobalFormView({
 							onClick={() => setIsHistoryOpen(true)}
 							title={t("history.title")}
 						>
-							<Icon icon="ph:clock-counter-clockwise" className="size-4" />
+							<Icon ssr icon="ph:clock-counter-clockwise" className="size-4" />
 							<span className="sr-only">{t("history.title")}</span>
 						</Button>
 						<Button type="submit" disabled={isSubmitting} className="gap-2">
 							{isSubmitting ? (
 								<>
-									<Icon icon="ph:spinner-gap" className="size-4 animate-spin" />
+									<Icon
+										ssr
+										icon="ph:spinner-gap"
+										className="size-4 animate-spin"
+									/>
 									{t("common.loading")}
 								</>
 							) : (
 								<>
-									<Icon icon="ph:check" width={16} height={16} />
+									<Icon ssr icon="ph:check" width={16} height={16} />
 									{t("common.save")}
 								</>
 							)}
@@ -715,7 +723,7 @@ export default function GlobalFormView({
 				<DialogContent>
 					<DialogHeader>
 						<DialogTitle className="flex items-center gap-2">
-							<Icon icon="ph:arrows-left-right" className="size-5" />
+							<Icon ssr icon="ph:arrows-left-right" className="size-5" />
 							{t("workflow.transitionTo", {
 								stage: transitionTarget?.label ?? transitionTarget?.name ?? "",
 							})}
@@ -786,7 +794,11 @@ export default function GlobalFormView({
 							className="gap-2"
 						>
 							{transitionMutation.isPending && (
-								<Icon icon="ph:spinner-gap" className="size-4 animate-spin" />
+								<Icon
+									ssr
+									icon="ph:spinner-gap"
+									className="size-4 animate-spin"
+								/>
 							)}
 							{transitionSchedule
 								? t("workflow.scheduleLabel")

@@ -1,0 +1,13 @@
+2026-03-27T00:14:58.640Z ERROR $ bun --bun vite dev
+2026-03-27T00:15:00.268Z INFO  1:15:00 AM [vite] (client) Re-optimizing dependencies because lockfile has changed
+2026-03-27T00:15:00.412Z INFO    ➜  Local:   http://localhost:3000/
+2026-03-27T00:15:00.412Z INFO    ➜  Network: use --host to expose
+2026-03-27T00:15:00.413Z INFO    VITE v8.0.1  ready in 1661 ms
+2026-03-27T00:16:15.334Z ERROR $ bun --bun vite dev
+2026-03-27T00:16:16.461Z INFO    VITE v8.0.1  ready in 1093 ms
+2026-03-27T00:25:03.299Z ERROR $ bun --bun vite dev
+2026-03-27T00:25:04.498Z INFO    VITE v8.0.1  ready in 1162 ms
+2026-03-27T00:25:04.498Z INFO    ➜  Local:   http://localhost:3000/
+2026-03-27T00:25:04.498Z INFO    ➜  Network: use --host to expose
+2026-03-27T00:28:13.220Z ERROR $ bun --bun vite dev
+2026-03-27T00:28:14.432Z INFO    VITE v8.0.1  ready in 1175 ms

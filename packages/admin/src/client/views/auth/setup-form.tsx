@@ -107,6 +107,7 @@ export function SetupForm({
 					<FieldContent>
 						<div className="relative">
 							<Icon
+								ssr
 								icon="ph:user-duotone"
 								className="text-muted-foreground absolute top-1/2 left-2 size-4 -translate-y-1/2"
 							/>
@@ -136,6 +137,7 @@ export function SetupForm({
 					<FieldContent>
 						<div className="relative">
 							<Icon
+								ssr
 								icon="ph:envelope-duotone"
 								className="text-muted-foreground absolute top-1/2 left-2 size-4 -translate-y-1/2"
 							/>
@@ -165,6 +167,7 @@ export function SetupForm({
 					<FieldContent>
 						<div className="relative">
 							<Icon
+								ssr
 								icon="ph:lock-duotone"
 								className="text-muted-foreground absolute top-1/2 left-2 size-4 -translate-y-1/2"
 							/>
@@ -198,6 +201,7 @@ export function SetupForm({
 					<FieldContent>
 						<div className="relative">
 							<Icon
+								ssr
 								icon="ph:lock-duotone"
 								className="text-muted-foreground absolute top-1/2 left-2 size-4 -translate-y-1/2"
 							/>
@@ -223,7 +227,7 @@ export function SetupForm({
 			{/* Error Message */}
 			{error && (
 				<Alert variant="destructive">
-					<Icon icon="ph:warning-circle" />
+					<Icon ssr icon="ph:warning-circle" />
 					<AlertDescription>{error}</AlertDescription>
 				</Alert>
 			)}
@@ -237,7 +241,7 @@ export function SetupForm({
 			>
 				{isSubmitting ? (
 					<>
-						<Icon icon="ph:spinner-gap-bold" className="animate-spin" />
+						<Icon ssr icon="ph:spinner-gap-bold" className="animate-spin" />
 						{t("auth.creatingAdmin")}
 					</>
 				) : (

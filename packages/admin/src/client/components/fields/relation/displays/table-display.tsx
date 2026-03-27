@@ -157,7 +157,7 @@ export function TableDisplay({
 												onClick={() => actions.onEdit?.(item)}
 												aria-label={t("field.editItem")}
 											>
-												<Icon icon="ph:pencil" className="size-4" />
+												<Icon ssr icon="ph:pencil" className="size-4" />
 											</Button>
 										)}
 
@@ -171,7 +171,7 @@ export function TableDisplay({
 												onClick={() => actions.onRemove?.(item)}
 												aria-label={t("field.removeItem")}
 											>
-												<Icon icon="ph:x" className="size-4" />
+												<Icon ssr icon="ph:x" className="size-4" />
 											</Button>
 										)}
 
@@ -182,7 +182,7 @@ export function TableDisplay({
 												id={item.id}
 												className="text-primary hover:underline"
 											>
-												<Icon icon="ph:arrow-right" className="size-4" />
+												<Icon ssr icon="ph:arrow-right" className="size-4" />
 											</CollectionEditLink>
 										)}
 									</div>

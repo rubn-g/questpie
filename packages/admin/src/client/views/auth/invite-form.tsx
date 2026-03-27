@@ -138,6 +138,7 @@ export function InviteForm({
 					<FieldContent>
 						<div className="relative">
 							<Icon
+								ssr
 								icon="ph:envelope-duotone"
 								className="text-muted-foreground absolute top-1/2 left-2 size-4 -translate-y-1/2"
 							/>
@@ -223,7 +224,7 @@ export function InviteForm({
 			{/* Error Message */}
 			{error && (
 				<Alert variant="destructive">
-					<Icon icon="ph:warning-circle" />
+					<Icon ssr icon="ph:warning-circle" />
 					<AlertDescription>{error}</AlertDescription>
 				</Alert>
 			)}
@@ -231,7 +232,7 @@ export function InviteForm({
 			{/* Success Message */}
 			{success && (
 				<Alert>
-					<Icon icon="ph:user-plus" />
+					<Icon ssr icon="ph:user-plus" />
 					<AlertDescription>{success}</AlertDescription>
 				</Alert>
 			)}
@@ -245,12 +246,12 @@ export function InviteForm({
 			>
 				{isSubmitting ? (
 					<>
-						<Icon icon="ph:spinner-gap-bold" className="animate-spin" />
+						<Icon ssr icon="ph:spinner-gap-bold" className="animate-spin" />
 						{t("auth.sendingInvitation")}
 					</>
 				) : (
 					<>
-						<Icon icon="ph:user-plus-bold" />
+						<Icon ssr icon="ph:user-plus-bold" />
 						{t("auth.sendInvitation")}
 					</>
 				)}

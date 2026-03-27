@@ -88,7 +88,7 @@ export function generateTemplate(options: TemplateOptions): string {
 
 	// Import createApp + types
 	lines.push(
-		'import { createApp, createContextFactory, extractAppServices, type AppDefinition, type Questpie, type AppContext, type Registry, type QuestpieConfig, type QueueClient, type CollectionAPI } from "questpie";',
+		'import { createApp, createContextFactory, type AppDefinition, type Questpie, type AppContext, type Registry, type QuestpieConfig, type QueueClient, type CollectionAPI } from "questpie";',
 	);
 	lines.push("");
 

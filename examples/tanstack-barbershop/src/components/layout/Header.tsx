@@ -80,7 +80,7 @@ export function Header({
 					{logo ? (
 						<img src={logo} alt={shopName} className="h-8 w-auto" />
 					) : (
-						<Icon icon="ph:scissors-bold" className="size-6" />
+						<Icon ssr icon="ph:scissors-bold" className="size-6" />
 					)}
 					<span className="hidden sm:inline">{shopName}</span>
 				</a>
@@ -112,9 +112,9 @@ export function Header({
 						aria-label={t("theme.toggle")}
 					>
 						{resolvedTheme === "dark" ? (
-							<Icon icon="ph:sun" className="size-5" />
+							<Icon ssr icon="ph:sun" className="size-5" />
 						) : (
-							<Icon icon="ph:moon" className="size-5" />
+							<Icon ssr icon="ph:moon" className="size-5" />
 						)}
 					</Button>
 
@@ -129,14 +129,14 @@ export function Header({
 								/>
 							}
 						>
-							<Icon icon="ph:globe" className="size-5" />
+							<Icon ssr icon="ph:globe" className="size-5" />
 						</DropdownMenuTrigger>
 						<DropdownMenuContent align="end">
 							<DropdownMenuItem onClick={() => handleLocaleChange("en")}>
 								<span className="flex w-full items-center gap-2">
 									{t("language.en")}
 									{locale === "en" && (
-										<Icon icon="ph:check" className="ml-auto size-4" />
+										<Icon ssr icon="ph:check" className="ml-auto size-4" />
 									)}
 								</span>
 							</DropdownMenuItem>
@@ -144,7 +144,7 @@ export function Header({
 								<span className="flex w-full items-center gap-2">
 									{t("language.sk")}
 									{locale === "sk" && (
-										<Icon icon="ph:check" className="ml-auto size-4" />
+										<Icon ssr icon="ph:check" className="ml-auto size-4" />
 									)}
 								</span>
 							</DropdownMenuItem>
@@ -167,7 +167,7 @@ export function Header({
 								<Button variant="ghost" size="icon" className="md:hidden" />
 							}
 						>
-							<Icon icon="ph:list" className="size-5" />
+							<Icon ssr icon="ph:list" className="size-5" />
 							<span className="sr-only">{t("common.menu")}</span>
 						</SheetTrigger>
 
@@ -177,7 +177,7 @@ export function Header({
 									{logo ? (
 										<img src={logo} alt={shopName} className="h-6 w-auto" />
 									) : (
-										<Icon icon="ph:scissors-bold" className="size-5" />
+										<Icon ssr icon="ph:scissors-bold" className="size-5" />
 									)}
 									{shopName}
 								</SheetTitle>
@@ -218,12 +218,12 @@ export function Header({
 									<Button variant="outline" size="sm" onClick={toggleTheme}>
 										{resolvedTheme === "dark" ? (
 											<>
-												<Icon icon="ph:sun" className="mr-2 size-4" />
+												<Icon ssr icon="ph:sun" className="mr-2 size-4" />
 												{t("theme.light")}
 											</>
 										) : (
 											<>
-												<Icon icon="ph:moon" className="mr-2 size-4" />
+												<Icon ssr icon="ph:moon" className="mr-2 size-4" />
 												{t("theme.dark")}
 											</>
 										)}
@@ -237,7 +237,7 @@ export function Header({
 										<DropdownMenuTrigger
 											render={<Button variant="outline" size="sm" />}
 										>
-											<Icon icon="ph:globe" className="mr-2 size-4" />
+											<Icon ssr icon="ph:globe" className="mr-2 size-4" />
 											{locale === "en" ? t("language.en") : t("language.sk")}
 										</DropdownMenuTrigger>
 										<DropdownMenuContent align="end">
@@ -247,7 +247,11 @@ export function Header({
 												<span className="flex w-full items-center gap-2">
 													{t("language.en")}
 													{locale === "en" && (
-														<Icon icon="ph:check" className="ml-auto size-4" />
+														<Icon
+															ssr
+															icon="ph:check"
+															className="ml-auto size-4"
+														/>
 													)}
 												</span>
 											</DropdownMenuItem>
@@ -257,7 +261,11 @@ export function Header({
 												<span className="flex w-full items-center gap-2">
 													{t("language.sk")}
 													{locale === "sk" && (
-														<Icon icon="ph:check" className="ml-auto size-4" />
+														<Icon
+															ssr
+															icon="ph:check"
+															className="ml-auto size-4"
+														/>
 													)}
 												</span>
 											</DropdownMenuItem>

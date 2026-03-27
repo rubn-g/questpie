@@ -1032,6 +1032,63 @@ export class Questpie<TConfig extends QuestpieConfig = QuestpieConfig> {
 		};
 	}
 
+	/**
+	 * Build a flat service context for hooks, access control, jobs, etc.
+	 * This is the single source of truth for constructing handler contexts.
+	 */
+	extractContext(
+		overrides?: { db?: any; session?: any; locale?: string },
+	): Record<string, unknown> {
+		const result: Record<string, unknown> = {
+			app: this,
+			db: overrides?.db ?? this.db,
+			session: overrides?.session ?? null,
+			services: {},
+			queue: this.queue,
+			email: this.email,
+			storage: this.storage,
+			kv: this.kv,
+			logger: this.logger,
+			search: this.search,
+			realtime: this.realtime,
+			collections: this.api?.collections,
+			globals: this.api?.globals,
+			t: this.t,
+		};
+
+		if (this._serviceDefs) {
+			const services: Record<string, unknown> = {};
+			for (const [name, input] of Object.entries(this._serviceDefs)) {
+				if (name.startsWith("~")) continue; // Skip core services
+				const instance = this.resolveService(name, {
+					db: result.db,
+					session: result.session,
+					locale: overrides?.locale,
+				});
+
+				const state =
+					input && typeof input === "object" && "state" in input
+						? ((input as any).state as Record<string, unknown>)
+						: (input as Record<string, unknown>);
+				const namespace = state?.namespace as string | null | undefined;
+
+				if (namespace === undefined || namespace === "services") {
+					services[name] = instance;
+				} else if (namespace === null) {
+					result[name] = instance;
+				} else {
+					if (!(namespace in result) || typeof result[namespace] !== "object") {
+						result[namespace] = {};
+					}
+					(result[namespace] as Record<string, unknown>)[name] = instance;
+				}
+			}
+			result.services = services;
+		}
+
+		return result;
+	}
+
 	public getCollections(): {
 		[K in keyof TConfig["collections"]]: TConfig["collections"][K] extends Collection<
 			infer TState

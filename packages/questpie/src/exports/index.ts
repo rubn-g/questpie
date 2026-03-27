@@ -32,7 +32,6 @@ export {
 } from "#questpie/server/collection/crud/shared/transaction.js";
 export {
 	type AppContext,
-	extractAppServices,
 	type KnownBlockNames,
 	type KnownCollectionNames,
 	type KnownComponentNames,

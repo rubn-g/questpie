@@ -185,7 +185,11 @@ export const BlockItem = React.memo(function BlockItem({
 
 					{/* Block icon */}
 					{isUnknownType ? (
-						<Icon icon="ph:warning" className="text-destructive h-3.5 w-3.5" />
+						<Icon
+							ssr
+							icon="ph:warning"
+							className="text-destructive h-3.5 w-3.5"
+						/>
 					) : (
 						<BlockIcon
 							icon={blockSchema?.admin?.icon}
@@ -239,7 +243,7 @@ export const BlockItem = React.memo(function BlockItem({
 				{isExpanded && isUnknownType && (
 					<CardContent className="p-3">
 						<div className="text-destructive flex items-center gap-2 text-sm">
-							<Icon icon="ph:warning" className="h-4 w-4 shrink-0" />
+							<Icon ssr icon="ph:warning" className="h-4 w-4 shrink-0" />
 							<span>{t("blocks.unknownType", { type: block.type })}</span>
 						</div>
 					</CardContent>

@@ -7,7 +7,6 @@
 
 import type { HookContext } from "#questpie/server/collection/builder/types.js";
 import type { CRUDContext } from "#questpie/server/collection/crud/types.js";
-import { extractAppServices } from "#questpie/server/config/app-context.js";
 import type { Questpie } from "#questpie/server/config/questpie.js";
 
 import { normalizeContext } from "./context.js";
@@ -71,7 +70,7 @@ export function createHookContext(
 	params: CreateHookContextParams,
 ): HookContext<any, any, any> {
 	const normalized = normalizeContext(params.context);
-	const services = extractAppServices(params.app, {
+	const services = params.app.extractContext( {
 		db: params.db,
 		session: normalized.session,
 	});

@@ -1,6 +1,5 @@
 import { convert } from "html-to-text";
 
-import { extractAppServices } from "#questpie/server/config/app-context.js";
 import { tryGetContext } from "#questpie/server/config/context.js";
 
 import type { MailAdapter } from "./adapter.js";
@@ -71,7 +70,7 @@ export class MailerService<
 	private resolveHandlerContext(): Record<string, unknown> {
 		const stored = tryGetContext();
 		if (!stored?.app) return {};
-		return extractAppServices(stored.app, {
+		return stored.app.extractContext( {
 			db: stored.db,
 			session: stored.session,
 		});

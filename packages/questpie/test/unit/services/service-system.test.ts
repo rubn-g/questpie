@@ -3,7 +3,6 @@ import { describe, expect, it } from "bun:test";
 import {
 	ServiceBuilder,
 	createApp,
-	extractAppServices,
 	module,
 	service,
 	type ServiceInstanceOf,
@@ -114,7 +113,7 @@ describe("service system", () => {
 
 		const { app, cleanup } = await createServiceApp({ beta, alpha });
 		try {
-			const ctx = extractAppServices(app);
+			const ctx = app.extractContext();
 			expect((ctx.services as any).beta.value).toBe(42);
 			expect(creationOrder).toEqual(["beta:start", "alpha", "beta:end"]);
 		} finally {
@@ -148,7 +147,7 @@ describe("service system", () => {
 
 		const { app, cleanup } = await createServiceApp({ asyncService, consumer });
 		try {
-			const ctx = extractAppServices(app);
+			const ctx = app.extractContext();
 			expect((ctx.services as any).consumer.ready).toBe(true);
 		} finally {
 			await cleanup();
@@ -181,7 +180,7 @@ describe("service system", () => {
 			tracker,
 		});
 		try {
-			const ctx = extractAppServices(app);
+			const ctx = app.extractContext();
 			expect((ctx.services as any).blog.kind).toBe("blog");
 			expect((ctx as any).workflows.kind).toBe("workflows");
 			expect((ctx as any).analytics.tracker.kind).toBe("tracker");

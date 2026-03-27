@@ -361,10 +361,7 @@ export function ObjectArrayField({
 							const canMoveDown = orderable && index < fields.length - 1;
 
 							return (
-								<div
-									key={field.id}
-									className="border-border bg-card border"
-								>
+								<div key={field.id} className="border-border bg-card border">
 									<div className="flex items-center justify-between border-b px-3 py-2">
 										<div className="flex items-center gap-2">
 											<span className="text-muted-foreground text-xs">
@@ -385,7 +382,7 @@ export function ObjectArrayField({
 														title={t("field.moveUp")}
 														aria-label={t("field.moveUp")}
 													>
-														<Icon icon="ph:caret-up" className="h-3 w-3" />
+														<Icon ssr icon="ph:caret-up" className="h-3 w-3" />
 													</Button>
 													<Button
 														type="button"
@@ -397,7 +394,11 @@ export function ObjectArrayField({
 														title={t("field.moveDown")}
 														aria-label={t("field.moveDown")}
 													>
-														<Icon icon="ph:caret-down" className="h-3 w-3" />
+														<Icon
+															ssr
+															icon="ph:caret-down"
+															className="h-3 w-3"
+														/>
 													</Button>
 												</>
 											)}
@@ -415,7 +416,7 @@ export function ObjectArrayField({
 													title={t("common.edit")}
 													aria-label={t("common.edit")}
 												>
-													<Icon icon="ph:pencil" className="h-3 w-3" />
+													<Icon ssr icon="ph:pencil" className="h-3 w-3" />
 												</Button>
 											)}
 											{canRemove && (
@@ -429,7 +430,7 @@ export function ObjectArrayField({
 													title={t("common.remove")}
 													aria-label={t("common.remove")}
 												>
-													<Icon icon="ph:trash" className="h-3 w-3" />
+													<Icon ssr icon="ph:trash" className="h-3 w-3" />
 												</Button>
 											)}
 										</div>
@@ -458,7 +459,7 @@ export function ObjectArrayField({
 					onClick={handleAdd}
 					disabled={disabled}
 				>
-					<Icon icon="ph:plus" className="h-4 w-4" />
+					<Icon ssr icon="ph:plus" className="h-4 w-4" />
 					{addLabel}
 				</Button>
 			)}

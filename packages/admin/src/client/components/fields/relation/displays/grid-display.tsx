@@ -111,7 +111,7 @@ export function GridDisplay({
 										}}
 										aria-label={t("field.editItem")}
 									>
-										<Icon icon="ph:pencil" className="size-3" />
+										<Icon ssr icon="ph:pencil" className="size-3" />
 									</Button>
 								)}
 								{actions?.onRemove && (
@@ -127,7 +127,7 @@ export function GridDisplay({
 										}}
 										aria-label={t("field.removeItem")}
 									>
-										<Icon icon="ph:x" className="size-3" />
+										<Icon ssr icon="ph:x" className="size-3" />
 									</Button>
 								)}
 							</div>

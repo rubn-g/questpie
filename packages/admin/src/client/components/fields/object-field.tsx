@@ -13,10 +13,13 @@ import { configureField } from "../../builder/field/field";
 import { useResolveText } from "../../i18n/hooks";
 import { cn } from "../../lib/utils";
 import { selectAdmin, useAdminStore } from "../../runtime";
+import {
+	FieldLayoutRenderer,
+	type FieldLayoutContext,
+} from "../layout/field-layout-renderer";
 import type { BaseFieldProps, ObjectFieldConfig } from "./field-types";
 import { gridColumnClasses } from "./field-utils";
 import { FieldWrapper } from "./field-wrapper";
-import { FieldLayoutRenderer, type FieldLayoutContext } from "../layout/field-layout-renderer";
 
 // ============================================================================
 // Types
@@ -178,7 +181,12 @@ export function ObjectField({
 		// Wrap in collapsible or flat container
 		if (wrapper === "collapsible") {
 			return (
-				<div className={cn("qa-object-field border-border bg-card border", className)}>
+				<div
+					className={cn(
+						"qa-object-field border-border bg-card border",
+						className,
+					)}
+				>
 					<button
 						type="button"
 						onClick={() => setIsCollapsed(!isCollapsed)}
@@ -187,24 +195,30 @@ export function ObjectField({
 					>
 						<div className="flex items-center gap-2">
 							{isCollapsed ? (
-								<Icon icon="ph:caret-right" className="h-4 w-4" />
+								<Icon ssr icon="ph:caret-right" className="h-4 w-4" />
 							) : (
-								<Icon icon="ph:caret-down" className="h-4 w-4" />
+								<Icon ssr icon="ph:caret-down" className="h-4 w-4" />
 							)}
 							<span className="font-medium">{resolveText(label ?? name)}</span>
 							{required && <span className="text-destructive">*</span>}
 						</div>
 					</button>
-					{!isCollapsed && (
-						<div className="border-t p-4">{content}</div>
-					)}
+					{!isCollapsed && <div className="border-t p-4">{content}</div>}
 				</div>
 			);
 		}
 
 		if (label) {
 			return (
-				<FieldWrapper name={name} label={resolveText(label)} description={description} required={required} disabled={disabled} localized={localized} locale={locale}>
+				<FieldWrapper
+					name={name}
+					label={resolveText(label)}
+					description={description}
+					required={required}
+					disabled={disabled}
+					localized={localized}
+					locale={locale}
+				>
 					<div className={cn("qa-object-field pt-1", className)}>{content}</div>
 				</FieldWrapper>
 			);
@@ -230,9 +244,9 @@ export function ObjectField({
 				>
 					<div className="flex items-center gap-2">
 						{isCollapsed ? (
-							<Icon icon="ph:caret-right" className="h-4 w-4" />
+							<Icon ssr icon="ph:caret-right" className="h-4 w-4" />
 						) : (
-							<Icon icon="ph:caret-down" className="h-4 w-4" />
+							<Icon ssr icon="ph:caret-down" className="h-4 w-4" />
 						)}
 						<span className="font-medium">{resolveText(label ?? name)}</span>
 						{required && <span className="text-destructive">*</span>}

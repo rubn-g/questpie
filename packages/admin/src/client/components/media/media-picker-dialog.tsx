@@ -298,6 +298,7 @@ export function MediaPickerDialog({
 						{/* Search input */}
 						<div className="relative flex-1">
 							<Icon
+								ssr
 								icon="ph:magnifying-glass-bold"
 								className="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2"
 							/>
@@ -318,7 +319,7 @@ export function MediaPickerDialog({
 							>
 								<SelectTrigger className="w-full sm:w-[180px]">
 									<div className="flex items-center gap-2">
-										<Icon icon="ph:funnel-simple-bold" className="size-4" />
+										<Icon ssr icon="ph:funnel-simple-bold" className="size-4" />
 										<SelectValue />
 									</div>
 								</SelectTrigger>

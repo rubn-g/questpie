@@ -140,9 +140,7 @@ export function createQueueClient<
 				const context = await getContextOrThrow();
 				const validated = jobDef.schema.parse(job.data);
 				const appInstance = getAppOrThrow() as any;
-				const { extractAppServices } =
-					await import("#questpie/server/config/app-context.js");
-				const services = extractAppServices(appInstance, {
+				const services = appInstance.extractContext( {
 					db: context.db,
 					session: context.session,
 				});

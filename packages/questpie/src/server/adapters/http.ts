@@ -7,7 +7,6 @@
  * @see QUE-158 (Unified route() builder + URL flattening)
  */
 
-import { extractAppServices } from "../config/app-context.js";
 import type { Questpie } from "../config/questpie.js";
 import type { QuestpieConfig } from "../config/types.js";
 import { ApiError } from "../errors/index.js";
@@ -156,7 +155,7 @@ async function handleRouteDispatch<
 	const locale = resolved.appContext.locale ?? "en";
 
 	// Check access
-	const services = extractAppServices(app, {
+	const services = app.extractContext( {
 		db: resolved.appContext.db ?? app.db,
 		session: resolved.appContext.session,
 	});

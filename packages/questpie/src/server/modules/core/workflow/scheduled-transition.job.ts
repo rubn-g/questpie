@@ -58,7 +58,7 @@ export const scheduledTransitionJob = job({
 		retryBackoff: true,
 	},
 	handler: async (ctx) => {
-		// Core-internal: cast to access services populated by extractAppServices at runtime
+		// Core-internal: services accessed via app.extractContext()
 		const { payload } = ctx;
 		const collections = (ctx as any).collections as
 			| Record<string, any>

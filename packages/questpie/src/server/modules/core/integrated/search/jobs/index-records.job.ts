@@ -82,7 +82,7 @@ export const indexRecordsJob = job({
 		retryBackoff: true,
 	},
 	handler: async (ctx) => {
-		// Core-internal: cast to access services populated by extractAppServices at runtime
+		// Core-internal: services accessed via app.extractContext()
 		const { payload } = ctx;
 		const search = (ctx as any).search as Questpie<any>["search"] | undefined;
 		const collections = (ctx as any).collections as

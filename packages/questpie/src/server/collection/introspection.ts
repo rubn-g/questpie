@@ -1001,9 +1001,7 @@ async function evaluateCollectionAccess(
 		app as { defaultAccess?: CollectionAccess } | undefined
 	)?.defaultAccess;
 
-	const { extractAppServices } =
-		await import("#questpie/server/config/app-context.js");
-	const services = extractAppServices(app, {
+	const services = (app as any).extractContext( {
 		db: context.db,
 		session: context.session,
 	});
@@ -1117,9 +1115,7 @@ async function evaluateFieldAccess(
 		return undefined;
 	}
 
-	const { extractAppServices } =
-		await import("#questpie/server/config/app-context.js");
-	const services = extractAppServices(app, {
+	const services = (app as any).extractContext( {
 		db: context.db,
 		session: context.session,
 	});

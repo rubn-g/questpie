@@ -437,9 +437,7 @@ async function evaluateGlobalAccess(
 	const { access } = state;
 	const appDefaultAccess = (app as any)?.defaultAccess;
 
-	const { extractAppServices } =
-		await import("#questpie/server/config/app-context.js");
-	const services = extractAppServices(app, {
+	const services = (app as any).extractContext( {
 		db: context.db,
 		session: context.session,
 	});
