@@ -195,16 +195,6 @@ export type AppBlocks = _ModuleBlocks & {
 
 export type AppRouteKeys = "createBooking" | "getActiveBarbers" | "getAvailableTimeSlots" | "getRevenueStats";
 
-// Context resolver return type → auto-typed handler ctx
-type _ContextReturn = typeof _appConfig.context extends (...args: any[]) => any
-	? Awaited<ReturnType<typeof _appConfig.context>>
-	: {};
-declare global {
-	namespace Questpie {
-		interface QuestpieContextExtension extends _ContextReturn {}
-	}
-}
-
 /**
  * The fully-typed app instance type.
  * Use `typeof app` or this alias when you need to reference the app type.

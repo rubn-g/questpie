@@ -33,8 +33,6 @@ declare global {
 	namespace Questpie {
 		interface AppContext {}
 		interface Registry {}
-		interface QuestpieContextExtension {}
-
 		/**
 		 * Augmentable interface for view record types.
 		 * Populated by each module's codegen output to provide autocomplete on `v.*` proxies.

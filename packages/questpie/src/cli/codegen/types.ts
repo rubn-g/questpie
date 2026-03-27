@@ -154,7 +154,6 @@ export type DiscoverPattern =
 			 *     locale: "locale",
 			 *     access: "defaultAccess",
 			 *     hooks: "hooks",
-			 *     context: "contextResolver",
 			 *   },
 			 * }
 			 * // Generated:

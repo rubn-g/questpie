@@ -572,24 +572,6 @@ export interface ContextExtensions {
 // Context Extension System
 // ============================================================================
 
-/**
- * Interface for extending request context via module augmentation.
- * Add custom properties that will be available in all access functions, hooks, etc.
- *
- * @example
- * ```ts
- * declare global {
- *   namespace Questpie {
- *     interface QuestpieContextExtension {
- *       tenantId: string | null
- *       propertyId: string | null
- *     }
- *   }
- * }
- * ```
- */
-export interface QuestpieContextExtension
-	extends Questpie.QuestpieContextExtension {}
 
 /**
  * Parameters passed to the context resolver function.
