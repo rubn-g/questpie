@@ -1,8 +1,8 @@
 /**
  * Reactive Field System — Runtime Functions
  *
- * Types are in reactive-types.ts.
- * This file contains only runtime functions for dependency tracking and serialization.
+ * Moved from core to admin — reactive is an admin concern.
+ * Types are in questpie's reactive-types.ts (shared).
  */
 
 import type {

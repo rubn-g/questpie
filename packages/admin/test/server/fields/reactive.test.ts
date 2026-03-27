@@ -15,16 +15,15 @@
 
 import { describe, expect, test } from "bun:test";
 
+import type { ReactiveConfig, ReactiveContext } from "../../../src/server/fields/reactive-types.js";
 import {
 	extractDependencies,
 	getDebounce,
 	getHandler,
 	isReactiveConfig,
-	type ReactiveConfig,
-	type ReactiveContext,
 	trackDependencies,
 	trackDepsFunction,
-} from "#questpie/server/fields/reactive.js";
+} from "../../../src/server/fields/reactive-runtime.js";
 
 // ============================================================================
 // trackDependencies Tests

@@ -83,6 +83,10 @@ export * from "#questpie/server/config/questpie.js";
 export * from "#questpie/server/config/types.js";
 export * from "#questpie/server/errors/index.js";
 export * from "#questpie/server/fields/index.js";
+export type {
+	FieldReactiveSchema,
+	IntrospectionOptions,
+} from "#questpie/server/collection/introspection.js";
 export { global } from "#questpie/server/global/builder/global-builder.js";
 export * from "#questpie/server/global/builder/index.js";
 export * from "#questpie/server/global/crud/index.js";

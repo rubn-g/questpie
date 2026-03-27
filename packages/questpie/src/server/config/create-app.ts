@@ -676,6 +676,16 @@ async function createAppFromDefinition(
 
 	instance.state = extensionState;
 
+	// Allow modules to provide introspectionOptions via config bucket.
+	// The admin module sets this to add reactive field serialization.
+	if (cfg.introspectionOptions) {
+		(instance.state as any).introspectionOptions = cfg.introspectionOptions;
+	}
+	// Also check if admin module provides it via the adminConfig
+	if (cfg.admin?.introspectionOptions) {
+		(instance.state as any).introspectionOptions = cfg.admin.introspectionOptions;
+	}
+
 	await instance._initServices();
 
 	return instance;

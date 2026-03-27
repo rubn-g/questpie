@@ -6,12 +6,12 @@
  * - /options: Dynamic options for select/relation fields
  */
 
+import { ApiError, type Questpie, route } from "questpie";
 import type {
 	OptionsContext,
 	ReactiveContext,
 	ReactiveServerContext,
-} from "questpie";
-import { ApiError, type Questpie, route } from "questpie";
+} from "../../../fields/reactive-types.js";
 import { z } from "zod";
 
 import { asAdminCtx, getAppState, getEntityState } from "./route-context.js";

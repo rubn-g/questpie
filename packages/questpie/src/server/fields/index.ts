@@ -53,33 +53,7 @@ export type {
 	FieldState,
 } from "./field-class-types.js";
 
-// Reactive field system — types
-export type {
-	OptionsConfig,
-	OptionsContext,
-	OptionsHandler,
-	OptionsResult,
-	ReactiveAdminMeta,
-	ReactiveConfig,
-	ReactiveContext,
-	ReactiveHandler,
-	ReactiveServerContext,
-	SerializedOptionsConfig,
-	SerializedReactiveConfig,
-	TrackingResult,
-} from "./reactive-types.js";
-
-// Reactive field system — runtime
-export {
-	extractDependencies,
-	getDebounce,
-	getHandler,
-	isReactiveConfig,
-	serializeOptionsConfig,
-	serializeReactiveConfig,
-	trackDependencies,
-	trackDepsFunction,
-} from "./reactive.js";
+// Reactive types and runtime moved to @questpie/admin
 
 // Core types
 // NOTE: FieldAccess is NOT re-exported here to avoid name collision with

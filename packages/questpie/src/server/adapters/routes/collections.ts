@@ -560,6 +560,7 @@ export const createCollectionRoutes = <
 						locale: resolved.appContext.locale,
 					},
 					app,
+					(app as any).state?.introspectionOptions,
 				);
 				return smartResponse(schema, request);
 			} catch (error) {

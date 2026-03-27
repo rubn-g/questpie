@@ -9,10 +9,9 @@ import { z } from "zod";
 
 import { buildFieldBasedSchema } from "#questpie/server/collection/builder/field-schema-builder.js";
 import type { CRUDContext } from "#questpie/server/collection/crud/types.js";
-import {
-	extractFieldReactiveConfig,
-	extractFormReactiveConfigs,
-	type FieldReactiveSchema,
+import type {
+	FieldReactiveSchema,
+	IntrospectionOptions,
 } from "#questpie/server/collection/introspection.js";
 import type { FieldState } from "#questpie/server/fields/field-class-types.js";
 import type { Field } from "#questpie/server/fields/field-class.js";
@@ -299,12 +298,10 @@ export async function introspectGlobal(
 	global: Global<GlobalBuilderState>,
 	context: CRUDContext,
 	app?: unknown,
+	options?: IntrospectionOptions,
 ): Promise<GlobalSchema> {
 	const { state } = global;
 	const fieldDefinitions = state.fieldDefinitions || {};
-	const formReactiveByField = extractFormReactiveConfigs(
-		(state as any).adminForm,
-	);
 
 	// Evaluate global-level access
 	const access = await evaluateGlobalAccess(state, context, app);
@@ -324,11 +321,8 @@ export async function introspectGlobal(
 			// Field doesn't support JSON Schema generation
 		}
 
-		// Extract reactive configuration from form config + dynamic field options
-		const reactive = extractFieldReactiveConfig(
-			fieldDef,
-			formReactiveByField[name],
-		);
+		// Reactive enrichment provided by plugins (e.g. admin)
+		const reactive = options?.enrichField?.(fieldDef, name, state as any);
 
 		fields[name] = {
 			name,
