@@ -193,7 +193,7 @@ export type AppBlocks = _ModuleBlocks & {
 	text: typeof _bloc_text;
 };
 
-export type AppRouteKeys = "createBooking" | "getActiveBarbers" | "getAvailableTimeSlots" | "getRevenueStats";
+export type AppRouteKeys = "getAvailableTimeSlots" | "getRevenueStats" | "getActiveBarbers" | "createBooking";
 
 // Context resolver return type → auto-typed handler ctx
 type _ContextReturn = typeof _appConfig.context extends (...args: any[]) => any
