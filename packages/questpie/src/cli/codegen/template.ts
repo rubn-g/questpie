@@ -88,7 +88,7 @@ export function generateTemplate(options: TemplateOptions): string {
 
 	// Import createApp + types
 	lines.push(
-		'import { createApp, createContextFactory, extractAppServices, type AppDefinition, type AppContext, type Registry, type QueueClient, type CollectionAPI } from "questpie";',
+		'import { createApp, createContextFactory, extractAppServices, type AppDefinition, type ModuleDefinition, type AppContext, type Registry, type QueueClient, type CollectionAPI } from "questpie";',
 	);
 	lines.push("");
 
@@ -697,10 +697,9 @@ function emitNewArchitectureRuntime(
 	lines.push("export const app = await createApp(");
 	lines.push("\t({");
 
-	// Modules
-	// TODO(QUE-285): Replace `as any` with proper MergeModuleProp<> typing once
-	// the template emits a concrete modules-tuple type that the utility can consume.
-	lines.push(`\t\tmodules: ${modulesFile.varName} as any,`);
+	// Modules — cast to ModuleDefinition[] to satisfy AppDefinition while
+	// preserving the concrete tuple type for MergeModuleProp<> in the type section.
+	lines.push(`\t\tmodules: ${modulesFile.varName} as ModuleDefinition[],`);
 
 	// ── Emit all categories ──────────────────────────────────────
 	for (const [catName, fileMap] of discovered.categories) {
