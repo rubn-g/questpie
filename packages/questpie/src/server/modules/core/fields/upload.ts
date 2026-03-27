@@ -8,7 +8,7 @@
 import { type PgVarcharBuilder, varchar } from "drizzle-orm/pg-core";
 import { z } from "zod";
 
-import type { KnownCollectionNames } from "../../../../config/app-context.js";
+import type { KnownCollectionNames } from "../../../config/app-context.js";
 import type { DefaultFieldState } from "../../../fields/field-class-types.js";
 import { field } from "../../../fields/field-class.js";
 import { fieldType, wrapFieldComplete } from "../../../fields/field-type.js";
