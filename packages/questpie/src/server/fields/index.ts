@@ -37,7 +37,7 @@ export {
 	type InferFieldsFromFactory,
 } from "./builder.js";
 // Built-in fields map (used by codegen-generated factories to construct merged field defs)
-export { builtinFields } from "./builtin/defaults.js";
+export { builtinFields } from "./builtin-factories/index.js";
 // Built-in field factories
 export * from "./builtin-factories/index.js";
 // Field builder class
@@ -53,29 +53,7 @@ export type {
 	FieldState,
 } from "./field-class-types.js";
 
-// Reactive field system
-export {
-	extractDependencies,
-	getDebounce,
-	getHandler,
-	isReactiveConfig,
-	type OptionsConfig,
-	type OptionsContext,
-	type OptionsHandler,
-	type OptionsResult,
-	type ReactiveAdminMeta,
-	type ReactiveConfig,
-	type ReactiveContext,
-	type ReactiveHandler,
-	type ReactiveServerContext,
-	type SerializedOptionsConfig,
-	type SerializedReactiveConfig,
-	serializeOptionsConfig,
-	serializeReactiveConfig,
-	type TrackingResult,
-	trackDependencies,
-	trackDepsFunction,
-} from "./reactive.js";
+// Reactive types and runtime moved to @questpie/admin
 
 // Core types
 // NOTE: FieldAccess is NOT re-exported here to avoid name collision with

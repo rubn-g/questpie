@@ -133,7 +133,7 @@ function SelectItem({
 					<span className="pointer-events-none absolute right-2 flex items-center justify-center" />
 				}
 			>
-				<Icon icon="ph:check" className="pointer-events-none" />
+				<Icon ssr icon="ph:check" className="pointer-events-none" />
 			</SelectPrimitive.ItemIndicator>
 		</SelectPrimitive.Item>
 	);
@@ -168,7 +168,7 @@ function SelectScrollUpButton({
 			)}
 			{...props}
 		>
-			<Icon icon="ph:caret-up" />
+			<Icon ssr icon="ph:caret-up" />
 		</SelectPrimitive.ScrollUpArrow>
 	);
 }
@@ -186,7 +186,7 @@ function SelectScrollDownButton({
 			)}
 			{...props}
 		>
-			<Icon icon="ph:caret-down" />
+			<Icon ssr icon="ph:caret-down" />
 		</SelectPrimitive.ScrollDownArrow>
 	);
 }

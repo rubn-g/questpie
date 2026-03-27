@@ -19,6 +19,8 @@
 import { type Questpie, route } from "questpie";
 import { z } from "zod";
 
+import { asAdminCtx, getAppState } from "./route-context.js";
+
 import type {
 	ServerActionContext,
 	ServerActionDefinition,
@@ -68,7 +70,7 @@ export function getActionsConfig(
 	builtin: string[];
 	custom: Array<Omit<ServerActionDefinition, "handler">>;
 } | null {
-	const state = (app as any).state as any;
+	const state = getAppState(app);
 	const collection = state.collections?.[collectionSlug];
 
 	if (!collection) {
@@ -134,7 +136,7 @@ export async function executeAction(
 		locale,
 	} = request;
 
-	const state = (app as any).state as any;
+	const state = getAppState(app);
 	const collection = state.collections?.[collectionSlug];
 
 	if (!collection) {
@@ -160,7 +162,7 @@ export async function executeAction(
 		"transition",
 	];
 
-	if (builtinActions.includes(actionId as any)) {
+	if (builtinActions.includes(actionId)) {
 		return executeBuiltinAction(app, {
 			collectionSlug,
 			actionId,
@@ -205,10 +207,10 @@ export async function executeAction(
 			data: data || {},
 			itemId,
 			itemIds,
-			auth: (app as any).auth,
-			collections: (app as any).api?.collections,
-			globals: (app as any).api?.globals,
-			db: (app as any).db,
+			auth: app.auth,
+			collections: app.api?.collections,
+			globals: app.api?.globals,
+			db: app.db,
 			session,
 			locale,
 		};
@@ -250,9 +252,9 @@ async function executeBuiltinAction(
 	},
 ): Promise<ExecuteActionResponse> {
 	const { collectionSlug, actionId, itemId, itemIds, data } = params;
-	const collectionCrud = (app as any).api?.collections?.[collectionSlug];
+	const collectionCrud = app.api?.collections?.[collectionSlug];
 	const crudContext = {
-		db: (app as any).db,
+		db: app.db,
 		session: params.session,
 		locale: params.locale,
 	};
@@ -260,7 +262,7 @@ async function executeBuiltinAction(
 	try {
 		switch (actionId) {
 			case "create": {
-				const result = await (app as any).create(collectionSlug, data || {});
+				const result = await collectionCrud!.create(data || {}, crudContext);
 				return {
 					success: true,
 					result: {
@@ -268,7 +270,7 @@ async function executeBuiltinAction(
 						toast: { message: "Item created successfully" },
 						effects: {
 							invalidate: [collectionSlug],
-							redirect: `/admin/collections/${collectionSlug}/${result.id}`,
+							redirect: `/admin/collections/${collectionSlug}/${(result as any).id}`,
 						},
 					},
 				};
@@ -284,7 +286,7 @@ async function executeBuiltinAction(
 						},
 					};
 				}
-				await (app as any).update(collectionSlug, itemId, data || {});
+				await collectionCrud!.updateById({ id: itemId, data: data || {} }, crudContext);
 				return {
 					success: true,
 					result: {
@@ -305,7 +307,7 @@ async function executeBuiltinAction(
 						},
 					};
 				}
-				await (app as any).delete(collectionSlug, itemId);
+				await collectionCrud!.deleteById({ id: itemId }, crudContext);
 				return {
 					success: true,
 					result: {
@@ -331,9 +333,8 @@ async function executeBuiltinAction(
 						},
 					};
 				}
-				// Delete items in parallel
 				await Promise.all(
-					itemIds.map((id) => (app as any).delete(collectionSlug, id)),
+					itemIds.map((id) => collectionCrud!.deleteById({ id }, crudContext)),
 				);
 				return {
 					success: true,
@@ -356,9 +357,7 @@ async function executeBuiltinAction(
 					};
 				}
 
-				if (typeof (app as any).restore === "function") {
-					await (app as any).restore(collectionSlug, itemId);
-				} else if (collectionCrud?.restoreById) {
+				if (collectionCrud?.restoreById) {
 					await collectionCrud.restoreById({ id: itemId }, crudContext);
 				} else {
 					return {
@@ -398,11 +397,7 @@ async function executeBuiltinAction(
 					};
 				}
 
-				if (typeof (app as any).restore === "function") {
-					await Promise.all(
-						itemIds.map((id) => (app as any).restore(collectionSlug, id)),
-					);
-				} else if (collectionCrud?.restoreById) {
+				if (collectionCrud?.restoreById) {
 					await Promise.all(
 						itemIds.map((id) =>
 							collectionCrud.restoreById({ id }, crudContext),
@@ -440,7 +435,10 @@ async function executeBuiltinAction(
 						},
 					};
 				}
-				const original = await (app as any).findById(collectionSlug, itemId);
+				const original = await collectionCrud!.findOne(
+					{ where: { id: { eq: itemId } } },
+					crudContext,
+				);
 				if (!original) {
 					return {
 						success: false,
@@ -451,10 +449,10 @@ async function executeBuiltinAction(
 					};
 				}
 				// Remove id and timestamps for duplication
-				const { id, createdAt, updatedAt, ...duplicateData } = original;
-				const duplicated = await (app as any).create(
-					collectionSlug,
+				const { id, createdAt, updatedAt, ...duplicateData } = original as any;
+				const duplicated = await collectionCrud!.create(
 					duplicateData,
+					crudContext,
 				);
 				return {
 					success: true,
@@ -638,8 +636,8 @@ export const executeActionFn = route()
 	.schema(executeActionRequestSchema)
 	.outputSchema(executeActionResponseSchema)
 	.handler(async (ctx) => {
-		const app = (ctx as any).app as App;
-		const session = (ctx as any).session;
+		const app = asAdminCtx(ctx).app as App;
+		const session = asAdminCtx(ctx).session;
 		return executeAction(app, ctx.input, session);
 	});
 
@@ -652,7 +650,7 @@ export const getActionsConfigFn = route()
 	.schema(getActionsConfigRequestSchema)
 	.outputSchema(getActionsConfigResponseSchema)
 	.handler((ctx) => {
-		const app = (ctx as any).app as App;
+		const app = asAdminCtx(ctx).app as App;
 		return getActionsConfig(app, ctx.input.collection);
 	});
 

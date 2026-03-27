@@ -995,7 +995,11 @@ function TableViewInner({
 		return (
 			<div className="container">
 				<div className="text-muted-foreground flex h-64 flex-col items-center justify-center gap-3">
-					<Icon icon="ph:warning-circle" className="text-destructive size-8" />
+					<Icon
+						ssr
+						icon="ph:warning-circle"
+						className="text-destructive size-8"
+					/>
 					<p className="text-sm">
 						{listError instanceof Error
 							? listError.message
@@ -1268,7 +1272,11 @@ function TableViewInner({
 															</button>
 															{isRowDeleted && (
 																<span className="text-destructive bg-destructive/10 inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-xs">
-																	<Icon icon="ph:trash" className="size-3" />
+																	<Icon
+																		ssr
+																		icon="ph:trash"
+																		className="size-3"
+																	/>
 																	{t("common.deleted")}
 																</span>
 															)}
@@ -1389,7 +1397,7 @@ function TableViewInner({
 								}
 								aria-label="Previous page"
 							>
-								<Icon icon="ph:caret-left" className="size-4" />
+								<Icon ssr icon="ph:caret-left" className="size-4" />
 							</Button>
 
 							{/* Page numbers */}
@@ -1445,7 +1453,7 @@ function TableViewInner({
 								}
 								aria-label="Next page"
 							>
-								<Icon icon="ph:caret-right" className="size-4" />
+								<Icon ssr icon="ph:caret-right" className="size-4" />
 							</Button>
 						</div>
 					</div>
@@ -1459,7 +1467,7 @@ function TableViewInner({
 						aria-atomic="true"
 					>
 						{isSearchActive && (
-							<Icon icon="ph:spinner-gap" className="size-3 animate-spin" />
+							<Icon ssr icon="ph:spinner-gap" className="size-3 animate-spin" />
 						)}
 						{filteredItems.length} item{filteredItems.length !== 1 ? "s" : ""}
 						{searchData?.total !== undefined && (

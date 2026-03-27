@@ -15,7 +15,11 @@ import type { DefaultFieldState } from "../field-class-types.js";
 import { field, Field } from "../field-class.js";
 import { fieldType, wrapFieldComplete } from "../field-type.js";
 import { selectMultiOps, selectSingleOps } from "../operators/builtin.js";
-import type { OptionsConfig } from "../reactive.js";
+/** Dynamic options configuration (handler + deps) — type inlined from admin reactive-types */
+type OptionsConfig<T = Record<string, any>> = {
+	handler: (ctx: any) => any;
+	deps?: string[] | ((ctx: any) => any[]);
+};
 import type { SelectFieldMetadata } from "../types.js";
 
 declare global {

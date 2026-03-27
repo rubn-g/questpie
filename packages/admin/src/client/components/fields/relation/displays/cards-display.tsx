@@ -41,10 +41,7 @@ function CardsSkeleton({
 	return (
 		<div className={`grid gap-4 ${gridCols[gridColumns]}`}>
 			{skeletonKeys.map((key) => (
-				<div
-					key={key}
-					className="border-border bg-card overflow-hidden border"
-				>
+				<div key={key} className="border-border bg-card overflow-hidden border">
 					{hasImage && <Skeleton className="aspect-video w-full" />}
 					<div className="space-y-2 p-3">
 						<Skeleton className="h-5 w-3/4 rounded" />
@@ -139,7 +136,7 @@ export function CardsDisplay({
 												}}
 												aria-label={t("field.editItem")}
 											>
-												<Icon icon="ph:pencil" className="size-3" />
+												<Icon ssr icon="ph:pencil" className="size-3" />
 											</Button>
 										)}
 										{actions?.onRemove && (
@@ -155,7 +152,7 @@ export function CardsDisplay({
 												}}
 												aria-label={t("field.removeItem")}
 											>
-												<Icon icon="ph:x" className="size-3" />
+												<Icon ssr icon="ph:x" className="size-3" />
 											</Button>
 										)}
 									</div>

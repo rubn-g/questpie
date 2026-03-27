@@ -6,13 +6,15 @@
  * - /options: Dynamic options for select/relation fields
  */
 
+import { ApiError, type Questpie, route } from "questpie";
 import type {
 	OptionsContext,
 	ReactiveContext,
 	ReactiveServerContext,
-} from "questpie";
-import { ApiError, type Questpie, route } from "questpie";
+} from "../../../fields/reactive-types.js";
 import { z } from "zod";
+
+import { asAdminCtx, getAppState, getEntityState } from "./route-context.js";
 
 // ============================================================================
 // Helper Functions
@@ -356,7 +358,7 @@ function getReactiveHandler(
 	type: "collection" | "global" = "collection",
 ): ((ctx: ReactiveContext) => any) | null {
 	const entity = getEntity(app, entityName, type);
-	const formConfig = (entity.state as any).adminForm;
+	const formConfig = getEntityState(entity).adminForm;
 
 	const fieldEntry = findReactiveFieldEntry(formConfig, fieldPath);
 	if (!fieldEntry) {
@@ -541,10 +543,10 @@ export const batchReactive = route()
 
 		// Build server context (req is not available in function handlers)
 		const serverCtx: ReactiveServerContext = {
-			db: (ctx as any).db,
-			user: (ctx as any).session?.user ?? null,
+			db: asAdminCtx(ctx).db,
+			user: asAdminCtx(ctx).session?.user ?? null,
 			req: new Request("http://localhost"), // Placeholder - not used in handlers
-			locale: (ctx as any).locale ?? "en",
+			locale: asAdminCtx(ctx).locale ?? "en",
 		};
 
 		const results = await Promise.all(
@@ -644,10 +646,10 @@ export const fieldOptions = route()
 
 		// Build server context (req is not available in function handlers)
 		const serverCtx: ReactiveServerContext = {
-			db: (ctx as any).db,
-			user: (ctx as any).session?.user ?? null,
+			db: asAdminCtx(ctx).db,
+			user: asAdminCtx(ctx).session?.user ?? null,
 			req: new Request("http://localhost"), // Placeholder - not used in handlers
-			locale: (ctx as any).locale ?? "en",
+			locale: asAdminCtx(ctx).locale ?? "en",
 		};
 
 		try {

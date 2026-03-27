@@ -89,7 +89,6 @@ import type {
 	With,
 } from "#questpie/server/collection/crud/types.js";
 import { createVersionRecord } from "#questpie/server/collection/crud/versioning/index.js";
-import { extractAppServices } from "#questpie/server/config/app-context.js";
 import {
 	guardHookRecursion,
 	runWithContext,
@@ -106,7 +105,7 @@ import {
 	extractWorkflowFromVersioning,
 	type ResolvedWorkflowConfig,
 	resolveWorkflowConfig,
-} from "#questpie/server/workflow/config.js";
+} from "#questpie/server/modules/core/workflow/config.js";
 
 export class CRUDGenerator<TState extends CollectionBuilderState> {
 	private readonly workflowConfig: ResolvedWorkflowConfig | undefined;
@@ -2527,7 +2526,7 @@ export class CRUDGenerator<TState extends CollectionBuilderState> {
 			this.assertTransitionAllowed(fromStage, toStage);
 
 			// Build transition hook context
-			const transitionServices = extractAppServices(this.app, {
+			const transitionServices = this.app.extractContext( {
 				db,
 				session: normalized.session,
 			});
