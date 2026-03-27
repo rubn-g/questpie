@@ -53,6 +53,23 @@ import _svc_realtime from "../services/realtime";
 import _svc_search from "../services/search";
 import _svc_storage from "../services/storage";
 
+// ── FieldTypes ────────────────────────────────────────────
+import { booleanFieldType as _ftype_boolean } from "../fields/boolean";
+import { fromFieldType as _ftype_custom } from "../fields/from";
+import { dateFieldType as _ftype_date } from "../fields/date";
+import { datetimeFieldType as _ftype_datetime } from "../fields/datetime";
+import { emailFieldType as _ftype_email } from "../fields/email";
+import { jsonFieldType as _ftype_json } from "../fields/json";
+import { numberFieldType as _ftype_number } from "../fields/number";
+import { objectFieldType as _ftype_object } from "../fields/object";
+import { relationFieldType as _ftype_relation } from "../fields/relation";
+import { selectFieldType as _ftype_select } from "../fields/select";
+import { textFieldType as _ftype_text } from "../fields/text";
+import { textareaFieldType as _ftype_textarea } from "../fields/textarea";
+import { timeFieldType as _ftype_time } from "../fields/time";
+import { uploadFieldType as _ftype_upload } from "../fields/upload";
+import { urlFieldType as _ftype_url } from "../fields/url";
+
 // ── Singles ────────────────────────────────────────────────
 import _appConfig from "../config/app";
 
@@ -114,6 +131,24 @@ export interface CoreServices {
 	storage: typeof _svc_storage;
 }
 
+export interface CoreFieldTypes {
+	boolean: typeof _ftype_boolean;
+	custom: typeof _ftype_custom;
+	date: typeof _ftype_date;
+	datetime: typeof _ftype_datetime;
+	email: typeof _ftype_email;
+	json: typeof _ftype_json;
+	number: typeof _ftype_number;
+	object: typeof _ftype_object;
+	relation: typeof _ftype_relation;
+	select: typeof _ftype_select;
+	text: typeof _ftype_text;
+	textarea: typeof _ftype_textarea;
+	time: typeof _ftype_time;
+	upload: typeof _ftype_upload;
+	url: typeof _ftype_url;
+}
+
 // ════════════════════════════════════════════════════════════
 // MODULE DEFINITION — static plain object
 // ════════════════════════════════════════════════════════════
@@ -171,13 +206,29 @@ const _module = {
 		search: _svc_search,
 		storage: _svc_storage,
 	} as CoreServices,
+	fieldTypes: {
+		boolean: _ftype_boolean,
+		custom: _ftype_custom,
+		date: _ftype_date,
+		datetime: _ftype_datetime,
+		email: _ftype_email,
+		json: _ftype_json,
+		number: _ftype_number,
+		object: _ftype_object,
+		relation: _ftype_relation,
+		select: _ftype_select,
+		text: _ftype_text,
+		textarea: _ftype_textarea,
+		time: _ftype_time,
+		upload: _ftype_upload,
+		url: _ftype_url,
+	} as CoreFieldTypes,
 	collections: {},
 	globals: {},
 	messages: {},
 	emails: {},
 	migrations: [] as const,
 	seeds: [] as const,
-	fieldTypes: {},
 	config: {
 		app: _appConfig,
 	},

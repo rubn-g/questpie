@@ -988,7 +988,7 @@ import type {
 	TimeFieldMeta,
 	UploadFieldMeta,
 	UrlFieldMeta,
-} from "#questpie/server/fields/builtin-factories/index.js";
+} from "#questpie/server/modules/core/fields/index.js";
 import type { ArrayFieldMeta } from "#questpie/server/fields/field-class-types.js";
 
 // Verify all Meta interfaces have the _?: never phantom property
@@ -1027,9 +1027,9 @@ type _numberMetaNotEmpty = Expect<Not<Equal<keyof NumberFieldMeta, never>>>;
 // Q) Standalone Field Operator Inference — concrete types from field
 // ============================================================================
 
-import { datetime } from "#questpie/server/fields/builtin-factories/datetime.js";
-import { number } from "#questpie/server/fields/builtin-factories/number.js";
-import { text } from "#questpie/server/fields/builtin-factories/text.js";
+import { datetime } from "#questpie/server/modules/core/fields/datetime.js";
+import { number } from "#questpie/server/modules/core/fields/number.js";
+import { text } from "#questpie/server/modules/core/fields/text.js";
 import type {
 	dateColumnOperators,
 	numberColumnOperators,

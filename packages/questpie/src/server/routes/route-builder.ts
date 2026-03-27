@@ -26,7 +26,6 @@ import type {
 	RawRouteDefinition,
 	RawRouteHandlerArgs,
 	RouteAccess,
-	RouteDefinition,
 } from "./types.js";
 
 // ============================================================================
@@ -68,8 +67,8 @@ interface BuilderConfig {
  */
 export class RouteBuilder<
 	_TMethod extends NoMethod | HasMethod = NoMethod,
-	_TMode extends NoMode | JsonMode | RawMode = NoMode,
-	_TSchema extends NoSchema | HasSchema = NoSchema,
+	TMode extends NoMode | JsonMode | RawMode = NoMode,
+	TSchema extends NoSchema | HasSchema = NoSchema,
 > {
 	/** @internal */
 	private readonly _config: Readonly<BuilderConfig>;
@@ -81,23 +80,23 @@ export class RouteBuilder<
 
 	// ── HTTP Method setters ─────────────────────────────────────
 
-	get(): RouteBuilder<HasMethod<"GET">, _TMode, _TSchema> {
+	get(): RouteBuilder<HasMethod<"GET">, TMode, TSchema> {
 		return new RouteBuilder({ ...this._config, method: "GET" });
 	}
 
-	post(): RouteBuilder<HasMethod<"POST">, _TMode, _TSchema> {
+	post(): RouteBuilder<HasMethod<"POST">, TMode, TSchema> {
 		return new RouteBuilder({ ...this._config, method: "POST" });
 	}
 
-	put(): RouteBuilder<HasMethod<"PUT">, _TMode, _TSchema> {
+	put(): RouteBuilder<HasMethod<"PUT">, TMode, TSchema> {
 		return new RouteBuilder({ ...this._config, method: "PUT" });
 	}
 
-	delete(): RouteBuilder<HasMethod<"DELETE">, _TMode, _TSchema> {
+	delete(): RouteBuilder<HasMethod<"DELETE">, TMode, TSchema> {
 		return new RouteBuilder({ ...this._config, method: "DELETE" });
 	}
 
-	patch(): RouteBuilder<HasMethod<"PATCH">, _TMode, _TSchema> {
+	patch(): RouteBuilder<HasMethod<"PATCH">, TMode, TSchema> {
 		return new RouteBuilder({ ...this._config, method: "PATCH" });
 	}
 
@@ -133,7 +132,7 @@ export class RouteBuilder<
 	 */
 	outputSchema<TOutput>(
 		schema: z.ZodSchema<TOutput>,
-	): RouteBuilder<_TMethod, _TMode, _TSchema> {
+	): RouteBuilder<_TMethod, TMode, TSchema> {
 		return new RouteBuilder({ ...this._config, outputSchema: schema }) as any;
 	}
 
@@ -142,7 +141,7 @@ export class RouteBuilder<
 	/**
 	 * Set access control for this route.
 	 */
-	access(access: RouteAccess): RouteBuilder<_TMethod, _TMode, _TSchema> {
+	access(access: RouteAccess): RouteBuilder<_TMethod, TMode, TSchema> {
 		return new RouteBuilder({ ...this._config, access }) as any;
 	}
 
@@ -157,14 +156,14 @@ export class RouteBuilder<
 	 * - Otherwise → defaults to `RawRouteDefinition` with POST method
 	 */
 	handler(
-		handler: _TMode extends RawMode
+		handler: TMode extends RawMode
 			? (args: RawRouteHandlerArgs) => Response | Promise<Response>
-			: _TSchema extends HasSchema<infer TInput>
+			: TSchema extends HasSchema<infer TInput>
 				? (args: JsonRouteHandlerArgs<TInput>) => any
 				: (args: RawRouteHandlerArgs) => Response | Promise<Response>,
-	): _TMode extends RawMode
+	): TMode extends RawMode
 		? RawRouteDefinition
-		: _TSchema extends HasSchema<infer TInput>
+		: TSchema extends HasSchema<infer TInput>
 			? JsonRouteDefinition<TInput, any>
 			: RawRouteDefinition {
 		const method = this._config.method ?? "POST";
