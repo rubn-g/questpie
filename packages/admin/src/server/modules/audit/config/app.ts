@@ -140,7 +140,7 @@ function generateTitle(
 
 async function collectionAfterChange(ctx: GlobalCollectionHookContext) {
 	try {
-		const { collections } = ctx as any;
+		const collections = (ctx as any).collections ?? (ctx as any).app?.collections;
 
 		if (isAuditDisabled("collection", ctx.collection)) return;
 
@@ -195,7 +195,7 @@ async function collectionAfterChange(ctx: GlobalCollectionHookContext) {
 
 async function collectionAfterDelete(ctx: GlobalCollectionHookContext) {
 	try {
-		const { collections } = ctx as any;
+		const collections = (ctx as any).collections ?? (ctx as any).app?.collections;
 
 		if (isAuditDisabled("collection", ctx.collection)) return;
 
@@ -244,7 +244,7 @@ async function collectionAfterTransition(
 	ctx: GlobalCollectionTransitionHookContext,
 ) {
 	try {
-		const { collections } = ctx as any;
+		const collections = (ctx as any).collections ?? (ctx as any).app?.collections;
 
 		if (isAuditDisabled("collection", ctx.collection)) return;
 
@@ -296,7 +296,7 @@ async function collectionAfterTransition(
 
 async function globalAfterChange(ctx: GlobalGlobalHookContext) {
 	try {
-		const { collections } = ctx as any;
+		const collections = (ctx as any).collections ?? (ctx as any).app?.collections;
 
 		if (isAuditDisabled("global", ctx.global)) return;
 
@@ -341,7 +341,7 @@ async function globalAfterTransition(
 	ctx: GlobalGlobalTransitionHookContext,
 ) {
 	try {
-		const { collections } = ctx as any;
+		const collections = (ctx as any).collections ?? (ctx as any).app?.collections;
 
 		if (isAuditDisabled("global", ctx.global)) return;
 
