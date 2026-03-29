@@ -182,17 +182,17 @@ async function expandDeclaredFields(
 				: groupKey;
 
 			try {
-				const appApi = (ctx.app as any)?.api?.collections?.[collection];
-				if (!appApi?.find) {
+				const collectionApi = (ctx.app as any)?.collections?.[collection];
+				if (!collectionApi?.find) {
 					console.warn(
-						`[prefetch] Collection "${collection}" not found on app API, skipping`,
+						`[prefetch] Collection "${collection}" not found on app.collections, skipping`,
 					);
 					return;
 				}
 
 				// Pass nested `with` through to collection's find — reuses existing
 				// relation resolution machinery (same as find({ with: { ... } }))
-				const result = await appApi.find({
+				const result = await collectionApi.find({
 					where: { id: { in: [...ids] } },
 					limit: ids.size,
 					...(nestedWith ? { with: nestedWith } : {}),
