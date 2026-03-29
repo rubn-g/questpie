@@ -49,4 +49,4 @@ yarn-error.log*
 .opencode
 .claude
 
-**/*.tsbuildinfo
+**/*.tsbuildinfotmp/

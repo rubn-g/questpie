@@ -1,5 +1,0 @@
-- heading "Barbershop Control" [level=1, ref=e1]
-- textbox "Email" [ref=e4]
-- textbox "Password" [ref=e5]
-- button "Sign in" [ref=e2]
-- button "Open TanStack Devtools" [ref=e3]
