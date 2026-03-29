@@ -12,7 +12,7 @@ import type { KnownCollectionNames } from "../../../config/app-context.js";
 import type { DefaultFieldState } from "../../../fields/field-class-types.js";
 import { field } from "../../../fields/field-class.js";
 import { fieldType, wrapFieldComplete } from "../../../fields/field-type.js";
-import { belongsToOps, toManyOps } from "../../../fields/operators/builtin.js";
+import { belongsToOps, multipleOps, toManyOps } from "../../../fields/operators/builtin.js";
 import type { ReferentialAction, RelationFieldMetadata } from "../../../fields/types.js";
 
 declare global {
@@ -131,6 +131,21 @@ import type { Field } from "../../../fields/field-class.js";
 // ---- fieldType() definition (QUE-265) ----
 
 export const uploadFieldType = fieldType("upload", {
+	methods: {
+		/**
+		 * Switch this upload to an inline-array (multiple) relationship.
+		 * Stores an array of asset IDs as JSONB instead of a single FK.
+		 */
+		multiple: (f: Field<any>) =>
+			field({
+				...f._,
+				multiple: true,
+				virtual: true,
+				columnFactory: null as any,
+				schemaFactory: () => z.array(z.string().uuid()),
+				operatorSet: multipleOps,
+			}),
+	},
 	create: (config?: UploadConfig) => {
 		const {
 			to = "assets",
