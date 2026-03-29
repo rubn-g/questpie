@@ -64,22 +64,24 @@ function compileRoutes(
 
 	for (const [key, def] of Object.entries(routes)) {
 		let path: string;
-		let method: string;
+		let methods: string[];
 
 		const colonIdx = key.lastIndexOf(":");
 		if (colonIdx > 0) {
 			path = key.slice(0, colonIdx);
-			method = key.slice(colonIdx + 1).toUpperCase();
+			methods = [key.slice(colonIdx + 1).toUpperCase()];
 		} else {
 			path = key;
-			method = def.method;
+			methods = Array.isArray(def.method) ? def.method : [def.method];
 		}
 
 		// camelCase → kebab-case, file-path convention → route pattern
 		path = path.split("/").map(camelToKebab).join("/");
 		const pattern = filePathToRoutePattern(path);
 
-		entries.push([pattern, method, def]);
+		for (const method of methods) {
+			entries.push([pattern, method, def]);
+		}
 	}
 
 	try {

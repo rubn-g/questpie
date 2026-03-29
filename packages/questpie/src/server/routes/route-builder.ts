@@ -47,7 +47,7 @@ type HasSchema<T = any> = { __schema: T };
 // ============================================================================
 
 interface BuilderConfig {
-	method?: HttpMethod;
+	method?: HttpMethod | HttpMethod[];
 	mode?: "json" | "raw";
 	schema?: z.ZodSchema<any>;
 	outputSchema?: z.ZodSchema<any>;
@@ -79,25 +79,33 @@ export class RouteBuilder<
 	}
 
 	// ── HTTP Method setters ─────────────────────────────────────
+	// Chainable: `.get().post()` registers both GET and POST.
+
+	private _addMethod(m: HttpMethod): HttpMethod | HttpMethod[] {
+		const existing = this._config.method;
+		if (!existing) return m;
+		const arr = Array.isArray(existing) ? existing : [existing];
+		return arr.includes(m) ? arr : [...arr, m];
+	}
 
 	get(): RouteBuilder<HasMethod<"GET">, TMode, TSchema> {
-		return new RouteBuilder({ ...this._config, method: "GET" });
+		return new RouteBuilder({ ...this._config, method: this._addMethod("GET") });
 	}
 
 	post(): RouteBuilder<HasMethod<"POST">, TMode, TSchema> {
-		return new RouteBuilder({ ...this._config, method: "POST" });
+		return new RouteBuilder({ ...this._config, method: this._addMethod("POST") });
 	}
 
 	put(): RouteBuilder<HasMethod<"PUT">, TMode, TSchema> {
-		return new RouteBuilder({ ...this._config, method: "PUT" });
+		return new RouteBuilder({ ...this._config, method: this._addMethod("PUT") });
 	}
 
 	delete(): RouteBuilder<HasMethod<"DELETE">, TMode, TSchema> {
-		return new RouteBuilder({ ...this._config, method: "DELETE" });
+		return new RouteBuilder({ ...this._config, method: this._addMethod("DELETE") });
 	}
 
 	patch(): RouteBuilder<HasMethod<"PATCH">, TMode, TSchema> {
-		return new RouteBuilder({ ...this._config, method: "PATCH" });
+		return new RouteBuilder({ ...this._config, method: this._addMethod("PATCH") });
 	}
 
 	// ── Mode ────────────────────────────────────────────────────

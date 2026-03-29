@@ -84,7 +84,7 @@ export type RawRouteHandlerArgs = AppContext & {
 export type JsonRouteDefinition<TInput = any, TOutput = any> = {
 	readonly __brand: "route";
 	readonly mode: "json";
-	readonly method: HttpMethod;
+	readonly method: HttpMethod | HttpMethod[];
 	readonly schema: z.ZodSchema<TInput>;
 	readonly outputSchema?: z.ZodSchema<TOutput>;
 	readonly access?: RouteAccess;
@@ -99,7 +99,7 @@ export type JsonRouteDefinition<TInput = any, TOutput = any> = {
 export type RawRouteDefinition = {
 	readonly __brand: "route";
 	readonly mode: "raw";
-	readonly method: HttpMethod;
+	readonly method: HttpMethod | HttpMethod[];
 	readonly access?: RouteAccess;
 	readonly handler: (args: RawRouteHandlerArgs) => Response | Promise<Response>;
 };

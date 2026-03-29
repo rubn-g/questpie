@@ -10,6 +10,7 @@ import { route } from "#questpie/server/routes/define-route.js";
 import { handleError } from "../../../../adapters/utils/response.js";
 
 export default route()
+	.get()
 	.post()
 	.raw()
 	.access(true)

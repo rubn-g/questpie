@@ -1,0 +1,26 @@
+2026-03-29T18:14:45.787Z ERROR $ turbo run dev
+2026-03-29T18:14:46.080Z ERROR • turbo 2.8.20
+2026-03-29T18:14:46.193Z INFO     • Packages in scope: @questpie/admin, @questpie/docs, @questpie/elysia, @questpie/hono, @questpie/next, @questpie/openapi, @questpie/tanstack-query, @questpie/vite-plugin-iconify, city-portal-example, create-questpie, questpie, tanstack-barbershop-example
+2026-03-29T18:14:46.193Z INFO     • Running dev in 12 packages
+2026-03-29T18:14:46.193Z INFO     • Remote caching disabled
+2026-03-29T18:14:46.201Z INFO  @questpie/docs:dev: cache bypass, force executing 09b9400945864012
+2026-03-29T18:14:46.201Z INFO  questpie:dev: cache bypass, force executing 20c6d8029155b2da
+2026-03-29T18:14:46.201Z INFO  create-questpie:dev: cache bypass, force executing febfca060c6d5e73
+2026-03-29T18:14:46.201Z INFO  @questpie/admin:dev: cache bypass, force executing 752257172698f28f
+2026-03-29T18:14:46.202Z INFO  city-portal-example:dev: cache bypass, force executing f00c7a16b4b7fae1
+2026-03-29T18:14:46.202Z INFO  tanstack-barbershop-example:dev: cache bypass, force executing 6fb621fb36654cb5
+2026-03-29T18:14:46.206Z INFO  @questpie/docs:dev: $ vite dev
+2026-03-29T18:14:46.207Z INFO  questpie:dev: $ bun run --watch src/index.ts
+2026-03-29T18:14:46.207Z INFO  @questpie/admin:dev: $ tsdown --watch
+2026-03-29T18:14:46.209Z INFO  tanstack-barbershop-example:dev: $ bun --bun vite dev
+2026-03-29T18:14:46.209Z INFO  create-questpie:dev: $ tsdown --watch
+2026-03-29T18:14:46.211Z INFO  city-portal-example:dev: $ bun --bun vite dev --port 3001
+2026-03-29T18:14:46.215Z ERROR questpie:dev: error: Module not found "src/index.ts"
+2026-03-29T18:14:46.216Z ERROR questpie:dev: error: script "dev" exited with code 1
+2026-03-29T18:14:46.229Z ERROR  ERROR  questpie#dev: command (/Users/drepkovsky/questpie/repos/questpie-cms/packages/questpie) /Users/drepkovsky/.bun/bin/bun run dev exited (1)
+2026-03-29T18:14:46.230Z INFO   Tasks:    0 successful, 6 total
+2026-03-29T18:14:46.230Z INFO  Cached:    0 cached, 6 total
+2026-03-29T18:14:46.230Z INFO    Time:    144ms 
+2026-03-29T18:14:46.230Z INFO  Failed:    questpie#dev
+2026-03-29T18:14:46.233Z ERROR  ERROR  run failed: command  exited (1)
+2026-03-29T18:14:46.314Z ERROR error: script "dev" exited with code 1
