@@ -10,12 +10,17 @@ import { z, type ZodType } from "zod";
 import type { DefaultFieldState } from "../../../fields/field-class-types.js";
 import { field } from "../../../fields/field-class.js";
 import { fieldType, wrapFieldComplete } from "../../../fields/field-type.js";
+import type { FieldWithMethods } from "../../../fields/field-with-methods.js";
 import { basicOps } from "../../../fields/operators/builtin.js";
 
 export type CustomFieldState = DefaultFieldState & {
 	type: "custom";
 	data: unknown;
 };
+
+export interface CustomFieldMethods {
+	type(typeName: string): any;
+}
 
 /**
  * Create a field from an arbitrary Drizzle column builder.
@@ -38,7 +43,7 @@ export type CustomFieldState = DefaultFieldState & {
 export function from(
 	column: unknown,
 	zodSchema?: ZodType,
-): Field<CustomFieldState> {
+): FieldWithMethods<CustomFieldState, CustomFieldMethods> {
 	// If column is a column builder instance, wrap it as a factory
 	const isFactory = typeof column === "function";
 	const columnFactory = isFactory

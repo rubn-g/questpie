@@ -8,6 +8,7 @@ import { z } from "zod";
 import type { DefaultFieldState } from "../../../fields/field-class-types.js";
 import { field } from "../../../fields/field-class.js";
 import { fieldType, wrapFieldComplete } from "../../../fields/field-type.js";
+import type { FieldWithMethods } from "../../../fields/field-with-methods.js";
 import { urlOps } from "../../../fields/operators/builtin.js";
 
 declare global {
@@ -27,6 +28,11 @@ export type UrlFieldState = DefaultFieldState & {
 	operators: typeof urlOps;
 };
 
+export interface UrlFieldMethods {
+	min(n: number): any;
+	max(n: number): any;
+}
+
 /**
  * Create a URL field with built-in URL validation.
  *
@@ -38,7 +44,7 @@ export type UrlFieldState = DefaultFieldState & {
  * link: f.url(500)
  * ```
  */
-export function url(maxLength = 2048): Field<UrlFieldState> {
+export function url(maxLength = 2048): FieldWithMethods<UrlFieldState, UrlFieldMethods> {
 	return wrapFieldComplete(field<UrlFieldState>({
 		type: "url",
 		columnFactory: (name) => varchar(name, { length: maxLength }),

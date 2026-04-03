@@ -10,14 +10,15 @@ export {
 	type BooleanFieldState,
 	boolean,
 } from "./boolean.js";
-export { type DateFieldMeta, type DateFieldState, date } from "./date.js";
+export { type DateFieldMeta, type DateFieldMethods, type DateFieldState, date } from "./date.js";
 export {
 	type DatetimeFieldMeta,
+	type DatetimeFieldMethods,
 	type DatetimeFieldState,
 	datetime,
 } from "./datetime.js";
-export { type EmailFieldMeta, type EmailFieldState, email } from "./email.js";
-export { type CustomFieldState, from } from "./from.js";
+export { type EmailFieldMeta, type EmailFieldMethods, type EmailFieldState, email } from "./email.js";
+export { type CustomFieldState, type CustomFieldMethods, from } from "./from.js";
 export {
 	type JsonFieldMeta,
 	type JsonFieldState,
@@ -26,6 +27,7 @@ export {
 } from "./json.js";
 export {
 	type NumberFieldMeta,
+	type NumberFieldMethods,
 	type NumberFieldState,
 	number,
 } from "./number.js";
@@ -36,29 +38,33 @@ export {
 } from "./object.js";
 export {
 	type RelationFieldMeta,
+	type RelationFieldMethods,
 	type RelationFieldState,
 	relation,
 } from "./relation.js";
 export {
 	type SelectFieldMeta,
+	type SelectFieldMethods,
 	type SelectFieldState,
 	type SelectOption,
 	select,
 } from "./select.js";
 // Named re-exports (factories + state types + meta augmentation interfaces)
-export { type TextFieldMeta, type TextFieldState, text } from "./text.js";
+export { type TextFieldMeta, type TextFieldMethods, type TextFieldState, text } from "./text.js";
 export {
 	type TextareaFieldMeta,
+	type TextareaFieldMethods,
 	type TextareaFieldState,
 	textarea,
 } from "./textarea.js";
 export { type TimeFieldMeta, type TimeFieldState, time } from "./time.js";
 export {
 	type UploadFieldMeta,
+	type UploadFieldMethods,
 	type UploadFieldState,
 	upload,
 } from "./upload.js";
-export { type UrlFieldMeta, type UrlFieldState, url } from "./url.js";
+export { type UrlFieldMeta, type UrlFieldMethods, type UrlFieldState, url } from "./url.js";
 
 // ============================================================================
 // Builtin Fields Map

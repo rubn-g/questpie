@@ -14,6 +14,7 @@ import type { I18nText } from "#questpie/shared/i18n/types.js";
 import type { DefaultFieldState } from "../../../fields/field-class-types.js";
 import { field, Field } from "../../../fields/field-class.js";
 import { fieldType, wrapFieldComplete } from "../../../fields/field-type.js";
+import type { FieldWithMethods } from "../../../fields/field-with-methods.js";
 import { selectMultiOps, selectSingleOps } from "../../../fields/operators/builtin.js";
 import type { OptionsConfig } from "../../../fields/reactive.js";
 import type { SelectFieldMetadata } from "../../../fields/types.js";
@@ -34,6 +35,10 @@ export type SelectFieldState = DefaultFieldState & {
 	column: PgVarcharBuilder<[string, ...string[]]>;
 	operators: typeof selectSingleOps;
 };
+
+export interface SelectFieldMethods {
+	enum(enumName: string): any;
+}
 
 /**
  * Option definition for select field.
@@ -78,7 +83,7 @@ function getStaticOptions(
  */
 export function select(
 	options: readonly SelectOption[] | OptionsConfig,
-): Field<SelectFieldState> {
+): FieldWithMethods<SelectFieldState, SelectFieldMethods> {
 	const staticOpts = getStaticOptions(options);
 
 	// Compute varchar length from options

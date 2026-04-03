@@ -8,6 +8,7 @@ import { z } from "zod";
 import type { DefaultFieldState } from "../../../fields/field-class-types.js";
 import { field } from "../../../fields/field-class.js";
 import { fieldType, wrapFieldComplete } from "../../../fields/field-type.js";
+import type { FieldWithMethods } from "../../../fields/field-with-methods.js";
 import { dateOps } from "../../../fields/operators/builtin.js";
 
 declare global {
@@ -27,6 +28,11 @@ export type DatetimeFieldState = DefaultFieldState & {
 	operators: typeof dateOps;
 };
 
+export interface DatetimeFieldMethods {
+	autoNow(): any;
+	autoNowUpdate(): any;
+}
+
 interface DatetimeConfig {
 	/** Timestamp precision (0-6). @default 3 */
 	precision?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
@@ -45,7 +51,7 @@ interface DatetimeConfig {
  * eventTime: f.datetime({ precision: 0 })
  * ```
  */
-export function datetime(config?: DatetimeConfig): Field<DatetimeFieldState> {
+export function datetime(config?: DatetimeConfig): FieldWithMethods<DatetimeFieldState, DatetimeFieldMethods> {
 	const { precision = 3, withTimezone = true } = config ?? {};
 
 	return wrapFieldComplete(field<DatetimeFieldState>({

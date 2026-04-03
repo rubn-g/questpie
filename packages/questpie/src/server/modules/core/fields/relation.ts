@@ -16,6 +16,7 @@ import { z } from "zod";
 import type { DefaultFieldState } from "../../../fields/field-class-types.js";
 import { Field, field } from "../../../fields/field-class.js";
 import { fieldType, wrapFieldComplete } from "../../../fields/field-type.js";
+import type { FieldWithMethods } from "../../../fields/field-with-methods.js";
 import { belongsToOps, multipleOps, toManyOps } from "../../../fields/operators/builtin.js";
 import type {
 	InferredRelationType,
@@ -46,6 +47,15 @@ export type RelationFieldState<TTo extends string = string> =
 		relationTo: TTo;
 		relationKind: "one";
 	};
+
+export interface RelationFieldMethods {
+	hasMany(config: { foreignKey: string; onDelete?: ReferentialAction; relationName?: string }): any;
+	manyToMany(config: { through: string; sourceField?: string; targetField?: string; relationName?: string }): any;
+	multiple(): any;
+	onDelete(action: ReferentialAction): any;
+	onUpdate(action: ReferentialAction): any;
+	relationName(name: string): any;
+}
 
 export type ToManyRelationFieldState<TTo extends string = string> =
 	DefaultFieldState & {
@@ -205,7 +215,7 @@ function buildRelationMetadata(
  */
 export function relation<TTo extends string>(
 	target: TTo | Exclude<RelationTarget, string>,
-): Field<RelationFieldState<TTo>> {
+): FieldWithMethods<RelationFieldState<TTo>, RelationFieldMethods> {
 	const isPoly = isPolymorphicTarget(target);
 
 	if (isPoly) {

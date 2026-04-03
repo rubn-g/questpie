@@ -16,6 +16,7 @@ import { z } from "zod";
 import type { DefaultFieldState } from "../../../fields/field-class-types.js";
 import { field, Field } from "../../../fields/field-class.js";
 import { fieldType, wrapFieldComplete } from "../../../fields/field-type.js";
+import type { FieldWithMethods } from "../../../fields/field-with-methods.js";
 import { numberOps } from "../../../fields/operators/builtin.js";
 
 declare global {
@@ -34,6 +35,14 @@ export type NumberFieldState = DefaultFieldState & {
 	column: PgIntegerBuilder;
 	operators: typeof numberOps;
 };
+
+export interface NumberFieldMethods {
+	min(n: number): any;
+	max(n: number): any;
+	positive(): any;
+	int(): any;
+	step(n: number): any;
+}
 
 type NumberMode =
 	| "integer"
@@ -61,14 +70,14 @@ interface DecimalConfig {
  * rating: f.number("real")
  * ```
  */
-export function number(): Field<NumberFieldState>;
+export function number(): FieldWithMethods<NumberFieldState, NumberFieldMethods>;
 export function number(
 	mode: Exclude<NumberMode, "decimal">,
-): Field<NumberFieldState>;
-export function number(config: DecimalConfig): Field<NumberFieldState>;
+): FieldWithMethods<NumberFieldState, NumberFieldMethods>;
+export function number(config: DecimalConfig): FieldWithMethods<NumberFieldState, NumberFieldMethods>;
 export function number(
 	arg?: NumberMode | DecimalConfig,
-): Field<NumberFieldState> {
+): FieldWithMethods<NumberFieldState, NumberFieldMethods> {
 	const isDecimalConfig = typeof arg === "object" && arg?.mode === "decimal";
 	const mode: NumberMode = isDecimalConfig
 		? "decimal"

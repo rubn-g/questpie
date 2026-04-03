@@ -12,6 +12,7 @@ import { z } from "zod";
 import type { DefaultFieldState } from "../../../fields/field-class-types.js";
 import { field, Field } from "../../../fields/field-class.js";
 import { fieldType, wrapFieldComplete } from "../../../fields/field-type.js";
+import type { FieldWithMethods } from "../../../fields/field-with-methods.js";
 import { stringOps } from "../../../fields/operators/builtin.js";
 
 declare global {
@@ -31,6 +32,15 @@ export type TextFieldState = DefaultFieldState & {
 	operators: typeof stringOps;
 };
 
+export interface TextFieldMethods {
+	pattern(re: RegExp): any;
+	trim(): any;
+	lowercase(): any;
+	uppercase(): any;
+	min(n: number): any;
+	max(n: number): any;
+}
+
 /**
  * Create a text field.
  *
@@ -42,9 +52,9 @@ export type TextFieldState = DefaultFieldState & {
  * bio: f.text({ mode: "text" })
  * ```
  */
-export function text(maxLength?: number): Field<TextFieldState>;
-export function text(config: { mode: "text" }): Field<TextFieldState>;
-export function text(arg?: number | { mode: "text" }): Field<TextFieldState> {
+export function text(maxLength?: number): FieldWithMethods<TextFieldState, TextFieldMethods>;
+export function text(config: { mode: "text" }): FieldWithMethods<TextFieldState, TextFieldMethods>;
+export function text(arg?: number | { mode: "text" }): FieldWithMethods<TextFieldState, TextFieldMethods> {
 	const isTextMode = typeof arg === "object" && arg?.mode === "text";
 	const maxLen = typeof arg === "number" ? arg : isTextMode ? undefined : 255;
 

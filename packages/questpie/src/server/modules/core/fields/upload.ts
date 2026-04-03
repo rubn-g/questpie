@@ -12,6 +12,7 @@ import type { KnownCollectionNames } from "../../../config/app-context.js";
 import type { DefaultFieldState } from "../../../fields/field-class-types.js";
 import { field } from "../../../fields/field-class.js";
 import { fieldType, wrapFieldComplete } from "../../../fields/field-type.js";
+import type { FieldWithMethods } from "../../../fields/field-with-methods.js";
 import { belongsToOps, multipleOps, toManyOps } from "../../../fields/operators/builtin.js";
 import type { ReferentialAction, RelationFieldMetadata } from "../../../fields/types.js";
 
@@ -38,6 +39,10 @@ export type UploadFieldState<TTo extends string = "assets"> =
 		relationTo: TTo;
 		relationKind: "one";
 	};
+
+export interface UploadFieldMethods {
+	multiple(): any;
+}
 
 interface UploadConfig {
 	/** Target upload collection. @default "assets" */
@@ -77,7 +82,7 @@ interface UploadConfig {
  */
 export function upload<TTo extends string = "assets">(
 	config?: UploadConfig & { to?: TTo },
-): Field<UploadFieldState<TTo>> {
+): FieldWithMethods<UploadFieldState<TTo>, UploadFieldMethods> {
 	const {
 		to = "assets" as TTo,
 		through,

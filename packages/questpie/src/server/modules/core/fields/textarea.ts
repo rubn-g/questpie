@@ -8,6 +8,7 @@ import { z } from "zod";
 import type { DefaultFieldState } from "../../../fields/field-class-types.js";
 import { field } from "../../../fields/field-class.js";
 import { fieldType, wrapFieldComplete } from "../../../fields/field-type.js";
+import type { FieldWithMethods } from "../../../fields/field-with-methods.js";
 import { stringOps } from "../../../fields/operators/builtin.js";
 
 declare global {
@@ -27,6 +28,11 @@ export type TextareaFieldState = DefaultFieldState & {
 	operators: typeof stringOps;
 };
 
+export interface TextareaFieldMethods {
+	min(n: number): any;
+	max(n: number): any;
+}
+
 /**
  * Create a textarea field (long text, stored as `text` in PostgreSQL).
  *
@@ -35,7 +41,7 @@ export type TextareaFieldState = DefaultFieldState & {
  * bio: f.textarea().label({ en: "Biography" })
  * ```
  */
-export function textarea(): Field<TextareaFieldState> {
+export function textarea(): FieldWithMethods<TextareaFieldState, TextareaFieldMethods> {
 	return wrapFieldComplete(field<TextareaFieldState>({
 		type: "textarea",
 		columnFactory: (name) => pgText(name),

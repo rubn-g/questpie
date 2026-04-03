@@ -8,6 +8,7 @@ import { z } from "zod";
 import type { DefaultFieldState } from "../../../fields/field-class-types.js";
 import { field } from "../../../fields/field-class.js";
 import { fieldType, wrapFieldComplete } from "../../../fields/field-type.js";
+import type { FieldWithMethods } from "../../../fields/field-with-methods.js";
 import { emailOps } from "../../../fields/operators/builtin.js";
 
 declare global {
@@ -27,6 +28,11 @@ export type EmailFieldState = DefaultFieldState & {
 	operators: typeof emailOps;
 };
 
+export interface EmailFieldMethods {
+	min(n: number): any;
+	max(n: number): any;
+}
+
 /**
  * Create an email field with built-in email validation.
  *
@@ -37,7 +43,7 @@ export type EmailFieldState = DefaultFieldState & {
  * email: f.email().required()
  * ```
  */
-export function email(maxLength = 255): Field<EmailFieldState> {
+export function email(maxLength = 255): FieldWithMethods<EmailFieldState, EmailFieldMethods> {
 	return wrapFieldComplete(field<EmailFieldState>({
 		type: "email",
 		columnFactory: (name) => varchar(name, { length: maxLength }),

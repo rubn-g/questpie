@@ -8,6 +8,7 @@ import { z } from "zod";
 import type { DefaultFieldState } from "../../../fields/field-class-types.js";
 import { field, Field } from "../../../fields/field-class.js";
 import { fieldType, wrapFieldComplete } from "../../../fields/field-type.js";
+import type { FieldWithMethods } from "../../../fields/field-with-methods.js";
 import { dateOps } from "../../../fields/operators/builtin.js";
 
 declare global {
@@ -27,6 +28,11 @@ export type DateFieldState = DefaultFieldState & {
 	operators: typeof dateOps;
 };
 
+export interface DateFieldMethods {
+	autoNow(): any;
+	autoNowUpdate(): any;
+}
+
 /**
  * Create a date field (ISO date string, stored as `date` in PostgreSQL).
  *
@@ -36,7 +42,7 @@ export type DateFieldState = DefaultFieldState & {
  * startDate: f.date().default("2024-01-01")
  * ```
  */
-export function date(): Field<DateFieldState> {
+export function date(): FieldWithMethods<DateFieldState, DateFieldMethods> {
 	return wrapFieldComplete(field<DateFieldState>({
 		type: "date",
 		columnFactory: (name) => pgDate(name, { mode: "string" }),
