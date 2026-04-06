@@ -1,5 +1,42 @@
 # @questpie/admin
 
+## 3.0.0
+
+### Major Changes
+
+- [`202856b`](https://github.com/questpie/questpie/commit/202856bb3e7f17cb2898523f8911349f45686e78) Thanks [@drepkovsky](https://github.com/drepkovsky)! - # QuestPie v3
+
+  Full v3 architecture redesign — module system, core module extraction, service definitions, route conventions, and type-safe field methods.
+
+  ## Breaking Changes
+
+  - **`QuestpieBuilder` removed** — `q()`, `.use()`, `.build()` chain replaced by file convention + `questpie generate`
+  - **RPC module removed** — replaced by `routes/*.ts` directory with `route()` builder
+  - **`app.api.*` removed** — use `app.collections` / `app.globals` direct getters
+  - **Positional callbacks → destructured** — `.fields((f) => ...)` → `.fields(({ f }) => ...)`
+  - **`contextResolver` removed** — session/locale are scoped CRUD context params
+  - **`RegisteredApp` type removed** — use `typedApp<App>(ctx.app)` instead
+  - **`fetchFn` → `loader`** on all dashboard widget types
+  - **Secure-by-default access** — authenticated session required when no access rules defined
+  - **Audit module opt-in** — `auditModule` must be explicitly added via `.use(auditModule)`
+
+  ## New Features
+
+  - **Module system** — core infrastructure (search, realtime, auth, queue) wired as formal service definitions
+  - **`fieldType()` + `FieldWithMethods`** — type-safe field chain methods (`.manyToMany()`, `.trim()`, `.autoNow()`, etc.)
+  - **Hook type safety** — fully typed `ctx.data` in collection hooks, no more `{ [x: string]: any }` fallback
+  - **Route system** — file-path conventions, method chaining (`.get().post()`), priority matcher
+  - **Workflow transitions** — `transitionStage()` with scheduled transitions, audit logging, admin UI
+  - **Version history** — full versions/revert parity across stack with admin UI
+  - **Server actions** — real form field mapping, RPC execution, effects handling
+  - **Admin field meta augmentation** — all field types properly augmented with admin meta
+
+### Patch Changes
+
+- Updated dependencies [[`202856b`](https://github.com/questpie/questpie/commit/202856bb3e7f17cb2898523f8911349f45686e78)]:
+  - questpie@3.0.0
+  - @questpie/tanstack-query@3.0.0
+
 ## 2.0.0
 
 ### Major Changes
@@ -15,15 +52,15 @@
   ```ts
   // Before
   collection("posts").fields({
-  	title: varchar("title", { length: 255 }),
-  	content: text("content"),
+    title: varchar("title", { length: 255 }),
+    content: text("content"),
   });
 
   // After
   q.collection("posts").fields((f) => ({
-  	title: f.text({ required: true }),
-  	content: f.textarea({ localized: true }),
-  	publishedAt: f.datetime(),
+    title: f.text({ required: true }),
+    content: f.textarea({ localized: true }),
+    publishedAt: f.datetime(),
   }));
   ```
 
@@ -33,22 +70,22 @@
 
   ```ts
   const slugField = field<SlugFieldConfig, string>()({
-  	type: "slug",
-  	_value: undefined as unknown as string,
-  	toColumn: (name, config) => varchar(name, { length: 255 }),
-  	toZodSchema: (config) => z.string().regex(/^[a-z0-9-]+$/),
-  	getOperators: (config) => ({
-  		column: stringColumnOperators,
-  		jsonb: stringJsonbOperators,
-  	}),
-  	getMetadata: (config) => ({
-  		type: "slug",
-  		label: config.label,
-  		required: config.required ?? false,
-  		localized: false,
-  		readOnly: false,
-  		writeOnly: false,
-  	}),
+    type: "slug",
+    _value: undefined as unknown as string,
+    toColumn: (name, config) => varchar(name, { length: 255 }),
+    toZodSchema: (config) => z.string().regex(/^[a-z0-9-]+$/),
+    getOperators: (config) => ({
+      column: stringColumnOperators,
+      jsonb: stringJsonbOperators,
+    }),
+    getMetadata: (config) => ({
+      type: "slug",
+      label: config.label,
+      required: config.required ?? false,
+      localized: false,
+      readOnly: false,
+      writeOnly: false,
+    }),
   });
 
   // Register:
@@ -62,6 +99,7 @@
   #### Reactive Field System (NEW)
 
   Server-evaluated reactive behaviors on fields via `meta.admin`:
+
   - **`hidden`** / **`readOnly`** / **`disabled`** — conditionally toggle field state based on form data
   - **`compute`** — auto-compute values from other fields
   - **Dynamic `options`** — load select/relation options on the server with dependency tracking and debounce
@@ -75,11 +113,11 @@
   ```ts
   const r = q.rpc<typeof app>();
   export const dashboardRouter = r.router({
-  	stats: r.fn({
-  		handler: async ({ app }) => {
-  			/* ... */
-  		},
-  	}),
+    stats: r.fn({
+      handler: async ({ app }) => {
+        /* ... */
+      },
+    }),
   });
   ```
 
@@ -94,21 +132,25 @@
   Full server-side introspection of collection and global schemas for admin consumption: field metadata, access permissions, relation info, reactive config, validation schemas — all serialized from builder state. Admin UI consumes this directly instead of relying on client-side config.
 
   #### Queue Runtime Redesign (BREAKING)
+
   - Redesigned `QueueService` with proper lifecycle (`start`/`stop`/`drain`), graceful shutdown, and health checks
   - New Cloudflare Queues adapter alongside pg-boss
   - Worker handlers now receive `{ payload, app }` instead of `(payload, ctx)`
   - Workflow builder API refined with better type inference
 
   #### Realtime Pipeline Hardening (BREAKING)
+
   - `PgNotifyAdapter`: proper connection lifecycle, idempotent `start`/`stop`, owned vs shared client tracking, handler cleanup
   - `RedisStreamsAdapter`: graceful error handling in read loop, no longer auto-disconnects client on `stop()`
   - `streamedQuery` from `@tanstack/react-query` integrated as first-class citizen in collection query options
 
   #### Access Control (BREAKING)
+
   - **Removed** `access.fields` from collection/global builder — field-level access is now defined per-field via `access: { read, update }` in the field definition itself
   - CRUD generator evaluates field-level access at runtime, filtering output and validating input per field
 
   #### CRUD API Alignment (BREAKING)
+
   - Client SDK `update`/`delete`/`restore` now accept object params `{ id, data }` instead of positional args
   - Relation field names are automatically transformed to FK columns in create/update operations
   - `updateMany` and `deleteMany` added to HTTP adapter, client SDK, and tanstack-query
@@ -137,15 +179,18 @@
   Admin UI now consumes field schemas, sidebar config, dashboard config, and branding from server introspection instead of client-side builder config. `defineAdminConfig` is replaced by server-defined metadata.
 
   #### Builder API Cleanup (BREAKING)
+
   - **Removed** from `qa` namespace: `qa.collection()`, `qa.global()`, `qa.block()`, `qa.sidebar()`, `qa.dashboard()`, `qa.branding()` — these are now server-side concerns
   - Kept: `qa.field()`, `qa.listView()`, `qa.editView()`, `qa.widget()`, `qa.page()` for client-only UI registrations
   - Admin `CollectionBuilder` and `GlobalBuilder` completely rewritten — all schema methods (`.fields()`, `.list()`, `.form()`) removed; only UI-specific methods remain (`.meta()`, `.preview()`, `.autoSave()`, `.use()`)
 
   #### Reactive Fields UI (NEW)
+
   - `useReactiveFields` hook evaluates server-defined reactive config (hidden/readOnly/disabled/compute) client-side with automatic dependency tracking
   - `useFieldOptions` hook for dynamic options loading with search debounce and SSE streaming
 
   #### Block Editor Rework
+
   - Full drag-and-drop block editor with canvas layout, block library sidebar, tree navigation
   - Block field metadata unified between collections and blocks
   - Block prefetch values inferred from field definitions
@@ -153,6 +198,7 @@
   #### Actions System (NEW)
 
   Collection-level actions system with both client and server handler modes:
+
   - **Handler types**: `navigate` (routing), `api` (HTTP call), `form` (dialog with field inputs), `dialog` (custom component), `custom` (arbitrary code), `server` (server-side execution with full app context)
   - **Scopes**: `header` (list view toolbar — primary buttons + secondary dropdown), `bulk` (selected items toolbar), `single`/`row` (per-item)
   - **Server actions** run handler on the server with access to `app`, `db`, `session`; return typed results (`success`, `error`, `redirect`, `download`) with side-effects (`invalidate`, `toast`, `navigate`)
@@ -177,10 +223,12 @@
   Full type-safe query/mutation option builders for RPC procedures with nested router support. The `createQuestpieQueryOptions` factory now accepts a `TRPC` generic for RPC router types, producing `.rpc.*` namespaced option builders.
 
   #### Realtime Streaming (NEW)
+
   - Re-exports `buildCollectionTopic`, `buildGlobalTopic`, `TopicConfig`, `RealtimeAPI` from core client
   - Collection `.find`, `.findOne`, `.count` option builders produce `streamedQuery`-based options for SSE real-time updates
 
   #### Batch Operations (NEW)
+
   - `updateMany` and `deleteMany` mutation option builders for collections
   - `key` builders for all collection/global operations
 
@@ -193,6 +241,7 @@
   ***
 
   ### `@questpie/elysia` / `@questpie/hono` / `@questpie/next`
+
   - All adapters accept `rpc` config to mount standalone RPC router trees alongside CRUD routes
   - Formatting standardized (tabs → spaces alignment)
   - `@questpie/hono`: `questpieHono` now correctly forwards RPC router to fetch handler
@@ -227,12 +276,12 @@
 
   ```typescript
   const cms = q({ name: "app" }).build({
-  	defaultAccess: {
-  		read: ({ session }) => !!session,
-  		create: ({ session }) => !!session,
-  		update: ({ session }) => !!session,
-  		delete: ({ session }) => !!session,
-  	},
+    defaultAccess: {
+      read: ({ session }) => !!session,
+      create: ({ session }) => !!session,
+      update: ({ session }) => !!session,
+      delete: ({ session }) => !!session,
+    },
   });
   ```
 
@@ -261,11 +310,11 @@
 
   ```typescript
   async function logActivity() {
-  	const { db, session } = getContext<App>(); // From storage
+    const { db, session } = getContext<App>(); // From storage
   }
 
   await runWithContext({ app: cms, session, db }, async () => {
-  	await logActivity(); // Works without passing context
+    await logActivity(); // Works without passing context
   });
   ```
 
@@ -276,6 +325,7 @@
   fix: properly handle access control returning false
 
   Fixed critical bug where access rules returning `false` were not properly enforced:
+
   - Added explicit `accessWhere === false` checks before query execution
   - Now throws `ApiError.forbidden()` with clear error messages
   - Applied to all CRUD operations (find, count, create, update, delete)
@@ -288,6 +338,7 @@
   feat: add many-to-many mutation support for globals
 
   Globals now support full many-to-many relation operations:
+
   - `connect` - Link existing records
   - `create` - Create and link new records
   - `connectOrCreate` - Connect if exists, create if not
@@ -299,26 +350,27 @@
   ```typescript
   // Connect existing services
   await cms.api.globals.homepage.update(
-  	{
-  		featuredServices: { connect: [{ id: service1.id }, { id: service2.id }] },
-  	},
-  	ctx,
+    {
+      featuredServices: { connect: [{ id: service1.id }, { id: service2.id }] },
+    },
+    ctx
   );
 
   // Create new services and link them
   await cms.api.globals.homepage.update(
-  	{
-  		featuredServices: {
-  			create: [
-  				{ name: "Consulting", description: "Expert advice", price: 100 },
-  			],
-  		},
-  	},
-  	ctx,
+    {
+      featuredServices: {
+        create: [
+          { name: "Consulting", description: "Expert advice", price: 100 },
+        ],
+      },
+    },
+    ctx
   );
   ```
 
   Also includes new test coverage for:
+
   - Junction table extra fields preservation
   - Empty relation handling
   - Cascade delete cleanup
@@ -355,6 +407,7 @@
   ```
 
   Key features:
+
   - Callbacks only run after outermost transaction commits
   - Nested transactions automatically reuse parent tx
   - Safe for PGLite (single-connection) and production PostgreSQL
@@ -371,6 +424,7 @@
   refactor: remove jobs control plane (job_runs tracking)
 
   Removed the experimental `jobsModule` and `job_runs` collection tracking:
+
   - Simplified queue service and worker code (~400 lines removed)
   - Jobs now rely purely on queue adapter (PgBoss or other) for monitoring
   - Removed `jobsModule` export from package
@@ -396,6 +450,7 @@
   Added i18n support for additional languages:
 
   **New locales:**
+
   - `cs` - Czech (Čeština)
   - `de` - German (Deutsch)
   - `es` - Spanish (Español)
@@ -407,10 +462,10 @@
 
   ```typescript
   const cms = q({ name: "app" }).build({
-  	locale: {
-  		default: "en",
-  		available: ["en", "sk", "cs", "de", "es", "fr", "pl", "pt"],
-  	},
+    locale: {
+      default: "en",
+      available: ["en", "sk", "cs", "de", "es", "fr", "pl", "pt"],
+    },
   });
   ```
 
@@ -435,6 +490,7 @@
 ### Patch Changes
 
 - [`01562df`](https://github.com/questpie/questpie/commit/01562dfb6771a47eddcb797f36f951ae434f29c8) Thanks [@drepkovsky](https://github.com/drepkovsky)! - feat: add Prettify to admin builder types and improve DX
+
   - Add `Prettify` wrapper to merged types in AdminBuilder for better IDE tooltips
   - Add default `ConsoleAdapter` for email in development mode (no config needed)
   - Fix package.json dependencies: move runtime deps (pino, drizzle-orm, zod) to dependencies, keep optional adapters (pg, ioredis, nodemailer, pg-boss) as optional peer deps
@@ -460,6 +516,7 @@
 ### Patch Changes
 
 - [`eb98bb9`](https://github.com/questpie/questpie/commit/eb98bb9d86c3971e439d9d3081ed0efb3bcb1f77) Thanks [@drepkovsky](https://github.com/drepkovsky)! - Fix npm publish by converting workspace:\* to actual versions
+
   - Remove internal @questpie/typescript-config package (inline tsconfig)
   - Add publish script that converts workspace:\* references before changeset publish
   - Fixes installation errors when installing packages from npm
