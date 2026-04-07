@@ -11,8 +11,8 @@ Each directory maps to a category of entity:
 
 | Directory       | Entity          | Export Style     | Key Derivation                  |
 | --------------- | --------------- | ---------------- | ------------------------------- |
-| `collections/`  | Collections     | Default or named | Filename → camelCase            |
-| `globals/`      | Globals         | Default or named | Filename → camelCase            |
+| `collections/`  | Collections     | Default or named | Factory arg → export name       |
+| `globals/`      | Globals         | Default or named | Factory arg → export name       |
 | `routes/`       | Routes          | Default          | Filename → camelCase/slash path |
 | `jobs/`         | Jobs            | Default          | Filename → camelCase            |
 | `routes/` (raw) | Routes          | Default          | Filename → slash-separated path |
@@ -25,32 +25,29 @@ Each directory maps to a category of entity:
 
 ### Name derivation
 
-Filenames are converted from kebab-case to camelCase:
+Factory string args are entity identities for collections, globals, blocks, views, and components. They are converted from kebab-case to camelCase:
 
 ```text
-blog-posts.ts      → blogPosts
-create-booking.ts  → createBooking
-site-settings.ts   → siteSettings
+collection("blog-posts")  → blogPosts
+block("hero-banner")      → heroBanner
+global("siteSettings")    → siteSettings
 ```
+
+Only hyphens are camelized. Underscores are preserved, so `global("site_settings")` generates the key `site_settings`, not `siteSettings`.
 
 ## Single-File Conventions
 
 Some configs are single files, not directories:
 
-| File                 | Factory                                           | Purpose                                              |
-| -------------------- | ------------------------------------------------- | ---------------------------------------------------- |
-| `questpie.config.ts` | `runtimeConfig({...})`                            | DB, plugins, adapters                                |
-| `modules.ts`         | `export default [...]`                            | Module dependencies                                  |
-| `auth.ts`            | `satisfies AuthConfig`                            | Auth configuration                                   |
-| `locale.ts`          | `locale({...})`                                   | Content locales                                      |
-| `hooks.ts`           | `export default { collections, globals }`         | Global lifecycle hooks (applied across all entities) |
-| `access.ts`          | `export default { read, create, update, delete }` | Default access rules for all entities                |
-| `config/app.ts`      | `export default appConfig({...})`                 | App-level config (context, locale, tenant scoping)   |
-| `fields.ts`          | `export default { ...customFields }`              | Custom field type definitions                        |
-| `sidebar.ts`         | `sidebar({...})`                                  | Admin sidebar                                        |
-| `dashboard.ts`       | `dashboard({...})`                                | Admin dashboard                                      |
-| `branding.ts`        | `branding({...})`                                 | Admin branding                                       |
-| `admin-locale.ts`    | `adminLocale({...})`                              | Admin UI locale                                      |
+| File                 | Factory                              | Purpose                                            |
+| -------------------- | ------------------------------------ | -------------------------------------------------- |
+| `questpie.config.ts` | `runtimeConfig({...})`               | DB, plugins, adapters                              |
+| `modules.ts`         | `export default [...]`               | Module dependencies                                |
+| `config/auth.ts`     | `authConfig({...})`                  | Auth configuration                                 |
+| `config/app.ts`      | `export default appConfig({...})`    | App-level config (context, locale, tenant scoping) |
+| `config/admin.ts`    | `adminConfig({...})`                 | Admin sidebar, dashboard, branding, locale         |
+| `config/openapi.ts`  | `openApiConfig({...})`               | OpenAPI and Scalar UI options                      |
+| `fields.ts`          | `export default { ...customFields }` | Custom field type definitions                      |
 
 ## Layouts
 

@@ -26,7 +26,7 @@ export async function storageCollectionUpload(
 	request: Request,
 	params: Record<string, string>,
 	context?: AdapterContext,
-	config: AdapterConfig = {},
+	config: AdapterConfig<any> = {},
 	file?: UploadFile | null,
 ): Promise<Response> {
 	const errorResponse = (
@@ -38,10 +38,7 @@ export async function storageCollectionUpload(
 	};
 
 	if (request.method !== "POST") {
-		return errorResponse(
-			ApiError.badRequest("Method not allowed"),
-			request,
-		);
+		return errorResponse(ApiError.badRequest("Method not allowed"), request);
 	}
 
 	const { collection } = params;
@@ -51,10 +48,7 @@ export async function storageCollectionUpload(
 	try {
 		collectionConfig = app.getCollectionConfig(collection as any);
 	} catch {
-		return errorResponse(
-			ApiError.notFound("Collection", collection),
-			request,
-		);
+		return errorResponse(ApiError.notFound("Collection", collection), request);
 	}
 
 	// Check if upload is enabled for this collection
@@ -117,10 +111,7 @@ export async function storageCollectionServe(
 	};
 
 	if (request.method !== "GET") {
-		return errorResponse(
-			ApiError.badRequest("Method not allowed"),
-			request,
-		);
+		return errorResponse(ApiError.badRequest("Method not allowed"), request);
 	}
 
 	const { collection, key } = params;
@@ -130,10 +121,7 @@ export async function storageCollectionServe(
 	try {
 		collectionConfig = app.getCollectionConfig(collection as any);
 	} catch {
-		return errorResponse(
-			ApiError.notFound("Collection", collection),
-			request,
-		);
+		return errorResponse(ApiError.notFound("Collection", collection), request);
 	}
 
 	// Check if upload is enabled for this collection
@@ -226,9 +214,7 @@ export async function storageCollectionServe(
 			const match = rangeHeader.match(/bytes=(\d+)-(\d*)/);
 			if (match) {
 				const start = Number.parseInt(match[1], 10);
-				const end = match[2]
-					? Number.parseInt(match[2], 10)
-					: totalSize - 1;
+				const end = match[2] ? Number.parseInt(match[2], 10) : totalSize - 1;
 
 				if (start >= totalSize || end >= totalSize || start > end) {
 					return new Response(null, {
@@ -302,7 +288,14 @@ export const createStorageRoutes = <
 			context?: AdapterContext,
 			file?: UploadFile | null,
 		): Promise<Response> => {
-			return storageCollectionUpload(app, request, params, context, config, file);
+			return storageCollectionUpload(
+				app,
+				request,
+				params,
+				context,
+				config,
+				file,
+			);
 		},
 
 		collectionServe: async (

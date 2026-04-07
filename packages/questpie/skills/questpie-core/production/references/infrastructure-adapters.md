@@ -28,7 +28,7 @@ export default runtimeConfig({
 | `f.select()`   | `varchar`           |
 | `f.json()`     | `jsonb`             |
 | `f.object()`   | `jsonb`             |
-| `f.array()`    | `jsonb`             |
+| `.array()`     | `jsonb`             |
 | `f.relation()` | `varchar` (FK)      |
 
 ### Raw Access
@@ -49,7 +49,7 @@ handler: async ({ db }) => {
 import { uniqueIndex, index } from "drizzle-orm/pg-core";
 
 collection("posts")
-	.fields(({ f }) => ({ slug: f.text({ required: true }) }))
+	.fields(({ f }) => ({ slug: f.text().required() }))
 	.indexes(({ table }) => [
 		uniqueIndex("posts_slug_unique").on(table.slug),
 		index("posts_status_idx").on(table.status),
@@ -77,16 +77,17 @@ export default runtimeConfig({
 Works with AWS S3, MinIO, DigitalOcean Spaces, Cloudflare R2:
 
 ```ts
+import { S3Driver } from "flydrive/drivers/s3";
+
 export default runtimeConfig({
 	storage: {
 		basePath: "/api",
-		driver: "s3",
-		s3: {
+		driver: new S3Driver({
 			bucket: process.env.S3_BUCKET,
 			region: process.env.S3_REGION,
 			accessKeyId: process.env.S3_ACCESS_KEY,
 			secretAccessKey: process.env.S3_SECRET_KEY,
-		},
+		}),
 	},
 });
 ```
@@ -278,23 +279,23 @@ handler: async ({ email }) => {
 
 Key-value storage for caching, rate limiting, ephemeral data.
 
-### Redis (Production)
+### Custom Adapter
 
 ```ts
 export default runtimeConfig({
 	kv: {
-		adapter: "redis",
-		url: process.env.REDIS_URL,
+		adapter: myKvAdapter,
+		defaultTtl: 3600,
 	},
 });
 ```
 
-### In-Memory (Development)
+### In-Memory Default
 
 ```ts
 export default runtimeConfig({
 	kv: {
-		adapter: "memory",
+		defaultTtl: 3600,
 	},
 });
 ```
@@ -369,12 +370,17 @@ bun add @questpie/openapi
 import { adminModule } from "@questpie/admin/server";
 import { openApiModule } from "@questpie/openapi";
 
-export default [
-	adminModule,
-	openApiModule({
-		info: { title: "My API", version: "1.0.0" },
-	}),
-] as const;
+export default [adminModule, openApiModule] as const;
+```
+
+Configure it in `config/openapi.ts`:
+
+```ts
+import { openApiConfig } from "@questpie/openapi";
+
+export default openApiConfig({
+	info: { title: "My API", version: "1.0.0" },
+});
 ```
 
 Then run codegen:
@@ -386,7 +392,7 @@ bunx questpie generate
 ### Configuration Options
 
 ```ts
-openApiModule({
+openApiConfig({
 	info: {
 		title: "My API",
 		version: "1.0.0",
@@ -478,6 +484,7 @@ import {
 	pgNotifyAdapter,
 	SmtpAdapter,
 } from "questpie";
+import { S3Driver } from "flydrive/drivers/s3";
 
 export default runtimeConfig({
 	db: {
@@ -485,13 +492,12 @@ export default runtimeConfig({
 	},
 	storage: {
 		basePath: "/api",
-		driver: "s3",
-		s3: {
+		driver: new S3Driver({
 			bucket: process.env.S3_BUCKET!,
 			region: process.env.S3_REGION!,
 			accessKeyId: process.env.S3_ACCESS_KEY!,
 			secretAccessKey: process.env.S3_SECRET_KEY!,
-		},
+		}),
 	},
 	queue: {
 		adapter: pgBossAdapter({
@@ -513,8 +519,8 @@ export default runtimeConfig({
 		}),
 	},
 	kv: {
-		adapter: "redis",
-		url: process.env.REDIS_URL!,
+		adapter: myKvAdapter,
+		defaultTtl: 3600,
 	},
 	cli: {
 		migrations: { directory: "./src/migrations" },

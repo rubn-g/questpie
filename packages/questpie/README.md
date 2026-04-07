@@ -33,19 +33,22 @@ bun add questpie drizzle-orm@beta zod
 
 ```ts
 // src/questpie/server/collections/posts.ts
-import { collection } from "questpie";
+import { collection } from "#questpie/factories";
 
 export const posts = collection("posts")
 	.fields(({ f }) => ({
-		title: f.text({ label: "Title", required: true, maxLength: 255 }),
-		content: f.richText({ label: "Content", localized: true }),
-		published: f.boolean({ label: "Published", default: false }),
-		category: f.select({
-			label: "Category",
-			options: ["news", "blog", "tutorial"],
-		}),
+		title: f.text(255).label("Title").required(),
+		content: f.richText().label("Content").localized(),
+		published: f.boolean().label("Published").default(false),
+		category: f
+			.select([
+				{ value: "news", label: "News" },
+				{ value: "blog", label: "Blog" },
+				{ value: "tutorial", label: "Tutorial" },
+			])
+			.label("Category"),
 		cover: f.upload({ to: "assets", mimeTypes: ["image/*"] }),
-		author: f.relation({ to: "users", required: true }),
+		author: f.relation("users").required(),
 		publishedAt: f.date(),
 	}))
 	.title(({ f }) => f.title)
@@ -73,12 +76,12 @@ export const posts = collection("posts")
 
 ```ts
 // src/questpie/server/globals/site-settings.ts
-import { global } from "questpie";
+import { global } from "#questpie/factories";
 
-export const siteSettings = global("site_settings")
+export const siteSettings = global("siteSettings")
 	.fields(({ f }) => ({
-		siteName: f.text({ label: "Site Name", required: true }),
-		description: f.textarea({ label: "Description" }),
+		siteName: f.text().label("Site Name").required(),
+		description: f.textarea().label("Description"),
 		logo: f.upload({ to: "assets", mimeTypes: ["image/*"] }),
 	}))
 	.admin(({ c }) => ({
@@ -92,10 +95,8 @@ export const siteSettings = global("site_settings")
 ```ts
 // src/questpie/server/questpie.config.ts
 import { runtimeConfig } from "questpie";
-import { adminPlugin } from "@questpie/admin/plugin";
 
 export default runtimeConfig({
-	plugins: [adminPlugin()],
 	app: { url: process.env.APP_URL! },
 	db: { url: process.env.DATABASE_URL! },
 	secret: process.env.AUTH_SECRET!,
@@ -115,15 +116,12 @@ export default [adminModule] as const;
 ### 4. Auth Config
 
 ```ts
-// src/questpie/server/auth.ts
-import type { AuthConfig } from "questpie";
+// src/questpie/server/config/auth.ts
+import { authConfig } from "questpie";
 
-export default {
+export default authConfig({
 	emailAndPassword: { enabled: true },
-	baseURL: process.env.APP_URL!,
-	basePath: "/api/auth",
-	secret: process.env.AUTH_SECRET!,
-} satisfies AuthConfig;
+});
 ```
 
 ### 5. Generate & Mount
@@ -151,21 +149,30 @@ Fields are defined via the `f` proxy inside `.fields()`. Each field produces a D
 
 ```ts
 collection("products").fields(({ f }) => ({
-	name: f.text({ required: true, maxLength: 255 }),
-	price: f.number({ required: true }),
-	description: f.richText({ localized: true }),
-	sku: f.text({ required: true, input: "optional" }), // auto-generated
-	inStock: f.boolean({ default: true }),
-	category: f.select({ options: ["electronics", "clothing", "food"] }),
-	tags: f.multiSelect({ options: ["featured", "sale", "new"] }),
+	name: f.text(255).required(),
+	price: f.number().required(),
+	description: f.richText().localized(),
+	sku: f.text(255).required().inputOptional(), // auto-generated
+	inStock: f.boolean().default(true),
+	category: f.select([
+		{ value: "electronics", label: "Electronics" },
+		{ value: "clothing", label: "Clothing" },
+		{ value: "food", label: "Food" },
+	]),
+	tags: f
+		.select([
+			{ value: "featured", label: "Featured" },
+			{ value: "sale", label: "Sale" },
+			{ value: "new", label: "New" },
+		])
+		.array(),
 	image: f.upload({ to: "assets", mimeTypes: ["image/*"], maxSize: 5_000_000 }),
-	brand: f.relation({ to: "brands" }),
+	brand: f.relation("brands"),
 	publishedAt: f.datetime(),
 	metadata: f.json(),
-	email: f.email({ required: true }),
+	email: f.email().required(),
 	website: f.url(),
-	color: f.color(),
-	slug: f.slug({ from: "name" }),
+	slug: f.text(160).inputOptional(),
 }));
 ```
 
@@ -173,41 +180,40 @@ collection("products").fields(({ f }) => ({
 
 ```ts
 address: f.object({
-	label: "Address",
-	fields: () => ({
-		street: f.text({ required: true }),
-		city: f.text({ required: true }),
-		zip: f.text(),
-		country: f.select({ options: ["US", "UK", "DE"] }),
-	}),
-});
+	street: f.text().required(),
+	city: f.text().required(),
+	zip: f.text(),
+	country: f.select([
+		{ value: "US", label: "United States" },
+		{ value: "UK", label: "United Kingdom" },
+		{ value: "DE", label: "Germany" },
+	]),
+}).label("Address");
 ```
 
 ### Array Fields
 
 ```ts
-socialLinks: f.array({
-	of: f.object({
-		fields: () => ({
-			platform: f.select({ options: ["twitter", "github", "linkedin"] }),
-			url: f.url({ required: true }),
-		}),
-	}),
-	maxItems: 5,
-	meta: { admin: { orderable: true } },
-});
+socialLinks: f.object({
+	platform: f.select([
+		{ value: "twitter", label: "Twitter" },
+		{ value: "github", label: "GitHub" },
+		{ value: "linkedin", label: "LinkedIn" },
+	]),
+	url: f.url().required(),
+})
+	.array()
+	.maxItems(5);
 ```
 
 ### Relations
 
 ```ts
 // Belongs-to
-author: f.relation({ to: "users", required: true, onDelete: "cascade" });
+author: f.relation("users").required().onDelete("cascade");
 
 // Has-many through junction
-services: f.relation({
-	to: "services",
-	hasMany: true,
+services: f.relation("services").manyToMany({
 	through: "barberServices",
 	sourceField: "barber",
 	targetField: "service",
@@ -217,33 +223,12 @@ services: f.relation({
 ### Blocks (Page Builder)
 
 ```ts
-body: f.blocks({ label: "Content", localized: true });
+body: f.blocks().label("Content").localized();
 ```
 
 ### Custom Fields
 
-```ts
-import { field } from "questpie";
-
-const slugField = field<SlugConfig, string>()({
-  type: "slug",
-  _value: undefined as unknown as string,
-  toColumn: (name, config) => varchar(name, { length: 255 }),
-  toZodSchema: (config) => z.string().regex(/^[a-z0-9-]+$/),
-  getOperators: (config) => ({
-    column: stringColumnOperators,
-    jsonb: stringJsonbOperators,
-  }),
-  getMetadata: (config) => ({
-    type: "slug",
-    label: config.label,
-    required: config.required ?? false,
-  }),
-});
-
-// Use in collections (custom fields are registered via modules or config)
-.fields(({ f }) => ({ slug: f.slug({ required: true }) }))
-```
+Custom fields are implemented as module-provided field types and exposed through codegen. Once a module registers a field type, user code consumes it from the generated `#questpie/factories` import alongside built-in factories.
 
 ## Standalone Routes
 
@@ -257,8 +242,8 @@ import z from "zod";
 export default route()
 	.post()
 	.schema(z.object({ period: z.enum(["day", "week", "month"]) }))
-	.handler(async ({ input, app }) => {
-		const count = await app.api.collections.posts.count({
+	.handler(async ({ input, collections }) => {
+		const count = await collections.posts.count({
 			where: { createdAt: { gte: startDate(input.period) } },
 		});
 		return { posts: count };
@@ -271,17 +256,20 @@ Routes are auto-discovered by codegen and available at `/api/<name>`.
 
 ```ts
 // src/questpie/server/jobs/send-welcome-email.ts
+import { job } from "questpie";
 import { z } from "zod";
 
-export default {
+export default job({
+	name: "send-welcome-email",
 	schema: z.object({ userId: z.string() }),
-	handler: async ({ payload, app }) => {
-		const user = await app.api.collections.users.findById({
-			id: payload.userId,
+	handler: async ({ payload, collections, email }) => {
+		const user = await collections.users.findOne({
+			where: { id: payload.userId },
 		});
-		await app.email.send({ to: user.email, subject: "Welcome!", text: "..." });
+		if (user)
+			await email.send({ to: user.email, subject: "Welcome!", text: "..." });
 	},
-};
+});
 
 // Dispatch (via the generated app instance)
 await app.queue.sendWelcomeEmail.publish({ userId: "123" });
@@ -294,13 +282,13 @@ await app.queue.listen();
 
 ```ts
 // Create
-const post = await app.api.collections.posts.create({
+const post = await app.collections.posts.create({
 	title: "Hello World",
 	content: "...",
 });
 
 // Find many (paginated)
-const { docs, totalDocs } = await app.api.collections.posts.find({
+const { docs, totalDocs } = await app.collections.posts.find({
 	where: { published: { eq: true } },
 	orderBy: { publishedAt: "desc" },
 	limit: 10,
@@ -308,22 +296,22 @@ const { docs, totalDocs } = await app.api.collections.posts.find({
 });
 
 // Find one
-const post = await app.api.collections.posts.findOne({
+const post = await app.collections.posts.findOne({
 	where: { slug: { eq: "hello-world" } },
 });
 
 // Update
-await app.api.collections.posts.updateById({
+await app.collections.posts.updateById({
 	id: post.id,
 	data: { title: "Updated" },
 });
 
 // Delete
-await app.api.collections.posts.deleteById({ id: post.id });
+await app.collections.posts.deleteById({ id: post.id });
 
 // Globals
-const settings = await app.api.globals.siteSettings.get();
-await app.api.globals.siteSettings.update({ data: { siteName: "New Name" } });
+const settings = await app.globals.siteSettings.get();
+await app.globals.siteSettings.update({ siteName: "New Name" });
 ```
 
 ## Reactive Fields
@@ -357,8 +345,7 @@ Server-evaluated reactive behaviors in form config:
 Dynamic options for select/relation:
 
 ```ts
-city: f.relation({
-	to: "cities",
+city: f.relation("cities").admin({
 	options: {
 		handler: async ({ data, search, ctx }) => {
 			const cities = await ctx.db.query.cities.findMany({
@@ -387,18 +374,10 @@ bun questpie push               # Push schema directly (dev only)
 bun questpie seed               # Run pending seeds
 ```
 
-Config file (`questpie.config.ts` at project root):
-
-```ts
-import { app } from "#questpie";
-export default { app };
-```
-
 CLI config (migrations directory etc.) is set inside `runtimeConfig()`:
 
 ```ts
 export default runtimeConfig({
-	plugins: [adminPlugin()],
 	db: { url: process.env.DATABASE_URL! },
 	cli: { migrations: { directory: "./src/migrations" } },
 });

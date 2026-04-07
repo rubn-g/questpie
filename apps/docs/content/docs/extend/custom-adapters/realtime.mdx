@@ -20,12 +20,12 @@ The contract is intentionally small -- four methods, no configuration objects, n
 
 ## Required methods
 
-| Method | Description |
-|---|---|
-| `start()` | Initialize connections, listeners, or subscriptions. Called once at app startup. |
-| `stop()` | Close connections cleanly. Called during graceful shutdown. |
-| `notify(event)` | Publish a change event to the transport. QUESTPIE calls this after every write operation. |
-| `subscribe(handler)` | Register a handler for inbound notices. Returns an **unsubscribe function**. |
+| Method               | Description                                                                               |
+| -------------------- | ----------------------------------------------------------------------------------------- |
+| `start()`            | Initialize connections, listeners, or subscriptions. Called once at app startup.          |
+| `stop()`             | Close connections cleanly. Called during graceful shutdown.                               |
+| `notify(event)`      | Publish a change event to the transport. QUESTPIE calls this after every write operation. |
+| `subscribe(handler)` | Register a handler for inbound notices. Returns an **unsubscribe function**.              |
 
 ## Event types
 
@@ -61,7 +61,7 @@ QUESTPIE's contract does not expose channel or topic management. If your provide
 
 - Create channels inside `start()`, clean them up in `stop()`.
 - If your provider supports per-topic subscriptions internally, multiplex them behind the single `subscribe()` callback.
-- The `resource` field on events (e.g. `"posts"`, `"site-settings"`) is the natural topic key.
+- The `resource` field on events (e.g. `"posts"`, `"siteSettings"`) is the natural topic key.
 
 ## Minimal example
 
@@ -116,20 +116,20 @@ export default config({
 	// ...
 	realtime: {
 		adapter: new InMemoryRealtimeAdapter(),
-		pollIntervalMs: 2000,  // fallback poll interval (default: 2000)
-		batchSize: 500,        // max events per drain (default: 500)
+		pollIntervalMs: 2000, // fallback poll interval (default: 2000)
+		batchSize: 500, // max events per drain (default: 500)
 	},
 });
 ```
 
 ### Config options
 
-| Option | Default | Description |
-|---|---|---|
-| `adapter` | `undefined` | Your adapter instance. If omitted, QUESTPIE polls the outbox. |
-| `pollIntervalMs` | `2000` | Poll interval in ms when no adapter is configured. |
-| `batchSize` | `500` | Max events to read per drain cycle. |
-| `retentionDays` | -- | Time-based outbox cleanup window (in addition to watermark-based cleanup). |
+| Option           | Default     | Description                                                                |
+| ---------------- | ----------- | -------------------------------------------------------------------------- |
+| `adapter`        | `undefined` | Your adapter instance. If omitted, QUESTPIE polls the outbox.              |
+| `pollIntervalMs` | `2000`      | Poll interval in ms when no adapter is configured.                         |
+| `batchSize`      | `500`       | Max events to read per drain cycle.                                        |
+| `retentionDays`  | --          | Time-based outbox cleanup window (in addition to watermark-based cleanup). |
 
 ## Testing tips
 

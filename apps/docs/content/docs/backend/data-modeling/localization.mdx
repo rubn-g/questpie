@@ -3,27 +3,29 @@ title: Localization
 description: Enable multi-language content with per-field localization and locale configuration.
 ---
 
-QUESTPIE supports per-field content localization. Mark any field as `localized: true` and it stores separate values for each configured locale.
+QUESTPIE supports per-field content localization. Chain `.localized()` on any field that stores per-locale values.
 
 ## Locale Configuration
 
-Define content locales in the locale convention file:
+Define content locales in `config/app.ts`:
 
-```ts title="locale.ts"
-import { locale } from "#questpie/factories";
+```ts title="config/app.ts"
+import { appConfig } from "questpie";
 
-export default locale({
-	locales: [
-		{
-			code: "en",
-			label: "English",
-			fallback: true,
-			flagCountryCode: "us",
-		},
-		{ code: "sk", label: "Slovenčina" },
-		{ code: "de", label: "Deutsch" },
-	],
-	defaultLocale: "en",
+export default appConfig({
+	locale: {
+		locales: [
+			{
+				code: "en",
+				label: "English",
+				fallback: true,
+				flagCountryCode: "us",
+			},
+			{ code: "sk", label: "Slovenčina" },
+			{ code: "de", label: "Deutsch" },
+		],
+		defaultLocale: "en",
+	},
 });
 ```
 
@@ -55,7 +57,7 @@ Most field types support localization:
 
 - `f.text()`, `f.textarea()`
 - `f.select()`
-- `f.array()`
+- array-wrapped fields via `.array()`
 - `f.blocks()`
 
 Numeric, boolean, date, and relation fields are typically **not** localized since their values are language-independent.
@@ -77,14 +79,16 @@ name: f.text()
 
 ## Admin UI Locale
 
-The admin panel has its own locale config for the interface language:
+The admin panel has its own locale config for the interface language in `config/admin.ts`:
 
-```ts title="admin-locale.ts"
-import { adminLocale } from "#questpie/factories";
+```ts title="config/admin.ts"
+import { adminConfig } from "#questpie/factories";
 
-export default adminLocale({
-	locales: ["en", "sk"],
-	defaultLocale: "en",
+export default adminConfig({
+	locale: {
+		locales: ["en", "sk"],
+		defaultLocale: "en",
+	},
 });
 ```
 

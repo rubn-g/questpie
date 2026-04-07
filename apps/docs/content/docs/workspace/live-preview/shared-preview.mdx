@@ -5,6 +5,11 @@ description: Detached and multi-user preview using QUESTPIE realtime channels.
 
 The [same-tab recipe](/docs/workspace/live-preview/same-tab-recipe) covers the default case: admin and preview in a split-screen iframe communicating over `postMessage`. This page covers the advanced case where preview runs in a separate browser tab, a shared URL, or across multiple users -- using QUESTPIE realtime as the transport.
 
+<Callout type="warn">
+	This page describes the planned Preview V2 shared-preview design. The current
+	client package exports `useCollectionPreview`, not `useQuestpiePreview`.
+</Callout>
+
 ## When to Use Realtime
 
 Use realtime preview when:
@@ -65,11 +70,11 @@ The realtime adapter must be configured in your runtime config. For development,
 import { pgNotifyAdapter, runtimeConfig } from "questpie";
 
 export default runtimeConfig({
-  realtime: {
-    adapter: pgNotifyAdapter({
-      connectionString: process.env.DATABASE_URL,
-    }),
-  },
+	realtime: {
+		adapter: pgNotifyAdapter({
+			connectionString: process.env.DATABASE_URL,
+		}),
+	},
 });
 ```
 
@@ -79,11 +84,11 @@ For production:
 import { redisStreamsAdapter, runtimeConfig } from "questpie";
 
 export default runtimeConfig({
-  realtime: {
-    adapter: redisStreamsAdapter({
-      url: process.env.REDIS_URL,
-    }),
-  },
+	realtime: {
+		adapter: redisStreamsAdapter({
+			url: process.env.REDIS_URL,
+		}),
+	},
 });
 ```
 
@@ -95,15 +100,15 @@ Configure `.preview()` with the `realtime` option enabled:
 import { collection } from "#questpie/factories";
 
 export const pages = collection("pages")
-  .preview({
-    url: ({ draft }) => `/${draft.slug}`,
-    realtime: true,
-  })
-  .fields(({ f }) => ({
-    title: f.text().required().localized(),
-    slug: f.text().required(),
-    content: f.blocks().localized(),
-  }));
+	.preview({
+		url: ({ draft }) => `/${draft.slug}`,
+		realtime: true,
+	})
+	.fields(({ f }) => ({
+		title: f.text().required().localized(),
+		slug: f.text().required(),
+		content: f.blocks().localized(),
+	}));
 ```
 
 When `realtime: true`, the admin publishes patches to the realtime channel in addition to (or instead of) `postMessage`. The same-tab iframe still works -- it receives patches over both transports and deduplicates by `seq`.
@@ -114,51 +119,51 @@ Use `useQuestpiePreview` with the `transport: "realtime"` option:
 
 ```tsx title="routes/pages/$slug.tsx"
 import {
-  useQuestpiePreview,
-  PreviewRoot,
-  PreviewField,
-  PreviewBlock,
-  BlockRenderer,
+	useQuestpiePreview,
+	PreviewRoot,
+	PreviewField,
+	PreviewBlock,
+	BlockRenderer,
 } from "@questpie/admin/client";
 import { client } from "@/lib/client";
 import admin from "@/questpie/admin/.generated/client";
 
 function PageRoute({ initialData, params }) {
-  const router = useRouter();
+	const router = useRouter();
 
-  const preview = useQuestpiePreview({
-    initialData,
-    reconcile: () => router.invalidate(),
-    transport: "realtime",
-    realtime: {
-      client,
-      channel: `preview:pages:${initialData.id}:en`,
-    },
-  });
+	const preview = useQuestpiePreview({
+		initialData,
+		reconcile: () => router.invalidate(),
+		transport: "realtime",
+		realtime: {
+			client,
+			channel: `preview:pages:${initialData.id}:en`,
+		},
+	});
 
-  return (
-    <PreviewRoot preview={preview}>
-      <article>
-        <PreviewField path="title">
-          <h1>{preview.data.title}</h1>
-        </PreviewField>
+	return (
+		<PreviewRoot preview={preview}>
+			<article>
+				<PreviewField path="title">
+					<h1>{preview.data.title}</h1>
+				</PreviewField>
 
-        {preview.data.content && (
-          <BlockRenderer
-            content={preview.data.content}
-            renderers={admin.blocks}
-            data={preview.data.content._data}
-            selectedBlockId={preview.selectedBlockId}
-            onBlockClick={
-              preview.isPreviewMode
-                ? (blockId) => preview.sendBlockClicked(blockId)
-                : undefined
-            }
-          />
-        )}
-      </article>
-    </PreviewRoot>
-  );
+				{preview.data.content && (
+					<BlockRenderer
+						content={preview.data.content}
+						renderers={admin.blocks}
+						data={preview.data.content._data}
+						selectedBlockId={preview.selectedBlockId}
+						onBlockClick={
+							preview.isPreviewMode
+								? (blockId) => preview.sendBlockClicked(blockId)
+								: undefined
+						}
+					/>
+				)}
+			</article>
+		</PreviewRoot>
+	);
 }
 ```
 
@@ -168,10 +173,10 @@ The hook detects whether it is running inside an iframe or standalone. Inside an
 
 Preview channels follow a fixed naming convention:
 
-| Channel Pattern                                  | Description                          |
-| ------------------------------------------------ | ------------------------------------ |
-| `preview:{collection}:{recordId}:{locale}`       | Per-record preview session           |
-| `preview:{global}:global:{locale}`               | Global document preview session      |
+| Channel Pattern                            | Description                     |
+| ------------------------------------------ | ------------------------------- |
+| `preview:{collection}:{recordId}:{locale}` | Per-record preview session      |
+| `preview:{global}:global:{locale}`         | Global document preview session |
 
 Examples:
 
@@ -202,22 +207,22 @@ The `preview.connectionStatus` property reflects the current state:
 
 ```tsx
 function PreviewStatusBanner({ preview }) {
-  if (preview.connectionStatus === "reconnecting") {
-    return (
-      <div className="bg-warning/10 text-warning p-2 text-center text-sm">
-        Reconnecting to live preview...
-      </div>
-    );
-  }
-  return null;
+	if (preview.connectionStatus === "reconnecting") {
+		return (
+			<div className="bg-warning/10 text-warning p-2 text-center text-sm">
+				Reconnecting to live preview...
+			</div>
+		);
+	}
+	return null;
 }
 ```
 
-| Status          | Description                                     |
-| --------------- | ----------------------------------------------- |
-| `connected`     | SSE stream active, receiving patches             |
-| `reconnecting`  | Connection lost, retrying                        |
-| `disconnected`  | Gave up after max retries or session ended       |
+| Status         | Description                                |
+| -------------- | ------------------------------------------ |
+| `connected`    | SSE stream active, receiving patches       |
+| `reconnecting` | Connection lost, retrying                  |
+| `disconnected` | Gave up after max retries or session ended |
 
 ## Consistency Model
 
@@ -235,83 +240,83 @@ This complete example shows a page that works both as a normal page and as a det
 ```tsx title="routes/pages/$slug.tsx"
 import { createFileRoute, useRouter } from "@tanstack/react-router";
 import {
-  useQuestpiePreview,
-  PreviewRoot,
-  PreviewField,
-  PreviewBlock,
-  BlockRenderer,
-  type BlockContent,
+	useQuestpiePreview,
+	PreviewRoot,
+	PreviewField,
+	PreviewBlock,
+	BlockRenderer,
+	type BlockContent,
 } from "@questpie/admin/client";
 import { client } from "@/lib/client";
 import admin from "@/questpie/admin/.generated/client";
 
 export const Route = createFileRoute("/_app/pages/$slug")({
-  loader: async ({ params }) => {
-    const response = await client.collections.pages.findOne({
-      where: { slug: params.slug },
-      draft: true,
-    });
-    return { page: response.data };
-  },
-  component: PageComponent,
+	loader: async ({ params }) => {
+		const response = await client.collections.pages.findOne({
+			where: { slug: params.slug },
+			draft: true,
+		});
+		return { page: response.data };
+	},
+	component: PageComponent,
 });
 
 function PageComponent() {
-  const { page } = Route.useLoaderData();
-  const router = useRouter();
+	const { page } = Route.useLoaderData();
+	const router = useRouter();
 
-  const preview = useQuestpiePreview({
-    initialData: page,
-    reconcile: () => router.invalidate(),
-    transport: "realtime",
-    realtime: {
-      client,
-      channel: `preview:pages:${page.id}:en`,
-    },
-  });
+	const preview = useQuestpiePreview({
+		initialData: page,
+		reconcile: () => router.invalidate(),
+		transport: "realtime",
+		realtime: {
+			client,
+			channel: `preview:pages:${page.id}:en`,
+		},
+	});
 
-  return (
-    <PreviewRoot preview={preview}>
-      {preview.connectionStatus === "reconnecting" && (
-        <div className="bg-warning/10 text-warning fixed top-0 inset-x-0 z-50 p-2 text-center text-sm">
-          Reconnecting to live preview...
-        </div>
-      )}
+	return (
+		<PreviewRoot preview={preview}>
+			{preview.connectionStatus === "reconnecting" && (
+				<div className="bg-warning/10 text-warning fixed top-0 inset-x-0 z-50 p-2 text-center text-sm">
+					Reconnecting to live preview...
+				</div>
+			)}
 
-      <article>
-        <header className="py-16 text-center">
-          <PreviewField path="title">
-            <h1 className="text-5xl font-bold tracking-tight">
-              {preview.data.title}
-            </h1>
-          </PreviewField>
-        </header>
+			<article>
+				<header className="py-16 text-center">
+					<PreviewField path="title">
+						<h1 className="text-5xl font-bold tracking-tight">
+							{preview.data.title}
+						</h1>
+					</PreviewField>
+				</header>
 
-        {preview.data.content && (
-          <BlockRenderer
-            content={preview.data.content as BlockContent}
-            renderers={admin.blocks}
-            data={(preview.data.content as BlockContent)._data}
-            selectedBlockId={preview.selectedBlockId}
-            onBlockClick={
-              preview.isPreviewMode
-                ? (blockId) => preview.sendBlockClicked(blockId)
-                : undefined
-            }
-          />
-        )}
-      </article>
+				{preview.data.content && (
+					<BlockRenderer
+						content={preview.data.content as BlockContent}
+						renderers={admin.blocks}
+						data={(preview.data.content as BlockContent)._data}
+						selectedBlockId={preview.selectedBlockId}
+						onBlockClick={
+							preview.isPreviewMode
+								? (blockId) => preview.sendBlockClicked(blockId)
+								: undefined
+						}
+					/>
+				)}
+			</article>
 
-      {preview.isPreviewMode && (
-        <div className="fixed right-4 bottom-4 z-50 rounded-full bg-foreground text-background px-4 py-2 text-sm font-medium shadow-lg">
-          Live Preview
-          {preview.connectionStatus === "connected" && (
-            <span className="ml-2 inline-block w-2 h-2 rounded-full bg-green-400" />
-          )}
-        </div>
-      )}
-    </PreviewRoot>
-  );
+			{preview.isPreviewMode && (
+				<div className="fixed right-4 bottom-4 z-50 rounded-full bg-foreground text-background px-4 py-2 text-sm font-medium shadow-lg">
+					Live Preview
+					{preview.connectionStatus === "connected" && (
+						<span className="ml-2 inline-block w-2 h-2 rounded-full bg-green-400" />
+					)}
+				</div>
+			)}
+		</PreviewRoot>
+	);
 }
 ```
 
@@ -319,15 +324,15 @@ Share the URL `https://yoursite.com/pages/about?preview=true` with anyone. As lo
 
 ## Realtime vs PostMessage
 
-| Aspect            | PostMessage (same-tab)      | Realtime (shared)                    |
-| ----------------- | --------------------------- | ------------------------------------ |
-| Latency           | Sub-millisecond             | 50-500ms depending on adapter        |
-| Setup             | Zero config                 | Requires realtime adapter            |
-| Multi-user        | No                          | Yes                                  |
-| Detached window   | No                          | Yes                                  |
-| Mobile preview    | No                          | Yes                                  |
-| Offline tolerance | N/A (same tab)              | Reconnect + replay                   |
-| Infrastructure    | None                        | PostgreSQL or Redis                  |
+| Aspect            | PostMessage (same-tab) | Realtime (shared)             |
+| ----------------- | ---------------------- | ----------------------------- |
+| Latency           | Sub-millisecond        | 50-500ms depending on adapter |
+| Setup             | Zero config            | Requires realtime adapter     |
+| Multi-user        | No                     | Yes                           |
+| Detached window   | No                     | Yes                           |
+| Mobile preview    | No                     | Yes                           |
+| Offline tolerance | N/A (same tab)         | Reconnect + replay            |
+| Infrastructure    | None                   | PostgreSQL or Redis           |
 
 ## Related Pages
 

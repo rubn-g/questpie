@@ -28,19 +28,19 @@ import { z } from "zod";
  * Color field — stores a hex color string.
  */
 export function colorField(columnName: string) {
-  return {
-    toColumn: (name: string) => varchar(columnName || name, { length: 7 }),
-    $types: {
-      input: "" as string,
-      output: "" as string,
-      column: varchar("", { length: 7 }),
-    },
-    getLocation: () => "main" as const,
-    getMetadata: () => ({
-      type: "color" as const,
-      validation: z.string().regex(/^#[0-9a-fA-F]{6}$/, "Invalid hex color"),
-    }),
-  };
+	return {
+		toColumn: (name: string) => varchar(columnName || name, { length: 7 }),
+		$types: {
+			input: "" as string,
+			output: "" as string,
+			column: varchar("", { length: 7 }),
+		},
+		getLocation: () => "main" as const,
+		getMetadata: () => ({
+			type: "color" as const,
+			validation: z.string().regex(/^#[0-9a-fA-F]{6}$/, "Invalid hex color"),
+		}),
+	};
 }
 ```
 
@@ -48,12 +48,12 @@ export function colorField(columnName: string) {
 
 A field factory must return an object with:
 
-| Property        | Type                        | Description                                    |
-| --------------- | --------------------------- | ---------------------------------------------- |
-| `toColumn()`    | `(name) => PgColumn \| null`| Create a Drizzle column (or `null` for virtual)|
-| `$types`        | `{ input, output, column }` | Type inference helpers                          |
-| `getLocation()` | `() => "main" \| "i18n" \| "virtual"` | Where the field is stored        |
-| `getMetadata()` | `() => { type, ... }`      | Metadata for admin introspection                |
+| Property        | Type                                  | Description                                     |
+| --------------- | ------------------------------------- | ----------------------------------------------- |
+| `toColumn()`    | `(name) => PgColumn \| null`          | Create a Drizzle column (or `null` for virtual) |
+| `$types`        | `{ input, output, column }`           | Type inference helpers                          |
+| `getLocation()` | `() => "main" \| "i18n" \| "virtual"` | Where the field is stored                       |
+| `getMetadata()` | `() => { type, ... }`                 | Metadata for admin introspection                |
 
 ---
 
@@ -65,27 +65,27 @@ Register a React component to render the field in the admin panel.
 import { useFieldContext } from "@questpie/admin/client";
 
 export function ColorField() {
-  const { value, onChange, field } = useFieldContext();
+	const { value, onChange, field } = useFieldContext();
 
-  return (
-    <div>
-      <label>{field.label}</label>
-      <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-        <input
-          type="color"
-          value={value || "#000000"}
-          onChange={(e) => onChange(e.target.value)}
-        />
-        <input
-          type="text"
-          value={value || ""}
-          onChange={(e) => onChange(e.target.value)}
-          placeholder="#000000"
-          pattern="^#[0-9a-fA-F]{6}$"
-        />
-      </div>
-    </div>
-  );
+	return (
+		<div>
+			<label>{field.label}</label>
+			<div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+				<input
+					type="color"
+					value={value || "#000000"}
+					onChange={(e) => onChange(e.target.value)}
+				/>
+				<input
+					type="text"
+					value={value || ""}
+					onChange={(e) => onChange(e.target.value)}
+					placeholder="#000000"
+					pattern="^#[0-9a-fA-F]{6}$"
+				/>
+			</div>
+		</div>
+	);
 }
 ```
 
@@ -97,8 +97,8 @@ Create a field definition file using the `field()` factory:
 import { field } from "@questpie/admin/client";
 
 export default field("color", {
-  component: () => import("./color-field.js"),
-  cell: () => import("./color-cell.js"),
+	component: () => import("./color-field.js"),
+	cell: () => import("./color-cell.js"),
 });
 ```
 
@@ -106,19 +106,19 @@ The optional `cell` component renders the field in list view table columns:
 
 ```tsx title="src/admin/fields/color-cell.tsx"
 export function ColorCell({ value }: { value: string }) {
-  return (
-    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-      <div
-        style={{
-          width: 16,
-          height: 16,
-          borderRadius: 4,
-          backgroundColor: value || "#ccc",
-        }}
-      />
-      <span>{value || "—"}</span>
-    </div>
-  );
+	return (
+		<div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+			<div
+				style={{
+					width: 16,
+					height: 16,
+					borderRadius: 4,
+					backgroundColor: value || "#ccc",
+				}}
+			/>
+			<span>{value || "—"}</span>
+		</div>
+	);
 }
 ```
 
@@ -134,11 +134,11 @@ import { colorField } from "../fields/color";
 import { currencyField } from "../fields/currency";
 
 export const customFieldsModule = module({
-  name: "custom-fields",
-  fields: {
-    color: colorField,
-    currency: currencyField,
-  },
+	name: "custom-fields",
+	fields: {
+		color: colorField,
+		currency: currencyField,
+	},
 });
 ```
 
@@ -154,12 +154,11 @@ export default [adminModule, customFieldsModule] as const;
 After running `questpie generate`, the fields become available on the `f` builder:
 
 ```ts
-collection("products")
-  .fields(({ f }) => ({
-    name: f.text({ required: true }),
-    brandColor: f.color(),        // Your custom field!
-    price: f.currency("USD"),     // Your custom field!
-  }))
+collection("products").fields(({ f }) => ({
+	name: f.text().required(),
+	brandColor: f.color(), // Your custom field!
+	price: f.currency("USD"), // Your custom field!
+}));
 ```
 
 ---

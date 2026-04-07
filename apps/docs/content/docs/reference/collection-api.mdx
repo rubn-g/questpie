@@ -11,27 +11,30 @@ Creates a new collection builder. Collections map to database tables and provide
 import { collection } from "#questpie/factories";
 
 const posts = collection("posts")
-  .fields(({ f }) => ({
-    title: f.text(255).required(),
-    content: f.richText().localized(),
-    status: f.select(["draft", "published"]),
-    author: f.relation("author_id").to("users"),
-  }))
-  .title(({ f }) => f.title)
-  .options({ timestamps: true, softDelete: true })
-  .hooks({
-    beforeChange: async ({ data, operation }) => {
-      if (operation === "create") {
-        data.slug = slugify(data.title);
-      }
-    },
-  })
-  .access({
-    read: true,
-    create: ({ session }) => !!session,
-    update: ({ session }) => session?.user?.role === "admin",
-    delete: ({ session }) => session?.user?.role === "admin",
-  });
+	.fields(({ f }) => ({
+		title: f.text(255).required(),
+		content: f.richText().localized(),
+		status: f.select([
+			{ value: "draft", label: "Draft" },
+			{ value: "published", label: "Published" },
+		]),
+		author: f.relation("users"),
+	}))
+	.title(({ f }) => f.title)
+	.options({ timestamps: true, softDelete: true })
+	.hooks({
+		beforeChange: async ({ data, operation }) => {
+			if (operation === "create") {
+				data.slug = slugify(data.title);
+			}
+		},
+	})
+	.access({
+		read: true,
+		create: ({ session }) => !!session,
+		update: ({ session }) => session?.user?.role === "admin",
+		delete: ({ session }) => session?.user?.role === "admin",
+	});
 ```
 
 ## Builder Methods
@@ -40,26 +43,26 @@ All methods are chainable and return a new builder instance (immutable pattern).
 
 | Method          | Description                                          |
 | --------------- | ---------------------------------------------------- |
-| `.fields()`     | Define data fields using the field builder            |
-| `.title()`      | Set the display title field                           |
-| `.options()`    | Configure timestamps, soft delete, versioning         |
-| `.hooks()`      | Attach lifecycle hooks                                |
-| `.access()`     | Set access control rules                              |
-| `.searchable()` | Configure full-text search indexing                    |
-| `.validation()`  | Override or refine auto-generated validation schemas  |
-| `.upload()`     | Enable file upload support with storage integration   |
-| `.indexes()`    | Define database indexes and constraints               |
-| `.set()`        | Generic extension point for plugins                   |
+| `.fields()`     | Define data fields using the field builder           |
+| `.title()`      | Set the display title field                          |
+| `.options()`    | Configure timestamps, soft delete, versioning        |
+| `.hooks()`      | Attach lifecycle hooks                               |
+| `.access()`     | Set access control rules                             |
+| `.searchable()` | Configure full-text search indexing                  |
+| `.validation()` | Override or refine auto-generated validation schemas |
+| `.upload()`     | Enable file upload support with storage integration  |
+| `.indexes()`    | Define database indexes and constraints              |
+| `.set()`        | Generic extension point for plugins                  |
 
 With `@questpie/admin` installed, the following extension methods are also available:
 
-| Method       | Description                          |
-| ------------ | ------------------------------------ |
-| `.admin()`   | Admin UI metadata (label, icon)      |
-| `.list()`    | Configure the list view              |
-| `.form()`    | Configure the form view              |
-| `.preview()` | Configure live preview               |
-| `.actions()` | Define custom record actions          |
+| Method       | Description                     |
+| ------------ | ------------------------------- |
+| `.admin()`   | Admin UI metadata (label, icon) |
+| `.list()`    | Configure the list view         |
+| `.form()`    | Configure the form view         |
+| `.preview()` | Configure live preview          |
+| `.actions()` | Define custom record actions    |
 
 ---
 
@@ -70,14 +73,14 @@ Define collection fields using the field builder. The callback receives `{ f }` 
 ```ts
 .fields(({ f }) => ({
   title: f.text(255).required(),
-  slug: f.text(255).unique(),
+  slug: f.text(255).inputOptional(),
   content: f.richText().localized(),
   publishedAt: f.date(),
   views: f.number().default(0),
   featured: f.boolean().default(false),
-  tags: f.object(),
-  author: f.relation("author_id").to("users"),
-  category: f.relation("category_id").to("categories"),
+  tags: f.text().array(),
+  author: f.relation("users"),
+  category: f.relation("categories"),
 }))
 ```
 
@@ -213,15 +216,15 @@ Enable file upload support. Automatically adds storage fields (`key`, `filename`
 
 ```ts
 collection("media")
-  .fields(({ f }) => ({
-    alt: f.text(),
-    folder: f.text(),
-  }))
-  .upload({
-    visibility: "public",       // "public" | "private"
-    maxSize: 10_000_000,        // 10 MB
-    allowedTypes: ["image/*", "application/pdf"],
-  })
+	.fields(({ f }) => ({
+		alt: f.text(),
+		folder: f.text(),
+	}))
+	.upload({
+		visibility: "public", // "public" | "private"
+		maxSize: 10_000_000, // 10 MB
+		allowedTypes: ["image/*", "application/pdf"],
+	});
 ```
 
 Upload collections get additional CRUD methods: `upload()` and `uploadMany()`.
@@ -307,7 +310,7 @@ Enable live preview for the collection.
 .preview({
   enabled: true,
   position: "right",
-  defaultWidth: 400,
+  defaultWidth: 50,
   url: ({ record }) => `/blog/${record.slug}`,
 })
 ```
@@ -317,15 +320,21 @@ Enable live preview for the collection.
 Define custom record actions.
 
 ```ts
-.actions([
-  {
-    name: "publish",
-    label: "Publish",
-    handler: async ({ id, collections }) => {
-      await collections.posts.update(id, { status: "published" });
-    },
-  },
-])
+.actions(({ a }) => ({
+  custom: [
+    a.action({
+      id: "publish",
+      label: "Publish",
+      handler: async ({ itemId, collections }) => {
+        await collections.posts.updateById({
+          id: itemId!,
+          data: { status: "published" },
+        });
+        return { type: "success", toast: { message: "Published" } };
+      },
+    }),
+  ],
+}))
 ```
 
 ---

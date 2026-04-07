@@ -11,13 +11,13 @@ import { watch } from "node:fs";
 import { readdir, readFile, stat } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 
+import { extractPluginsFromModules } from "../codegen/extract-plugins.js";
 import {
 	coreCodegenPlugin,
 	resolveTargetGraph,
 	runAllTargets,
 	runCodegen,
 } from "../codegen/index.js";
-import { extractPluginsFromModules } from "../codegen/extract-plugins.js";
 import type {
 	CodegenPlugin,
 	MultiTargetCodegenResult,
@@ -54,7 +54,7 @@ export async function resolveEntityRoot(
 ): Promise<{ configPath: string; rootDir: string }> {
 	let content: string;
 	try {
-		content = await readFile(configPath, "utf-8");
+		content = String(await readFile(configPath, "utf-8"));
 	} catch {
 		return { configPath, rootDir: dirname(configPath) };
 	}
@@ -356,7 +356,7 @@ async function buildImportRewriteMap(
 ): Promise<Record<string, string> | undefined> {
 	try {
 		const pkgJsonPath = join(packageDir, "package.json");
-		const pkgJsonContent = await readFile(pkgJsonPath, "utf-8");
+		const pkgJsonContent = String(await readFile(pkgJsonPath, "utf-8"));
 		const pkgJson = JSON.parse(pkgJsonContent);
 		const pkgName = pkgJson.name;
 		if (!pkgName) return undefined;
@@ -365,7 +365,7 @@ async function buildImportRewriteMap(
 		const tsconfigPath = join(packageDir, "tsconfig.json");
 		let tsconfigContent: string;
 		try {
-			tsconfigContent = await readFile(tsconfigPath, "utf-8");
+			tsconfigContent = String(await readFile(tsconfigPath, "utf-8"));
 		} catch {
 			return undefined;
 		}
@@ -975,8 +975,7 @@ async function extractModulePlugins(
 		return merged;
 	} catch (error) {
 		if (options.verbose) {
-			const reason =
-				error instanceof Error ? error.message : String(error);
+			const reason = error instanceof Error ? error.message : String(error);
 			console.warn(`  Could not extract plugins from modules.ts: ${reason}`);
 		}
 		return configPlugins;

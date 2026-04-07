@@ -34,12 +34,12 @@ Create a collection that represents your tenant entity:
 
 ```ts
 // collections/workspaces.ts
-import { collection } from "#questpie";
+import { collection } from "#questpie/factories";
 
 export default collection("workspaces").fields(({ f }) => ({
-	name: f.text({ label: "Name", required: true }),
-	slug: f.slug({ label: "Slug", from: "name" }),
-	owner: f.relation({ to: "user", label: "Owner" }),
+	name: f.text().label("Name").required(),
+	slug: f.text().label("Slug").inputOptional(),
+	owner: f.relation("user").label("Owner"),
 }));
 ```
 
@@ -47,15 +47,11 @@ Other collections reference the scope via a relation:
 
 ```ts
 // collections/projects.ts
-import { collection } from "#questpie";
+import { collection } from "#questpie/factories";
 
 export default collection("projects").fields(({ f }) => ({
-	title: f.text({ label: "Title", required: true }),
-	workspace: f.relation({
-		to: "workspaces",
-		label: "Workspace",
-		required: true,
-	}),
+	title: f.text().label("Title").required(),
+	workspace: f.relation("workspaces").label("Workspace").required(),
 }));
 ```
 
@@ -103,16 +99,12 @@ Use the typed context in access rules and hooks to enforce data isolation:
 
 ```ts
 // collections/projects.ts
-import { collection } from "#questpie";
+import { collection } from "#questpie/factories";
 
 export default collection("projects")
 	.fields(({ f }) => ({
-		title: f.text({ label: "Title", required: true }),
-		workspace: f.relation({
-			to: "workspaces",
-			label: "Workspace",
-			required: true,
-		}),
+		title: f.text().label("Title").required(),
+		workspace: f.relation("workspaces").label("Workspace").required(),
 	}))
 	.access({
 		// Only allow reads when a workspace is selected

@@ -122,7 +122,7 @@ const posts = await app.collections.posts.find({}, ctx);
 
 ```ts title="admin/hooks.ts"
 import { createTypedHooks } from "@questpie/admin/client";
-import type { AppConfig } from "#questpie";
+import type { App } from "#questpie";
 
 export const {
 	useCollectionList,
@@ -132,7 +132,7 @@ export const {
 	useCollectionDelete,
 	useGlobal,
 	useGlobalUpdate,
-} = createTypedHooks<AppConfig>();
+} = createTypedHooks<App>();
 ```
 
 ## When to Re-Run Codegen
@@ -151,12 +151,12 @@ You do **not** need to re-run codegen when you:
 - Update access control rules
 - Change runtime config values
 
-## The `#questpie` Alias
+## The `#questpie/factories` Alias
 
-The `#questpie` import in collection/global files resolves to a generated helper that provides typed builders:
+The `#questpie/factories` import in collection/global files resolves to generated helpers that provide typed builders:
 
 ```ts
-import { collection } from "#questpie";
+import { collection } from "#questpie/factories";
 // Provides field builder with autocompletion for relation targets, etc.
 ```
 
@@ -164,16 +164,16 @@ import { collection } from "#questpie";
 
 Codegen starts by scanning your project directories for files matching known conventions. Each entity category has a declared directory and file pattern:
 
-| Category      | Directory        | Pattern          | Key Strategy          |
-| ------------- | ---------------- | ---------------- | --------------------- |
-| `collections` | `collections/`   | `*.ts`           | Filename → camelCase  |
-| `globals`     | `globals/`       | `*.ts`           | Filename → camelCase  |
-| `routes`      | `routes/`        | `*.ts`           | Filename → camelCase  |
-| `jobs`        | `jobs/`          | `*.ts`           | Filename → camelCase  |
-| `services`    | `services/`      | `*.ts`           | Filename → camelCase  |
-| `emails`      | `emails/`        | `*.ts`           | Filename → camelCase  |
-| `seeds`       | `seeds/`         | `*.seed.ts`      | Filename → camelCase  |
-| `blocks`      | `blocks/`        | `*.ts`           | Filename → camelCase  |
+| Category      | Directory      | Pattern     | Key Strategy                     |
+| ------------- | -------------- | ----------- | -------------------------------- |
+| `collections` | `collections/` | `*.ts`      | Factory string arg → export name |
+| `globals`     | `globals/`     | `*.ts`      | Factory string arg → export name |
+| `routes`      | `routes/`      | `*.ts`      | Filename → camelCase/slash path  |
+| `jobs`        | `jobs/`        | `*.ts`      | Filename → camelCase             |
+| `services`    | `services/`    | `*.ts`      | Filename → camelCase             |
+| `emails`      | `emails/`      | `*.ts`      | Filename → camelCase             |
+| `seeds`       | `seeds/`       | `*.seed.ts` | Array (ordered)                  |
+| `blocks`      | `blocks/`      | `*.ts`      | Factory string arg → export name |
 
 Files prefixed with `_` (e.g., `_helpers.ts`) are ignored — use them for shared utilities within a category directory.
 
@@ -185,10 +185,10 @@ Codegen is extensible through plugins. Each plugin can contribute category decla
 
 ### Core Plugins
 
-| Plugin              | What It Does                                          |
-| ------------------- | ----------------------------------------------------- |
-| `coreCodegenPlugin` | Discovers collections, globals, routes, jobs, services, emails, seeds |
-| `adminPlugin`       | Discovers admin views, blocks, components, fields, branding |
+| Plugin              | What It Does                                                             |
+| ------------------- | ------------------------------------------------------------------------ |
+| `coreCodegenPlugin` | Discovers collections, globals, routes, jobs, services, emails, seeds    |
+| `adminPlugin`       | Discovers admin views, blocks, components, fields, and `config/admin.ts` |
 
 ### Category Declarations
 
@@ -231,6 +231,7 @@ bunx questpie dev
 ```
 
 This watches for:
+
 - New, renamed, or deleted files in convention directories
 - Changes to `modules.ts` or `questpie.config.ts`
 - Plugin configuration changes

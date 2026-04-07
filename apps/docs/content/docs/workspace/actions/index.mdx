@@ -16,10 +16,10 @@ When a user opens a record or selects rows in a list view, the admin panel shows
 
 Actions appear in two locations:
 
-| Location | Scope | Example |
-| --- | --- | --- |
-| **Form view toolbar** | Single record | Save, Delete, Duplicate, Publish |
-| **List view bulk toolbar** | Multiple records | Delete selected, Export |
+| Location                   | Scope            | Example                          |
+| -------------------------- | ---------------- | -------------------------------- |
+| **Form view toolbar**      | Single record    | Save, Delete, Duplicate, Publish |
+| **List view bulk toolbar** | Multiple records | Delete selected, Export          |
 
 ## Action Types
 
@@ -34,25 +34,40 @@ See [Built-in Actions](/docs/workspace/actions/builtin) for details.
 Define your own actions with custom forms and server handlers using the `.actions()` extension method:
 
 ```ts
-.actions([
-  {
-    name: "publish",
-    label: { en: "Publish", sk: "Publikovat" },
-    icon: "ph:paper-plane-tilt",
-    handler: async ({ id, collections }) => {
-      await collections.posts.update(id, { status: "published", publishedAt: new Date() });
-    },
-  },
-  {
-    name: "send-newsletter",
-    label: "Send Newsletter",
-    confirm: "This will send to all subscribers. Continue?",
-    handler: async ({ id, collections, queue }) => {
-      const post = await collections.posts.findById(id);
-      await queue.sendNewsletter.publish({ postId: post.id });
-    },
-  },
-])
+.actions(({ a, c }) => ({
+  custom: [
+    a.action({
+      id: "publish",
+      label: { en: "Publish", sk: "Publikovat" },
+      icon: c.icon("ph:paper-plane-tilt"),
+      handler: async ({ itemId, collections }) => {
+        await collections.posts.updateById({
+          id: itemId!,
+          data: { status: "published", publishedAt: new Date() },
+        });
+        return { type: "success", toast: { message: "Published" } };
+      },
+    }),
+    a.action({
+      id: "send-newsletter",
+      label: "Send Newsletter",
+      confirmation: {
+        title: "Send newsletter?",
+        description: "This will send to all subscribers.",
+      },
+      handler: async ({ itemId, collections, queue }) => {
+        const post = await collections.posts.findOne({
+          where: { id: itemId! },
+        });
+        if (!post) {
+          return { type: "error", toast: { message: "Post not found" } };
+        }
+        await queue.sendNewsletter.publish({ postId: post.id });
+        return { type: "success", toast: { message: "Newsletter queued" } };
+      },
+    }),
+  ],
+}))
 ```
 
 See [Custom Actions](/docs/workspace/actions/custom) for the full guide.

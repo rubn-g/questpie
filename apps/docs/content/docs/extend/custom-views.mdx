@@ -13,6 +13,7 @@ A custom view requires two parts:
 2. **React component** -- the actual rendering logic
 
 Views have two kinds:
+
 - `"list"` -- displayed on the collection list page (e.g., table, kanban, gallery)
 - `"form"` -- displayed on the collection edit/create page (e.g., form, builder)
 
@@ -28,8 +29,8 @@ Create a view definition file using the `view()` factory:
 import { view } from "@questpie/admin/client";
 
 export default view("kanban", {
-  kind: "list",
-  component: () => import("./kanban-view.js"),
+	kind: "list",
+	component: () => import("./kanban-view.js"),
 });
 ```
 
@@ -41,47 +42,47 @@ After codegen, this view is registered in the admin client and available for use
 import { useListViewContext } from "@questpie/admin/client";
 
 export function KanbanView() {
-  const { data, columns, config, onRecordClick } = useListViewContext();
+	const { data, columns, config, onRecordClick } = useListViewContext();
 
-  const statusColumn = config.groupBy || "status";
-  const groups = groupByField(data, statusColumn);
+	const statusColumn = config.groupBy || "status";
+	const groups = groupByField(data, statusColumn);
 
-  return (
-    <div style={{ display: "flex", gap: 16, overflowX: "auto" }}>
-      {Object.entries(groups).map(([status, items]) => (
-        <div key={status} style={{ minWidth: 280, flex: "0 0 280px" }}>
-          <h3 style={{ fontWeight: 600, marginBottom: 8 }}>
-            {status} ({items.length})
-          </h3>
-          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-            {items.map((item) => (
-              <div
-                key={item.id}
-                onClick={() => onRecordClick(item.id)}
-                style={{
-                  padding: 12,
-                  borderRadius: 8,
-                  border: "1px solid #e5e7eb",
-                  cursor: "pointer",
-                }}
-              >
-                <div style={{ fontWeight: 500 }}>{item._title}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      ))}
-    </div>
-  );
+	return (
+		<div style={{ display: "flex", gap: 16, overflowX: "auto" }}>
+			{Object.entries(groups).map(([status, items]) => (
+				<div key={status} style={{ minWidth: 280, flex: "0 0 280px" }}>
+					<h3 style={{ fontWeight: 600, marginBottom: 8 }}>
+						{status} ({items.length})
+					</h3>
+					<div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+						{items.map((item) => (
+							<div
+								key={item.id}
+								onClick={() => onRecordClick(item.id)}
+								style={{
+									padding: 12,
+									borderRadius: 8,
+									border: "1px solid #e5e7eb",
+									cursor: "pointer",
+								}}
+							>
+								<div style={{ fontWeight: 500 }}>{item._title}</div>
+							</div>
+						))}
+					</div>
+				</div>
+			))}
+		</div>
+	);
 }
 
 function groupByField(data: any[], field: string) {
-  const groups: Record<string, any[]> = {};
-  for (const item of data) {
-    const key = item[field] || "unknown";
-    (groups[key] ??= []).push(item);
-  }
-  return groups;
+	const groups: Record<string, any[]> = {};
+	for (const item of data) {
+		const key = item[field] || "unknown";
+		(groups[key] ??= []).push(item);
+	}
+	return groups;
 }
 ```
 
@@ -93,14 +94,20 @@ Once registered, reference the view in your collection's `.list()` configuration
 
 ```ts
 collection("tasks")
-  .fields(({ f }) => ({
-    title: f.text({ required: true }),
-    status: f.select({ options: ["todo", "in-progress", "done"] }),
-    assignee: f.relation(() => users),
-  }))
-  .list(({ v }) => v.kanban({
-    groupBy: "status",
-  }))
+	.fields(({ f }) => ({
+		title: f.text().required(),
+		status: f.select([
+			{ value: "todo", label: "Todo" },
+			{ value: "in-progress", label: "In Progress" },
+			{ value: "done", label: "Done" },
+		]),
+		assignee: f.relation("users"),
+	}))
+	.list(({ v }) =>
+		v.kanban({
+			groupBy: "status",
+		}),
+	);
 ```
 
 The view configuration object is passed to your component as `config` in the view context.
@@ -115,8 +122,8 @@ Form views work the same way but use `kind: "form"`:
 import { view } from "@questpie/admin/client";
 
 export default view("page-builder", {
-  kind: "form",
-  component: () => import("./page-builder-view.js"),
+	kind: "form",
+	component: () => import("./page-builder-view.js"),
 });
 ```
 
@@ -124,13 +131,9 @@ export default view("page-builder", {
 import { useFormViewContext } from "@questpie/admin/client";
 
 export function PageBuilderView() {
-  const { data, onChange, fields } = useFormViewContext();
+	const { data, onChange, fields } = useFormViewContext();
 
-  return (
-    <div>
-      {/* Custom drag-and-drop page builder UI */}
-    </div>
-  );
+	return <div>{/* Custom drag-and-drop page builder UI */}</div>;
 }
 ```
 
@@ -152,9 +155,9 @@ To distribute custom views as part of a module:
 import { module } from "questpie";
 
 export const kanbanModule = module({
-  name: "kanban-views",
-  // Views are discovered by file convention through the admin plugin
-  // The module can include the view files in its package
+	name: "kanban-views",
+	// Views are discovered by file convention through the admin plugin
+	// The module can include the view files in its package
 });
 ```
 

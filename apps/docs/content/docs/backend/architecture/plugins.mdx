@@ -13,27 +13,21 @@ The core framework is intentionally lean. Most functionality — including the a
 
 ## How Plugins Work
 
-A plugin tells codegen **what to look for** and **what types to generate**:
+A plugin tells codegen **what to look for** and **what types to generate**. Built-in modules can contribute their plugins automatically through `modules.ts`:
 
 ```ts
-import { adminPlugin } from "@questpie/admin/plugin";
-import { runtimeConfig } from "questpie";
+import { adminModule } from "@questpie/admin/server";
 
-export default runtimeConfig({
-	plugins: [adminPlugin()],
-	// ...
-});
+export default [adminModule] as const;
 ```
 
-When you add `adminPlugin()`, codegen starts looking for:
+When you add `adminModule`, its plugin makes codegen look for:
 
-- `sidebar.ts` — Admin sidebar configuration
-- `dashboard.ts` — Dashboard widgets
-- `branding.ts` — Admin branding
+- `config/admin.ts` — Sidebar, dashboard, branding, and admin locale
 - `blocks/*.ts` — Content block definitions
-- `admin-locale.ts` — Admin UI locale
+- admin views, components, and field types contributed by modules
 
-Without the plugin, these files are ignored.
+Without the module/plugin contribution, these files are ignored.
 
 ## Core vs Plugin Categories
 
@@ -50,13 +44,10 @@ The core framework discovers these categories by default:
 
 The admin plugin adds:
 
-| Category          | Pattern          |
-| ----------------- | ---------------- |
-| `blocks/`         | Content blocks   |
-| `sidebar.ts`      | Sidebar config   |
-| `dashboard.ts`    | Dashboard config |
-| `branding.ts`     | Branding config  |
-| `admin-locale.ts` | Admin UI locale  |
+| Category          | Pattern        |
+| ----------------- | -------------- |
+| `blocks/`         | Content blocks |
+| `config/admin.ts` | Admin config   |
 
 ## CodegenPlugin Interface
 
@@ -65,21 +56,27 @@ Plugins implement the `CodegenPlugin` interface:
 ```ts
 interface CodegenPlugin {
 	name: string;
+	targets: Record<string, CodegenTargetContribution>;
+}
 
+interface CodegenTargetContribution {
 	// File categories to discover
 	categories?: Record<string, CategoryDeclaration>;
 
+	// Single-file or directory patterns
+	discover?: Record<string, DiscoverPattern>;
+
 	// Builder method extensions
-	extensions?: {
-		collection?: ExtensionDeclaration;
-		global?: ExtensionDeclaration;
+	registries?: {
+		collectionExtensions?: Record<string, RegistryExtension>;
+		globalExtensions?: Record<string, RegistryExtension>;
+		fieldExtensions?: Record<string, RegistryExtension>;
+		singletonFactories?: Record<string, SingletonFactory>;
+		builderFactories?: Record<string, BuilderFactory>;
 	};
 
-	// Module-level registries
-	moduleRegistries?: Record<string, ModuleRegistryDeclaration>;
-
-	// Single-file factories
-	singletons?: Record<string, SingletonDeclaration>;
+	// Callback params like f, v, c, a
+	callbackParams?: Record<string, CallbackParamDefinition>;
 
 	// Post-discovery transformation
 	transform?: (ctx: CodegenContext) => void;
@@ -126,7 +123,7 @@ Module (contribution)
 
 Config (runtime)
   ├── db.url = "postgres://..."
-  ├── plugins = [adminPlugin()]
+  ├── config.admin from config/admin.ts
   └── secret = "..."
 ```
 

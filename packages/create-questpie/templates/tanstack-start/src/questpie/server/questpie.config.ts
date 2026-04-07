@@ -3,7 +3,7 @@
  *
  * Runtime-only configuration: database, adapters, secrets.
  * Entity definitions (collections, globals, etc.) are codegen-generated.
- * Sidebar, dashboard, branding are file conventions.
+ * Admin sidebar, dashboard, and branding live in config/admin.ts.
  */
 
 import { ConsoleAdapter, runtimeConfig } from "questpie";

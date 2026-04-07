@@ -19,15 +19,20 @@ Register the module in your `modules.ts`:
 import { adminModule } from "@questpie/admin/server";
 import { openApiModule } from "@questpie/openapi";
 
-export default [
-	adminModule,
-	openApiModule({
-		info: {
-			title: "My API",
-			version: "1.0.0",
-		},
-	}),
-] as const;
+export default [adminModule, openApiModule] as const;
+```
+
+Configure the OpenAPI module in `config/openapi.ts`:
+
+```ts title="questpie/server/config/openapi.ts"
+import { openApiConfig } from "@questpie/openapi";
+
+export default openApiConfig({
+	info: {
+		title: "My API",
+		version: "1.0.0",
+	},
+});
 ```
 
 Run codegen to pick up the new module:
@@ -45,8 +50,10 @@ The module registers two routes:
 
 ## Configuration
 
-```ts
-openApiModule({
+```ts title="questpie/server/config/openapi.ts"
+import { openApiConfig } from "@questpie/openapi";
+
+export default openApiConfig({
 	// OpenAPI info block
 	info: {
 		title: "My API",

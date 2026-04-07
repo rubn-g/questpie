@@ -5,54 +5,66 @@ description: Admin conventions and client API reference — fields, views, pages
 
 ## File Conventions
 
-The admin module uses file conventions to discover configuration. Place these files in your admin directory.
+The admin module discovers its server-side configuration from `config/admin.ts` in the QUESTPIE server directory.
 
-### `sidebar(config)`
+```ts title="config/admin.ts"
+import { adminConfig } from "#questpie/factories";
 
-```ts
-import { sidebar } from "#questpie/factories";
-
-export default sidebar({
-  sections: [
-    { id: "content", title: { en: "Content", sk: "Obsah" } },
-    { id: "settings", title: { en: "Settings" } },
-  ],
-  items: [
-    // Collection item
-    { sectionId: "content", type: "collection", collection: "posts" },
-    // Global item
-    { sectionId: "settings", type: "global", global: "siteSettings" },
-    // External link
-    {
-      sectionId: "settings",
-      type: "link",
-      label: { en: "Documentation" },
-      href: "https://docs.example.com",
-      external: true,
-      icon: { type: "icon", props: { name: "ph:book-open" } },
-    },
-  ],
-});
-```
-
-### `dashboard(config)`
-
-```ts
-import { dashboard } from "#questpie/factories";
-
-export default dashboard({
-  title: { en: "Dashboard" },
-  description: { en: "Overview of your content" },
-  columns: 3,
-  realtime: true,
-  sections: [
-    { id: "stats", title: "Quick Stats" },
-    { id: "recent", title: "Recent Activity" },
-  ],
-  items: [
-    { type: "stats", collection: "posts", label: "Total Posts", sectionId: "stats" },
-    { type: "recentItems", collection: "posts", limit: 5, dateField: "createdAt", sectionId: "recent" },
-  ],
+export default adminConfig({
+	sidebar: {
+		sections: [
+			{ id: "content", title: { en: "Content", sk: "Obsah" } },
+			{ id: "settings", title: { en: "Settings" } },
+		],
+		items: [
+			{ sectionId: "content", type: "collection", collection: "posts" },
+			{ sectionId: "settings", type: "global", global: "siteSettings" },
+			{
+				sectionId: "settings",
+				type: "link",
+				label: { en: "Documentation" },
+				href: "https://docs.example.com",
+				external: true,
+				icon: { type: "icon", props: { name: "ph:book-open" } },
+			},
+		],
+	},
+	dashboard: {
+		title: { en: "Dashboard" },
+		description: { en: "Overview of your content" },
+		columns: 3,
+		realtime: true,
+		sections: [
+			{ id: "stats", label: "Quick Stats" },
+			{ id: "recent", label: "Recent Activity" },
+		],
+		items: [
+			{
+				sectionId: "stats",
+				id: "total-posts",
+				type: "stats",
+				collection: "posts",
+				label: "Total Posts",
+			},
+			{
+				sectionId: "recent",
+				id: "recent-posts",
+				type: "recentItems",
+				collection: "posts",
+				limit: 5,
+				dateField: "createdAt",
+				label: "Recent Posts",
+			},
+		],
+	},
+	branding: {
+		name: { en: "My CMS", sk: "Moj CMS" },
+		logo: "/logo.svg",
+	},
+	locale: {
+		locales: ["en", "sk"],
+		defaultLocale: "en",
+	},
 });
 ```
 
@@ -67,33 +79,6 @@ export default dashboard({
 | `recentItems` | `collection`, `limit`, `dateField`, `label` |
 | `timeline`    | `loader`, `maxItems`, `label`               |
 
-### `branding(config)`
-
-```ts
-import { branding } from "#questpie/factories";
-
-export default branding({
-  name: { en: "My CMS", sk: "Moj CMS" },
-  logo: "/logo.svg",
-});
-```
-
-### `locale(config)`
-
-```ts
-import { locale } from "#questpie/factories";
-
-export default locale({
-  locales: [
-    { code: "en", label: "English", fallback: true, flagCountryCode: "us" },
-    { code: "sk", label: "Slovak", flagCountryCode: "sk" },
-  ],
-  defaultLocale: "en",
-});
-```
-
----
-
 ## Client Factories
 
 The admin client uses plain frozen factories to register field types, views, pages, and widgets.
@@ -106,18 +91,18 @@ Register a field type for the admin UI. Maps a field type name to its form compo
 import { field } from "@questpie/admin/client";
 
 export default field("text", {
-  component: () => import("./text-field.js"),
-  cell: () => import("./cells/primitive-cells.js"),
+	component: () => import("./text-field.js"),
+	cell: () => import("./cells/primitive-cells.js"),
 });
 ```
 
 **`FieldDefinition`** shape:
 
-| Property    | Type                | Description                   |
-| ----------- | ------------------- | ----------------------------- |
-| `name`      | `string`            | Field type name               |
-| `component` | `MaybeLazyComponent`| Form field React component    |
-| `cell`      | `MaybeLazyComponent`| Optional list cell component  |
+| Property    | Type                 | Description                  |
+| ----------- | -------------------- | ---------------------------- |
+| `name`      | `string`             | Field type name              |
+| `component` | `MaybeLazyComponent` | Form field React component   |
+| `cell`      | `MaybeLazyComponent` | Optional list cell component |
 
 ### `view(name, config)`
 
@@ -127,46 +112,23 @@ Register a view type. Views have a `kind` discriminant: `"list"` for collection 
 import { view } from "@questpie/admin/client";
 
 export default view("collection-table", {
-  kind: "list",
-  component: () => import("./table-view.js"),
+	kind: "list",
+	component: () => import("./table-view.js"),
 });
 
 export default view("collection-form", {
-  kind: "form",
-  component: () => import("./form-view.js"),
+	kind: "form",
+	component: () => import("./form-view.js"),
 });
 ```
 
 **`ViewDefinition`** shape:
 
-| Property    | Type                 | Description              |
-| ----------- | -------------------- | ------------------------ |
-| `name`      | `string`             | View type name           |
-| `kind`      | `"list" \| "form"`   | View kind discriminant   |
-| `component` | `MaybeLazyComponent` | React component          |
-
-### `page(name, config)`
-
-Register a custom admin page outside of collections/globals.
-
-```ts
-import { page } from "@questpie/admin/client";
-
-export default page("analytics", {
-  component: () => import("./analytics-page.js"),
-  path: "/analytics",
-  showInNav: true,
-});
-```
-
-**`PageDefinition`** shape:
-
-| Property    | Type                 | Description                    |
-| ----------- | -------------------- | ------------------------------ |
-| `name`      | `string`             | Page identifier                |
-| `component` | `MaybeLazyComponent` | React component                |
-| `path`      | `string` (optional)  | Custom route path              |
-| `showInNav` | `boolean` (optional) | Show in admin navigation       |
+| Property    | Type                 | Description            |
+| ----------- | -------------------- | ---------------------- |
+| `name`      | `string`             | View type name         |
+| `kind`      | `"list" \| "form"`   | View kind discriminant |
+| `component` | `MaybeLazyComponent` | React component        |
 
 ### `widget(name, config)`
 
@@ -176,16 +138,16 @@ Register a dashboard widget.
 import { widget } from "@questpie/admin/client";
 
 export default widget("stats", {
-  component: () => import("./stats-widget.js"),
+	component: () => import("./stats-widget.js"),
 });
 ```
 
 **`WidgetDefinition`** shape:
 
-| Property    | Type                 | Description         |
-| ----------- | -------------------- | ------------------- |
-| `name`      | `string`             | Widget identifier   |
-| `component` | `MaybeLazyComponent` | React component     |
+| Property    | Type                 | Description       |
+| ----------- | -------------------- | ----------------- |
+| `name`      | `string`             | Widget identifier |
+| `component` | `MaybeLazyComponent` | React component   |
 
 ---
 
@@ -197,9 +159,9 @@ Bridges a field registry entry (`FieldDefinition`) to a runtime instance (`Field
 import { configureField } from "@questpie/admin/client";
 
 const instance = configureField(textFieldDef, {
-  label: "Title",
-  required: true,
-  placeholder: "Enter title...",
+	label: "Title",
+	required: true,
+	placeholder: "Enter title...",
 });
 ```
 
@@ -213,14 +175,14 @@ The admin client state is a flat map containing all registered entities:
 
 ```ts
 interface AdminState {
-  fields: Record<string, FieldDefinition>;
-  views: Record<string, ViewDefinition>;
-  pages: Record<string, PageDefinition>;
-  widgets: Record<string, WidgetDefinition>;
-  components: Record<string, MaybeLazyComponent>;
-  blocks: Record<string, MaybeLazyComponent>;
-  translations: Record<string, Record<string, string>>;
-  locale: string;
+	fields: Record<string, FieldDefinition>;
+	views: Record<string, ViewDefinition>;
+	pages: Record<string, PageDefinition>;
+	widgets: Record<string, WidgetDefinition>;
+	components: Record<string, MaybeLazyComponent>;
+	blocks: Record<string, MaybeLazyComponent>;
+	translations: Record<string, Record<string, string>>;
+	locale: string;
 }
 ```
 
@@ -240,34 +202,34 @@ The generated config includes all registered fields, views, components, blocks, 
 
 ```ts
 v.collectionForm({
-  sidebar: {
-    position: "right",
-    fields: [f.status, f.publishedAt],
-  },
-  fields: [
-    f.title,
-    f.slug,
-    {
-      type: "section",
-      label: { en: "Content" },
-      description: { en: "Main content area" },
-      layout: "stack",
-      fields: [f.content, f.excerpt],
-    },
-  ],
-})
+	sidebar: {
+		position: "right",
+		fields: [f.status, f.publishedAt],
+	},
+	fields: [
+		f.title,
+		f.slug,
+		{
+			type: "section",
+			label: { en: "Content" },
+			description: { en: "Main content area" },
+			layout: "stack",
+			fields: [f.content, f.excerpt],
+		},
+	],
+});
 ```
 
 ### Section Options
 
-| Property      | Type                   | Description                 |
-| ------------- | ---------------------- | --------------------------- |
-| `type`        | `"section"`            | Section discriminant        |
-| `label`       | `string \| i18n`       | Section heading             |
-| `description` | `string \| i18n`       | Section description         |
-| `layout`      | `"grid" \| "stack"`    | Field layout within section |
-| `columns`     | `number`               | Grid columns (grid layout)  |
-| `fields`      | `(Field \| FieldConfig)[]` | Fields in this section  |
+| Property      | Type                       | Description                 |
+| ------------- | -------------------------- | --------------------------- |
+| `type`        | `"section"`                | Section discriminant        |
+| `label`       | `string \| i18n`           | Section heading             |
+| `description` | `string \| i18n`           | Section description         |
+| `layout`      | `"grid" \| "stack"`        | Field layout within section |
+| `columns`     | `number`                   | Grid columns (grid layout)  |
+| `fields`      | `(Field \| FieldConfig)[]` | Fields in this section      |
 
 ### Field Config Options
 

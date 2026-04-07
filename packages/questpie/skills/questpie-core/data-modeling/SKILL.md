@@ -8,10 +8,10 @@ This skill builds on questpie-core. It covers collections, globals, fields, rela
 
 ## Imports
 
-All data modeling APIs are imported from the `#questpie` alias (codegen-resolved):
+Data model files import generated factories from the `#questpie/factories` alias:
 
 ```ts
-import { collection, global, locale } from "#questpie";
+import { collection, global } from "#questpie/factories";
 ```
 
 Drizzle index helpers come from `drizzle-orm/pg-core`:
@@ -25,14 +25,19 @@ import { uniqueIndex, index } from "drizzle-orm/pg-core";
 A collection is a database-backed data model. Each collection file exports a builder chain:
 
 ```ts title="collections/posts.ts"
-import { collection } from "#questpie";
+import { collection } from "#questpie/factories";
 
 export default collection("posts")
 	.fields(({ f }) => ({
-		title: f.text({ required: true, maxLength: 255 }),
-		body: f.richText({ localized: true }),
+		title: f.text(255).required(),
+		body: f.richText().localized(),
 		cover: f.upload({ to: "assets", mimeTypes: ["image/*"] }),
-		status: f.select({ options: ["draft", "published"], default: "draft" }),
+		status: f
+			.select([
+				{ value: "draft", label: "Draft" },
+				{ value: "published", label: "Published" },
+			])
+			.default("draft"),
 		publishedAt: f.date(),
 	}))
 	.title(({ f }) => f.title)
@@ -144,14 +149,14 @@ const count = await collections.posts.count({ where: { status: "published" } });
 A global is a singleton -- one record, no list view. Use for site-wide settings:
 
 ```ts title="globals/site-settings.ts"
-import { global } from "#questpie";
+import { global } from "#questpie/factories";
 
-export const siteSettings = global("site_settings")
+export const siteSettings = global("siteSettings")
 	.fields(({ f }) => ({
-		shopName: f.text({ required: true, default: "My App" }),
-		tagline: f.text({ localized: true }),
+		shopName: f.text().required().default("My App"),
+		tagline: f.text().localized(),
 		logo: f.upload({ to: "assets" }),
-		contactEmail: f.email({ required: true }),
+		contactEmail: f.email().required(),
 	}))
 	.admin(({ c }) => ({
 		label: { en: "Site Settings" },
@@ -211,7 +216,7 @@ Fields are defined inside `.fields()` using the `f` builder. Each field drives t
 | `f.relation()` | FK column             | Reference to another collection |
 | `f.upload()`   | FK column             | File upload linked to storage   |
 | `f.object()`   | `jsonb`               | Nested structured data          |
-| `f.array()`    | `jsonb`               | Repeatable items                |
+| `.array()`     | `jsonb`               | Repeatable items                |
 | `f.blocks()`   | `jsonb`               | Page builder content blocks     |
 | `f.json()`     | `jsonb`               | Raw JSON                        |
 
@@ -237,13 +242,11 @@ Every field accepts:
 ```ts
 import { sql } from "questpie";
 
-displayTitle: f.text({
-  virtual: sql<string>`(
+displayTitle: f.text().virtual(sql<string>`(
     SELECT COALESCE(name, 'Unknown') || ' - ' ||
     TO_CHAR("scheduledAt", 'YYYY-MM-DD HH24:MI')
     FROM appointments WHERE id = appointments.id
-  )`,
-}),
+  )`),
 ```
 
 Virtual fields are read-only -- they appear in queries but cannot be written to.
@@ -255,8 +258,8 @@ All relations are defined via `f.relation()` inside `.fields()`.
 ### Belongs-To (Single)
 
 ```ts
-author: f.relation({ to: "users", required: true }),
-barber: f.relation({ to: "barbers", required: true, onDelete: "cascade" }),
+author: f.relation("users").required(),
+barber: f.relation("barbers").required().onDelete("cascade"),
 ```
 
 Creates a foreign key column pointing to the target collection's `id`.
@@ -266,25 +269,19 @@ Creates a foreign key column pointing to the target collection's `id`.
 Requires a junction collection plus `through`, `sourceField`, and `targetField`:
 
 ```ts title="collections/barber-services.ts"
-import { collection } from "#questpie";
+import { collection } from "#questpie/factories";
 
 // Junction table
 export default collection("barberServices")
 	.fields(({ f }) => ({
-		barber: f.relation({ to: "barbers", required: true, onDelete: "cascade" }),
-		service: f.relation({
-			to: "services",
-			required: true,
-			onDelete: "cascade",
-		}),
+		barber: f.relation("barbers").required().onDelete("cascade"),
+		service: f.relation("services").required().onDelete("cascade"),
 	}))
 	.admin(({ c }) => ({ hidden: true }));
 ```
 
 ```ts title="collections/barbers.ts (inside .fields())"
-services: f.relation({
-  to: "services",
-  hasMany: true,
+services: f.relation("services").manyToMany({
   through: "barberServices",
   sourceField: "barber",   // FK in junction pointing to THIS collection
   targetField: "service",  // FK in junction pointing to TARGET collection
@@ -292,9 +289,7 @@ services: f.relation({
 ```
 
 ```ts title="collections/services.ts (inside .fields())"
-barbers: f.relation({
-  to: "barbers",
-  hasMany: true,
+barbers: f.relation("barbers").manyToMany({
   through: "barberServices",
   sourceField: "service",
   targetField: "barber",
@@ -321,27 +316,29 @@ const appointments = await collections.appointments.find({
 
 ### Locale Configuration
 
-```ts title="locale.ts"
-import { locale } from "#questpie";
+```ts title="config/app.ts"
+import { appConfig } from "questpie";
 
-export default locale({
-	locales: [
-		{ code: "en", label: "English", fallback: true, flagCountryCode: "us" },
-		{ code: "sk", label: "Slovencina" },
-		{ code: "de", label: "Deutsch" },
-	],
-	defaultLocale: "en",
+export default appConfig({
+	locale: {
+		locales: [
+			{ code: "en", label: "English", fallback: true, flagCountryCode: "us" },
+			{ code: "sk", label: "Slovencina" },
+			{ code: "de", label: "Deutsch" },
+		],
+		defaultLocale: "en",
+	},
 });
 ```
 
 ### Localizing Fields
 
-Add `localized: true` to any field that needs per-locale content:
+Chain `.localized()` on any field that needs per-locale content:
 
 ```ts
-name: f.text({ required: true, localized: true }),
-description: f.textarea({ localized: true }),
-price: f.number({ required: true }),  // NOT localized -- same in all locales
+name: f.text().required().localized(),
+description: f.textarea().localized(),
+price: f.number().required(),  // NOT localized -- same in all locales
 ```
 
 Localizable types: `text`, `textarea`, `richText`, `select`, `array`, `blocks`.
@@ -352,15 +349,10 @@ Typically NOT localized: `number`, `boolean`, `date`, `relation`.
 Arrays can be localized as a whole -- each locale gets its own array:
 
 ```ts
-navigation: f.array({
-  localized: true,
-  of: f.object({
-    fields: {
-      label: f.text({ required: true }),
-      href: f.text({ required: true }),
-    },
-  }),
-}),
+navigation: f.object({
+	label: f.text().required(),
+	href: f.text().required(),
+}).array().localized(),
 ```
 
 ### Querying Localized Content
@@ -380,12 +372,14 @@ const services = await client.collections.services.find({
 
 The admin panel has its own locale config for the interface language:
 
-```ts title="admin-locale.ts"
-import { adminLocale } from "#questpie";
+```ts title="config/admin.ts"
+import { adminConfig } from "#questpie/factories";
 
-export default adminLocale({
-	locales: ["en", "sk"],
-	defaultLocale: "en",
+export default adminConfig({
+	locale: {
+		locales: ["en", "sk"],
+		defaultLocale: "en",
+	},
 });
 ```
 
@@ -398,7 +392,7 @@ Use helper functions to avoid repetition in object fields:
 ```ts
 .fields(({ f }) => {
   const daySchedule = () => ({
-    isOpen: f.boolean({ default: true }),
+    isOpen: f.boolean().default(true),
     start: f.time(),
     end: f.time(),
   });
@@ -454,7 +448,7 @@ collection("posts").relations({ author: belongsTo("users") });
 
 // CORRECT -- use f.relation() inside .fields()
 collection("posts").fields(({ f }) => ({
-	author: f.relation({ to: "users" }),
+	author: f.relation("users"),
 }));
 ```
 
@@ -472,27 +466,25 @@ export default collection("posts").fields(/* ... */);
 
 Note: named exports alongside default are fine (e.g., `export const posts = ...` followed by `export default posts`).
 
-### HIGH: hasMany without junction table config
+### HIGH: manyToMany without junction table config
 
-A `hasMany: true` relation MUST specify `through`, `sourceField`, and `targetField`. There is no implicit reverse lookup.
+A many-to-many relation MUST specify `through`, `sourceField`, and `targetField`. Use `.hasMany({ foreignKey })` for a plain one-to-many reverse relation.
 
 ```ts
 // WRONG -- missing through/sourceField/targetField
-services: f.relation({ to: "services", hasMany: true });
+services: f.relation("services").manyToMany({});
 
 // CORRECT
-services: f.relation({
-	to: "services",
-	hasMany: true,
+services: f.relation("services").manyToMany({
 	through: "barberServices",
 	sourceField: "barber",
 	targetField: "service",
 });
 ```
 
-### MEDIUM: Forgetting `localized: true`
+### MEDIUM: Forgetting `.localized()`
 
-If content should vary by locale but the field is not marked `localized: true`, the data will not be stored in the i18n table and queries with different locales will return the same value.
+If content should vary by locale but the field does not chain `.localized()`, queries with different locales will return the same value.
 
 ### MEDIUM: Object fields -- function vs plain object
 

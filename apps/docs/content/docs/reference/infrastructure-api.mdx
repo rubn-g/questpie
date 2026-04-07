@@ -21,30 +21,31 @@ Send emails using registered templates or raw HTML.
 
 ```ts
 await email.sendTemplate({
-  template: "welcome",
-  input: { name: "Alice", verifyUrl: "https://..." },
-  to: "alice@example.com",
+	template: "welcome",
+	input: { name: "Alice", verifyUrl: "https://..." },
+	to: "alice@example.com",
 });
 ```
 
 ### Adapter Configuration
 
 ```ts title="questpie.config.ts"
-import { smtpAdapter, consoleAdapter } from "questpie/email";
+import { ConsoleAdapter, SmtpAdapter } from "questpie";
 
 // SMTP (production)
 email: {
-  adapter: smtpAdapter({
-    host: "smtp.example.com",
-    port: 587,
-    auth: { user: "...", pass: "..." },
-    from: "noreply@example.com",
+  adapter: new SmtpAdapter({
+    transport: {
+      host: "smtp.example.com",
+      port: 587,
+      auth: { user: "...", pass: "..." },
+    },
   }),
 }
 
 // Console (development — prints to stdout)
 email: {
-  adapter: consoleAdapter(),
+  adapter: new ConsoleAdapter(),
 }
 ```
 
@@ -55,12 +56,12 @@ import { email } from "questpie";
 import { z } from "zod";
 
 export default email({
-  name: "welcome",
-  schema: z.object({ name: z.string(), verifyUrl: z.string() }),
-  handler: ({ input }) => ({
-    subject: `Welcome, ${input.name}!`,
-    html: `<h1>Welcome!</h1><a href="${input.verifyUrl}">Verify</a>`,
-  }),
+	name: "welcome",
+	schema: z.object({ name: z.string(), verifyUrl: z.string() }),
+	handler: ({ input }) => ({
+		subject: `Welcome, ${input.name}!`,
+		html: `<h1>Welcome!</h1><a href="${input.verifyUrl}">Verify</a>`,
+	}),
 });
 ```
 
@@ -74,8 +75,8 @@ Background job processing backed by pg-boss (PostgreSQL).
 
 ```ts
 await queue.sendWelcomeEmail.publish({
-  userId: user.id,
-  email: user.email,
+	userId: user.id,
+	email: user.email,
 });
 ```
 
@@ -84,7 +85,7 @@ Jobs are typed -- the payload must match the job's Zod schema.
 ### Adapter Configuration
 
 ```ts title="questpie.config.ts"
-import { pgBossAdapter } from "questpie/queue-pg-boss";
+import { pgBossAdapter } from "questpie";
 
 queue: {
   adapter: pgBossAdapter({
@@ -100,22 +101,22 @@ import { job } from "questpie";
 import { z } from "zod";
 
 export default job({
-  name: "sendWelcomeEmail",
-  schema: z.object({
-    userId: z.string(),
-    email: z.string().email(),
-  }),
-  handler: async ({ payload, email }) => {
-    await email.sendTemplate({
-      template: "welcome",
-      input: { name: payload.userId },
-      to: payload.email,
-    });
-  },
-  options: {
-    retryLimit: 3,
-    retryDelay: 5000,
-  },
+	name: "sendWelcomeEmail",
+	schema: z.object({
+		userId: z.string(),
+		email: z.string().email(),
+	}),
+	handler: async ({ payload, email }) => {
+		await email.sendTemplate({
+			template: "welcome",
+			input: { name: payload.userId },
+			to: payload.email,
+		});
+	},
+	options: {
+		retryLimit: 3,
+		retryDelay: 5000,
+	},
 });
 ```
 
@@ -142,8 +143,8 @@ The `content` callback extracts plain text for full-text indexing. The `metadata
 
 ```ts
 const results = await collections.posts.find({
-  search: "typescript tutorial",
-  where: { status: "published" },
+	search: "typescript tutorial",
+	where: { status: "published" },
 });
 ```
 
@@ -156,22 +157,23 @@ File storage using FlyDrive with local or S3 backends.
 ### Configuration
 
 ```ts title="questpie.config.ts"
+import { S3Driver } from "flydrive/drivers/s3";
+
 // Local filesystem
 storage: {
-  driver: "local",
-  basePath: "./uploads",
+  location: "./uploads",
+  basePath: "/api",
 }
 
 // S3 / S3-compatible
 storage: {
-  driver: "s3",
-  s3: {
+  driver: new S3Driver({
     bucket: "my-bucket",
     region: "us-east-1",
     accessKeyId: "...",
     secretAccessKey: "...",
     endpoint: "https://...",  // For S3-compatible providers
-  },
+  }),
 }
 ```
 
@@ -181,18 +183,19 @@ Collections with `.upload()` automatically handle file storage:
 
 ```ts
 collection("media")
-  .fields(({ f }) => ({
-    alt: f.text(),
-    folder: f.text(),
-  }))
-  .upload({
-    visibility: "public",
-    maxSize: 10_000_000,
-    allowedTypes: ["image/*", "application/pdf"],
-  })
+	.fields(({ f }) => ({
+		alt: f.text(),
+		folder: f.text(),
+	}))
+	.upload({
+		visibility: "public",
+		maxSize: 10_000_000,
+		allowedTypes: ["image/*", "application/pdf"],
+	});
 ```
 
 Upload collections automatically:
+
 - Add storage fields (`key`, `filename`, `mimeType`, `size`, `visibility`)
 - Extend the output type with `{ url: string }`
 - Generate signed URLs for private files
@@ -222,7 +225,7 @@ Key-value store for caching and ephemeral data.
 
 ```ts
 // Set with optional TTL (seconds)
-await kv.set("cache:settings", JSON.stringify(settings), { ttl: 3600 });
+await kv.set("cache:settings", JSON.stringify(settings), 3600);
 
 // Get (returns string | null)
 const value = await kv.get("cache:settings");
@@ -234,15 +237,15 @@ await kv.delete("cache:settings");
 ### Configuration
 
 ```ts title="questpie.config.ts"
-// Redis (production)
+// Custom adapter
 kv: {
-  adapter: "redis",
-  url: process.env.REDIS_URL!,
+  adapter: myKvAdapter,
+  defaultTtl: 3600,
 }
 
-// In-memory (development)
+// In-memory default
 kv: {
-  adapter: "memory",
+  defaultTtl: 3600,
 }
 ```
 
@@ -256,20 +259,19 @@ Event broadcasting for live updates.
 
 ```ts
 await realtime.broadcast("posts", {
-  type: "post.updated",
-  data: { id: post.id, title: post.title },
+	type: "post.updated",
+	data: { id: post.id, title: post.title },
 });
 ```
 
 ### Configuration
 
 ```ts title="questpie.config.ts"
-import { redisStreamsAdapter } from "questpie/realtime-redis";
-import { pgNotifyAdapter } from "questpie/realtime-pg";
+import { pgNotifyAdapter, redisStreamsAdapter } from "questpie";
 
 // Redis Streams (production, multi-instance)
 realtime: {
-  adapter: redisStreamsAdapter({ url: process.env.REDIS_URL! }),
+  adapter: redisStreamsAdapter({ client: redis }),
 }
 
 // PostgreSQL NOTIFY (simpler, single-instance)
@@ -304,14 +306,17 @@ Direct access to the Drizzle ORM instance for custom queries.
 import { eq, sql } from "drizzle-orm";
 
 // Raw SQL
-const result = await db.execute(sql`SELECT COUNT(*) FROM posts WHERE status = 'published'`);
+const result = await db.execute(
+	sql`SELECT COUNT(*) FROM posts WHERE status = 'published'`,
+);
 
 // Drizzle query builder
-const rows = await db.select()
-  .from(postsTable)
-  .where(eq(postsTable.status, "published"))
-  .orderBy(postsTable.createdAt)
-  .limit(10);
+const rows = await db
+	.select()
+	.from(postsTable)
+	.where(eq(postsTable.status, "published"))
+	.orderBy(postsTable.createdAt)
+	.limit(10);
 ```
 
 ---

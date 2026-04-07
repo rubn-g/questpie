@@ -21,7 +21,13 @@ export const heroBlock = block("hero")
 		subtitle: f.textarea().localized(),
 		backgroundImage: f.upload({ to: "assets" }),
 		overlayOpacity: f.number().default(60),
-		alignment: f.select(["left", "center", "right"]).default("center"),
+		alignment: f
+			.select([
+				{ value: "left", label: "Left" },
+				{ value: "center", label: "Center" },
+				{ value: "right", label: "Right" },
+			])
+			.default("center"),
 		ctaText: f.text().localized(),
 		ctaLink: f.text(),
 	}))
@@ -79,7 +85,14 @@ export const spacerBlock = block("spacer")
 		category: "layout",
 	}))
 	.fields(({ f }) => ({
-		height: f.select(["sm", "md", "lg", "xl"]).default("md"),
+		height: f
+			.select([
+				{ value: "sm", label: "Small" },
+				{ value: "md", label: "Medium" },
+				{ value: "lg", label: "Large" },
+				{ value: "xl", label: "Extra large" },
+			])
+			.default("md"),
 	}));
 ```
 

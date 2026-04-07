@@ -98,7 +98,7 @@ export default runtimeConfig({
 
 ### Real-World Example: Admin Plugin
 
-The `adminPlugin()` from `@questpie/admin/plugin` contributes to both `"server"` and `"admin-client"` targets -- declaring categories (`blocks`), discover patterns (`sidebar`, `dashboard`, `branding`, `adminLocale`), collection extensions (`admin`, `list`, `form` with callback context params `v`, `f`, `a`), and singleton factories (`branding`, `sidebar`).
+The admin module contributes a codegen plugin to both `"server"` and `"admin-client"` targets -- declaring categories (`blocks`, `views`, `components`, field types), discovering `config/admin.ts`, adding collection/global/field extensions, and defining callback context params such as `v`, `f`, `c`, and `a`.
 
 ## Building a Module
 
@@ -110,10 +110,10 @@ import { z } from "zod";
 
 const notificationsCollection = collection("notifications")
 	.fields(({ f }) => ({
-		title: f.text({ required: true }),
+		title: f.text().required(),
 		body: f.textarea(),
-		read: f.boolean({ default: false }),
-		userId: f.relation({ to: "user", required: true }),
+		read: f.boolean().default(false),
+		userId: f.relation("user").required(),
 	}))
 	.admin(({ c }) => ({
 		label: { en: "Notifications" },
@@ -202,7 +202,7 @@ Once registered and codegen runs:
 
 ```ts
 .fields(({ f }) => ({
-  brandColor: f.color({ default: "#000000" }),
+  brandColor: f.color().default("#000000"),
   price: f.currency({ currency: "USD" }),
 }))
 ```
@@ -264,12 +264,11 @@ const response = await handler(request);
 
 ```ts
 import { Elysia } from "elysia";
-import { createFetchHandler } from "questpie/adapters/elysia";
+import { questpieElysia } from "@questpie/elysia/server";
 import { app } from "#questpie";
 
-const handler = createFetchHandler(app, { basePath: "/api" });
 const server = new Elysia()
-	.all("/api/*", ({ request }) => handler(request))
+	.use(questpieElysia(app, { basePath: "/api" }))
 	.listen(3000);
 ```
 
@@ -277,26 +276,22 @@ const server = new Elysia()
 
 ```ts
 import { Hono } from "hono";
-import { createFetchHandler } from "questpie/adapters/hono";
+import { questpieHono } from "@questpie/hono/server";
 import { app } from "#questpie";
 
-const server = new Hono();
-const handler = createFetchHandler(app, { basePath: "/api" });
-server.all("/api/*", (c) => handler(c.req.raw));
+const server = new Hono().route("/api", questpieHono(app));
 export default server;
 ```
 
 **Next.js (App Router):**
 
 ```ts title="app/api/[...slug]/route.ts"
-import { createFetchHandler } from "questpie/adapters/nextjs";
+import { questpieNextRouteHandlers } from "@questpie/next";
 import { app } from "#questpie";
 
-const handler = createFetchHandler(app, { basePath: "/api" });
-export const GET = handler;
-export const POST = handler;
-export const PATCH = handler;
-export const DELETE = handler;
+export const { GET, POST, PATCH, DELETE } = questpieNextRouteHandlers(app, {
+	basePath: "/api",
+});
 ```
 
 **TanStack Start (no adapter needed):**
@@ -328,7 +323,7 @@ Three augmentation interfaces allow plugins to extend discriminant types:
 ### How Registries Work
 
 ```text
-Server: f.text({ ... })
+Server: f.text().required()
   -> Generated: { type: "text", options: {...} }
   -> Admin Client: fieldRegistry.get("text")
   -> React: <TextFieldRenderer value={...} onChange={...} />

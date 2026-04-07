@@ -350,8 +350,7 @@ function resolveDiscoverPattern(pattern: DiscoverPattern): ResolvedPattern {
 	if (typeof pattern === "string") {
 		// A pattern is single-file if it has no glob wildcards AND ends with a TS extension.
 		// This correctly handles path-based patterns like "config/app.ts".
-		const isSingleFile =
-			!pattern.includes("*") && /\.\w+$/.test(pattern);
+		const isSingleFile = !pattern.includes("*") && /\.\w+$/.test(pattern);
 		return {
 			pattern,
 			resolve: "auto",
@@ -677,7 +676,7 @@ async function processFile(
 	// Read file content once — used by both factory and legacy detection
 	let content: string;
 	try {
-		content = await readFile(absolutePath, "utf-8");
+		content = String(await readFile(absolutePath, "utf-8"));
 	} catch {
 		return [];
 	}
@@ -700,9 +699,7 @@ async function processFile(
 		if (namedMatches.length > 0) {
 			// Named factory exports found — each becomes a separate entity
 			for (const m of namedMatches) {
-				const key = m.entityKey
-					? kebabToCamelCase(m.entityKey)
-					: m.exportName;
+				const key = m.entityKey ? kebabToCamelCase(m.entityKey) : m.exportName;
 				results.push({
 					absolutePath,
 					key,
@@ -846,7 +843,7 @@ export async function detectExportType(
 ): Promise<ExportDetection> {
 	let content: string;
 	try {
-		content = await readFile(absolutePath, "utf-8");
+		content = String(await readFile(absolutePath, "utf-8"));
 	} catch {
 		return { type: "unknown" };
 	}

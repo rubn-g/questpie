@@ -39,7 +39,7 @@ export async function globalGet(
 	request: Request,
 	params: Record<string, string>,
 	context?: AdapterContext,
-	config: AdapterConfig = {},
+	config: AdapterConfig<any> = {},
 ): Promise<Response> {
 	const resolved = await resolveContext(app, request, config, context);
 
@@ -59,7 +59,7 @@ export async function globalVersions(
 	request: Request,
 	params: Record<string, string>,
 	context?: AdapterContext,
-	config: AdapterConfig = {},
+	config: AdapterConfig<any> = {},
 ): Promise<Response> {
 	const resolved = await resolveContext(app, request, config, context);
 
@@ -71,9 +71,7 @@ export async function globalVersions(
 		const limit =
 			limitRaw !== null && limitRaw !== "" ? Number(limitRaw) : undefined;
 		const offset =
-			offsetRaw !== null && offsetRaw !== ""
-				? Number(offsetRaw)
-				: undefined;
+			offsetRaw !== null && offsetRaw !== "" ? Number(offsetRaw) : undefined;
 
 		const globalInstance = app.getGlobalConfig(params.global as any);
 		const crud = globalInstance.generateCRUD(resolved.appContext.db, app);
@@ -100,7 +98,7 @@ export async function globalRevert(
 	request: Request,
 	params: Record<string, string>,
 	context?: AdapterContext,
-	config: AdapterConfig = {},
+	config: AdapterConfig<any> = {},
 	input?: unknown,
 ): Promise<Response> {
 	const resolved = await resolveContext(app, request, config, context);
@@ -146,7 +144,7 @@ export async function globalTransition(
 	request: Request,
 	params: Record<string, string>,
 	context?: AdapterContext,
-	config: AdapterConfig = {},
+	config: AdapterConfig<any> = {},
 	input?: unknown,
 ): Promise<Response> {
 	const resolved = await resolveContext(app, request, config, context);
@@ -193,7 +191,7 @@ export async function globalSchema(
 	request: Request,
 	params: Record<string, string>,
 	context?: AdapterContext,
-	config: AdapterConfig = {},
+	config: AdapterConfig<any> = {},
 ): Promise<Response> {
 	const resolved = await resolveContext(app, request, config, context);
 	const globalInstance = app.getGlobalConfig(params.global as any);
@@ -228,7 +226,7 @@ export async function globalUpdate(
 	request: Request,
 	params: Record<string, string>,
 	context?: AdapterContext,
-	config: AdapterConfig = {},
+	config: AdapterConfig<any> = {},
 	input?: unknown,
 ): Promise<Response> {
 	const resolved = await resolveContext(app, request, config, context);
@@ -258,7 +256,7 @@ export async function globalMeta(
 	request: Request,
 	params: Record<string, string>,
 	context?: AdapterContext,
-	config: AdapterConfig = {},
+	config: AdapterConfig<any> = {},
 ): Promise<Response> {
 	const resolved = await resolveContext(app, request, config, context);
 	const globalInstance = app.getGlobalConfig(params.global as any);
@@ -285,7 +283,7 @@ export async function globalAudit(
 	request: Request,
 	params: Record<string, string>,
 	context?: AdapterContext,
-	config: AdapterConfig = {},
+	config: AdapterConfig<any> = {},
 ): Promise<Response> {
 	const resolved = await resolveContext(app, request, config, context);
 
@@ -293,19 +291,14 @@ export async function globalAudit(
 		const url = new URL(request.url);
 		const limitRaw = url.searchParams.get("limit");
 		const offsetRaw = url.searchParams.get("offset");
-		const limit =
-			limitRaw !== null && limitRaw !== "" ? Number(limitRaw) : 50;
+		const limit = limitRaw !== null && limitRaw !== "" ? Number(limitRaw) : 50;
 		const offset =
-			offsetRaw !== null && offsetRaw !== ""
-				? Number(offsetRaw)
-				: undefined;
+			offsetRaw !== null && offsetRaw !== "" ? Number(offsetRaw) : undefined;
 
 		// Audit collection name is configurable; defaults to admin_audit_log for backwards compat
 		const auditCollectionName =
 			(app.config as any).auditCollection ?? "admin_audit_log";
-		const auditCrud = app.collections[
-			auditCollectionName as any
-		] as any;
+		const auditCrud = app.collections[auditCollectionName as any] as any;
 		if (!auditCrud) {
 			return smartResponse([], request);
 		}

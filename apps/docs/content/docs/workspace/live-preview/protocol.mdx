@@ -5,27 +5,33 @@ description: Production reliability contract for the Preview V2 postMessage prot
 
 This document defines the wire protocol between the QuestPie admin panel and the preview iframe in Preview V2. It is the authoritative reference for implementors on both sides.
 
+<Callout type="warn">
+	This is a Preview V2 protocol design note. The current implemented preview
+	client API uses `useCollectionPreview`, `PreviewProvider`, and `PreviewField`;
+	the V2 hook/component names in this section are not exported yet.
+</Callout>
+
 ## Message Envelope
 
 Every message in V2 conforms to this base shape:
 
 ```ts
 interface PreviewMessage {
-  type: string;
-  sessionId: string;
-  seq: number;
-  timestamp: number;
-  protocolVersion: number;
+	type: string;
+	sessionId: string;
+	seq: number;
+	timestamp: number;
+	protocolVersion: number;
 }
 ```
 
-| Field | Type | Description |
-| --- | --- | --- |
-| `type` | `string` | Message discriminator. One of the types defined below. |
-| `sessionId` | `string` | Unique per preview session. Generated when the admin opens the preview panel. Used to discard stale messages from previous sessions. |
-| `seq` | `number` | Monotonically increasing sequence number. The admin increments `seq` for every message it sends. The frame increments its own independent `seq` counter. |
-| `timestamp` | `number` | `Date.now()` at send time. Used for latency telemetry, not for ordering. |
-| `protocolVersion` | `number` | Currently `2`. Used for version negotiation. |
+| Field             | Type     | Description                                                                                                                                              |
+| ----------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `type`            | `string` | Message discriminator. One of the types defined below.                                                                                                   |
+| `sessionId`       | `string` | Unique per preview session. Generated when the admin opens the preview panel. Used to discard stale messages from previous sessions.                     |
+| `seq`             | `number` | Monotonically increasing sequence number. The admin increments `seq` for every message it sends. The frame increments its own independent `seq` counter. |
+| `timestamp`       | `number` | `Date.now()` at send time. Used for latency telemetry, not for ordering.                                                                                 |
+| `protocolVersion` | `number` | Currently `2`. Used for version negotiation.                                                                                                             |
 
 ## Protocol Versioning
 
@@ -51,21 +57,23 @@ The admin always controls the effective protocol version. The frame adapts to wh
 All `postMessage` calls specify an explicit target origin. The wildcard `"*"` is never used.
 
 **Admin side:**
+
 ```ts
 const previewOrigin = new URL(previewUrl).origin;
 iframe.contentWindow.postMessage(message, previewOrigin);
 ```
 
 **Frame side:**
+
 ```ts
 const adminOrigin = document.referrer
-  ? new URL(document.referrer).origin
-  : null;
+	? new URL(document.referrer).origin
+	: null;
 
 window.addEventListener("message", (event) => {
-  if (event.origin !== adminOrigin) return;
-  if (event.data?.sessionId !== currentSessionId) return;
-  handleMessage(event.data);
+	if (event.origin !== adminOrigin) return;
+	if (event.data?.sessionId !== currentSessionId) return;
+	handleMessage(event.data);
 });
 ```
 
@@ -89,10 +97,10 @@ Sent once after receiving `READY`. Contains the full document state.
 
 ```ts
 interface InitSnapshot extends PreviewMessage {
-  type: "INIT_SNAPSHOT";
-  data: Record<string, unknown>;
-  locale?: string;
-  collectionName: string;
+	type: "INIT_SNAPSHOT";
+	data: Record<string, unknown>;
+	locale?: string;
+	collectionName: string;
 }
 ```
 
@@ -106,13 +114,13 @@ Sent when one or more fields change in the admin form.
 
 ```ts
 interface PatchBatch extends PreviewMessage {
-  type: "PATCH_BATCH";
-  patches: Patch[];
+	type: "PATCH_BATCH";
+	patches: Patch[];
 }
 
 interface Patch {
-  path: string;
-  value: unknown;
+	path: string;
+	value: unknown;
 }
 ```
 
@@ -126,8 +134,8 @@ Sent when the user focuses a field in the admin form.
 
 ```ts
 interface FocusField extends PreviewMessage {
-  type: "FOCUS_FIELD";
-  fieldPath: string;
+	type: "FOCUS_FIELD";
+	fieldPath: string;
 }
 ```
 
@@ -137,8 +145,8 @@ Sent when the user selects a block in the admin form.
 
 ```ts
 interface SelectBlock extends PreviewMessage {
-  type: "SELECT_BLOCK";
-  blockId: string;
+	type: "SELECT_BLOCK";
+	blockId: string;
 }
 ```
 
@@ -148,8 +156,8 @@ Sent after a successful save. The server data is now authoritative.
 
 ```ts
 interface Commit extends PreviewMessage {
-  type: "COMMIT";
-  data: Record<string, unknown>;
+	type: "COMMIT";
+	data: Record<string, unknown>;
 }
 ```
 
@@ -161,9 +169,9 @@ Sent when the admin detects a desync (e.g., the frame reported a gap, or the adm
 
 ```ts
 interface FullResync extends PreviewMessage {
-  type: "FULL_RESYNC";
-  data: Record<string, unknown>;
-  locale?: string;
+	type: "FULL_RESYNC";
+	data: Record<string, unknown>;
+	locale?: string;
 }
 ```
 
@@ -175,9 +183,9 @@ Sent when the admin encounters an error it wants to surface in the frame (e.g., 
 
 ```ts
 interface AdminError extends PreviewMessage {
-  type: "ERROR";
-  error: string;
-  code?: string;
+	type: "ERROR";
+	error: string;
+	code?: string;
 }
 ```
 
@@ -191,7 +199,7 @@ Sent when the frame has loaded and is ready to receive `INIT_SNAPSHOT`.
 
 ```ts
 interface Ready extends PreviewMessage {
-  type: "READY";
+	type: "READY";
 }
 ```
 
@@ -204,8 +212,8 @@ Acknowledges receipt of a message from the admin.
 
 ```ts
 interface Ack extends PreviewMessage {
-  type: "ACK";
-  ackSeq: number;
+	type: "ACK";
+	ackSeq: number;
 }
 ```
 
@@ -219,8 +227,8 @@ Sent when the user clicks a field element in the preview.
 
 ```ts
 interface FieldClicked extends PreviewMessage {
-  type: "FIELD_CLICKED";
-  fieldPath: string;
+	type: "FIELD_CLICKED";
+	fieldPath: string;
 }
 ```
 
@@ -230,8 +238,8 @@ Sent when the user clicks a block element in the preview.
 
 ```ts
 interface BlockClicked extends PreviewMessage {
-  type: "BLOCK_CLICKED";
-  blockId: string;
+	type: "BLOCK_CLICKED";
+	blockId: string;
 }
 ```
 
@@ -241,9 +249,9 @@ Sent when the user clicks a resolved relation in the preview.
 
 ```ts
 interface RelationClicked extends PreviewMessage {
-  type: "RELATION_CLICKED";
-  fieldPath: string;
-  relationId: string;
+	type: "RELATION_CLICKED";
+	fieldPath: string;
+	relationId: string;
 }
 ```
 
@@ -255,9 +263,9 @@ Sent when the frame encounters a rendering error while applying a patch or snaps
 
 ```ts
 interface RenderError extends PreviewMessage {
-  type: "RENDER_ERROR";
-  error: string;
-  seq?: number;
+	type: "RENDER_ERROR";
+	error: string;
+	seq?: number;
 }
 ```
 
@@ -402,24 +410,24 @@ Both the admin and the frame should track the following metrics. These are emitt
 
 ### Admin-Side Metrics
 
-| Metric | Type | Description |
-| --- | --- | --- |
-| `preview.patch_latency_ms` | histogram | Time from patch send to `ACK` receipt |
-| `preview.resync_count` | counter | Number of `FULL_RESYNC` messages sent per session |
-| `preview.unacked_high_watermark` | gauge | Peak number of unacknowledged messages in a session |
-| `preview.retry_count` | counter | Number of retried messages per session |
-| `preview.session_duration_ms` | histogram | Total preview session duration |
-| `preview.error_count` | counter | Number of `RENDER_ERROR` messages received per session |
-| `preview.disconnect_count` | counter | Number of times preview entered "disconnected" state |
+| Metric                           | Type      | Description                                            |
+| -------------------------------- | --------- | ------------------------------------------------------ |
+| `preview.patch_latency_ms`       | histogram | Time from patch send to `ACK` receipt                  |
+| `preview.resync_count`           | counter   | Number of `FULL_RESYNC` messages sent per session      |
+| `preview.unacked_high_watermark` | gauge     | Peak number of unacknowledged messages in a session    |
+| `preview.retry_count`            | counter   | Number of retried messages per session                 |
+| `preview.session_duration_ms`    | histogram | Total preview session duration                         |
+| `preview.error_count`            | counter   | Number of `RENDER_ERROR` messages received per session |
+| `preview.disconnect_count`       | counter   | Number of times preview entered "disconnected" state   |
 
 ### Frame-Side Metrics
 
-| Metric | Type | Description |
-| --- | --- | --- |
-| `preview.render_time_ms` | histogram | Time from receiving `PATCH_BATCH` to completing DOM update |
-| `preview.apply_time_ms` | histogram | Time to apply patches to local state (before render) |
-| `preview.gap_count` | counter | Number of sequence gaps detected |
-| `preview.snapshot_size_bytes` | gauge | Size of `INIT_SNAPSHOT` data payload |
+| Metric                        | Type      | Description                                                |
+| ----------------------------- | --------- | ---------------------------------------------------------- |
+| `preview.render_time_ms`      | histogram | Time from receiving `PATCH_BATCH` to completing DOM update |
+| `preview.apply_time_ms`       | histogram | Time to apply patches to local state (before render)       |
+| `preview.gap_count`           | counter   | Number of sequence gaps detected                           |
+| `preview.snapshot_size_bytes` | gauge     | Size of `INIT_SNAPSHOT` data payload                       |
 
 ### Accessing Telemetry
 
@@ -436,13 +444,13 @@ Metrics are also available via the admin's developer tools panel (if enabled).
 
 ## Summary of Constants
 
-| Constant | Value | Description |
-| --- | --- | --- |
-| `PROTOCOL_VERSION` | `2` | Current protocol version |
-| `MAX_UNACKED` | `10` | Backpressure threshold |
-| `ACK_TIMEOUT` | `3000ms` | Time to wait for ACK before retry |
-| `MAX_RETRIES` | `2` | Retries before FULL_RESYNC |
-| `MAX_RESYNC_FAILURES` | `3` | Consecutive FULL_RESYNC failures before disconnect |
+| Constant              | Value    | Description                                        |
+| --------------------- | -------- | -------------------------------------------------- |
+| `PROTOCOL_VERSION`    | `2`      | Current protocol version                           |
+| `MAX_UNACKED`         | `10`     | Backpressure threshold                             |
+| `ACK_TIMEOUT`         | `3000ms` | Time to wait for ACK before retry                  |
+| `MAX_RETRIES`         | `2`      | Retries before FULL_RESYNC                         |
+| `MAX_RESYNC_FAILURES` | `3`      | Consecutive FULL_RESYNC failures before disconnect |
 
 ## Related Pages
 

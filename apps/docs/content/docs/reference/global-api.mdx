@@ -11,36 +11,36 @@ Creates a new global builder. Globals are singleton records (one row per global)
 import { global } from "#questpie/factories";
 
 const siteSettings = global("siteSettings")
-  .fields(({ f }) => ({
-    siteName: f.text(255).required(),
-    tagline: f.text(255).localized(),
-    logo: f.upload(),
-    maintenanceMode: f.boolean().default(false),
-    socialLinks: f.object(),
-  }))
-  .options({ timestamps: true })
-  .hooks({
-    afterChange: async ({ data, kv }) => {
-      await kv.delete("site-settings-cache");
-    },
-  })
-  .access({
-    read: true,
-    update: ({ session }) => session?.user?.role === "admin",
-  });
+	.fields(({ f }) => ({
+		siteName: f.text(255).required(),
+		tagline: f.text(255).localized(),
+		logo: f.upload(),
+		maintenanceMode: f.boolean().default(false),
+		socialLinks: f.object(),
+	}))
+	.options({ timestamps: true })
+	.hooks({
+		afterChange: async ({ data, kv }) => {
+			await kv.delete("site-settings-cache");
+		},
+	})
+	.access({
+		read: true,
+		update: ({ session }) => session?.user?.role === "admin",
+	});
 ```
 
 ## Builder Methods
 
 All methods are chainable and return a new builder instance.
 
-| Method       | Description                                          |
-| ------------ | ---------------------------------------------------- |
-| `.fields()`  | Define data fields using the field builder            |
-| `.options()` | Configure timestamps, versioning, scoped mode         |
-| `.hooks()`   | Attach lifecycle hooks                                |
-| `.access()`  | Set access control rules                              |
-| `.set()`     | Generic extension point for plugins                   |
+| Method       | Description                                   |
+| ------------ | --------------------------------------------- |
+| `.fields()`  | Define data fields using the field builder    |
+| `.options()` | Configure timestamps, versioning, scoped mode |
+| `.hooks()`   | Attach lifecycle hooks                        |
+| `.access()`  | Set access control rules                      |
+| `.set()`     | Generic extension point for plugins           |
 
 With `@questpie/admin` installed:
 
@@ -60,7 +60,11 @@ Define global fields using the field builder. Works identically to collection fi
   siteName: f.text(255).required(),
   description: f.textarea().localized(),
   logo: f.upload(),
-  theme: f.select(["light", "dark", "system"]).default("system"),
+  theme: f.select([
+    { value: "light", label: "Light" },
+    { value: "dark", label: "Dark" },
+    { value: "system", label: "System" },
+  ]).default("system"),
   analytics: f.object(),
 }))
 ```
@@ -178,8 +182,8 @@ console.log(settings.siteName);
 
 // Update the global
 await globals.siteSettings.update({
-  siteName: "New Site Name",
-  maintenanceMode: true,
+	siteName: "New Site Name",
+	maintenanceMode: true,
 });
 ```
 
@@ -187,10 +191,7 @@ With localized fields, pass a locale:
 
 ```ts
 const settings = await globals.siteSettings.get({ locale: "sk" });
-await globals.siteSettings.update(
-  { tagline: "Novy slogan" },
-  { locale: "sk" },
-);
+await globals.siteSettings.update({ tagline: "Novy slogan" }, { locale: "sk" });
 ```
 
 ## Client API

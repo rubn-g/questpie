@@ -66,7 +66,7 @@ async function replaceInFile(
 	filePath: string,
 	vars: TemplateVars,
 ): Promise<void> {
-	const content = await readFile(filePath, "utf-8");
+	const content = (await readFile(filePath)).toString("utf-8");
 	const replaced = content.replace(TEMPLATE_VAR_REGEX, (match, key) => {
 		return key in vars ? vars[key as keyof TemplateVars] : match;
 	});

@@ -36,7 +36,7 @@ export async function collectionFind(
 	request: Request,
 	params: Record<string, string>,
 	context?: AdapterContext,
-	config: AdapterConfig = {},
+	config: AdapterConfig<any> = {},
 ): Promise<Response> {
 	const resolved = await resolveContext(app, request, config, context);
 	const crud = app.collections[params.collection as any];
@@ -64,7 +64,7 @@ export async function collectionCount(
 	request: Request,
 	params: Record<string, string>,
 	context?: AdapterContext,
-	config: AdapterConfig = {},
+	config: AdapterConfig<any> = {},
 ): Promise<Response> {
 	const resolved = await resolveContext(app, request, config, context);
 	const crud = app.collections[params.collection as any];
@@ -95,7 +95,7 @@ export async function collectionCreate(
 	request: Request,
 	params: Record<string, string>,
 	context?: AdapterContext,
-	config: AdapterConfig = {},
+	config: AdapterConfig<any> = {},
 	input?: unknown,
 ): Promise<Response> {
 	const resolved = await resolveContext(app, request, config, context);
@@ -133,7 +133,7 @@ export async function collectionFindOne(
 	request: Request,
 	params: Record<string, string>,
 	context?: AdapterContext,
-	config: AdapterConfig = {},
+	config: AdapterConfig<any> = {},
 ): Promise<Response> {
 	const resolved = await resolveContext(app, request, config, context);
 	const crud = app.collections[params.collection as any];
@@ -169,7 +169,7 @@ export async function collectionUpdate(
 	request: Request,
 	params: Record<string, string>,
 	context?: AdapterContext,
-	config: AdapterConfig = {},
+	config: AdapterConfig<any> = {},
 	input?: unknown,
 ): Promise<Response> {
 	const resolved = await resolveContext(app, request, config, context);
@@ -210,7 +210,7 @@ export async function collectionRemove(
 	request: Request,
 	params: Record<string, string>,
 	context?: AdapterContext,
-	config: AdapterConfig = {},
+	config: AdapterConfig<any> = {},
 ): Promise<Response> {
 	const resolved = await resolveContext(app, request, config, context);
 	const crud = app.collections[params.collection as any];
@@ -237,7 +237,7 @@ export async function collectionVersions(
 	request: Request,
 	params: Record<string, string>,
 	context?: AdapterContext,
-	config: AdapterConfig = {},
+	config: AdapterConfig<any> = {},
 ): Promise<Response> {
 	const resolved = await resolveContext(app, request, config, context);
 	const crud = app.collections[params.collection as any];
@@ -258,9 +258,7 @@ export async function collectionVersions(
 		const limit =
 			limitRaw !== null && limitRaw !== "" ? Number(limitRaw) : undefined;
 		const offset =
-			offsetRaw !== null && offsetRaw !== ""
-				? Number(offsetRaw)
-				: undefined;
+			offsetRaw !== null && offsetRaw !== "" ? Number(offsetRaw) : undefined;
 
 		const result = await crud.findVersions(
 			{
@@ -285,7 +283,7 @@ export async function collectionRevert(
 	request: Request,
 	params: Record<string, string>,
 	context?: AdapterContext,
-	config: AdapterConfig = {},
+	config: AdapterConfig<any> = {},
 	input?: unknown,
 ): Promise<Response> {
 	const resolved = await resolveContext(app, request, config, context);
@@ -335,7 +333,7 @@ export async function collectionTransition(
 	request: Request,
 	params: Record<string, string>,
 	context?: AdapterContext,
-	config: AdapterConfig = {},
+	config: AdapterConfig<any> = {},
 	input?: unknown,
 ): Promise<Response> {
 	const resolved = await resolveContext(app, request, config, context);
@@ -391,7 +389,7 @@ export async function collectionRestore(
 	request: Request,
 	params: Record<string, string>,
 	context?: AdapterContext,
-	config: AdapterConfig = {},
+	config: AdapterConfig<any> = {},
 ): Promise<Response> {
 	const resolved = await resolveContext(app, request, config, context);
 	const crud = app.collections[params.collection as any];
@@ -421,7 +419,7 @@ export async function collectionUpdateMany(
 	request: Request,
 	params: Record<string, string>,
 	context?: AdapterContext,
-	config: AdapterConfig = {},
+	config: AdapterConfig<any> = {},
 	input?: unknown,
 ): Promise<Response> {
 	const resolved = await resolveContext(app, request, config, context);
@@ -460,7 +458,7 @@ export async function collectionDeleteMany(
 	request: Request,
 	params: Record<string, string>,
 	context?: AdapterContext,
-	config: AdapterConfig = {},
+	config: AdapterConfig<any> = {},
 	input?: unknown,
 ): Promise<Response> {
 	const resolved = await resolveContext(app, request, config, context);
@@ -499,7 +497,7 @@ export async function collectionAudit(
 	request: Request,
 	params: Record<string, string>,
 	context?: AdapterContext,
-	config: AdapterConfig = {},
+	config: AdapterConfig<any> = {},
 ): Promise<Response> {
 	const resolved = await resolveContext(app, request, config, context);
 	const crud = app.collections[params.collection as any];
@@ -517,19 +515,14 @@ export async function collectionAudit(
 		const url = new URL(request.url);
 		const limitRaw = url.searchParams.get("limit");
 		const offsetRaw = url.searchParams.get("offset");
-		const limit =
-			limitRaw !== null && limitRaw !== "" ? Number(limitRaw) : 50;
+		const limit = limitRaw !== null && limitRaw !== "" ? Number(limitRaw) : 50;
 		const offset =
-			offsetRaw !== null && offsetRaw !== ""
-				? Number(offsetRaw)
-				: undefined;
+			offsetRaw !== null && offsetRaw !== "" ? Number(offsetRaw) : undefined;
 
 		// Audit collection name is configurable; defaults to admin_audit_log for backwards compat
 		const auditCollectionName =
 			(app.config as any).auditCollection ?? "admin_audit_log";
-		const auditCrud = app.collections[
-			auditCollectionName as any
-		] as any;
+		const auditCrud = app.collections[auditCollectionName as any] as any;
 		if (!auditCrud) {
 			return smartResponse([], request);
 		}
@@ -559,7 +552,7 @@ export async function collectionMeta(
 	request: Request,
 	params: Record<string, string>,
 	context?: AdapterContext,
-	config: AdapterConfig = {},
+	config: AdapterConfig<any> = {},
 ): Promise<Response> {
 	const resolved = await resolveContext(app, request, config, context);
 
@@ -588,7 +581,7 @@ export async function collectionSchema(
 	request: Request,
 	params: Record<string, string>,
 	context?: AdapterContext,
-	config: AdapterConfig = {},
+	config: AdapterConfig<any> = {},
 ): Promise<Response> {
 	const resolved = await resolveContext(app, request, config, context);
 

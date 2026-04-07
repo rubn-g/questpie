@@ -52,7 +52,7 @@ my-app/
 ├── src/
 │   ├── questpie/
 │   │   ├── server/
-│   │   │   ├── questpie.config.ts        # Runtime config (DB, plugins, secret)
+│   │   │   ├── questpie.config.ts        # Runtime config (DB, adapters, secrets)
 │   │   │   ├── modules.ts                # Module dependencies
 │   │   │   ├── config/                   # Typed configuration files
 │   │   │   │   ├── auth.ts              # authConfig({...}) — Better Auth options
@@ -79,20 +79,22 @@ my-app/
 
 ### Discovery Rules
 
-Codegen discovers files by **directory name** and **default export**:
+Codegen discovers files by **directory name** and **export pattern**:
 
-| Directory       | Key derivation             | Example                                |
-| --------------- | -------------------------- | -------------------------------------- |
-| `collections/`  | Filename to camelCase      | `blog-posts.ts` -> `blogPosts`         |
-| `globals/`      | Filename to camelCase      | `site-settings.ts` -> `siteSettings`   |
-| `routes/`       | Filename to camelCase/path | `create-booking.ts` -> `createBooking` |
-| `jobs/`         | Filename to camelCase      | `send-email.ts` -> `sendEmail`         |
-| `routes/` (raw) | Filename to path           | `webhook.ts` -> `webhook`              |
-| `services/`     | Filename to camelCase      | `blog.ts` -> `blog`                    |
-| `blocks/`       | Named exports              | `export const hero` -> `hero`          |
-| `emails/`       | Filename to camelCase      | `welcome.ts` -> `welcome`              |
+| Directory       | Key derivation             | Example                                    |
+| --------------- | -------------------------- | ------------------------------------------ |
+| `collections/`  | Factory arg to camelCase   | `collection("blog-posts")` -> `blogPosts`  |
+| `globals/`      | Factory arg to camelCase   | `global("siteSettings")` -> `siteSettings` |
+| `routes/`       | Filename to camelCase/path | `create-booking.ts` -> `createBooking`     |
+| `jobs/`         | Filename to camelCase      | `send-email.ts` -> `sendEmail`             |
+| `routes/` (raw) | Filename to path           | `webhook.ts` -> `webhook`                  |
+| `services/`     | Filename to camelCase      | `blog.ts` -> `blog`                        |
+| `blocks/`       | Factory arg/export name    | `block("hero")` -> `hero`                  |
+| `emails/`       | Filename to camelCase      | `welcome.ts` -> `welcome`                  |
 
 Routes support nested directories for namespacing (`routes/booking/create.ts` -> `client.routes.booking.create()`).
+
+Only hyphens are camelized in factory args; underscores are preserved (`global("site_settings")` -> `site_settings`).
 
 ---
 
@@ -126,18 +128,21 @@ export { default } from "./src/questpie/server/questpie.config";
 
 ```ts
 // src/questpie/server/collections/tasks.ts
-import { collection } from "#questpie";
+import { collection } from "#questpie/factories";
 
 export default collection("tasks").fields(({ f }) => ({
-	title: f.text({ required: true, maxLength: 255 }),
+	title: f.text(255).required(),
 	description: f.textarea(),
-	priority: f.select({
-		options: ["low", "medium", "high"],
-		default: "medium",
-		required: true,
-	}),
+	priority: f
+		.select([
+			{ value: "low", label: "Low" },
+			{ value: "medium", label: "Medium" },
+			{ value: "high", label: "High" },
+		])
+		.default("medium")
+		.required(),
 	dueDate: f.date(),
-	completed: f.boolean({ default: false, required: true }),
+	completed: f.boolean().default(false).required(),
 }));
 ```
 
@@ -150,7 +155,7 @@ This creates:
 
 ### Built-in Field Types
 
-`text`, `number`, `boolean`, `date`, `dateTime`, `select`, `multiSelect`, `relation`, `upload`, `richText`, `json`, `slug`, `email`, `url`, `password`, `color`, `textarea`.
+Core: `text`, `number`, `boolean`, `date`, `datetime`, `time`, `select`, `relation`, `upload`, `object`, `json`, `email`, `url`, `textarea`. Admin module fields: `richText`, `blocks`.
 
 ---
 
@@ -191,7 +196,7 @@ This scans your file convention directories and generates:
 - `src/questpie/server/.generated/module.ts` — merged module with all discovered entities
 - Module augmentation for `AppContext` (typed `collections`, `queue`, `email` in every handler)
 
-The `#questpie` import in collection files resolves to the generated app instance.
+Use `#questpie/factories` in collection, global, route, and block files; use `#questpie` only for the generated app/runtime exports.
 
 **Run codegen again every time you add, rename, or remove a file in a convention directory.**
 
@@ -251,10 +256,11 @@ export const Route = createAPIFileRoute("/api/$")({
 ### Hono
 
 ```ts
-import { createFetchHandler } from "questpie/adapters/hono";
+import { questpieHono } from "@questpie/hono/server";
+import { Hono } from "hono";
 import { app } from "#questpie";
 
-export default createFetchHandler(app, { basePath: "/api" });
+export default new Hono().route("/api", questpieHono(app));
 ```
 
 ### Available Adapters
@@ -263,7 +269,7 @@ export default createFetchHandler(app, { basePath: "/api" });
 | -------------- | ------------------ | --------------------- |
 | Hono           | `@questpie/hono`   | General purpose, fast |
 | Elysia         | `@questpie/elysia` | Bun-native            |
-| Next.js        | `@questpie/nextjs` | Next.js API routes    |
+| Next.js        | `@questpie/next`   | Next.js API routes    |
 | TanStack Start | (built-in)         | Generic fetch handler |
 
 ---
@@ -274,25 +280,6 @@ export default createFetchHandler(app, { basePath: "/api" });
 
 ```bash
 bun add @questpie/admin
-```
-
-### Register the plugin
-
-```ts
-// src/questpie/server/questpie.config.ts
-import { adminPlugin } from "@questpie/admin/plugin";
-import { runtimeConfig } from "questpie";
-
-export default runtimeConfig({
-	plugins: [adminPlugin()],
-	app: {
-		url: process.env.APP_URL || "http://localhost:3000",
-	},
-	db: {
-		url: process.env.DATABASE_URL,
-	},
-	secret: process.env.APP_SECRET,
-});
 ```
 
 ### Register the admin module
@@ -310,7 +297,7 @@ export default [adminModule] as const;
 bunx questpie generate
 ```
 
-This picks up admin conventions (sidebar, dashboard, branding) and generates `admin/.generated/client.ts`.
+This picks up admin conventions (`config/admin.ts`, blocks, views, components) and generates `admin/.generated/client.ts`.
 
 Navigate to `/admin` to see the admin panel with your collections.
 
@@ -425,7 +412,7 @@ export default route()
 		}),
 	)
 	.handler(async ({ input, collections }) => {
-		return await collections.tasks.create({ data: input });
+		return await collections.tasks.create(input);
 	});
 ```
 
@@ -468,12 +455,15 @@ export default runtimeConfig({
 
 ```ts
 // src/questpie/server/collections/posts.ts
-import { collection } from "#questpie";
+import { collection } from "#questpie/factories";
 
 export default collection("posts").fields(({ f }) => ({
-	title: f.text({ required: true }),
+	title: f.text().required(),
 	body: f.richText(),
-	status: f.select({ options: ["draft", "published"] }),
+	status: f.select([
+		{ value: "draft", label: "Draft" },
+		{ value: "published", label: "Published" },
+	]),
 }));
 ```
 
@@ -505,40 +495,54 @@ bun dev
 
 ## 12. Live Preview (Optional)
 
-Add split-screen live preview to any collection with `.preview()`. The default same-tab flow uses a direct `postMessage` patch bus for instant feedback — no save-driven reloads.
+Add split-screen live preview to any collection with `.preview()`. The current same-tab flow refreshes the preview iframe after save/autosave and supports field focus over `postMessage`.
 
 ### Add Preview to a Collection
 
 ```ts
 // src/questpie/server/collections/pages.ts
-import { collection } from "#questpie";
+import { collection } from "#questpie/factories";
 
 export default collection("pages")
 	.fields(({ f }) => ({
-		title: f.text({ required: true }),
-		slug: f.text({ required: true }),
+		title: f.text().required(),
+		slug: f.text().required(),
 		content: f.blocks(),
 	}))
 	.preview({
+		enabled: true,
+		position: "right",
+		defaultWidth: 50,
 		url: ({ record }) => `/${record.slug}?preview=true`,
-		watch: ["title", "slug", "content"],
-		strategy: "hybrid",
 	});
 ```
 
 ### Add Preview Support to the Frontend Page
 
 ```tsx
-import { useQuestpiePreview, PreviewRoot, PreviewField } from "@questpie/admin/client";
+import {
+	PreviewField,
+	PreviewProvider,
+	useCollectionPreview,
+} from "@questpie/admin/client";
 
 function PageView({ initialData }) {
 	const router = useRouter();
-	const { data } = useQuestpiePreview({ initialData, reconcile: () => router.invalidate() });
+	const preview = useCollectionPreview({
+		initialData,
+		onRefresh: () => router.invalidate(),
+	});
 
 	return (
-		<PreviewRoot>
-			<h1><PreviewField path="title">{data.title}</PreviewField></h1>
-		</PreviewRoot>
+		<PreviewProvider
+			isPreviewMode={preview.isPreviewMode}
+			focusedField={preview.focusedField}
+			onFieldClick={preview.handleFieldClick}
+		>
+			<PreviewField field="title" as="h1">
+				{preview.data.title}
+			</PreviewField>
+		</PreviewProvider>
 	);
 }
 ```

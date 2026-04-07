@@ -8,21 +8,18 @@ The Next.js adapter integrates QUESTPIE with Next.js API routes.
 ## Install
 
 ```bash
-bun add @questpie/nextjs
+bun add @questpie/next
 ```
 
 ## Setup (App Router)
 
 ```ts title="app/api/[...slug]/route.ts"
-import { createFetchHandler } from "@questpie/next";
+import { questpieNextRouteHandlers } from "@questpie/next";
 import { app } from "#questpie";
 
-const handler = createFetchHandler(app, { basePath: "/api" });
-
-export const GET = handler;
-export const POST = handler;
-export const PATCH = handler;
-export const DELETE = handler;
+export const { GET, POST, PATCH, DELETE } = questpieNextRouteHandlers(app, {
+	basePath: "/api",
+});
 ```
 
 ## TanStack Start

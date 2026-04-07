@@ -93,7 +93,7 @@ export async function searchSearch(
 	request: Request,
 	_params: Record<string, string>,
 	context?: AdapterContext,
-	config: AdapterConfig = {},
+	config: AdapterConfig<any> = {},
 ): Promise<Response> {
 	const errorResponse = (
 		error: unknown,
@@ -132,8 +132,7 @@ export async function searchSearch(
 		const accessibleCollections: string[] = [];
 
 		for (const collectionName of requestedCollections) {
-			const collection =
-				allCollections[collectionName as keyof typeof allCollections];
+			const collection = allCollections[collectionName as any];
 			if (!collection) continue;
 
 			// Check read access for this collection (falls back to defaultAccess)
@@ -226,8 +225,7 @@ export async function searchSearch(
 		};
 
 		for (const [collectionName, ids] of idsByCollection) {
-			const collection =
-				allCollections[collectionName as keyof typeof allCollections];
+			const collection = allCollections[collectionName as any];
 			if (!collection) continue;
 
 			// Generate CRUD for this collection
@@ -296,7 +294,7 @@ export async function searchReindex(
 	request: Request,
 	params: Record<string, string>,
 	context?: AdapterContext,
-	config: AdapterConfig = {},
+	config: AdapterConfig<any> = {},
 ): Promise<Response> {
 	const errorResponse = (
 		error: unknown,

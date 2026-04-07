@@ -17,12 +17,11 @@ examples/tanstack-barbershop/
 │   │   ├── server/
 │   │   │   ├── questpie.config.ts            # Runtime config
 │   │   │   ├── modules.ts                    # adminModule + auditModule
-│   │   │   ├── auth.ts                       # Better Auth config
-│   │   │   ├── locale.ts                     # en + sk locales
-│   │   │   ├── admin-locale.ts               # Admin UI locales
-│   │   │   ├── sidebar.ts                    # 6 sidebar sections
-│   │   │   ├── dashboard.ts                  # Stats, charts, timeline
-│   │   │   ├── branding.ts                   # "Barbershop Control"
+│   │   │   ├── config/
+│   │   │   │   ├── auth.ts                   # Better Auth config
+│   │   │   │   ├── app.ts                    # App-level config
+│   │   │   │   ├── admin.ts                  # Sidebar, dashboard, branding, locale
+│   │   │   │   └── openapi.ts                # OpenAPI config
 │   │   │   ├── collections/
 │   │   │   │   ├── barbers.ts                # Complex: working hours, social links, M2M
 │   │   │   │   ├── services.ts               # Localized, relations
@@ -68,11 +67,9 @@ examples/tanstack-barbershop/
 ### Runtime Config
 
 ```ts title="questpie.config.ts"
-import { adminPlugin } from "@questpie/admin/plugin";
 import { pgBossAdapter, runtimeConfig, SmtpAdapter } from "questpie";
 
 export default runtimeConfig({
-	plugins: [adminPlugin()],
 	app: { url: process.env.APP_URL || "http://localhost:3000" },
 	db: { url: process.env.DATABASE_URL || "postgres://localhost/barbershop" },
 	storage: { basePath: "/api" },
@@ -214,8 +211,8 @@ function BookingWizard() {
 | Background jobs                          | `jobs/send-appointment-confirmation.ts`        |
 | Email templates                          | `emails/appointment-confirmation.ts`           |
 | Server routes                            | `routes/create-booking.ts`                     |
-| Admin dashboard                          | `dashboard.ts` — stats, charts, timeline       |
-| Admin sidebar                            | `sidebar.ts` — 6 sections, mixed items         |
+| Admin dashboard                          | `config/admin.ts` — stats, charts, timeline    |
+| Admin sidebar                            | `config/admin.ts` — 6 sections, mixed items    |
 | Content blocks                           | `blocks/hero.ts`, `pages.ts` with `f.blocks()` |
 | Conditional visibility                   | `appointments.ts` form → `hidden`              |
 | Computed form fields                     | `barbers.ts` form → slug from name             |

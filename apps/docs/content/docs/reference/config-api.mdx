@@ -5,63 +5,65 @@ description: runtimeConfig() — all configuration options for your QUESTPIE app
 
 ## `runtimeConfig(options)`
 
-The central configuration for your QUESTPIE application. Defines database connection, infrastructure adapters, plugins, and CLI settings.
+The central configuration for your QUESTPIE application. Defines database connection, infrastructure adapters, custom codegen plugins, and CLI settings.
 
 ```ts title="questpie.config.ts"
-import { runtimeConfig } from "questpie";
-import { adminPlugin } from "@questpie/admin/plugin";
-import { pgBossAdapter } from "questpie/queue-pg-boss";
-import { redisStreamsAdapter } from "questpie/realtime-redis";
+import {
+	ConsoleAdapter,
+	pgBossAdapter,
+	redisStreamsAdapter,
+	runtimeConfig,
+	SmtpAdapter,
+} from "questpie";
+import { S3Driver } from "flydrive/drivers/s3";
 
 export default runtimeConfig({
-  // Required
-  app: { url: process.env.APP_URL ?? "http://localhost:3000" },
-  db: { url: process.env.DATABASE_URL! },
-  secret: process.env.AUTH_SECRET!,
+	// Required
+	app: { url: process.env.APP_URL ?? "http://localhost:3000" },
+	db: { url: process.env.DATABASE_URL! },
+	secret: process.env.AUTH_SECRET!,
 
-  // Plugins
-  plugins: [adminPlugin()],
-
-  // Infrastructure
-  storage: {
-    driver: "s3",
-    s3: {
-      bucket: process.env.S3_BUCKET!,
-      region: process.env.S3_REGION!,
-      accessKeyId: process.env.S3_ACCESS_KEY!,
-      secretAccessKey: process.env.S3_SECRET_KEY!,
-    },
-  },
-  email: {
-    adapter: smtpAdapter({
-      host: process.env.SMTP_HOST!,
-      port: Number(process.env.SMTP_PORT),
-      auth: {
-        user: process.env.SMTP_USER!,
-        pass: process.env.SMTP_PASS!,
-      },
-    }),
-  },
-  queue: {
-    adapter: pgBossAdapter({ connectionString: process.env.DATABASE_URL! }),
-  },
-  realtime: {
-    adapter: redisStreamsAdapter({ url: process.env.REDIS_URL! }),
-  },
-  kv: {
-    adapter: "redis",
-    url: process.env.REDIS_URL!,
-  },
-  translations: {
-    messages: {
-      en: { "app.name": "My App" },
-      sk: { "app.name": "Moja Aplikacia" },
-    },
-  },
-  cli: {
-    migrations: { directory: "./src/migrations" },
-    seeds: { directory: "./src/seeds" },
-  },
+	// Infrastructure
+	storage: {
+		driver: new S3Driver({
+			bucket: process.env.S3_BUCKET!,
+			region: process.env.S3_REGION!,
+			accessKeyId: process.env.S3_ACCESS_KEY!,
+			secretAccessKey: process.env.S3_SECRET_KEY!,
+		}),
+	},
+	email: {
+		adapter: new SmtpAdapter({
+			transport: {
+				host: process.env.SMTP_HOST!,
+				port: Number(process.env.SMTP_PORT),
+				auth: {
+					user: process.env.SMTP_USER!,
+					pass: process.env.SMTP_PASS!,
+				},
+			},
+		}),
+	},
+	queue: {
+		adapter: pgBossAdapter({ connectionString: process.env.DATABASE_URL! }),
+	},
+	realtime: {
+		adapter: redisStreamsAdapter({ client: redis }),
+	},
+	kv: {
+		adapter: myKvAdapter,
+		defaultTtl: 3600,
+	},
+	translations: {
+		messages: {
+			en: { "app.name": "My App" },
+			sk: { "app.name": "Moja Aplikacia" },
+		},
+	},
+	cli: {
+		migrations: { directory: "./src/migrations" },
+		seeds: { directory: "./src/seeds" },
+	},
 });
 ```
 
@@ -71,18 +73,18 @@ export default runtimeConfig({
 
 ### Required
 
-| Option    | Type     | Description                              |
-| --------- | -------- | ---------------------------------------- |
-| `app.url` | `string` | Public-facing application URL            |
-| `db.url`  | `string` | PostgreSQL connection string             |
-| `secret`  | `string` | Secret key for sessions and auth tokens  |
+| Option    | Type     | Description                             |
+| --------- | -------- | --------------------------------------- |
+| `app.url` | `string` | Public-facing application URL           |
+| `db.url`  | `string` | PostgreSQL connection string            |
+| `secret`  | `string` | Secret key for sessions and auth tokens |
 
 ### `plugins`
 
-Array of codegen plugins. Plugins define file conventions, categories, and extensions.
+Array of custom codegen plugins. Package modules such as `adminModule` and `openApiModule` contribute their plugins automatically through `modules.ts`.
 
 ```ts
-plugins: [adminPlugin()],
+plugins: [myProjectPlugin()],
 ```
 
 See [Plugin API](/docs/reference/plugin-api) for creating custom plugins.
@@ -94,20 +96,19 @@ File storage configuration using FlyDrive.
 ```ts
 // Local filesystem (default)
 storage: {
-  driver: "local",
-  basePath: "./uploads",
+  location: "./uploads",
+  basePath: "/api",
 }
 
 // Amazon S3 / S3-compatible
 storage: {
-  driver: "s3",
-  s3: {
+  driver: new S3Driver({
     bucket: "my-bucket",
     region: "us-east-1",
     accessKeyId: "...",
     secretAccessKey: "...",
     endpoint: "https://...",  // Optional, for S3-compatible providers
-  },
+  }),
 }
 ```
 
@@ -118,16 +119,18 @@ Email adapter configuration.
 ```ts
 // SMTP
 email: {
-  adapter: smtpAdapter({
-    host: "smtp.example.com",
-    port: 587,
-    auth: { user: "...", pass: "..." },
+  adapter: new SmtpAdapter({
+    transport: {
+      host: "smtp.example.com",
+      port: 587,
+      auth: { user: "...", pass: "..." },
+    },
   }),
 }
 
 // Console (development — logs to stdout)
 email: {
-  adapter: consoleAdapter(),
+  adapter: new ConsoleAdapter(),
 }
 ```
 
@@ -150,7 +153,7 @@ Realtime event broadcasting adapter.
 ```ts
 // Redis Streams (recommended for production)
 realtime: {
-  adapter: redisStreamsAdapter({ url: process.env.REDIS_URL! }),
+  adapter: redisStreamsAdapter({ client: redis }),
 }
 
 // PostgreSQL NOTIFY (simpler, single-instance)
@@ -164,15 +167,15 @@ realtime: {
 Key-value store for caching and session data.
 
 ```ts
-// Redis (recommended for production)
+// Custom adapter
 kv: {
-  adapter: "redis",
-  url: process.env.REDIS_URL!,
+  adapter: myKvAdapter,
+  defaultTtl: 3600,
 }
 
-// In-memory (development only)
+// In-memory default
 kv: {
-  adapter: "memory",
+  defaultTtl: 3600,
 }
 ```
 

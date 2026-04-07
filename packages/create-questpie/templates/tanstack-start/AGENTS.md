@@ -132,7 +132,7 @@ Keep the entire builder chain in one file — single source of truth per entity:
 
 ```ts
 // src/questpie/server/collections/posts.ts
-import { collection } from "questpie";
+import { collection } from "#questpie/factories";
 
 export const posts = collection("posts")
 	.fields(({ f }) => ({
@@ -154,10 +154,13 @@ export const posts = collection("posts")
 		content: f.richText().label("Content"),
 		published: f.boolean().label("Published").default(false),
 		category: f
-			.select()
+			.select([
+				{ value: "news", label: "News" },
+				{ value: "blog", label: "Blog" },
+				{ value: "tutorial", label: "Tutorial" },
+			])
 			.label("Category")
-			.options(["news", "blog", "tutorial"]),
-		author: f.relation().label("Author").to("users"),
+		author: f.relation("users").label("Author"),
 		image: f.upload().label("Cover Image"),
 	}))
 	.title(({ f }) => f.title)
@@ -209,9 +212,9 @@ Collections are auto-discovered by codegen — no manual registration needed.
 
 ```ts
 // src/questpie/server/globals/site-settings.ts
-import { global } from "questpie";
+import { global } from "#questpie/factories";
 
-export const siteSettings = global("site_settings")
+export const siteSettings = global("siteSettings")
 	.fields(({ f }) => ({
 		siteName: f.text(255).label("Site Name").required(),
 		description: f.textarea().label("Description"),
@@ -390,10 +393,9 @@ All reactive handlers run **server-side** with access to `ctx.db`, `ctx.user`, `
 
 ```ts
 fields: ({ f }) => ({
-	country: f.relation().to("countries").label("Country"),
+	country: f.relation("countries").label("Country"),
 	city: f
-		.relation()
-		.to("cities")
+		.relation("cities")
 		.label("City")
 		.admin({
 			options: {
@@ -409,9 +411,12 @@ fields: ({ f }) => ({
 			},
 		}),
 	status: f
-		.select()
+		.select([
+			{ value: "draft", label: "Draft" },
+			{ value: "published", label: "Published" },
+			{ value: "archived", label: "Archived" },
+		])
 		.label("Status")
-		.options(["draft", "published", "archived"]),
 	publishedAt: f
 		.datetime()
 		.label("Published At")
@@ -458,7 +463,7 @@ import { app } from "#questpie";
 const handler = createFetchHandler(app, { basePath: "/api" });
 ```
 
-OpenAPI is registered as a module in `src/questpie/server/modules.ts` via `openApiModule()` — no wrapper needed in the route handler.
+OpenAPI is registered as a module in `src/questpie/server/modules.ts` via `openApiModule` — no wrapper needed in the route handler.
 
 ### Icons
 
@@ -525,15 +530,14 @@ Always use these exact versions — check `package.json` before upgrading:
 
 ## Live Preview
 
-QUESTPIE supports live preview with a split-screen editor. The preview architecture uses a direct `postMessage` patch bus for instant feedback — NOT save-driven iframe reloads.
+QUESTPIE supports live preview with a split-screen editor. The current implementation refreshes the preview iframe after save/autosave and uses `postMessage` for field/block focus sync.
 
 ### Key Principles
 
-- **Same-tab preview** = direct patch bus via `postMessage` (editor iframe and preview share the same browser tab)
-- **Save/autosave** = persistence only, NOT the live transport mechanism
-- **Realtime** = extension for detached/shared preview only (e.g., another browser tab or collaborator)
-- **Hybrid model**: local draft patches give instant response; server reconciles derived data (slugs, relations, computed fields)
-- **Preview wrappers must prevent accidental navigation** inside the iframe
+- **Same-tab preview** = iframe refresh after save/autosave plus `postMessage` focus events
+- **Frontend hook** = `useCollectionPreview({ initialData, onRefresh })`
+- **Field focus** = `PreviewProvider` + `PreviewField`
+- **Block field paths** = `BlockScopeProvider` + `PreviewField`
 
 ### Server Config
 
@@ -541,7 +545,7 @@ Add `.preview()` to a collection to enable the split-screen editor:
 
 ```ts
 // src/questpie/server/collections/pages.ts
-import { collection } from "questpie";
+import { collection } from "#questpie/factories";
 
 export const pages = collection("pages")
 	.fields(({ f }) => ({
@@ -550,62 +554,63 @@ export const pages = collection("pages")
 		content: f.blocks().label("Content"),
 	}))
 	.preview({
+		enabled: true,
+		position: "right",
+		defaultWidth: 50,
 		url: ({ record }) => {
 			const slug = record.slug as string;
 			return slug === "home" ? "/?preview=true" : `/${slug}?preview=true`;
 		},
-		watch: ["title", "slug", "content"],
-		strategy: "hybrid", // "instant" | "server" | "hybrid"
 	});
 ```
 
-| Strategy    | Behavior                                                                 |
-| ----------- | ------------------------------------------------------------------------ |
-| `"instant"` | Patches applied locally only — no server round-trip                      |
-| `"server"`  | Every change round-trips through the server before preview updates       |
-| `"hybrid"`  | Local patches for instant response + server reconcile for derived fields |
-
 ### Frontend Integration
 
-Use `useQuestpiePreview` in your frontend page components to receive live patches:
+Use `useCollectionPreview` in your frontend page components:
 
 ```tsx
 // src/routes/[slug].tsx
-import { useQuestpiePreview } from "@questpie/admin/client";
+import {
+	PreviewField,
+	PreviewProvider,
+	useCollectionPreview,
+} from "@questpie/admin/client";
 
 function PageComponent({ initialData }) {
 	const router = useRouter();
-	const { data } = useQuestpiePreview({
+	const preview = useCollectionPreview({
 		initialData,
-		reconcile: () => router.invalidate(), // called on COMMIT — refetch server data
+		onRefresh: () => router.invalidate(),
 	});
 
 	return (
-		<PreviewRoot>
-			<h1>
-				<PreviewField path="title">{data.title}</PreviewField>
-			</h1>
-			<PreviewBlock id="content">{/* block renderers */}</PreviewBlock>
-		</PreviewRoot>
+		<PreviewProvider
+			isPreviewMode={preview.isPreviewMode}
+			focusedField={preview.focusedField}
+			onFieldClick={preview.handleFieldClick}
+		>
+			<PreviewField field="title" as="h1">
+				{preview.data.title}
+			</PreviewField>
+		</PreviewProvider>
 	);
 }
 ```
 
 #### Protocol
 
-Each `postMessage` carries a structured envelope:
+The implemented preview messages are simple `postMessage` events:
 
-| Field             | Description                            |
-| ----------------- | -------------------------------------- |
-| `sessionId`       | Unique preview session identifier      |
-| `seq`             | Monotonic sequence number              |
-| `timestamp`       | `Date.now()` at send time (number)     |
-| `protocolVersion` | Protocol version for forward compat    |
-| `patches`         | Array of field path + value patch ops  |
+| Field             | Description                             |
+| ----------------- | --------------------------------------- |
+| `PREVIEW_READY`   | Preview iframe tells admin it is ready  |
+| `PREVIEW_REFRESH` | Admin asks iframe to refresh data       |
+| `FIELD_CLICKED`   | Preview asks admin to focus a field     |
+| `BLOCK_CLICKED`   | Preview asks admin to select a block    |
+| `FOCUS_FIELD`     | Admin asks preview to highlight a field |
+| `SELECT_BLOCK`    | Admin asks preview to highlight a block |
 
 ### Anti-Patterns (Preview)
 
-- **Using `router.invalidate()` as the core live-preview mechanism** — this causes full data refetches and visible flicker. Use the patch bus instead.
-- **Tying preview freshness to save/autosave** — save is for persistence. Preview updates flow through `postMessage` patches.
-- **Using realtime transport for same-tab preview** — realtime (SSE/WebSocket) is for detached or shared preview sessions, not the default same-tab flow.
-- **Allowing navigation inside the preview iframe** — preview wrappers must intercept link clicks and route changes to prevent the iframe from navigating away.
+- **Using V2-only APIs in this template** — `useQuestpiePreview`, `PreviewRoot`, and `PreviewBlock` are not exported yet.
+- **Importing `app` inside previewed collection/block files** — use handler `ctx` values to avoid generated-app cycles.

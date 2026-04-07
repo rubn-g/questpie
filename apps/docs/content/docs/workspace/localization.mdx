@@ -8,7 +8,7 @@ When your collections have localized fields, the admin panel shows a **locale sw
 ## How It Works
 
 1. Mark fields as `.localized()` in your collection definition
-2. Configure content locales in your runtime config
+2. Configure content locales in `config/app.ts`
 3. The admin shows a locale switcher in the form toolbar
 4. Editors switch locales to edit each translation
 
@@ -34,15 +34,17 @@ The switcher adapts based on the number of locales:
 
 By default, flags are resolved from locale codes (e.g. `en` → US flag, `sk` → SK flag). Override with `flagCountryCode`:
 
-```ts title="questpie.config.ts"
-export default runtimeConfig({
-	localization: {
-		defaultLocale: "en",
+```ts title="config/app.ts"
+import { appConfig } from "questpie";
+
+export default appConfig({
+	locale: {
 		locales: [
 			{ code: "en", label: { en: "English" }, flagCountryCode: "gb" },
 			{ code: "sk", label: { en: "Slovak" } },
 			{ code: "cs", label: { en: "Czech" }, flagCountryCode: "cz" },
 		],
+		defaultLocale: "en",
 	},
 });
 ```

@@ -365,9 +365,9 @@ Types flow end-to-end from schema definition to client SDK:
 
 ```text
 Field Definition                    Codegen                        Client SDK
-f.text({ required: true })    ->   AppConfig type          ->   q.collections.posts.find()
+f.text().required()           ->   AppConfig type          ->   q.collections.posts.find()
 f.number()                    ->   with field types        ->   where: { price: { gte: 1000 } }
-f.select({ options: [...] })  ->   and operators           ->   data.status === "published"
+f.select([...])               ->   and operators           ->   data.status === "published"
 ```
 
 The generated `AppConfig` type includes collections, globals, and routes:
@@ -433,7 +433,7 @@ export default runtimeConfig({
 
 Channel patterns: `collections:<name>:*` (all changes), `collections:<name>:<id>` (specific record), `globals:<name>`.
 
-For multi-instance deployments, use `redisStreamsAdapter({ url: process.env.REDIS_URL })`.
+For multi-instance deployments, create a Redis client and use `redisStreamsAdapter({ client })`.
 
 ## Framework Adapters
 
@@ -450,11 +450,11 @@ export const Route = createAPIFileRoute("/api/$")({
 });
 ```
 
-**Next.js**: `import { createFetchHandler } from "questpie/adapters/nextjs"` -- export `GET`, `POST`, `PATCH`, `DELETE` from `app/api/[...slug]/route.ts`.
+**Next.js**: `import { questpieNextRouteHandlers } from "@questpie/next"` -- export `GET`, `POST`, `PATCH`, `DELETE` from `app/api/[...slug]/route.ts`.
 
-**Hono**: `import { createFetchHandler } from "questpie/adapters/hono"` -- `server.all("/api/*", (c) => handler(c.req.raw))`.
+**Hono**: `import { questpieHono } from "@questpie/hono/server"` -- `server.route("/api", questpieHono(app))`.
 
-**Elysia**: `import { createFetchHandler } from "questpie/adapters/elysia"` -- `.all("/api/*", ({ request }) => handler(request))`.
+**Elysia**: `import { questpieElysia } from "@questpie/elysia/server"` -- `.use(questpieElysia(app, { basePath: "/api" }))`.
 
 ## Common Mistakes
 

@@ -1,19 +1,19 @@
 # Field Types Reference
 
-Complete configuration options for every built-in QUESTPIE field type. All fields are accessed through the `f` builder inside `.fields(({ f }) => ({...}))`.
+Complete configuration patterns for built-in QUESTPIE field types. Fields use fluent builders: pass only constructor arguments to the field factory, then chain `.required()`, `.default()`, `.label()`, `.localized()`, `.inputOptional()`, `.admin()`, and related methods.
 
-## Common Options (All Fields)
+## Common Fluent Methods (All Fields)
 
-| Option        | Type                               | Default | Description                                                           |
-| ------------- | ---------------------------------- | ------- | --------------------------------------------------------------------- |
-| `required`    | `boolean`                          | `false` | Field must have a value                                               |
-| `default`     | `T`                                | --      | Default value                                                         |
-| `label`       | `string \| Record<string, string>` | --      | Display label (supports i18n)                                         |
-| `description` | `string \| Record<string, string>` | --      | Help text                                                             |
-| `localized`   | `boolean`                          | `false` | Per-locale values                                                     |
-| `input`       | `"optional"`                       | --      | Optional in API input but required in DB (e.g., auto-generated slugs) |
-| `meta`        | `object`                           | --      | Admin UI rendering hints                                              |
-| `virtual`     | `SQL`                              | --      | SQL expression for computed read-only field                           |
+| Method               | Description                                 |
+| -------------------- | ------------------------------------------- |
+| `.required()`        | Field must have a value                     |
+| `.default(value)`    | Default value                               |
+| `.label(text)`       | Display label (supports i18n)               |
+| `.description(text)` | Help text                                   |
+| `.localized()`       | Per-locale values                           |
+| `.inputOptional()`   | Optional in API input but required in DB    |
+| `.admin(config)`     | Admin UI rendering hints                    |
+| `.virtual(sql)`      | SQL expression for computed read-only field |
 
 ## `f.text(options?)`
 
@@ -31,8 +31,8 @@ Short strings, titles, slugs. DB type: `varchar` or `text`.
 | `virtual`     | `SQL`            | --      | SQL computed value                        |
 
 ```ts
-name: f.text({ required: true, maxLength: 255 }),
-slug: f.text({ required: true, maxLength: 255, input: "optional" }),
+name: f.text(255).required(),
+slug: f.text(255).required().inputOptional(),
 ```
 
 ## `f.textarea(options?)`
@@ -40,8 +40,8 @@ slug: f.text({ required: true, maxLength: 255, input: "optional" }),
 Long text, descriptions. DB type: `text`. Same options as `f.text()`. Renders as textarea in admin.
 
 ```ts
-bio: f.textarea({ localized: true }),
-description: f.textarea({ label: { en: "Description", sk: "Popis" } }),
+bio: f.textarea().localized(),
+description: f.textarea().label({ en: "Description", sk: "Popis" }),
 ```
 
 ## `f.richText(options?)`
@@ -49,8 +49,8 @@ description: f.textarea({ label: { en: "Description", sk: "Popis" } }),
 Rich formatted content stored as HTML. DB type: `text`. Same options as `f.text()`. Renders as rich text editor in admin.
 
 ```ts
-content: f.richText({ localized: true }),
-body: f.richText({ required: true }),
+content: f.richText().localized(),
+body: f.richText().required(),
 ```
 
 ## `f.email(options?)`
@@ -58,8 +58,8 @@ body: f.richText({ required: true }),
 Email addresses with format validation. Same options as `f.text()`.
 
 ```ts
-email: f.email({ required: true }),
-contactEmail: f.email({ label: "Contact Email" }),
+email: f.email().required(),
+contactEmail: f.email().label("Contact Email"),
 ```
 
 ## `f.url(options?)`
@@ -68,7 +68,7 @@ URLs with format validation. Same options as `f.text()`.
 
 ```ts
 website: f.url(),
-profileUrl: f.url({ label: "Profile URL" }),
+profileUrl: f.url().label("Profile URL"),
 ```
 
 ## `f.number(options?)`
@@ -85,9 +85,9 @@ Numeric values. DB type: `integer` or `numeric`.
 | `description` | `string \| i18n` | --      | Help text     |
 
 ```ts
-price: f.number({ required: true, min: 0 }),
-duration: f.number({ required: true, label: "Duration (minutes)" }),
-sortOrder: f.number({ default: 0 }),
+price: f.number().required().min(0),
+duration: f.number().required().label("Duration (minutes)"),
+sortOrder: f.number().default(0),
 ```
 
 ## `f.boolean(options?)`
@@ -102,17 +102,14 @@ Boolean flags. DB type: `boolean`.
 | `description` | `string \| i18n` | --      | Help text     |
 
 ```ts
-isActive: f.boolean({ default: true, required: true }),
-isFeatured: f.boolean({ default: false }),
+isActive: f.boolean().default(true).required(),
+isFeatured: f.boolean().default(false),
 ```
 
 Admin meta hint to render as switch:
 
 ```ts
-isActive: f.boolean({
-  default: true,
-  meta: { admin: { displayAs: "switch" } },
-}),
+isActive: f.boolean().default(true).admin({ displayAs: "switch" }),
 ```
 
 ## `f.date(options?)`
@@ -127,7 +124,7 @@ Calendar dates. DB type: `date`.
 
 ```ts
 publishedAt: f.date(),
-birthDate: f.date({ required: true }),
+birthDate: f.date().required(),
 ```
 
 ## `f.time(options?)`
@@ -141,8 +138,8 @@ Time of day. DB type: `time`.
 | `label`    | `string \| i18n` | --      | Display label |
 
 ```ts
-startTime: f.time({ label: "Start" }),
-endTime: f.time({ label: "End" }),
+startTime: f.time().label("Start"),
+endTime: f.time().label("End"),
 ```
 
 ## `f.datetime(options?)`
@@ -156,7 +153,7 @@ Date + time. DB type: `timestamp`.
 | `label`    | `string \| i18n` | --      | Display label |
 
 ```ts
-scheduledAt: f.datetime({ required: true }),
+scheduledAt: f.datetime().required(),
 expiresAt: f.datetime(),
 ```
 
@@ -174,25 +171,21 @@ Single value from a predefined list. DB type: `varchar`.
 Simple string options:
 
 ```ts
-status: f.select({
-  options: ["draft", "published", "archived"],
-  default: "draft",
-  required: true,
-}),
+status: f.select([
+  { value: "draft", label: "Draft" },
+  { value: "published", label: "Published" },
+  { value: "archived", label: "Archived" },
+]).default("draft").required(),
 ```
 
 Options with i18n labels:
 
 ```ts
-status: f.select({
-  options: [
+status: f.select([
     { value: "pending", label: { en: "Pending", sk: "Cakajuce" } },
     { value: "confirmed", label: { en: "Confirmed", sk: "Potvrdene" } },
     { value: "completed", label: { en: "Completed", sk: "Dokoncene" } },
-  ],
-  required: true,
-  default: "pending",
-}),
+]).required().default("pending"),
 ```
 
 ## `f.relation(options)`
@@ -213,16 +206,14 @@ Reference to another collection.
 Belongs-to (single):
 
 ```ts
-author: f.relation({ to: "users", required: true }),
-category: f.relation({ to: "categories", onDelete: "set null" }),
+author: f.relation("users").required(),
+category: f.relation("categories").onDelete("set null"),
 ```
 
 Many-to-many (through junction):
 
 ```ts
-tags: f.relation({
-  to: "tags",
-  hasMany: true,
+tags: f.relation("tags").manyToMany({
   through: "postTags",
   sourceField: "post",
   targetField: "tag",
@@ -232,8 +223,7 @@ tags: f.relation({
 Dynamic options (admin):
 
 ```ts
-city: f.relation({
-  to: "cities",
+city: f.relation("cities").admin({
   options: {
     handler: async ({ data, search, ctx }) => {
       const cities = await ctx.db.query.cities.findMany({
@@ -277,11 +267,9 @@ Plain object form:
 
 ```ts
 address: f.object({
-  fields: {
-    street: f.text({ required: true }),
-    city: f.text({ required: true }),
-    zip: f.text(),
-  },
+  street: f.text().required(),
+  city: f.text().required(),
+  zip: f.text(),
 }),
 ```
 
@@ -290,23 +278,21 @@ Function form (for helpers/reuse):
 ```ts
 .fields(({ f }) => {
   const daySchedule = () => ({
-    isOpen: f.boolean({ default: true }),
+    isOpen: f.boolean().default(true),
     start: f.time(),
     end: f.time(),
   });
 
   return {
     workingHours: f.object({
-      fields: () => ({
-        monday: f.object({ fields: daySchedule }),
-        tuesday: f.object({ fields: daySchedule }),
-      }),
+      monday: f.object(daySchedule()),
+      tuesday: f.object(daySchedule()),
     }),
   };
 })
 ```
 
-## `f.array(options)`
+## `.array()`
 
 Repeatable items stored as JSONB.
 
@@ -321,45 +307,36 @@ Repeatable items stored as JSONB.
 Array of primitives:
 
 ```ts
-tags: f.array({ of: f.text() }),
+tags: f.text().array(),
 ```
 
 Array of objects:
 
 ```ts
-socialLinks: f.array({
-  of: f.object({
-    fields: () => ({
-      platform: f.select({ options: ["instagram", "facebook", "twitter"] }),
-      url: f.url(),
-    }),
-  }),
-  maxItems: 5,
-}),
+socialLinks: f.object({
+  platform: f.select([
+    { value: "instagram", label: "Instagram" },
+    { value: "facebook", label: "Facebook" },
+    { value: "twitter", label: "Twitter" },
+  ]),
+  url: f.url(),
+}).array().maxItems(5),
 ```
 
 Localized array (each locale has its own array):
 
 ```ts
-navigation: f.array({
-  localized: true,
-  of: f.object({
-    fields: {
-      label: f.text({ required: true }),
-      href: f.text({ required: true }),
-      isExternal: f.boolean({ default: false }),
-    },
-  }),
-}),
+navigation: f.object({
+  label: f.text().required(),
+  href: f.text().required(),
+  isExternal: f.boolean().default(false),
+}).array().localized(),
 ```
 
 Admin meta for ordering:
 
 ```ts
-items: f.array({
-  of: f.object({ fields: { name: f.text() } }),
-  meta: { admin: { orderable: true, mode: "inline" } },
-}),
+items: f.object({ name: f.text() }).array().admin({ orderable: true, mode: "inline" }),
 ```
 
 ## `f.blocks(options?)`
@@ -372,7 +349,7 @@ Content blocks for page builders. Stored as JSONB.
 | `label`     | `string \| i18n` | --      | Display label     |
 
 ```ts
-content: f.blocks({ localized: true }),
+content: f.blocks().localized(),
 pageContent: f.blocks(),
 ```
 
@@ -382,7 +359,7 @@ Raw JSON data. No schema validation.
 
 ```ts
 metadata: f.json(),
-rawConfig: f.json({ label: "Configuration" }),
+rawConfig: f.json().label("Configuration"),
 ```
 
 ## Admin Meta Options
@@ -390,17 +367,9 @@ rawConfig: f.json({ label: "Configuration" }),
 The `meta.admin` object controls field rendering in the admin panel:
 
 ```ts
-isActive: f.boolean({
-  default: true,
-  meta: { admin: { displayAs: "switch" } },
-}),
-slug: f.text({
-  meta: { admin: { placeholder: "auto-generated" } },
-}),
-socialLinks: f.array({
-  of: f.object({ fields: { url: f.url() } }),
-  meta: { admin: { orderable: true, mode: "inline" } },
-}),
+isActive: f.boolean().default(true).admin({ displayAs: "switch" }),
+slug: f.text().admin({ placeholder: "auto-generated" }),
+socialLinks: f.object({ url: f.url() }).array().admin({ orderable: true, mode: "inline" }),
 ```
 
 ## Reactive Field Behaviors

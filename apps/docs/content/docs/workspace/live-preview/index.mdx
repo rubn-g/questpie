@@ -3,7 +3,7 @@ title: Live Preview
 description: Edit content side-by-side with a live preview of your frontend.
 ---
 
-Live Preview opens a fullscreen overlay with your form on the left and an iframe showing your frontend on the right. Changes in the form reflect in the preview in real-time.
+Live Preview opens a fullscreen overlay with your form on the left and an iframe showing your frontend on the right. The current implementation refreshes the iframe after save/autosave events.
 
 ## How It Works
 
@@ -67,13 +67,7 @@ Clicking a field in the form highlights it in the preview, and vice versa. This 
 When you focus a field in the form, the admin sends:
 
 ```ts
-iframe.postMessage(
-	{
-		type: "questpie:focus",
-		fieldPath: "title", // or "content._values.blockId.fieldName"
-	},
-	"*",
-);
+iframe.postMessage({ type: "FOCUS_FIELD", fieldPath: "title" }, "*");
 ```
 
 ### Preview to Admin
@@ -81,13 +75,7 @@ iframe.postMessage(
 Add click handlers in your frontend that send messages back:
 
 ```ts
-window.parent.postMessage(
-	{
-		type: "questpie:preview:field-click",
-		fieldPath: "title",
-	},
-	"*",
-);
+window.parent.postMessage({ type: "FIELD_CLICKED", fieldPath: "title" }, "*");
 ```
 
 The admin will scroll to and focus the corresponding form field.
@@ -98,13 +86,7 @@ For block content, the field path includes the block ID:
 
 ```ts
 // Clicking a specific block's field
-window.parent.postMessage(
-	{
-		type: "questpie:preview:block-click",
-		blockId: "abc-123",
-	},
-	"*",
-);
+window.parent.postMessage({ type: "BLOCK_CLICKED", blockId: "abc-123" }, "*");
 ```
 
 ## Frontend Integration
@@ -112,7 +94,11 @@ window.parent.postMessage(
 Use the `useCollectionPreview` hook in your frontend pages to detect preview mode and react to admin interactions:
 
 ```tsx title="routes/pages/$slug.tsx"
-import { useCollectionPreview } from "@questpie/admin/client";
+import {
+	PreviewField,
+	PreviewProvider,
+	useCollectionPreview,
+} from "@questpie/admin/client";
 
 function PageComponent({ initialData }) {
 	const {
@@ -128,9 +114,15 @@ function PageComponent({ initialData }) {
 	});
 
 	return (
-		<h1 data-preview-field="title" onClick={() => handleFieldClick("title")}>
-			{data.title}
-		</h1>
+		<PreviewProvider
+			isPreviewMode={isPreviewMode}
+			focusedField={focusedField}
+			onFieldClick={handleFieldClick}
+		>
+			<PreviewField field="title" as="h1">
+				{data.title}
+			</PreviewField>
+		</PreviewProvider>
 	);
 }
 ```
@@ -148,10 +140,10 @@ The "Exit Preview" button redirects to `/api/preview?disable=true`, which clears
 
 ## Preview V2
 
-A next-generation preview system is available that replaces the save-driven refresh cycle with instant patch-based updates. See:
+A next-generation preview system is planned to replace the save-driven refresh cycle with instant patch-based updates. These pages are design notes, not the currently exported client API:
 
 - [Live Preview V2 Architecture](/docs/workspace/live-preview/architecture) — Target architecture and design goals
-- [Same-Tab Recipe](/docs/workspace/live-preview/same-tab-recipe) — Frontend implementation with `useQuestpiePreview`
+- [Same-Tab Recipe](/docs/workspace/live-preview/same-tab-recipe) — Planned frontend implementation
 - [Shared Preview](/docs/workspace/live-preview/shared-preview) — Detached and multi-user preview via realtime
 - [Protocol & Reliability](/docs/workspace/live-preview/protocol) — Wire protocol, sequencing, and error recovery
 - [Migration Guide](/docs/workspace/live-preview/migration) — Upgrading from V1 to V2

@@ -13,10 +13,9 @@ my-app/
 ├── src/
 │   ├── questpie/
 │   │   ├── server/
-│   │   │   ├── questpie.config.ts        # Runtime config (DB, plugins, adapters)
+│   │   │   ├── questpie.config.ts        # Runtime config (DB, adapters, secrets)
+│   │   │   ├── app.ts                    # Re-export generated app
 │   │   │   ├── modules.ts                # Module dependencies
-│   │   │   ├── auth.ts                   # Authentication config
-│   │   │   ├── locale.ts                 # Content locale config
 │   │   │   │
 │   │   │   ├── collections/              # One file per collection
 │   │   │   │   ├── posts.ts
@@ -45,7 +44,7 @@ my-app/
 │   │   │   │
 │   │   │   ├── config/                   # Typed configuration files
 │   │   │   │   ├── auth.ts              # Auth config (Better Auth)
-│   │   │   │   ├── app.ts              # App config (locale, access, hooks)
+│   │   │   │   ├── app.ts              # Optional app config (locale, access, hooks)
 │   │   │   │   ├── admin.ts            # Admin config (sidebar, dashboard, branding)
 │   │   │   │   └── openapi.ts          # OpenAPI config
 │   │   │   │
@@ -74,29 +73,31 @@ my-app/
 
 Codegen discovers files based on **directory name** and **export pattern**:
 
-| Directory       | Export           | Key derivation                  | Example                                                   |
-| --------------- | ---------------- | ------------------------------- | --------------------------------------------------------- |
-| `collections/`  | Default or named | Filename → camelCase            | `blog-posts.ts` → `blogPosts`                             |
-| `globals/`      | Default or named | Filename → camelCase            | `site-settings.ts` → `siteSettings`                       |
-| `routes/`       | Default          | Filename → camelCase/slash path | `create-booking.ts` → `createBooking`                     |
-| `jobs/`         | Default          | Filename → camelCase            | `send-email.ts` → `sendEmail`                             |
-| `routes/` (raw) | Default          | Filename → slash path           | `webhook.ts` → `webhook`                                  |
-| `services/`     | Default          | Filename → camelCase            | `blog.ts` → `blog`                                        |
-| `blocks/`       | Named exports    | Export name                     | `export const hero` → `hero`                              |
-| `emails/`       | Default          | Filename → camelCase            | `appointment-confirmation.ts` → `appointmentConfirmation` |
+| Directory       | Export           | Key derivation                   | Example                                                   |
+| --------------- | ---------------- | -------------------------------- | --------------------------------------------------------- |
+| `collections/`  | Default or named | Factory string arg               | `collection("blog-posts")` → `blogPosts`                  |
+| `globals/`      | Default or named | Factory string arg               | `global("siteSettings")` → `siteSettings`                 |
+| `routes/`       | Default          | Filename → camelCase/slash path  | `create-booking.ts` → `createBooking`                     |
+| `jobs/`         | Default          | Filename → camelCase             | `send-email.ts` → `sendEmail`                             |
+| `routes/` (raw) | Default          | Filename → slash path            | `webhook.ts` → `webhook`                                  |
+| `services/`     | Default          | Filename → camelCase             | `blog.ts` → `blog`                                        |
+| `blocks/`       | Named exports    | Factory string arg → export name | `block("hero")` → `hero`                                  |
+| `emails/`       | Default          | Filename → camelCase             | `appointment-confirmation.ts` → `appointmentConfirmation` |
+
+Factory string args are the runtime identity. Hyphens are camelized (`"blog-posts"` → `blogPosts`), while underscores are preserved (`"site_settings"` → `site_settings`).
 
 ### Single-file conventions
 
 Some configs are single files instead of directories:
 
-| File                 | Purpose                                                 |
-| -------------------- | ------------------------------------------------------- |
-| `questpie.config.ts` | Runtime config (DB, plugins, adapters)                   |
-| `modules.ts`         | Module dependencies array                                |
-| `config/auth.ts`     | Auth config via `authConfig()` (Better Auth options)     |
-| `config/app.ts`      | App config via `appConfig()` (locale, access, hooks)     |
-| `config/admin.ts`    | Admin config via `adminConfig()` (sidebar, dashboard, branding) |
-| `config/openapi.ts`  | OpenAPI config via `openApiConfig()` (spec info, Scalar) |
+| File                 | Purpose                                                                    |
+| -------------------- | -------------------------------------------------------------------------- |
+| `questpie.config.ts` | Runtime config (DB, adapters, secrets)                                     |
+| `modules.ts`         | Module dependencies array                                                  |
+| `config/auth.ts`     | Auth config via `authConfig()` (Better Auth options)                       |
+| `config/app.ts`      | App config via `appConfig()` (locale, access, hooks)                       |
+| `config/admin.ts`    | Admin config via `adminConfig()` (sidebar, dashboard, branding, UI locale) |
+| `config/openapi.ts`  | OpenAPI config via `openApiConfig()` (spec info, Scalar)                   |
 
 ### Nested routes
 

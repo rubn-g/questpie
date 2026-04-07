@@ -23,7 +23,14 @@ import { collection } from "#questpie/factories";
 export default collection("tasks").fields(({ f }) => ({
 	title: f.text(255).required(),
 	description: f.textarea(),
-	priority: f.select(["low", "medium", "high"]).required().default("medium"),
+	priority: f
+		.select([
+			{ value: "low", label: "Low" },
+			{ value: "medium", label: "Medium" },
+			{ value: "high", label: "High" },
+		])
+		.required()
+		.default("medium"),
 	dueDate: f.date(),
 	completed: f.boolean().default(false).required(),
 }));
@@ -137,20 +144,10 @@ const overdue = await client.routes.getOverdueTasks({});
 
 ## Adding the Admin Panel
 
-Want a visual interface? Add `@questpie/admin`:
+Want a visual interface? Add `@questpie/admin` and the admin module:
 
 ```bash
 bun add @questpie/admin
-```
-
-```ts title="src/questpie/server/questpie.config.ts"
-import { adminPlugin } from "@questpie/admin/plugin";
-import { runtimeConfig } from "questpie";
-
-export default runtimeConfig({
-	plugins: [adminPlugin()],
-	// ... rest of config
-});
 ```
 
 ```ts title="src/questpie/server/modules.ts"

@@ -138,16 +138,17 @@ export default runtimeConfig({
 ### S3 (Production)
 
 ```ts
+import { S3Driver } from "flydrive/drivers/s3";
+
 export default runtimeConfig({
 	storage: {
 		basePath: "/api",
-		driver: "s3",
-		s3: {
+		driver: new S3Driver({
 			bucket: process.env.S3_BUCKET,
 			region: process.env.S3_REGION,
 			accessKeyId: process.env.S3_ACCESS_KEY,
 			secretAccessKey: process.env.S3_SECRET_KEY,
-		},
+		}),
 	},
 });
 ```
@@ -268,22 +269,22 @@ const results = await client.search.search({
 
 ## KV Store
 
-### Redis (Production)
+### Custom Adapter
 
 ```ts
 export default runtimeConfig({
 	kv: {
-		adapter: "redis",
-		url: process.env.REDIS_URL,
+		adapter: myKvAdapter,
+		defaultTtl: 3600,
 	},
 });
 ```
 
-### In-Memory (Development)
+### In-Memory Default
 
 ```ts
 kv: {
-  adapter: "memory",
+  defaultTtl: 3600,
 }
 ```
 
@@ -319,7 +320,7 @@ logger.info({ appointmentId: "abc", action: "created" }, "Appointment created");
 
 ## OpenAPI
 
-Auto-generate OpenAPI 3.1 spec with `@questpie/openapi`. Install with `bun add @questpie/openapi`, add `openApiModule({ info: { title: "My API", version: "1.0.0" } })` to modules, run `bunx questpie generate`. Serves spec at `/api/openapi.json` and Scalar docs at `/api/docs`. See `references/infrastructure-adapters.md` for full options.
+Auto-generate OpenAPI 3.1 spec with `@questpie/openapi`. Install with `bun add @questpie/openapi`, add `openApiModule` to `modules.ts`, configure it in `config/openapi.ts` with `openApiConfig({ info: { title: "My API", version: "1.0.0" } })`, then run `bunx questpie generate`. Serves spec at `/api/openapi.json` and Scalar docs at `/api/docs`. See `references/infrastructure-adapters.md` for full options.
 
 ## Deployment
 
@@ -422,15 +423,16 @@ The local storage adapter writes to the filesystem. In containerized deployments
 storage: { basePath: "/api" }
 
 // CORRECT -- persistent S3 storage
+import { S3Driver } from "flydrive/drivers/s3";
+
 storage: {
   basePath: "/api",
-  driver: "s3",
-  s3: {
+  driver: new S3Driver({
     bucket: process.env.S3_BUCKET,
     region: process.env.S3_REGION,
     accessKeyId: process.env.S3_ACCESS_KEY,
     secretAccessKey: process.env.S3_SECRET_KEY,
-  },
+  }),
 }
 ```
 
@@ -451,13 +453,13 @@ queue: {
 
 The realtime adapter (`pgNotifyAdapter` or `redisStreamsAdapter`) is relevant for **detached or shared preview sessions** — when the preview runs in a separate browser tab, or multiple collaborators view the same preview.
 
-For the default **same-tab preview**, realtime is NOT involved. Same-tab preview uses a direct `postMessage` patch bus between the editor and the iframe — no server transport needed.
+For the default **same-tab preview**, realtime is NOT involved. Current same-tab preview uses `postMessage` for refresh/focus messages between the editor and the iframe.
 
-| Preview mode              | Transport        | Requires realtime adapter? |
-| ------------------------- | ---------------- | -------------------------- |
-| Same-tab (default)        | `postMessage`    | No                         |
-| Detached tab              | SSE / realtime   | Yes                        |
-| Shared / multi-user       | SSE / realtime   | Yes                        |
+| Preview mode        | Transport      | Requires realtime adapter? |
+| ------------------- | -------------- | -------------------------- |
+| Same-tab (default)  | `postMessage`  | No                         |
+| Detached tab        | SSE / realtime | Yes                        |
+| Shared / multi-user | SSE / realtime | Yes                        |
 
 If your app only uses same-tab preview (the default), you do not need to configure a realtime adapter for preview purposes. Configure it when you need detached preview, multi-user collaboration, or other realtime features (live notifications, presence, etc.).
 

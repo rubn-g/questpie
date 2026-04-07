@@ -22,7 +22,7 @@ Server: block("hero")           Client: HeroRenderer
 Blocks are defined in `blocks/` using the `block()` factory:
 
 ```ts title="blocks/hero.ts"
-import { block } from "#questpie";
+import { block } from "#questpie/factories";
 
 export const heroBlock = block("hero")
 	.admin(({ c }) => ({
@@ -31,15 +31,18 @@ export const heroBlock = block("hero")
 		category: "sections",
 	}))
 	.fields(({ f }) => ({
-		title: f.text({ localized: true, required: true }),
-		subtitle: f.textarea({ localized: true }),
+		title: f.text().localized().required(),
+		subtitle: f.textarea().localized(),
 		backgroundImage: f.upload({ to: "assets" }),
-		overlayOpacity: f.number({ defaultValue: 60 }),
-		alignment: f.select({
-			options: ["left", "center", "right"],
-			defaultValue: "center",
-		}),
-		ctaText: f.text({ localized: true }),
+		overlayOpacity: f.number().default(60),
+		alignment: f
+			.select([
+				{ value: "left", label: "Left" },
+				{ value: "center", label: "Center" },
+				{ value: "right", label: "Right" },
+			])
+			.default("center"),
+		ctaText: f.text().localized(),
 		ctaLink: f.text(),
 	}))
 	.prefetch({ with: { backgroundImage: true } });
@@ -60,7 +63,7 @@ export const heroBlock = block("hero")
 Export multiple named blocks from one file:
 
 ```ts title="blocks/layout.ts"
-import { block } from "#questpie";
+import { block } from "#questpie/factories";
 
 export const twoColumnBlock = block("twoColumn")
 	.admin(({ c }) => ({
@@ -80,10 +83,14 @@ export const spacerBlock = block("spacer")
 		category: "layout",
 	}))
 	.fields(({ f }) => ({
-		height: f.select({
-			options: ["sm", "md", "lg", "xl"],
-			defaultValue: "md",
-		}),
+		height: f
+			.select([
+				{ value: "sm", label: "Small" },
+				{ value: "md", label: "Medium" },
+				{ value: "lg", label: "Large" },
+				{ value: "xl", label: "Extra Large" },
+			])
+			.default("md"),
 	}));
 ```
 
@@ -92,12 +99,12 @@ export const spacerBlock = block("spacer")
 Add a `blocks` field to any collection:
 
 ```ts title="collections/pages.ts"
-import { collection } from "#questpie";
+import { collection } from "#questpie/factories";
 
 export const pages = collection("pages").fields(({ f }) => ({
-	title: f.text({ required: true, localized: true }),
-	slug: f.text({ required: true }),
-	content: f.blocks({ localized: true }),
+	title: f.text().required().localized(),
+	slug: f.text().required(),
+	content: f.blocks().localized(),
 }));
 ```
 
@@ -137,11 +144,11 @@ Blocks often reference related data (images, linked records). Use `.prefetch()` 
 For complex queries, use a function. The `ctx` parameter provides fully typed `collections` and `globals` via `AppContext` augmentation — no imports needed:
 
 ```ts title="blocks/featured.ts"
-import { block } from "#questpie";
+import { block } from "#questpie/factories";
 
 export const featuredBlock = block("featured")
 	.fields(({ f }) => ({
-		heading: f.text({ required: true }),
+		heading: f.text().required(),
 	}))
 	.prefetch(async ({ values, ctx }) => {
 		return {
@@ -275,31 +282,27 @@ function PageRenderer({ page }) {
 
 ## Blocks in Live Preview
 
-When a collection has `.preview()` configured, blocks participate in the live preview patch bus.
+When a collection has `.preview()` configured, blocks can participate in preview focus by combining `BlockScopeProvider` with `PreviewField`.
 
-### PreviewBlock Wrapper
+### BlockScopeProvider Wrapper
 
-Use `<PreviewBlock>` in your frontend to mark block regions for live preview focus and patch targeting:
+Use `BlockScopeProvider` in your frontend to scope field paths inside a block:
 
 ```tsx
-import { PreviewBlock } from "@questpie/admin/client";
+import { BlockScopeProvider } from "@questpie/admin/client";
 
 function PageRenderer({ blocks, previewData }) {
 	return blocks.map((block) => {
 		const Renderer = renderers[block.type];
 		return (
-			<PreviewBlock key={block.id} id={block.id}>
+			<BlockScopeProvider key={block.id} blockId={block.id}>
 				<Renderer values={block.values} data={block.data} />
-			</PreviewBlock>
+			</BlockScopeProvider>
 		);
 	});
 }
 ```
 
-When the editor focuses a block, `<PreviewBlock>` highlights it in the preview. Patches target individual blocks by ID for granular updates.
-
-### Block Prefetch and Server Reconcile
-
-In `"hybrid"` preview strategy, blocks with functional `.prefetch()` trigger a server reconcile when their field values change. For example, a "featured posts" block with a `limit` field will re-run its prefetch handler on the server to fetch updated data, while simple field changes (title, subtitle) apply instantly via the local patch bus.
+`PreviewField` components inside the provider resolve paths like `content._values.{blockId}.title`.
 
 Blocks with declarative prefetch (`{ with: { image: true } }`) resolve relations during reconcile — the preview shows the image URL immediately after the server round-trip completes, not just the asset ID.

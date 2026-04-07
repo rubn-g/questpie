@@ -54,22 +54,27 @@ User code uses standalone factories:
 
 ```ts
 // collections/posts.ts
-import { collection } from "questpie";
+import { collection } from "#questpie/factories";
 
 export default collection("posts").fields(({ f }) => ({
-	title: f.text({ label: "Title", required: true }),
-	content: f.richText({ label: "Content" }),
-	status: f.select({ label: "Status", options: ["draft", "published"] }),
+	title: f.text().label("Title").required(),
+	content: f.richText().label("Content"),
+	status: f
+		.select([
+			{ value: "draft", label: "Draft" },
+			{ value: "published", label: "Published" },
+		])
+		.label("Status"),
 }));
 ```
 
 ```ts
 // globals/site-settings.ts
-import { global } from "questpie";
+import { global } from "#questpie/factories";
 
 export default global("site-settings").fields(({ f }) => ({
-	siteName: f.text({ label: "Site Name", required: true }),
-	description: f.textarea({ label: "Description" }),
+	siteName: f.text().label("Site Name").required(),
+	description: f.textarea().label("Description"),
 }));
 ```
 
@@ -92,10 +97,8 @@ export default route()
 ```ts
 // questpie.config.ts
 import { runtimeConfig } from "questpie";
-import { adminPlugin } from "@questpie/admin/plugin";
 
 export default runtimeConfig({
-	plugins: [adminPlugin()],
 	db: { url: process.env.DATABASE_URL! },
 	app: { url: process.env.APP_URL! },
 });
@@ -106,10 +109,16 @@ export default runtimeConfig({
 import { adminModule } from "@questpie/admin/server";
 import { openApiModule } from "@questpie/openapi";
 
-export default [
-	adminModule,
-	openApiModule({ info: { title: "My API", version: "1.0.0" } }),
-] as const;
+export default [adminModule, openApiModule] as const;
+```
+
+```ts
+// config/openapi.ts
+import { openApiConfig } from "@questpie/openapi";
+
+export default openApiConfig({
+	info: { title: "My API", version: "1.0.0" },
+});
 ```
 
 ### Route Handler
@@ -131,37 +140,37 @@ QUESTPIE uses your file system as the source of truth. Drop a file in the right 
 
 | Directory      | Entity          | Export Style     | Key Derivation                   |
 | -------------- | --------------- | ---------------- | -------------------------------- |
-| `collections/` | Collections     | Default or named | Filename to camelCase            |
-| `globals/`     | Globals         | Default or named | Filename to camelCase            |
+| `collections/` | Collections     | Default or named | Factory arg to camelCase         |
+| `globals/`     | Globals         | Default or named | Factory arg to camelCase         |
 | `routes/`      | Routes          | Default          | Filename to camelCase/slash path |
 | `jobs/`        | Jobs            | Default          | Filename to camelCase            |
 | `services/`    | Services        | Default          | Filename to camelCase            |
 | `emails/`      | Email templates | Default          | Filename to camelCase            |
-| `blocks/`      | Blocks          | Named exports    | Export name                      |
+| `blocks/`      | Blocks          | Named exports    | Factory arg/export name          |
 | `messages/`    | i18n messages   | Default          | Filename to locale key           |
 | `migrations/`  | DB migrations   | Default          | Array (ordered)                  |
 | `seeds/`       | DB seeds        | Default          | Array (ordered)                  |
 
-Filenames are converted from kebab-case to camelCase: `blog-posts.ts` becomes `blogPosts`, `create-booking.ts` becomes `createBooking`.
+Filenames are converted from kebab-case to camelCase for non-factory categories: `create-booking.ts` becomes `createBooking`. For factory-aware categories such as collections, globals, and blocks, the factory string arg is the key when present: `collection("blog-posts")` becomes `blogPosts`, and `global("siteSettings")` stays `siteSettings`. Underscores are preserved (`global("site_settings")` -> `site_settings`).
 
 ### Single-File Conventions
 
-| File                 | Factory                                        | Purpose                          |
-| -------------------- | ---------------------------------------------- | -------------------------------- |
-| `questpie.config.ts` | `runtimeConfig({...})`                         | DB, plugins, adapters            |
-| `modules.ts`         | `export default [...]`                         | Module dependencies              |
-| `fields.ts`          | `export default {...}`                         | Custom field type definitions    |
+| File                 | Factory                | Purpose                       |
+| -------------------- | ---------------------- | ----------------------------- |
+| `questpie.config.ts` | `runtimeConfig({...})` | DB, plugins, adapters         |
+| `modules.ts`         | `export default [...]` | Module dependencies           |
+| `fields.ts`          | `export default {...}` | Custom field type definitions |
 
 ### Config Directory (`config/`)
 
 All project configuration lives in `config/` with typed factory functions:
 
-| File                | Factory                                          | Package                        | Contains                                         |
-| ------------------- | ------------------------------------------------ | ------------------------------ | ------------------------------------------------ |
-| `config/auth.ts`    | `authConfig({...})`                              | `"questpie"`                   | Better Auth options (email/password, providers)   |
-| `config/app.ts`     | `appConfig({...})`                               | `"questpie"`                   | `locale`, `access`, `hooks`, `context`            |
-| `config/admin.ts`   | `adminConfig({...})`                             | `"@questpie/admin/server"`     | `sidebar`, `dashboard`, `branding`, `locale`      |
-| `config/openapi.ts` | `openApiConfig({...})`                           | `"@questpie/openapi"`          | OpenAPI spec info, Scalar UI options              |
+| File                | Factory                | Package                    | Contains                                        |
+| ------------------- | ---------------------- | -------------------------- | ----------------------------------------------- |
+| `config/auth.ts`    | `authConfig({...})`    | `"questpie"`               | Better Auth options (email/password, providers) |
+| `config/app.ts`     | `appConfig({...})`     | `"questpie"`               | `locale`, `access`, `hooks`, `context`          |
+| `config/admin.ts`   | `adminConfig({...})`   | `"@questpie/admin/server"` | `sidebar`, `dashboard`, `branding`, `locale`    |
+| `config/openapi.ts` | `openApiConfig({...})` | `"@questpie/openapi"`      | OpenAPI spec info, Scalar UI options            |
 
 The `appConfig` uses `destructure` — properties map to individual createApp keys. Context resolver return type auto-propagates to handler `ctx`.
 
@@ -284,10 +293,10 @@ Do NOT re-run when you change field options, hook logic, access rules, or runtim
 
 ### The `#questpie` Import
 
-Collection and global files use `#questpie` as an import alias resolving to the generated app context. Provides field type autocompletion and relation target inference.
+Collection and global files use `#questpie/factories` for standalone factories with field type autocompletion and relation target inference.
 
 ```ts
-import { collection } from "#questpie";
+import { collection } from "#questpie/factories";
 ```
 
 ## CLI Commands

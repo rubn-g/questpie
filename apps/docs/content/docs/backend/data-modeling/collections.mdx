@@ -184,7 +184,11 @@ export const barbers = collection("barbers")
 			}),
 			socialLinks: f
 				.object({
-					platform: f.select(["instagram", "facebook", "twitter"]),
+					platform: f.select([
+						{ value: "instagram", label: "Instagram" },
+						{ value: "facebook", label: "Facebook" },
+						{ value: "twitter", label: "Twitter" },
+					]),
 					url: f.url(),
 				})
 				.array()

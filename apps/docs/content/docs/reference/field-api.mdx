@@ -218,8 +218,12 @@ updatedAt: f.datetime().autoNowUpdate().inputFalse(),
 Single value from a predefined list.
 
 ```ts
-// Simple string options
-status: f.select(["draft", "published", "archived"]).default("draft").required(),
+// Basic options
+status: f.select([
+  { value: "draft", label: "Draft" },
+  { value: "published", label: "Published" },
+  { value: "archived", label: "Archived" },
+]).default("draft").required(),
 
 // Options with labels (supports i18n)
 status: f.select([
@@ -234,7 +238,12 @@ status: f.select([
 Use `.array()` to allow multiple selections:
 
 ```ts
-tags: f.select(["frontend", "backend", "devops", "design"]).array(),
+tags: f.select([
+  { value: "frontend", label: "Frontend" },
+  { value: "backend", label: "Backend" },
+  { value: "devops", label: "DevOps" },
+  { value: "design", label: "Design" },
+]).array(),
 ```
 
 ### Select Chain Methods
@@ -244,7 +253,11 @@ tags: f.select(["frontend", "backend", "devops", "design"]).array(),
 | `.enum(name)` | Use a PG enum type instead of varchar |
 
 ```ts
-status: f.select(["active", "inactive", "suspended"]).enum("user_status"),
+status: f.select([
+  { value: "active", label: "Active" },
+  { value: "inactive", label: "Inactive" },
+  { value: "suspended", label: "Suspended" },
+]).enum("user_status"),
 ```
 
 ## Object
@@ -305,7 +318,11 @@ Use `.array()` on an object field:
 
 ```ts
 socialLinks: f.object({
-  platform: f.select(["instagram", "facebook", "twitter"]),
+  platform: f.select([
+    { value: "instagram", label: "Instagram" },
+    { value: "facebook", label: "Facebook" },
+    { value: "twitter", label: "Twitter" },
+  ]),
   url: f.url(),
 }).array().maxItems(5),
 ```

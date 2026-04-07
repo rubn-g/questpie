@@ -7,6 +7,14 @@ Live Preview V2 replaces the current `edit -> save/autosave -> invalidate -> rel
 
 This page documents the target architecture. For the current preview system, see [Live Preview](/docs/workspace/live-preview).
 
+<Callout type="warn">
+	This page is a design note for the planned Preview V2 API. The current
+	`@questpie/admin/client` exports are `useCollectionPreview`,
+	`PreviewProvider`, `PreviewField`, `StandalonePreviewField`, and
+	`BlockScopeProvider`; it does not export `useQuestpiePreview`, `PreviewRoot`,
+	or `PreviewBlock` yet.
+</Callout>
+
 ## Design Goals
 
 1. **Instant preview** -- no DB write roundtrip. Form edits appear in the iframe immediately.
@@ -17,12 +25,12 @@ This page documents the target architecture. For the current preview system, see
 
 ## Problems With V1
 
-| Problem | Impact |
-| --- | --- |
-| Preview tied to persistence | Every preview update requires a save or autosave, creating unnecessary DB writes and latency |
-| Correctness of derived data | URL/slug changes, relation resolution, and block prefetch all stale until next full reload |
-| Fragile DX | Frontend must manually wire refresh, field focus, and block click handling with raw `postMessage` |
-| Full iframe reload | After invalidation, the entire iframe navigates, losing scroll position and client state |
+| Problem                     | Impact                                                                                            |
+| --------------------------- | ------------------------------------------------------------------------------------------------- |
+| Preview tied to persistence | Every preview update requires a save or autosave, creating unnecessary DB writes and latency      |
+| Correctness of derived data | URL/slug changes, relation resolution, and block prefetch all stale until next full reload        |
+| Fragile DX                  | Frontend must manually wire refresh, field focus, and block click handling with raw `postMessage` |
+| Full iframe reload          | After invalidation, the entire iframe navigates, losing scroll position and client state          |
 
 ## Architecture Overview
 
@@ -99,36 +107,36 @@ Every message carries a common envelope:
 
 ```ts
 interface PreviewMessage {
-  type: string;
-  sessionId: string;
-  seq: number;
-  timestamp: number;
-  protocolVersion: number;
+	type: string;
+	sessionId: string;
+	seq: number;
+	timestamp: number;
+	protocolVersion: number;
 }
 ```
 
 ### Admin to Frame
 
-| Message | Payload | Purpose |
-| --- | --- | --- |
-| `INIT_SNAPSHOT` | Full record snapshot | Bootstrap the iframe draft store |
-| `PATCH_BATCH` | Array of JSON patches | Incremental field updates |
-| `FOCUS_FIELD` | `{ fieldPath: string }` | Highlight a field in the preview |
-| `SELECT_BLOCK` | `{ blockId: string }` | Highlight a block in the preview |
-| `COMMIT` | `{ data }` | Mark current state as persisted baseline |
-| `FULL_RESYNC` | `{ data, locale? }` | Replace entire draft state on desync |
-| `ERROR` | `{ error, code? }` | Signal an unrecoverable error |
+| Message         | Payload                 | Purpose                                  |
+| --------------- | ----------------------- | ---------------------------------------- |
+| `INIT_SNAPSHOT` | Full record snapshot    | Bootstrap the iframe draft store         |
+| `PATCH_BATCH`   | Array of JSON patches   | Incremental field updates                |
+| `FOCUS_FIELD`   | `{ fieldPath: string }` | Highlight a field in the preview         |
+| `SELECT_BLOCK`  | `{ blockId: string }`   | Highlight a block in the preview         |
+| `COMMIT`        | `{ data }`              | Mark current state as persisted baseline |
+| `FULL_RESYNC`   | `{ data, locale? }`     | Replace entire draft state on desync     |
+| `ERROR`         | `{ error, code? }`      | Signal an unrecoverable error            |
 
 ### Frame to Admin
 
-| Message | Payload | Purpose |
-| --- | --- | --- |
-| `READY` | `{}` | Iframe loaded and ready to receive |
-| `ACK` | `{ ackSeq }` | Confirm receipt of a message |
-| `FIELD_CLICKED` | `{ fieldPath: string }` | User clicked a preview field |
-| `BLOCK_CLICKED` | `{ blockId: string }` | User clicked a preview block |
-| `RELATION_CLICKED` | `{ fieldPath, relationId }` | User clicked a related record |
-| `RENDER_ERROR` | `{ error, seq? }` | Frontend render failed |
+| Message            | Payload                     | Purpose                            |
+| ------------------ | --------------------------- | ---------------------------------- |
+| `READY`            | `{}`                        | Iframe loaded and ready to receive |
+| `ACK`              | `{ ackSeq }`                | Confirm receipt of a message       |
+| `FIELD_CLICKED`    | `{ fieldPath: string }`     | User clicked a preview field       |
+| `BLOCK_CLICKED`    | `{ blockId: string }`       | User clicked a preview block       |
+| `RELATION_CLICKED` | `{ fieldPath, relationId }` | User clicked a related record      |
+| `RENDER_ERROR`     | `{ error, seq? }`           | Frontend render failed             |
 
 For the full typed contract and message schemas, see [Protocol Reference](/docs/workspace/live-preview/protocol).
 
@@ -140,32 +148,33 @@ The `.preview()` config on a collection declares how the preview behaves:
 import { collection } from "#questpie/factories";
 
 export const pages = collection("pages")
-  .preview({
-    url: ({ draft, locale }) =>
-      draft.slug === "home" ? "/" : `/${draft.slug}`,
-    watch: ({ f }) => [f.slug, f.locale],
-    strategy: "hybrid",
-  })
-  .fields(({ f }) => ({
-    title: f.text().required().localized(),
-    slug: f.text().required(),
-    content: f.blocks().localized(),
-  }));
+	.preview({
+		url: ({ draft, locale }) =>
+			draft.slug === "home" ? "/" : `/${draft.slug}`,
+		watch: ({ f }) => [f.slug, f.locale],
+		strategy: "hybrid",
+	})
+	.fields(({ f }) => ({
+		title: f.text().required().localized(),
+		slug: f.text().required(),
+		content: f.blocks().localized(),
+	}));
 ```
 
 ### Strategy Options
 
-| Strategy | Behavior |
-| --- | --- |
-| `"instant"` | Patches applied locally only. No server reconcile. Best for simple pages with no derived data. |
-| `"server"` | Every patch batch goes through server reconcile before reaching the iframe. Highest correctness, higher latency. |
-| `"hybrid"` | Patches applied locally for instant feedback. Server reconcile runs in parallel for watched fields. Reconciled result replaces local draft when it arrives. **Recommended default.** |
+| Strategy    | Behavior                                                                                                                                                                             |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `"instant"` | Patches applied locally only. No server reconcile. Best for simple pages with no derived data.                                                                                       |
+| `"server"`  | Every patch batch goes through server reconcile before reaching the iframe. Highest correctness, higher latency.                                                                     |
+| `"hybrid"`  | Patches applied locally for instant feedback. Server reconcile runs in parallel for watched fields. Reconciled result replaces local draft when it arrives. **Recommended default.** |
 
 ### Watch Fields
 
 The `watch` option declares which fields trigger a server reconcile. When a patch touches a watched field, the admin sends the patch batch to the reconcile endpoint instead of (or in addition to) sending it directly to the iframe.
 
 Typical watch targets:
+
 - `slug` -- URL recomputation
 - `locale` -- locale-aware shaping
 - Relation fields -- prefetch resolution
@@ -177,10 +186,10 @@ Typical watch targets:
 
 ```ts
 const preview = useAdminPreview({
-  form,         // React Hook Form instance
-  collection,   // Collection name
-  recordId,     // Current record ID
-  locale,       // Current locale
+	form, // React Hook Form instance
+	collection, // Collection name
+	recordId, // Current record ID
+	locale, // Current locale
 });
 ```
 
@@ -188,12 +197,12 @@ The hook returns:
 
 ```ts
 type AdminPreview = {
-  sessionId: string;
-  isActive: boolean;
-  open: () => void;
-  close: () => void;
-  iframeRef: React.RefObject<HTMLIFrameElement>;
-  // Internal: patch dispatch, reconcile, commit are handled automatically
+	sessionId: string;
+	isActive: boolean;
+	open: () => void;
+	close: () => void;
+	iframeRef: React.RefObject<HTMLIFrameElement>;
+	// Internal: patch dispatch, reconcile, commit are handled automatically
 };
 ```
 
@@ -205,31 +214,31 @@ The admin form integration is automatic. `useAdminPreview` subscribes to form ch
 import { useQuestpiePreview } from "@questpie/admin/client";
 
 function Page({ initialData }) {
-  const { data, isPreviewMode, focusedField, selectedBlock } =
-    useQuestpiePreview({
-      initialData,
-    });
+	const { data, isPreviewMode, focusedField, selectedBlock } =
+		useQuestpiePreview({
+			initialData,
+		});
 
-  return (
-    <PreviewRoot preview={{ isPreviewMode, focusedField, selectedBlock }}>
-      <PreviewField path="title">
-        <h1>{data.title}</h1>
-      </PreviewField>
-      <PreviewField path="content">
-        <BlockRenderer blocks={data.content} />
-      </PreviewField>
-    </PreviewRoot>
-  );
+	return (
+		<PreviewRoot preview={{ isPreviewMode, focusedField, selectedBlock }}>
+			<PreviewField path="title">
+				<h1>{data.title}</h1>
+			</PreviewField>
+			<PreviewField path="content">
+				<BlockRenderer blocks={data.content} />
+			</PreviewField>
+		</PreviewRoot>
+	);
 }
 ```
 
 ### Components
 
-| Component | Purpose |
-| --- | --- |
-| `<PreviewRoot>` | Context provider. Wraps the page, provides focus/selection state. |
-| `<PreviewField path="...">` | Marks a region as corresponding to a field path. Handles click-to-focus and highlight styling. |
-| `<PreviewBlock id={id}>` | Marks a region as corresponding to a block instance. Handles click-to-select and highlight styling. |
+| Component                   | Purpose                                                                                             |
+| --------------------------- | --------------------------------------------------------------------------------------------------- |
+| `<PreviewRoot>`             | Context provider. Wraps the page, provides focus/selection state.                                   |
+| `<PreviewField path="...">` | Marks a region as corresponding to a field path. Handles click-to-focus and highlight styling.      |
+| `<PreviewBlock id={id}>`    | Marks a region as corresponding to a block instance. Handles click-to-select and highlight styling. |
 
 These components replace the manual `postMessage` wiring from V1. They handle bidirectional focus sync, click events, and highlight rendering internally.
 

@@ -16,20 +16,19 @@ bun add @questpie/elysia elysia
 Mount QUESTPIE as a catch-all route handler:
 
 ```ts title="src/index.ts"
-import { Elysia } from "elysia"
-import { createFetchHandler } from "@questpie/elysia/server"
-import { app } from "#questpie"
-
-const handler = createFetchHandler(app, { basePath: "/api" })
+import { Elysia } from "elysia";
+import { questpieElysia } from "@questpie/elysia/server";
+import { app } from "#questpie";
 
 const server = new Elysia()
-  .all("/api/*", ({ request }) => handler(request))
-  .listen(3000)
+	.use(questpieElysia(app, { basePath: "/api" }))
+	.listen(3000);
 
-console.log(`Running at ${server.server?.url}`)
+console.log(`Running at ${server.server?.url}`);
 ```
 
 This mounts all QUESTPIE routes under `/api/`:
+
 - Collections: `GET /api/collections/:name`, `POST /api/collections/:name`, etc.
 - Globals: `GET /api/globals/:name`, `PUT /api/globals/:name`
 - Auth: `POST /api/auth/*`
@@ -40,12 +39,13 @@ This mounts all QUESTPIE routes under `/api/`:
 Create a typed client for frontend use:
 
 ```ts title="src/lib/client.ts"
-import { createClient } from "@questpie/elysia/client"
-import type { AppConfig } from "#questpie"
+import { createClientFromEden } from "@questpie/elysia/client";
+import type { AppConfig } from "#questpie";
 
-export const client = createClient<AppConfig>({
-  baseURL: "http://localhost:3000/api",
-})
+export const client = createClientFromEden<any, AppConfig>({
+	server: "localhost:3000",
+	basePath: "/api",
+});
 ```
 
 The client is fully typed — autocompletion for collections, fields, query operators, and custom routes.
@@ -57,13 +57,13 @@ The Elysia adapter provides end-to-end type safety:
 ```ts
 // Typed collection queries
 const posts = await client.collections.posts.find({
-  where: { status: { equals: "published" } },
-  orderBy: { createdAt: "desc" },
-  limit: 10,
-})
+	where: { status: { equals: "published" } },
+	orderBy: { createdAt: "desc" },
+	limit: 10,
+});
 
 // Typed custom routes
-const stats = await client.routes.getDashboardStats.call({})
+const stats = await client.routes.getDashboardStats.call({});
 ```
 
 ## CORS
@@ -71,12 +71,12 @@ const stats = await client.routes.getDashboardStats.call({})
 Configure CORS using Elysia's built-in plugin:
 
 ```ts
-import { cors } from "@elysiajs/cors"
+import { cors } from "@elysiajs/cors";
 
 const server = new Elysia()
-  .use(cors({ origin: "http://localhost:5173" }))
-  .all("/api/*", ({ request }) => handler(request))
-  .listen(3000)
+	.use(cors({ origin: "http://localhost:5173" }))
+	.all("/api/*", ({ request }) => handler(request))
+	.listen(3000);
 ```
 
 ## Related Pages

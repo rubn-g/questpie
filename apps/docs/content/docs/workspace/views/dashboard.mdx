@@ -3,17 +3,19 @@ title: Dashboard
 description: Configure the admin dashboard — stats, charts, progress bars, recent items, and activity timelines.
 ---
 
-The dashboard is the admin landing page. Configure it with `dashboard.ts` — define sections, widgets, and data loaders.
+The dashboard is the admin landing page. Configure it in `config/admin.ts` under the `dashboard` key.
 
 ## Basic Setup
 
-```ts title="dashboard.ts"
-import { dashboard } from "#questpie/factories";
+```ts title="config/admin.ts"
+import { adminConfig } from "#questpie/factories";
 
-export default dashboard({
-	title: { en: "Dashboard" },
-	description: { en: "Overview of your app" },
-	columns: 4,
+export default adminConfig({
+	dashboard: {
+		title: { en: "Dashboard" },
+		description: { en: "Overview of your app" },
+		columns: 4,
+	},
 });
 ```
 

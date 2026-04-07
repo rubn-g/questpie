@@ -77,7 +77,10 @@ Add a field to a collection, re-run codegen:
 .fields(({ f }) => ({
   title: f.text().required(),
   body: f.textarea(),
-  status: f.select(["draft", "published"]).default("draft"),
+  status: f.select([
+    { value: "draft", label: "Draft" },
+    { value: "published", label: "Published" },
+  ]).default("draft"),
 }))
 ```
 

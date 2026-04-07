@@ -68,7 +68,7 @@ export async function realtimeSubscribe(
 	request: Request,
 	_params: Record<string, string>,
 	context?: AdapterContext,
-	config: AdapterConfig = {},
+	config: AdapterConfig<any> = {},
 ): Promise<Response> {
 	const errorResponse = (
 		error: unknown,
@@ -346,9 +346,7 @@ export async function realtimeSubscribe(
 					send("error", {
 						topicId: "*",
 						message:
-							error instanceof Error
-								? error.message
-								: "Failed to initialize",
+							error instanceof Error ? error.message : "Failed to initialize",
 					});
 				}
 			})();

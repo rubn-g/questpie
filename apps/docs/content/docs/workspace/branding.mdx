@@ -10,13 +10,13 @@ Configure the admin panel's branding using the `config/admin.ts` file convention
 Add a `branding` property to your `config/admin.ts`:
 
 ```ts title="src/questpie/server/config/admin.ts"
-import { adminConfig } from "@questpie/admin/server";
+import { adminConfig } from "#questpie/factories";
 
 export default adminConfig({
-  branding: {
-    name: { en: "My CMS", sk: "Moj CMS" },
-  },
-  // sidebar, dashboard, locale can also go here
+	branding: {
+		name: { en: "My CMS", sk: "Moj CMS" },
+	},
+	// sidebar, dashboard, locale can also go here
 });
 ```
 
@@ -24,24 +24,26 @@ The file is auto-discovered by codegen — no manual registration needed.
 
 ## Options
 
-| Option | Type | Description |
-| --- | --- | --- |
-| `name` | `string \| Record<string, string>` | App name shown in the sidebar header. Supports i18n with locale keys. |
-| `logo` | `string` | URL or path to a logo image. Displayed in the sidebar and login page. |
-| `favicon` | `string` | URL or path to the favicon. |
+| Option    | Type                               | Description                                                           |
+| --------- | ---------------------------------- | --------------------------------------------------------------------- |
+| `name`    | `string \| Record<string, string>` | App name shown in the sidebar header. Supports i18n with locale keys. |
+| `logo`    | `string`                           | URL or path to a logo image. Displayed in the sidebar and login page. |
+| `favicon` | `string`                           | URL or path to the favicon.                                           |
 
 ## Full Example
 
 ```ts title="src/questpie/server/config/admin.ts"
-import { adminConfig } from "@questpie/admin/server";
+import { adminConfig } from "#questpie/factories";
 
 export default adminConfig({
-  branding: {
-    name: { en: "Barbershop Admin", sk: "Barbershop Admin" },
-    logo: "/images/logo.svg",
-    favicon: "/images/favicon.ico",
-  },
-  sidebar: { /* ... */ },
+	branding: {
+		name: { en: "Barbershop Admin", sk: "Barbershop Admin" },
+		logo: "/images/logo.svg",
+		favicon: "/images/favicon.ico",
+	},
+	sidebar: {
+		/* ... */
+	},
 });
 ```
 
@@ -64,6 +66,7 @@ If the current locale isn't in the object, it falls back to the first key.
 ## Logo Placement
 
 The logo appears in:
+
 - **Sidebar header** — next to the app name
 - **Login page** — above the login form
 - **Collapsed sidebar** — icon-only mode shows just the logo

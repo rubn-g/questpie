@@ -15,24 +15,24 @@ The `@questpie/admin` module is itself a plugin that adds fields, views, pages, 
 
 ```ts
 interface CodegenPlugin {
-  name: string;
-  categories?: Record<string, CategoryDeclaration>;
-  extensions?: {
-    collection?: ExtensionDeclaration;
-    global?: ExtensionDeclaration;
-  };
-  singletons?: Record<string, SingletonDeclaration>;
-  transform?: (ctx: CodegenContext) => void;
+	name: string;
+	categories?: Record<string, CategoryDeclaration>;
+	extensions?: {
+		collection?: ExtensionDeclaration;
+		global?: ExtensionDeclaration;
+	};
+	singletons?: Record<string, SingletonDeclaration>;
+	transform?: (ctx: CodegenContext) => void;
 }
 ```
 
-| Property     | Description                                              |
-| ------------ | -------------------------------------------------------- |
-| `name`       | Unique plugin identifier                                 |
-| `categories` | File conventions that produce keyed maps or arrays       |
-| `extensions` | Methods added to collection/global builders              |
-| `singletons` | Single files expected at a known path                    |
-| `transform`  | Post-processing hook on the full codegen context         |
+| Property     | Description                                        |
+| ------------ | -------------------------------------------------- |
+| `name`       | Unique plugin identifier                           |
+| `categories` | File conventions that produce keyed maps or arrays |
+| `extensions` | Methods added to collection/global builders        |
+| `singletons` | Single files expected at a known path              |
+| `transform`  | Post-processing hook on the full codegen context   |
 
 ---
 
@@ -42,26 +42,26 @@ Categories are the core building block. Each category defines a file pattern tha
 
 ```ts
 interface CategoryDeclaration {
-  pattern: string;
-  cardinality: "map" | "single";
-  recursive?: boolean;
-  featureLayout?: boolean;
-  mergeStrategy: "record" | "array" | "spread";
-  moduleContributionKey?: string;
-  registryKey?: string;
-  keyFromProperty?: string;
+	pattern: string;
+	cardinality: "map" | "single";
+	recursive?: boolean;
+	featureLayout?: boolean;
+	mergeStrategy: "record" | "array" | "spread";
+	moduleContributionKey?: string;
+	registryKey?: string;
+	keyFromProperty?: string;
 }
 ```
 
-| Property                | Description                                               |
-| ----------------------- | --------------------------------------------------------- |
-| `pattern`               | File glob (e.g., `"blocks/**/*.ts"`)                      |
-| `cardinality`           | `"map"` = key-value pairs, `"single"` = one value         |
-| `recursive`             | Support nested directories                                |
-| `featureLayout`         | Also scan `features/*/` subdirectories                    |
-| `mergeStrategy`         | How to merge module contributions: `"record"`, `"array"`, `"spread"` |
-| `moduleContributionKey` | Property name on `ModuleDefinition` for module contributions |
-| `registryKey`           | Key in the generated `Registry` type                       |
+| Property                | Description                                                                     |
+| ----------------------- | ------------------------------------------------------------------------------- |
+| `pattern`               | File glob (e.g., `"blocks/**/*.ts"`)                                            |
+| `cardinality`           | `"map"` = key-value pairs, `"single"` = one value                               |
+| `recursive`             | Support nested directories                                                      |
+| `featureLayout`         | Also scan `features/*/` subdirectories                                          |
+| `mergeStrategy`         | How to merge module contributions: `"record"`, `"array"`, `"spread"`            |
+| `moduleContributionKey` | Property name on `ModuleDefinition` for module contributions                    |
+| `registryKey`           | Key in the generated `Registry` type                                            |
 | `keyFromProperty`       | Use a property from the export as the key (e.g., `"name"`) instead of file path |
 
 ### Key Strategy
@@ -83,14 +83,14 @@ Singletons expect exactly one file at a known path. Used for configuration files
 
 ```ts
 interface SingletonDeclaration {
-  pattern: string;
-  factory: string;
+	pattern: string;
+	factory: string;
 }
 ```
 
 | Property  | Description                                        |
 | --------- | -------------------------------------------------- |
-| `pattern`  | File pattern (e.g., `"sidebar.ts"`)               |
+| `pattern` | File pattern (e.g., `"config/admin.ts"`)           |
 | `factory` | Expected factory function name for type generation |
 
 ---
@@ -107,44 +107,44 @@ Extensions add chainable methods to collection or global builders. The admin plu
 import type { CodegenPlugin } from "questpie";
 
 export function myPlugin(): CodegenPlugin {
-  return {
-    name: "my-plugin",
+	return {
+		name: "my-plugin",
 
-    categories: {
-      widgets: {
-        pattern: "widgets/**/*.ts",
-        cardinality: "map",
-        mergeStrategy: "record",
-        registryKey: "widgets",
-        moduleContributionKey: "widgets",
-        keyFromProperty: "name",
-      },
-      themes: {
-        pattern: "themes/**/*.ts",
-        cardinality: "map",
-        mergeStrategy: "record",
-        registryKey: "themes",
-      },
-    },
+		categories: {
+			widgets: {
+				pattern: "widgets/**/*.ts",
+				cardinality: "map",
+				mergeStrategy: "record",
+				registryKey: "widgets",
+				moduleContributionKey: "widgets",
+				keyFromProperty: "name",
+			},
+			themes: {
+				pattern: "themes/**/*.ts",
+				cardinality: "map",
+				mergeStrategy: "record",
+				registryKey: "themes",
+			},
+		},
 
-    singletons: {
-      widgetConfig: {
-        pattern: "widget-config.ts",
-        factory: "widgetConfig",
-      },
-    },
+		singletons: {
+			widgetConfig: {
+				pattern: "widget-config.ts",
+				factory: "widgetConfig",
+			},
+		},
 
-    extensions: {
-      collection: {
-        methods: ["widgets"],
-      },
-    },
+		extensions: {
+			collection: {
+				methods: ["widgets"],
+			},
+		},
 
-    transform: (ctx) => {
-      // Post-process codegen context
-      // Add custom generated code, modify outputs, etc.
-    },
-  };
+		transform: (ctx) => {
+			// Post-process codegen context
+			// Add custom generated code, modify outputs, etc.
+		},
+	};
 }
 ```
 
@@ -157,8 +157,8 @@ import { runtimeConfig } from "questpie";
 import { myPlugin } from "./my-plugin";
 
 export default runtimeConfig({
-  plugins: [myPlugin()],
-  // ...
+	plugins: [myPlugin()],
+	// ...
 });
 ```
 
@@ -166,9 +166,9 @@ Or contribute it from a module:
 
 ```ts
 export const myModule = module({
-  name: "my-module",
-  plugin: myPlugin(),
-  // ...
+	name: "my-module",
+	plugin: myPlugin(),
+	// ...
 });
 ```
 

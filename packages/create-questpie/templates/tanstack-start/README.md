@@ -33,6 +33,10 @@ src/
     server/
       questpie.config.ts             # Runtime config
       modules.ts                     # Module list (admin/openapi/...)
+      config/
+        admin.ts                     # Admin sidebar/dashboard/branding
+        auth.ts                      # Auth config
+        openapi.ts                   # OpenAPI/Scalar config
       app.ts                         # Re-export of generated app
       .generated/                    # Codegen output (do not edit manually)
       collections/
@@ -41,6 +45,8 @@ src/
         site-settings.global.ts
     admin/
       admin.ts                       # Re-export of generated admin config
+      modules.ts                     # Admin client module defaults
+      .generated/                    # Admin client codegen output
   routes/
     api/$.ts                         # QUESTPIE fetch handler mount
     admin.tsx
@@ -55,16 +61,16 @@ migrations/
 
 ## Scripts
 
-| Command                       | Description                                   |
-| ----------------------------- | --------------------------------------------- |
-| `bun dev`                     | Start development server                      |
-| `bun build`                   | Build for production                          |
-| `bun start`                   | Start production server                       |
-| `bun check-types`             | Type check                                    |
-| `bun questpie add <type> <name>` | Scaffold entity files (auto-runs codegen) |
-| `bun questpie migrate`        | Run migrations                                |
-| `bun questpie migrate:create` | Create migration                              |
-| `bunx questpie generate`      | Regenerate `src/questpie/server/.generated/*` |
+| Command                          | Description                                   |
+| -------------------------------- | --------------------------------------------- |
+| `bun dev`                        | Start development server                      |
+| `bun build`                      | Build for production                          |
+| `bun start`                      | Start production server                       |
+| `bun check-types`                | Type check                                    |
+| `bun questpie add <type> <name>` | Scaffold entity files (auto-runs codegen)     |
+| `bun questpie migrate`           | Run migrations                                |
+| `bun questpie migrate:create`    | Create migration                              |
+| `bunx questpie generate`         | Regenerate `src/questpie/server/.generated/*` |
 
 ## Adding a Collection
 

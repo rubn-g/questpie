@@ -493,7 +493,7 @@ export function generateTemplate(options: TemplateOptions): string {
 		lines.push("");
 		lines.push("\t\t\t// Entity APIs");
 		lines.push("\t\t\tcollections: _CollectionsAPI;");
-		lines.push("\t\t\tglobals: (typeof app)['api']['globals'];");
+		lines.push("\t\t\tglobals: (typeof app)['globals'];");
 		lines.push("\t\t\ttables: (typeof app)['tables'];");
 		lines.push("");
 		lines.push("\t\t\t// Request-scoped");
@@ -524,7 +524,12 @@ export function generateTemplate(options: TemplateOptions): string {
 		// Registry — ALL registryKey categories + ~-prefixed singles augmented centrally.
 		// This is the SINGLE place that augments Registry. Modules never augment it.
 		{
-			const registryEntries: string[] = [];
+			const registryEntries = new Map<string, string[]>();
+			const addRegistryEntry = (key: string, typeName: string) => {
+				const entries = registryEntries.get(key) ?? [];
+				if (!entries.includes(typeName)) entries.push(typeName);
+				registryEntries.set(key, entries);
+			};
 
 			// Category registryKeys (views, components, blocks, listViews, etc.)
 			for (const [catName, decl] of allDecls) {
@@ -532,7 +537,7 @@ export function generateTemplate(options: TemplateOptions): string {
 				const regKey =
 					typeof decl.registryKey === "string" ? decl.registryKey : catName;
 				const typeName = `_Registry_${capitalize(catName)}`;
-				registryEntries.push(`\t\t\t${safeKey(regKey)}: ${typeName};`);
+				addRegistryEntry(regKey, typeName);
 			}
 
 			// ~-prefixed registryKeys from singles (e.g. ~fieldTypes)
@@ -542,14 +547,16 @@ export function generateTemplate(options: TemplateOptions): string {
 			);
 			for (const { singleName, registryKey } of tildeKeys) {
 				const typeName = `_AllModule${capitalize(singleName)}`;
-				registryEntries.push(`\t\t\t${safeKey(registryKey)}: ${typeName};`);
+				addRegistryEntry(registryKey, typeName);
 			}
 
-			if (registryEntries.length > 0) {
+			if (registryEntries.size > 0) {
 				lines.push("");
 				lines.push("\t\tinterface Registry {");
-				for (const entry of registryEntries) {
-					lines.push(entry);
+				for (const [registryKey, typeNames] of registryEntries) {
+					lines.push(
+						`\t\t\t${safeKey(registryKey)}: ${typeNames.join(" & ")};`,
+					);
 				}
 				lines.push("\t\t}");
 			}
@@ -592,6 +599,10 @@ export function generateTemplate(options: TemplateOptions): string {
 	lines.push("");
 
 	emitNewArchitectureRuntime(lines, discovered, allDecls, extraEntities);
+
+	lines.push("/** Fully typed QUESTPIE app instance. */");
+	lines.push("export type App = typeof app;");
+	lines.push("");
 
 	// createContext() — typed context factory for scripts/standalone usage
 	lines.push("// ── createContext — typed context for scripts ──────────────");
@@ -813,11 +824,7 @@ function getCoreSingleKeys(
 	// Core singles are those discovered by any plugin that also declares categories.
 	// In practice, this is the core plugin which declares modules, locale, hooks, etc.
 	// We use a simple heuristic: keys that match well-known core patterns.
-	return new Set([
-		"modules",
-		"authConfig",
-		"appConfig",
-	]);
+	return new Set(["modules", "authConfig", "appConfig"]);
 }
 
 interface CategorizedSingles {

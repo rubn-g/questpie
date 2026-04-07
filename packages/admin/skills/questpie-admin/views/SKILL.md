@@ -169,31 +169,33 @@ Section-level visibility:
 
 ## Dashboard
 
-Configure with `dashboard.ts`:
+Configure in `config/admin.ts` under the `dashboard` key:
 
-```ts title="dashboard.ts"
-import { dashboard } from "#questpie";
+```ts title="config/admin.ts"
+import { adminConfig } from "#questpie/factories";
 
-export default dashboard({
-	title: { en: "Dashboard" },
-	description: { en: "Overview of your app" },
-	columns: 4,
-	actions: [
-		{
-			id: "new-post",
-			href: "/admin/collections/posts?create=true",
-			label: { en: "New Post" },
-			icon: { type: "icon", props: { name: "ph:plus" } },
-			variant: "primary",
-		},
-	],
-	sections: [
-		{ id: "today", label: { en: "Today" }, layout: "grid", columns: 4 },
-		{ id: "business", label: { en: "Business" }, layout: "grid", columns: 4 },
-	],
-	items: [
-		/* widget items — see widget types below */
-	],
+export default adminConfig({
+	dashboard: {
+		title: { en: "Dashboard" },
+		description: { en: "Overview of your app" },
+		columns: 4,
+		actions: [
+			{
+				id: "new-post",
+				href: "/admin/collections/posts?create=true",
+				label: { en: "New Post" },
+				icon: { type: "icon", props: { name: "ph:plus" } },
+				variant: "primary",
+			},
+		],
+		sections: [
+			{ id: "today", label: { en: "Today" }, layout: "grid", columns: 4 },
+			{ id: "business", label: { en: "Business" }, layout: "grid", columns: 4 },
+		],
+		items: [
+			/* widget items — see widget types below */
+		],
+	},
 });
 ```
 
@@ -306,40 +308,38 @@ export default dashboard({
 
 ## Sidebar
 
-Configure with `sidebar.ts`:
+Configure in `config/admin.ts` under the `sidebar` key:
 
-```ts title="sidebar.ts"
-import { sidebar } from "#questpie";
+```ts title="config/admin.ts"
+import { adminConfig } from "#questpie/factories";
 
-export default sidebar({
-	sections: [
-		{ id: "overview", title: { en: "Overview" } },
-		{ id: "content", title: { en: "Content" } },
-		{ id: "external", title: { en: "External" } },
-	],
-	items: [
-		// Dashboard link
-		{
-			sectionId: "overview",
-			type: "link",
-			label: { en: "Dashboard" },
-			href: "/admin",
-			icon: { type: "icon", props: { name: "ph:house" } },
-		},
-		// Global settings
-		{ sectionId: "overview", type: "global", global: "siteSettings" },
-		// Collection — label and icon from .admin() config
-		{ sectionId: "content", type: "collection", collection: "posts" },
-		// External link
-		{
-			sectionId: "external",
-			type: "link",
-			label: { en: "Open Website" },
-			href: "/",
-			external: true,
-			icon: { type: "icon", props: { name: "ph:arrow-square-out" } },
-		},
-	],
+export default adminConfig({
+	sidebar: {
+		sections: [
+			{ id: "overview", title: { en: "Overview" } },
+			{ id: "content", title: { en: "Content" } },
+			{ id: "external", title: { en: "External" } },
+		],
+		items: [
+			{
+				sectionId: "overview",
+				type: "link",
+				label: { en: "Dashboard" },
+				href: "/admin",
+				icon: { type: "icon", props: { name: "ph:house" } },
+			},
+			{ sectionId: "overview", type: "global", global: "siteSettings" },
+			{ sectionId: "content", type: "collection", collection: "posts" },
+			{
+				sectionId: "external",
+				type: "link",
+				label: { en: "Open Website" },
+				href: "/",
+				external: true,
+				icon: { type: "icon", props: { name: "ph:arrow-square-out" } },
+			},
+		],
+	},
 });
 ```
 
@@ -414,29 +414,21 @@ Add `.preview()` to the collection definition:
 ```ts
 export const pages = collection("pages")
 	.fields(({ f }) => ({
-		title: f.text({ required: true, localized: true }),
-		slug: f.text({ required: true }),
-		content: f.blocks({ localized: true }),
+		title: f.text().required().localized(),
+		slug: f.text().required(),
+		content: f.blocks().localized(),
 	}))
 	.preview({
+		enabled: true,
+		position: "right",
+		defaultWidth: 50,
 		url: ({ record }) => `/${record.slug}?preview=true`,
-		watch: ["title", "slug", "content"],
-		strategy: "hybrid",
 	});
 ```
-
-### Preview Strategy Options
-
-| Strategy    | Use case                                                              |
-| ----------- | --------------------------------------------------------------------- |
-| `"instant"` | Simple pages with no derived fields — fastest, pure client patches    |
-| `"server"`  | Complex forms where every change needs server validation/computation  |
-| `"hybrid"`  | Default recommendation — instant local patches + server reconcile for slugs, relations, computed fields |
 
 ### How It Works
 
 1. The form view detects `.preview()` config and opens a split-screen layout
-2. Field edits emit patches via `postMessage` to the preview iframe
-3. The preview page receives patches through `useQuestpiePreview` and updates in place
-4. Save/autosave persists to the database but is NOT the live transport
-5. In `"hybrid"` mode, derived data (slugs, expanded relations) reconciles via server round-trip
+2. Save/autosave sends a `PREVIEW_REFRESH` message to the preview iframe
+3. The preview page handles refreshes through `useCollectionPreview({ initialData, onRefresh })`
+4. `PreviewProvider` and `PreviewField` wire field focus and click-to-focus messages

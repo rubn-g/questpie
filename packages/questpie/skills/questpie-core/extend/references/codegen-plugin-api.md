@@ -159,7 +159,7 @@ Pattern definition for plugin file discovery. Can be a string shorthand or full 
 
 ```ts
 type DiscoverPattern =
-	| string // "blocks/*.ts" or "sidebar.ts"
+	| string // "blocks/*.ts" or "config/admin.ts"
 	| {
 			/** Glob pattern relative to QUESTPIE root. */
 			pattern: string;

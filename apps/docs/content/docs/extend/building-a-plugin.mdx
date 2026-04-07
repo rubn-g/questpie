@@ -13,34 +13,40 @@ import type { CodegenPlugin } from "questpie";
 export function myPlugin(): CodegenPlugin {
 	return {
 		name: "my-plugin",
+		targets: {
+			server: {
+				root: ".",
+				outputFile: "index.ts",
 
-		// File categories to discover
-		categories: {
-			widgets: {
-				pattern: "widgets/**/*.ts",
-				cardinality: "map",
-				recursive: true,
-				featureLayout: true,
-				mergeStrategy: "record",
-				moduleContributionKey: "widgets",
-				registryKey: "widgets",
-			},
-		},
-
-		// Builder extensions
-		extensions: {
-			collection: {
-				methods: {
-					widget: { type: "WidgetConfig" },
+				// File categories to discover
+				categories: {
+					widgets: {
+						dirs: ["widgets"],
+						prefix: "widg",
+						recursive: true,
+						emit: "record",
+						registryKey: "widgets",
+						moduleContributionKey: "widgets",
+					},
 				},
-			},
-		},
 
-		// Single-file factories
-		singletons: {
-			widgetConfig: {
-				pattern: "widget-config.ts",
-				factory: "widgetConfig",
+				// Single-file or directory patterns
+				discover: {
+					widgetConfig: {
+						pattern: "config/widgets.ts",
+						configKey: "widgets",
+					},
+				},
+
+				// Builder and singleton factories
+				registries: {
+					collectionExtensions: {
+						widget: { stateKey: "widget" },
+					},
+					singletonFactories: {
+						widgetConfig: { configType: "WidgetConfig" },
+					},
+				},
 			},
 		},
 	};
@@ -69,22 +75,17 @@ export default runtimeConfig({
 
 ## Real-World Example: Admin Plugin
 
-The `adminPlugin()` from `@questpie/admin/plugin` is a production example:
+The admin module contributes an admin codegen plugin automatically:
 
 ```ts
-// What adminPlugin() declares:
+// A simplified view of what the admin plugin declares:
 categories: {
-  blocks: { pattern: "blocks/**/*.ts", cardinality: "map" },
+  blocks: { dirs: ["blocks"], prefix: "bloc", registryKey: "blocks" },
 }
 discover: {
   adminConfig: {
     pattern: "config/admin.ts",
-    destructure: {
-      sidebar: "sidebar",
-      dashboard: "dashboard",
-      branding: "branding",
-      locale: "adminLocale",
-    },
+    configKey: "admin",
   },
 }
 ```

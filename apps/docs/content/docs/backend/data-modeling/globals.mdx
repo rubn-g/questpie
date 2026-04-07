@@ -10,7 +10,7 @@ A global is a **singleton** — a single record with no list view, just a form. 
 ```ts title="globals/site-settings.ts"
 import { global } from "#questpie/factories";
 
-export const siteSettings = global("site_settings")
+export const siteSettings = global("siteSettings")
 	.fields(({ f }) => ({
 		shopName: f.text().required().default("My App"),
 		tagline: f.text().localized(),
@@ -78,7 +78,7 @@ From the barbershop — site settings with nested objects, arrays, and access co
 ```ts title="globals/site-settings.ts"
 import { global } from "#questpie/factories";
 
-export const siteSettings = global("site_settings")
+export const siteSettings = global("siteSettings")
 	.fields(({ f }) => ({
 		shopName: f.text().required().default("Sharp Cuts"),
 		tagline: f.text().localized(),

@@ -15,7 +15,7 @@ Extend the QUESTPIE admin with custom field types, custom view types, custom com
 Registries connect server-side schema to client-side rendering. When the admin encounters a field type, it looks up the renderer in the field registry.
 
 ```text
-Server: f.text({ ... })
+Server: f.text().required()
   |
 Generated: { type: "text", options: {...} }
   |
@@ -79,7 +79,7 @@ Once registered and codegen runs, the field becomes available on the `f` builder
 
 ```ts
 .fields(({ f }) => ({
-  brandColor: f.color({ default: "#000000" }),
+  brandColor: f.color().default("#000000"),
   price: f.currency({ currency: "USD" }),
 }))
 ```
@@ -223,8 +223,7 @@ Fields support reactive behaviors configured in the collection's `.form()` view 
 For select/relation fields with options that depend on other field values:
 
 ```ts
-city: f.relation({
-  to: "cities",
+city: f.relation("cities").admin({
   options: {
     handler: async ({ data, search, ctx }) => {
       const cities = await ctx.db.query.cities.findMany({

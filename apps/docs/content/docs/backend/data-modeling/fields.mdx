@@ -22,7 +22,10 @@ export default collection("posts").fields(({ f }) => ({
 	title: f.text(255).required(),
 	body: f.textarea().localized(),
 	cover: f.upload({ to: "assets", mimeTypes: ["image/*"] }),
-	status: f.select(["draft", "published"]),
+	status: f.select([
+		{ value: "draft", label: "Draft" },
+		{ value: "published", label: "Published" },
+	]),
 	publishedAt: f.date(),
 }));
 ```
@@ -82,8 +85,12 @@ scheduledAt: f.datetime().required(),
 Single value from a predefined list:
 
 ```ts
-// Simple options
-status: f.select(["draft", "published", "archived"]).required().default("draft"),
+// Basic options
+status: f.select([
+    { value: "draft", label: "Draft" },
+    { value: "published", label: "Published" },
+    { value: "archived", label: "Archived" },
+]).required().default("draft"),
 
 // Options with labels
 status: f.select([
@@ -166,7 +173,12 @@ tags: f.text().array(),
 
 // Array of objects
 socialLinks: f.object({
-  platform: f.select(["instagram", "facebook", "twitter", "linkedin"]),
+  platform: f.select([
+    { value: "instagram", label: "Instagram" },
+    { value: "facebook", label: "Facebook" },
+    { value: "twitter", label: "Twitter" },
+    { value: "linkedin", label: "LinkedIn" },
+  ]),
   url: f.url(),
 }).array().maxItems(5),
 ```
