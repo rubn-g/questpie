@@ -9,6 +9,23 @@ import { createServerFn } from "@tanstack/react-start";
 
 import { app, createServerContext } from "@/lib/server-helpers";
 
+/**
+ * Recursively narrows `unknown` to `Record<string, {}>` so return types
+ * satisfy TanStack Start's deep `extends {}` constraint on ServerFn results.
+ * json/blocks/richText columns are typed as `unknown` by drizzle but are
+ * always JSON objects at runtime.
+ * Preserves Date, RegExp, and other builtins as-is.
+ */
+type JsonSafe<T> = unknown extends T
+	? Record<string, {}>
+	: T extends Date | RegExp | Function
+		? T
+		: T extends readonly (infer U)[]
+			? JsonSafe<U>[]
+			: T extends object
+				? { [K in keyof T]: JsonSafe<T[K]> }
+				: T;
+
 // ============================================================================
 // Cities
 // ============================================================================
@@ -93,7 +110,8 @@ export const getHomepage = createServerFn({ method: "GET" })
 			);
 		}
 
-		return { page };
+		const result = { page };
+		return result as JsonSafe<typeof result>;
 	});
 
 export const getPageBySlug = createServerFn({ method: "GET" })
@@ -118,7 +136,8 @@ export const getPageBySlug = createServerFn({ method: "GET" })
 			ctx,
 		);
 
-		return { page };
+		const result = { page };
+		return result as JsonSafe<typeof result>;
 	});
 
 // ============================================================================
@@ -154,7 +173,8 @@ export const getNewsList = createServerFn({ method: "GET" })
 			},
 			ctx,
 		);
-		return { news: result.docs };
+		const out = { news: result.docs };
+		return out as JsonSafe<typeof out>;
 	});
 
 export const getNewsBySlug = createServerFn({ method: "GET" })
@@ -181,7 +201,8 @@ export const getNewsBySlug = createServerFn({ method: "GET" })
 		);
 
 		if (!article) throw notFound();
-		return { article };
+		const out = { article };
+		return out as JsonSafe<typeof out>;
 	});
 
 // ============================================================================
@@ -212,7 +233,8 @@ export const getAnnouncementsList = createServerFn({ method: "GET" })
 			},
 			ctx,
 		);
-		return { announcements: result.docs };
+		const out = { announcements: result.docs };
+		return out as JsonSafe<typeof out>;
 	});
 
 // ============================================================================

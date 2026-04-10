@@ -96,7 +96,7 @@ import { app } from "#questpie";
 import { revalidatePath } from "next/cache";
 
 export async function createPost(formData: FormData) {
-	const post = await app.api.collections.posts.create({
+	const post = await app.collections.posts.create({
 		title: formData.get("title") as string,
 		content: formData.get("content") as string,
 	});

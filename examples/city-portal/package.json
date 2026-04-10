@@ -42,6 +42,7 @@
 		"zod": "^4.2.1"
 	},
 	"devDependencies": {
+		"bun-types": "latest",
 		"@iconify/json": ">=2",
 		"@questpie/vite-plugin-iconify": "workspace:*",
 		"@tanstack/devtools-vite": "^0.3.11",

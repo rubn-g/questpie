@@ -10,20 +10,26 @@ bun add @questpie/openapi
 
 ## Usage
 
-Register `openApiModule()` in your `modules.ts` file to add `/openapi.json` and `/docs` routes:
+Register `openApiModule` in your `modules.ts` file to add `/openapi.json` and `/docs` routes:
 
 ```ts
 // src/questpie/server/modules.ts
 import { adminModule } from "@questpie/admin/server";
 import { openApiModule } from "@questpie/openapi";
 
-export default [
-	adminModule,
-	openApiModule({
-		info: { title: "My API", version: "1.0.0" },
-		scalar: { theme: "purple" },
-	}),
-] as const;
+export default [adminModule, openApiModule] as const;
+```
+
+Configure the OpenAPI module via `config/openapi.ts`:
+
+```ts
+// src/questpie/server/config/openapi.ts
+import { openApiConfig } from "@questpie/openapi";
+
+export default openApiConfig({
+	info: { title: "My API", version: "1.0.0" },
+	scalar: { theme: "purple" },
+});
 ```
 
 Your route handler stays clean — no wrapper needed:

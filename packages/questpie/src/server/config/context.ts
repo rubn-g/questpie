@@ -156,7 +156,8 @@ export function runWithContext<T>(
 			ctx._hookDepth = parent._hookDepth;
 		}
 	}
-	return appContextStorage.run(ctx, fn) as Promise<T>;
+	// Cast needed because some @types/node versions type AsyncLocalStorage.run() as returning void
+	return appContextStorage.run(ctx, fn) as unknown as Promise<T>;
 }
 
 /**

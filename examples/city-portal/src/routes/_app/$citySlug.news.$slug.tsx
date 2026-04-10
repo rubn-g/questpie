@@ -117,7 +117,7 @@ function NewsDetail() {
 			{/* Article Content */}
 			{article.content && (
 				<div className="prose max-w-3xl">
-					<RichTextRenderer content={article.content} />
+					<RichTextRenderer content={article.content as any} />
 				</div>
 			)}
 		</article>

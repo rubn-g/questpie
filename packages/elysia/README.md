@@ -12,7 +12,7 @@ bun add @questpie/elysia questpie elysia
 
 ```ts
 import { Elysia } from "elysia";
-import { questpieElysia } from "@questpie/elysia";
+import { questpieElysia } from "@questpie/elysia/server";
 import { app } from "./questpie";
 
 const app = new Elysia()

@@ -12,7 +12,7 @@ bun add @questpie/hono questpie hono
 
 ```ts
 import { Hono } from "hono";
-import { questpieHono } from "@questpie/hono";
+import { questpieHono } from "@questpie/hono/server";
 import { app } from "./questpie";
 
 const app = new Hono().route("/", questpieHono(app, { basePath: "/api" }));

@@ -53,6 +53,10 @@ export interface BlocksPrefetchContext {
 	db: unknown;
 	/** Current locale */
 	locale?: string;
+	/** Collections accessor */
+	collections?: unknown;
+	/** Globals accessor */
+	globals?: unknown;
 }
 
 // ============================================================================

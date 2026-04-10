@@ -70,9 +70,7 @@ export function generateFactoryTemplate(
 		collectImports(ext, allImports);
 	}
 
-	for (const [name, ext] of Object.entries(
-		target.registries.fieldExtensions,
-	)) {
+	for (const [name, ext] of Object.entries(target.registries.fieldExtensions)) {
 		fieldExtensions.set(name, ext);
 		collectImports(ext, allImports);
 	}
@@ -170,12 +168,7 @@ export function generateFactoryTemplate(
 
 	// Emit field extension registry early (before field defs, which reference it)
 	if (hasFieldExtensions) {
-		emitExtensionRegistry(
-			lines,
-			"_fieldExt",
-			fieldExtensions,
-			callbackParams,
-		);
+		emitExtensionRegistry(lines, "_fieldExt", fieldExtensions, callbackParams);
 		lines.push("");
 	}
 
@@ -208,9 +201,7 @@ export function generateFactoryTemplate(
 			);
 			lines.push("}");
 			lines.push("");
-			lines.push(
-				"const _allFieldDefs = Object.fromEntries(",
-			);
+			lines.push("const _allFieldDefs = Object.fromEntries(");
 			lines.push(
 				"\tObject.entries(_rawFieldDefs).map(([k, v]) => [k, _wrapFieldFactory(v as any)])",
 			);
@@ -326,7 +317,11 @@ export function generateFactoryTemplate(
 		const placeholderMap = buildPlaceholderMap(registryCategories);
 
 		// Builder interface augmentations — keep declare module "questpie" for class merging
-		if (collExtensions.size > 0 || globalExtensions.size > 0 || fieldExtensions.size > 0) {
+		if (
+			collExtensions.size > 0 ||
+			globalExtensions.size > 0 ||
+			fieldExtensions.size > 0
+		) {
 			lines.push('declare module "questpie" {');
 
 			if (collExtensions.size > 0) {
@@ -373,9 +368,7 @@ export function generateFactoryTemplate(
 						hasModules,
 						placeholderMap,
 					);
-					lines.push(
-						`\t\t${name}(${paramName}: ${paramType}): Field<TState>;`,
-					);
+					lines.push(`\t\t${name}(${paramName}: ${paramType}): Field<TState>;`);
 				}
 				lines.push("\t}");
 			}
@@ -481,9 +474,7 @@ export function generateFactoryTemplate(
 	lines.push(' * import { collection } from "#questpie/factories";');
 	lines.push(" *");
 	lines.push(' * export default collection("posts")');
-	lines.push(
-		" *   .fields(({ f }) => ({ title: f.text({ required: true }) }))",
-	);
+	lines.push(" *   .fields(({ f }) => ({ title: f.text(255).required() }))");
 	if (collExtensions.size > 0) {
 		lines.push(' *   .admin(({ c }) => ({ icon: c.icon("ph:article") }))');
 		lines.push(
@@ -548,15 +539,12 @@ export function generateFactoryTemplate(
 			lines.push(
 				`import { ${factory.import.name} } from "${factory.import.from}";`,
 			);
-			const generic =
-				factory.genericSignature ?? "<TName extends string>";
+			const generic = factory.genericSignature ?? "<TName extends string>";
 			const returnType = factory.returnType
 				? factory.returnType.replace("$CLASS", factory.builderClass)
 				: `ReturnType<typeof ${factory.builderClass}.${factory.createMethod}>`;
 			lines.push("/**");
-			lines.push(
-				` * Create a typed ${name} builder with wrapped field defs.`,
-			);
+			lines.push(` * Create a typed ${name} builder with wrapped field defs.`);
 			lines.push(" */");
 			lines.push(
 				`export function ${name}${generic}(name: TName): ${returnType} {`,

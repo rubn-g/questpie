@@ -2072,8 +2072,7 @@ export class CRUDGenerator<TState extends CollectionBuilderState> {
 						.delete(this.table)
 						.where(inArray(getColumn(this.table, "id")!, recordIds));
 				}
-
-				});
+			});
 
 			// 4. Loop through afterDelete hooks
 			for (const record of records) {
@@ -2550,10 +2549,7 @@ export class CRUDGenerator<TState extends CollectionBuilderState> {
 					transitionCtx,
 				);
 			} catch (err) {
-				if (
-					err instanceof Error &&
-					err.name === "TransitionScheduledError"
-				) {
+				if (err instanceof Error && err.name === "TransitionScheduledError") {
 					// Transition was scheduled for future execution — return record unchanged
 					return existing;
 				}
@@ -3162,7 +3158,8 @@ export class CRUDGenerator<TState extends CollectionBuilderState> {
 				const { Readable } = await import("node:stream");
 				const webStream = file.stream();
 				// Web ReadableStream → Node.js stream type mismatch requires cast
-				const nodeStream = Readable.fromWeb(
+				// Readable.fromWeb exists in Node 17+ / Bun but may not be in all TS lib definitions
+				const nodeStream = (Readable as any).fromWeb(
 					webStream as unknown as import("node:stream/web").ReadableStream,
 				);
 				await this.app.storage.use().putStream(key, nodeStream, {

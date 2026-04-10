@@ -19,6 +19,7 @@
 			"DOM.Iterable"
 		],
 		"types": [
+			"bun-types",
 			"vite/client"
 		],
 		"moduleResolution": "bundler",
@@ -42,6 +43,9 @@
 			],
 			"#questpie/*": [
 				"./src/questpie/server/.generated/*"
+			],
+			"#questpie/admin/*": [
+				"../../packages/admin/src/*"
 			]
 		}
 	}

@@ -19,15 +19,13 @@ bun add @questpie/admin questpie @questpie/tanstack-query @tanstack/react-query
 
 ## Server Setup
 
-The admin plugin is registered in `questpie.config.ts`, and the admin module is added to `modules.ts`:
+Add the admin module to `modules.ts`:
 
 ```ts
 // questpie.config.ts
 import { runtimeConfig } from "questpie";
-import { adminPlugin } from "@questpie/admin/plugin";
 
 export default runtimeConfig({
-	plugins: [adminPlugin()],
 	app: { url: process.env.APP_URL! },
 	db: { url: process.env.DATABASE_URL! },
 	secret: process.env.AUTH_SECRET!,
@@ -41,7 +39,25 @@ import { adminModule } from "@questpie/admin/server";
 export default [adminModule] as const;
 ```
 
-Branding, sidebar, and dashboard are configured via the file convention (e.g. `branding.ts`, `sidebar.ts`, `dashboard.ts`) and auto-discovered by codegen.
+Branding, sidebar, dashboard, and admin locale are configured via `config/admin.ts`:
+
+```ts
+// config/admin.ts
+import { adminConfig } from "#questpie/factories";
+
+export default adminConfig({
+	branding: { name: "My Admin" },
+	sidebar: {
+		sections: [
+			{
+				id: "main",
+				title: "Content",
+				items: [{ type: "collection", collection: "posts" }],
+			},
+		],
+	},
+});
+```
 
 Collections, globals, routes, and jobs are auto-discovered via file convention. Codegen produces a `.generated/index.ts` with the fully-typed `App` and runtime `app` instance.
 
@@ -54,7 +70,12 @@ const posts = collection("posts")
 	.fields(({ f }) => ({
 		title: f.text(255).required().label("Title"),
 		content: f.richText().label("Content"),
-		status: f.select(["draft", "published"]).label("Status"),
+		status: f
+			.select([
+				{ value: "draft", label: "Draft" },
+				{ value: "published", label: "Published" },
+			])
+			.label("Status"),
 		cover: f.upload({ to: "assets", mimeTypes: ["image/*"] }),
 		publishedAt: f.date(),
 	}))
@@ -147,35 +168,51 @@ Server-evaluated reactive behaviors in form config:
 ### Dashboard Actions
 
 ```ts
-.dashboard(({ d, c, a }) => d.dashboard({
-  actions: [
-    a.create({ collection: "posts", label: { en: "New Post" }, icon: c.icon("ph:plus"), variant: "primary" }),
-    a.global({ global: "siteSettings", label: { en: "Settings" }, icon: c.icon("ph:gear-six") }),
-    a.link({ href: "/", label: { en: "Open Site" }, icon: c.icon("ph:arrow-square-out"), variant: "outline" }),
-  ],
-  items: [
-    { type: "section", items: [
-      { type: "stats", collection: "posts", label: "Posts" },
-    ]},
-  ],
-}))
+export default adminConfig({
+	dashboard: {
+		title: "Dashboard",
+		items: [
+			{
+				id: "posts",
+				type: "stats",
+				collection: "posts",
+				label: "Posts",
+			},
+			{
+				id: "quick-actions",
+				type: "quickActions",
+				label: "Quick Actions",
+				actions: [
+					{
+						label: "New Post",
+						action: { type: "create", collection: "posts" },
+					},
+					{
+						label: "Open Site",
+						action: { type: "link", href: "/" },
+					},
+				],
+			},
+		],
+	},
+});
 ```
 
 ## Client Setup
 
-The client creates a typed admin builder and mounts the admin UI in React:
+Codegen creates a typed admin config from the client module registry and the server projection:
 
-### 1. Admin Builder
+### 1. Admin Client Modules
 
 ```ts
-// questpie/admin/builder.ts
-import { qa, adminModule } from "@questpie/admin/client";
-import type { App } from "#questpie";
-
-export const admin = qa<App>().use(adminModule);
+// questpie/admin/modules.ts
+export { default } from "@questpie/admin/client-module";
 ```
 
-> **Note:** The old `.toNamespace()` call has been removed. `qa<App>().use(adminModule)` is the complete builder.
+```ts
+// questpie/admin/admin.ts
+export { default as admin } from "./.generated/client";
+```
 
 ### 2. Typed Hooks
 
@@ -200,7 +237,7 @@ export const {
 ```tsx
 // routes/admin.tsx
 import { AdminRouter } from "@questpie/admin/client";
-import { admin } from "@/questpie/admin/builder";
+import { admin } from "@/questpie/admin/admin";
 import { appClient } from "@/lib/client";
 import { queryClient } from "@/lib/query-client";
 
@@ -208,7 +245,7 @@ export default function AdminRoute() {
 	return (
 		<AdminRouter
 			admin={admin}
-			client={client}
+			client={appClient}
 			queryClient={queryClient}
 			basePath="/admin"
 		/>
@@ -239,7 +276,7 @@ const heroBlock = block("hero")
 		category: { label: "Sections", icon: c.icon("ph:layout") },
 	}))
 	.fields(({ f }) => ({
-		title: f.text({ required: true }),
+		title: f.text().required(),
 		subtitle: f.textarea(),
 		backgroundImage: f.upload({ to: "assets", mimeTypes: ["image/*"] }),
 	}))
@@ -249,19 +286,19 @@ const heroBlock = block("hero")
 Render blocks on the client with `BlockRenderer`:
 
 ```tsx
-import { BlockRenderer, createBlockRegistry } from "@questpie/admin/client";
+import { BlockRenderer } from "@questpie/admin/client";
 
-const registry = createBlockRegistry({
-	hero: ({ block }) => (
-		<section style={{ backgroundImage: `url(${block.backgroundImage?.url})` }}>
-			<h1>{block.title}</h1>
-			<p>{block.subtitle}</p>
+const renderers = {
+	hero: ({ values }) => (
+		<section>
+			<h1>{values.title}</h1>
+			<p>{values.subtitle}</p>
 		</section>
 	),
-});
+};
 
-function Page({ blocks }) {
-	return <BlockRenderer blocks={blocks} registry={registry} />;
+function Page({ content }) {
+	return <BlockRenderer content={content} renderers={renderers} />;
 }
 ```
 
@@ -305,19 +342,15 @@ Legacy params (`history`, `viewOptions`, and `sidebar=preview`) are still read f
 ## Package Exports
 
 ```ts
-// Client (React components, builder, hooks)
+// Client (React components, generated admin config, hooks)
 import {
-	qa,
-	adminModule,
 	AdminRouter,
 	createTypedHooks,
 	BlockRenderer,
-	createBlockRegistry,
 } from "@questpie/admin/client";
 
-// Server (admin module + plugin for QUESTPIE config)
+// Server (admin module + server factories/config)
 import { adminModule, auditModule } from "@questpie/admin/server";
-import { adminPlugin } from "@questpie/admin/plugin";
 
 // Styles
 import "@questpie/admin/styles/index.css";

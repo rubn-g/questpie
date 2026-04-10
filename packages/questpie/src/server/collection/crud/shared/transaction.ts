@@ -304,12 +304,13 @@ export async function withTransaction<T>(
 	};
 
 	// Execute transaction within the AsyncLocalStorage context
-	const result = await transactionStorage.run(ctx, async () => {
+	// Cast needed because some @types/node versions type run() as returning void
+	const result = (await transactionStorage.run(ctx, async () => {
 		return db.transaction(async (tx: any) => {
 			ctx.tx = tx;
 			return fn(tx);
 		});
-	});
+	})) as T;
 
 	// Transaction committed successfully - run afterCommit callbacks
 	// These run sequentially to maintain predictable ordering

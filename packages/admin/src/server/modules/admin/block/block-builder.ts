@@ -424,7 +424,7 @@ export class BlockBuilder<
 			fields: resolvedFields,
 		} as any);
 		child._fieldDefs = this._fieldDefs;
-		return child;
+		return child as any;
 	}
 
 	/**

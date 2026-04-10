@@ -144,7 +144,9 @@ export class PgBossAdapter implements QueueAdapter {
 	}
 
 	on(event: "error", handler: (error: Error) => void): void {
-		this.boss.on(event, handler);
+		// Use addListener to avoid TS2576 with some @types/node versions
+		// that expose 'on' only as a static member in the class declaration
+		(this.boss as unknown as NodeJS.EventEmitter).addListener(event, handler);
 	}
 }
 
