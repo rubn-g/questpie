@@ -209,7 +209,6 @@ const ADAPTER_CATEGORIES: AdapterCategory[] = [
 				label: "pgvector",
 				fn: "createPgVectorSearchAdapter",
 				code: "search: createPgVectorSearchAdapter({ embeddings })",
-				soon: true,
 			},
 			{
 				label: "Meilisearch",
@@ -1888,7 +1887,7 @@ const SCHEMA_TILES: SchemaTile[] = [
 				<span className={fn}>route</span>
 				{`()
   .`}
-				<span className={fn}>get</span>
+				<span className={fn}>post</span>
 				{`()
   .`}
 				<span className={fn}>schema</span>
@@ -1897,11 +1896,11 @@ const SCHEMA_TILES: SchemaTile[] = [
   }))
   .`}
 				<span className={fn}>handler</span>
-				{`(async ({ input, db }) => {
+				{`(async ({ input, collections }) => {
     `}
 				<span className={kw}>return</span>
-				{` db.posts.`}
-				<span className={fn}>findMany</span>
+				{` collections.posts.`}
+				<span className={fn}>find</span>
 				{`({
       where: { tag: input.tag },
     })
@@ -1916,24 +1915,26 @@ const SCHEMA_TILES: SchemaTile[] = [
 		label: "client — realtime",
 		snippet: (
 			<>
-				{"client.collections.posts."}
+				<span className="text-muted-foreground/60">
+					{"// SSE multiplexer — auto-reconnects"}
+				</span>
+				{"\n"}
+				<span className={kw}>const</span>
+				{" unsub = client.realtime."}
 				<span className={fn}>subscribe</span>
-				{`({
-  where: { status: { eq: `}
-				<span className={str}>"published"</span>
-				{` } },
-  on: {
-    `}
-				<span className={fn}>created</span>
-				{`: (doc) => addToList(doc),
-    `}
-				<span className={fn}>updated</span>
-				{`: (doc) => updateInList(doc),
-    `}
-				<span className={fn}>deleted</span>
-				{`: (id)  => removeFromList(id),
+				{`(
+  {
+    resourceType: `}
+				<span className={str}>"collection"</span>
+				{`,
+    resource: `}
+				<span className={str}>"posts"</span>
+				{`,
   },
-})`}
+  (snapshot) => `}
+				<span className={fn}>updateUI</span>
+				{`(snapshot),
+)`}
 			</>
 		),
 	},
@@ -2367,7 +2368,9 @@ const DX_CARDS = [
 			{
 				content: (
 					<>
-						{`  { resource: `}
+						{`  { resourceType: `}
+						<span className="text-[var(--syntax-string)]">"collection"</span>
+						{`, resource: `}
 						<span className="text-[var(--syntax-string)]">"posts"</span>
 						{` },`}
 					</>
@@ -2377,9 +2380,9 @@ const DX_CARDS = [
 			{
 				content: (
 					<>
-						{`  (event) => `}
+						{`  (snapshot) => `}
 						<span className="text-[var(--syntax-function)]">updateUI</span>
-						{`(event)`}
+						{`(snapshot)`}
 					</>
 				),
 				delay: 600,
@@ -2718,7 +2721,7 @@ export function LandingPage() {
 						</h2>
 						<div className="bg-secondary border-border mb-8 inline-flex items-center gap-4 border px-6 py-3">
 							<span className="text-primary font-mono">$</span>
-							<span className="font-mono text-[14px]">npx create-questpie</span>
+							<span className="font-mono text-[14px]">bun create questpie</span>
 						</div>
 						<div className="flex flex-wrap items-center justify-center gap-4">
 							<Link

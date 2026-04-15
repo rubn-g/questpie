@@ -1,8 +1,6 @@
 ---
 name: questpie-core-business-logic
 description: QUESTPIE routes jobs services emails route job service email background queue scheduling Zod input validation server-side logic reusable services email templates
-type: sub-skill
-requires:
   - questpie-core
 ---
 

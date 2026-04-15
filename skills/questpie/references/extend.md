@@ -1,8 +1,6 @@
 ---
 name: questpie-core/extend
 description: QUESTPIE extensibility — codegen plugins CodegenPlugin CategoryDeclaration CallbackParamDefinition, building modules, custom field types field() factory toColumn toZodSchema getOperators getMetadata, custom adapters createFetchHandler Elysia Hono Next.js TanStack Start, type registries FieldTypeRegistry ComponentTypeRegistry ViewKindRegistry declare module augmentation, package distribution tsdown npm publishing changesets
-type: sub-skill
-requires:
   - questpie-core
 ---
 

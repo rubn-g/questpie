@@ -1,8 +1,6 @@
 ---
 name: questpie-core-multi-tenancy
 description: QUESTPIE multi-tenant scope context resolver header-based tenant isolation ScopeProvider ScopePicker request-scoped services data filtering access control workspace organization property
-type: sub-skill
-requires:
   - questpie-core
   - questpie-core-rules
   - questpie-core-business-logic
@@ -110,24 +108,25 @@ export default collection("projects")
 		// Only allow reads when a workspace is selected
 		read: ({ ctx }) => {
 			if (!ctx.workspaceId) return false;
-			return { workspace: { equals: ctx.workspaceId } };
+			return { workspace: ctx.workspaceId };
 		},
 		create: ({ ctx }) => !!ctx.workspaceId,
 		update: ({ ctx }) => {
 			if (!ctx.workspaceId) return false;
-			return { workspace: { equals: ctx.workspaceId } };
+			return { workspace: ctx.workspaceId };
 		},
 		delete: ({ ctx }) => {
 			if (!ctx.workspaceId) return false;
-			return { workspace: { equals: ctx.workspaceId } };
+			return { workspace: ctx.workspaceId };
 		},
 	})
 	.hooks({
 		// Auto-assign workspace on create
-		beforeCreate: async ({ data, ctx }) => {
-			if (ctx.workspaceId) {
+		beforeChange: async ({ data, operation, ctx }) => {
+			if (operation === "create" && ctx.workspaceId) {
 				data.workspace = ctx.workspaceId;
 			}
+			return data;
 		},
 	});
 ```
@@ -138,7 +137,7 @@ export default collection("projects")
 | ------------------------------ | ---------------------------------------- |
 | `true`                         | Allow all records                        |
 | `false`                        | Deny all records                         |
-| `{ field: { equals: value } }` | Where-clause filter (row-level security) |
+| `{ field: value }` | Where-clause filter (row-level security) |
 
 ## Step 5: Set Up the Admin UI
 
@@ -302,7 +301,7 @@ export default service({
 6. Server: context.ts resolver extracts workspaceId = "ws_123" from header
 7. Server: RequestContext created with { workspaceId: "ws_123", session, locale, ... }
 8. Server: runWithContext() stores in AsyncLocalStorage
-9. Server: Access rules evaluate → return { workspace: { equals: "ws_123" } }
+9. Server: Access rules evaluate → return { workspace: "ws_123" }
 10. Server: Query filtered to workspace = "ws_123"
 11. Response: Only Acme Corp's projects returned
 ```

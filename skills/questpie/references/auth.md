@@ -67,9 +67,12 @@ export default route()
 
 ```ts
 .hooks({
-  beforeCreate: async ({ data, session }) => {
-    if (!session) throw new Error("Must be logged in");
-    return { ...data, createdBy: session.user.id };
+  beforeChange: async ({ data, operation, session }) => {
+    if (operation === "create") {
+      if (!session) throw new Error("Must be logged in");
+      data.createdBy = session.user.id;
+    }
+    return data;
   },
 })
 ```

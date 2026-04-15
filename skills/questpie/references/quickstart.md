@@ -1,6 +1,5 @@
 ---
 name: questpie-quickstart
-type: lifecycle
 description: >
   End-to-end getting started with QUESTPIE — from scaffolding to production.
   Load when starting a new project, onboarding, or following the happy path
@@ -196,7 +195,7 @@ This scans your file convention directories and generates:
 - `src/questpie/server/.generated/module.ts` — merged module with all discovered entities
 - Module augmentation for `AppContext` (typed `collections`, `queue`, `email` in every handler)
 
-Use `#questpie/factories` in collection, global, route, and block files; use `#questpie` only for the generated app/runtime exports.
+Use `#questpie/factories` in collection, global, and block files (they need codegen-generated types). Routes, jobs, services, emails use `"questpie"` directly. Use `#questpie` for the generated app/runtime exports.
 
 **Run codegen again every time you add, rename, or remove a file in a convention directory.**
 

@@ -1,20 +1,27 @@
 ---
 name: questpie-admin
-description: QUESTPIE admin panel setup branding theming sidebar dashboard media localization live-preview auth dark-mode CSS variables configuration
-type: skill
+description: QUESTPIE admin panel — setup, branding, theming, sidebar, dashboard, views, blocks, custom fields, media, localization, live preview, auth, dark mode, CSS variables. Use when building or customizing the QUESTPIE admin UI.
+license: MIT
+metadata:
+  author: questpie
+  version: "3.0.0"
 ---
 
 # QUESTPIE Admin Panel
 
 The QUESTPIE admin panel is a **projection of your server schema** — not the framework itself. It reads collections, globals, and config via introspection and generates a full admin interface. Your backend works without it.
 
-## Sub-Skills
+## Reference Topics
 
-| Skill                                            | Covers                                                                                 |
-| ------------------------------------------------ | -------------------------------------------------------------------------------------- |
-| [questpie-admin/views](./views/SKILL.md)         | List views, form views, dashboard, sidebar, filters, bulk actions, visibility, history |
-| [questpie-admin/blocks](./blocks/SKILL.md)       | Block definitions, fields, prefetch, renderers, block picker                           |
-| [questpie-admin/custom-ui](./custom-ui/SKILL.md) | Custom fields, custom views, registries, reactive fields, widgets                      |
+| Topic | File | Covers |
+|---|---|---|
+| Views | `references/views.md` | List views, form views, dashboard, sidebar, filters, bulk actions, visibility, history |
+| Blocks | `references/blocks.md` | Block definitions, fields, prefetch, renderers, block picker |
+| Custom UI | `references/custom-ui.md` | Custom fields, custom views, registries, reactive fields, widgets |
+
+## Full Compiled Document
+
+For the complete admin reference with all topics expanded: `AGENTS.md`
 
 ## Tech Stack
 
@@ -285,12 +292,12 @@ function PagePreview({ initialData }) {
 
 ## History & Versions
 
-Enable `auditModule` for activity timeline. Enable `.versioning()` on collections for snapshot restore:
+Enable `auditModule` for activity timeline. Enable versioning on collections for snapshot restore:
 
 ```ts
 export const pages = collection("pages")
-  .versioning({ drafts: true, maxVersions: 20 })
-  .fields(({ f }) => ({ ... }));
+  .fields(({ f }) => ({ ... }))
+  .options({ versioning: true });
 ```
 
 ## Scope (Multi-Tenancy)
@@ -371,7 +378,7 @@ const { scopeId, setScope, clearScope, headerName } = useScope(); // throws outs
 const scope = useScopeSafe(); // returns null outside ScopeProvider
 ```
 
-For the full server-side setup (context resolver, type augmentation, access rules), see the `questpie-core/multi-tenancy` skill.
+For the full server-side setup (context resolver, type augmentation, access rules), see the `questpie` skill's `references/multi-tenancy.md`.
 
 ## Common Mistakes
 

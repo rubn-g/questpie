@@ -31,9 +31,9 @@ src/questpie/
     modules.ts         ← Module dependencies (adminModule, openApiModule, etc.)
     config/            ← Typed configuration files
       auth.ts          ← authConfig({...}) — Better Auth options
-      app.ts           ← appConfig({ locale, access, hooks, context })
       admin.ts         ← adminConfig({ sidebar, dashboard, branding, locale })
       openapi.ts       ← openApiConfig({ info, scalar })
+      app.ts           ← (optional) appConfig({ locale, access, hooks, context })
     .generated/        ← Codegen output (app instance + App type)
       index.ts
     collections/       ← One file per collection (auto-discovered)
@@ -52,8 +52,8 @@ src/questpie/
 - **`src/questpie/server/questpie.config.ts`** — App config: `runtimeConfig({ db, app, ... })`.
 - **`src/questpie/server/modules.ts`** — Module dependencies: `export default [adminModule, openApiModule] as const`.
 - **`src/questpie/server/config/auth.ts`** — Auth config via `authConfig()` factory.
-- **`src/questpie/server/config/app.ts`** — App config (locale, access, hooks, context) via `appConfig()` factory.
 - **`src/questpie/server/config/admin.ts`** — Admin config (sidebar, dashboard, branding, locale) via `adminConfig()` factory.
+- **`src/questpie/server/config/app.ts`** — *(optional, not scaffolded)* App config (locale, access, hooks, context) via `appConfig()`. Create when needed.
 - **`src/questpie/server/.generated/index.ts`** — Codegen output. Exports typed `app` instance and `App` type. Run `bunx questpie generate` to regenerate.
 - **`src/lib/env.ts`** — Type-safe env variables via `@t3-oss/env-core`. Add new env vars here with Zod schemas.
 - **`questpie.config.ts`** — CLI config (migration directory, app reference).

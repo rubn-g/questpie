@@ -1,7 +1,6 @@
 ---
 name: questpie-admin/custom-ui
 description: QUESTPIE custom-fields custom-views registries field-registry view-registry component-registry reactive-fields dynamic-options widgets field-renderer cell-renderer
-type: skill
 ---
 
 # QUESTPIE Custom UI

@@ -1,7 +1,5 @@
 ---
 name: questpie-core/data-modeling
-type: sub-skill
-requires: [questpie-core]
 ---
 
 This skill builds on questpie-core. It covers collections, globals, fields, relations, and localization -- the data modeling layer of QUESTPIE.

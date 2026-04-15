@@ -1,8 +1,6 @@
 ---
 name: questpie-core-rules
 description: QUESTPIE access control hooks validation lifecycle beforeValidate beforeChange afterChange beforeDelete afterDelete access rules field-level row-level secure-by-default Zod schema refinements collection global
-type: sub-skill
-requires:
   - questpie-core
 ---
 

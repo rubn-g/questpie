@@ -1,8 +1,6 @@
 ---
 name: questpie-tanstack-query
 description: QUESTPIE TanStack Query integration - createQuestpieQueryOptions option builders, useQuery useMutation queryOptions mutationOptions, collections globals routes, streamedQuery SSE realtime subscriptions, batch helpers, type inference AppConfig createClient, React data fetching caching, framework adapters TanStack Start Next.js Hono Elysia, frontend client SDK querying where orderBy pagination with select
-type: composition
-requires:
   - questpie-core
 ---
 
@@ -225,7 +223,7 @@ function SiteSettings() {
 	return (
 		<div>
 			<h1>{settings?.shopName}</h1>
-			<button onClick={() => update.mutate({ data: { shopName: "New Name" } })}>
+			<button onClick={() => update.mutate({ shopName: "New Name" })}>
 				Update
 			</button>
 		</div>

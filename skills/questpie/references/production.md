@@ -1,8 +1,6 @@
 ---
 name: questpie-core/production
 description: QUESTPIE production deployment authentication better-auth OAuth database PostgreSQL Drizzle storage S3 Flydrive queue pg-boss jobs realtime SSE pgNotify Redis migrations email SMTP KV key-value logger Pino OpenAPI Docker environment variables adapters infrastructure
-type: sub-skill
-requires:
   - questpie-core
 ---
 

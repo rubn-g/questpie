@@ -1,7 +1,6 @@
 ---
 name: questpie-admin/blocks
 description: QUESTPIE blocks content-blocks page-builder block-definition fields prefetch renderers block-picker categories nested-blocks upload relation
-type: skill
 ---
 
 # QUESTPIE Blocks

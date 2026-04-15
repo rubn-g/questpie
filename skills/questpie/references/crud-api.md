@@ -1,8 +1,6 @@
 ---
 name: questpie-core/crud-api
 description: QUESTPIE CRUD API find findOne create update delete count updateMany deleteMany query operators where filter sort orderBy pagination limit offset with select relations depth context accessMode collections globals client server typesafe
-type: sub-skill
-requires:
   - questpie-core
 ---
 
@@ -157,7 +155,7 @@ const settings = await globals.siteSettings.get({});
 
 // Update global
 const updated = await globals.siteSettings.update({
-	data: { siteName: "New Name" },
+	siteName: "New Name",
 });
 ```
 
@@ -166,7 +164,7 @@ Via app instance:
 ```ts
 const settings = await app.globals.siteSettings.get({}, ctx);
 await app.globals.siteSettings.update(
-	{ data: { siteName: "New Name" } },
+	{ siteName: "New Name" },
 	ctx,
 );
 ```

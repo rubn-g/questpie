@@ -1,7 +1,6 @@
 ---
 name: questpie-admin/views
 description: QUESTPIE admin views list-view table form-view sections sidebar dashboard widgets filters bulk-actions visibility history versioning sorting search
-type: skill
 ---
 
 # QUESTPIE Admin Views
@@ -379,8 +378,8 @@ Enable versioning:
 
 ```ts
 export const pages = collection("pages")
-  .versioning({ drafts: true, maxVersions: 20 })
-  .fields(({ f }) => ({ ... }));
+  .fields(({ f }) => ({ ... }))
+  .options({ versioning: true });
 ```
 
 Disable audit for a specific collection:

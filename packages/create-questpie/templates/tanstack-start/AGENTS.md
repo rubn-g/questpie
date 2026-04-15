@@ -115,8 +115,8 @@ src/
 - **`src/questpie/server/questpie.config.ts`** — App config: `runtimeConfig({ db, app, ... })`.
 - **`src/questpie/server/modules.ts`** — Module dependencies: `export default [adminModule, openApiModule] as const`.
 - **`src/questpie/server/config/auth.ts`** — Auth config via `authConfig()` factory.
-- **`src/questpie/server/config/app.ts`** — App config (locale, access, hooks, context) via `appConfig()` factory.
 - **`src/questpie/server/config/admin.ts`** — Admin config (sidebar, dashboard, branding, locale) via `adminConfig()` factory.
+- **`src/questpie/server/config/app.ts`** — *(optional, not scaffolded)* App config (locale, access, hooks, context) via `appConfig()`. Create when needed.
 - **`src/questpie/server/config/openapi.ts`** — OpenAPI config via `openApiConfig()` factory.
 - **`src/questpie/server/.generated/index.ts`** — Codegen output. Exports typed `app` instance and `App` type. Run `bunx questpie generate` to regenerate.
 - **`src/questpie/admin/.generated/client.ts`** — Codegen output: pre-built admin client config. Run `bunx questpie generate` to regenerate.
