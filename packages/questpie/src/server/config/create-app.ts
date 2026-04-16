@@ -6,6 +6,7 @@ import {
 } from "#questpie/server/config/cloud-env.js";
 import type { GlobalHooksState } from "#questpie/server/config/global-hooks-types.js";
 import type {
+	AppModuleInput,
 	AppDefinition,
 	ModuleDefinition,
 	RuntimeConfig,
@@ -114,13 +115,13 @@ export function runtimeConfig(input: RuntimeConfigInput): RuntimeConfig {
  * Dependencies are resolved before the module that depends on them.
  * Duplicate modules (by name) are deduplicated — last occurrence wins.
  */
-function resolveModules(modules: ModuleDefinition[]): ModuleDefinition[] {
+function resolveModules(modules: readonly AppModuleInput[]): ModuleDefinition[] {
 	const flat: ModuleDefinition[] = [];
 	for (const mod of modules) {
 		if (mod.modules && mod.modules.length > 0) {
 			flat.push(...resolveModules(mod.modules));
 		}
-		flat.push(mod);
+		flat.push(mod as ModuleDefinition);
 	}
 	// Deduplicate by name — keep last occurrence (later wins)
 	const seen = new Map<string, number>();
@@ -567,7 +568,7 @@ function extractRuntimeExtensions(
  * @see RFC-MODULE-ARCHITECTURE §9.1 (Root App — .generated/index.ts)
  */
 export async function createApp(
-	definition: { modules: ModuleDefinition[] },
+	definition: { modules: readonly AppModuleInput[] },
 	runtime: RuntimeConfig,
 ): Promise<Questpie<QuestpieConfig>>;
 export async function createApp(
@@ -575,7 +576,7 @@ export async function createApp(
 	runtime: RuntimeConfig,
 ): Promise<Questpie<QuestpieConfig>>;
 export async function createApp(
-	definition: AppDefinition | { modules: ModuleDefinition[] },
+	definition: AppDefinition | { modules: readonly AppModuleInput[] },
 	runtime: RuntimeConfig,
 ): Promise<Questpie<QuestpieConfig>> {
 	return createAppFromDefinition(definition as AppDefinition, runtime);
@@ -704,4 +705,3 @@ async function createAppFromDefinition(
 
 	return instance;
 }
-

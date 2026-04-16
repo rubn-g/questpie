@@ -1,5 +1,6 @@
 import { AsyncLocalStorage } from "node:async_hooks";
 
+import type { Auth, BetterAuthOptions } from "better-auth";
 import type { Session, User } from "better-auth/types";
 
 import type { AccessMode } from "./types.js";
@@ -21,6 +22,25 @@ export type InferSessionFromApp<TApp> = TApp extends {
 }
 	? S
 	: { user: User; session: Session };
+
+type SessionMarker<TAuthConfig> = TAuthConfig extends {
+	__questpieSessionType__?: infer TSession;
+}
+	? NonNullable<TSession>
+	: never;
+
+/**
+ * Infer the Session type from a Better Auth config object.
+ *
+ * Used by generated code to avoid recursive `typeof app` references while still
+ * preserving plugin-extended session/user fields.
+ */
+export type InferSessionFromAuthConfig<TAuthConfig> =
+	[SessionMarker<TAuthConfig>] extends [never]
+		? Auth<
+				TAuthConfig extends BetterAuthOptions ? TAuthConfig : BetterAuthOptions
+			>["$Infer"]["Session"]
+		: SessionMarker<TAuthConfig>;
 
 /**
  * Infer the database type from a app instance.

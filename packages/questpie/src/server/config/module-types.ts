@@ -149,6 +149,28 @@ export interface ModuleDefinition {
 	[key: string]: unknown;
 }
 
+/**
+ * Relaxed module input accepted by `createApp()`.
+ *
+ * Generated modules expose narrow record interfaces without string index
+ * signatures. Those remain structurally valid module inputs at runtime, but
+ * they are not assignable to `ModuleDefinition` directly. `createApp()`
+ * accepts this looser shape and normalizes it internally before merging.
+ */
+export interface AppModuleInput {
+	/** Unique module name (e.g. "questpie-starter", "questpie-admin"). */
+	name: string;
+
+	/** Dependency modules — resolved depth-first before this module. */
+	modules?: readonly AppModuleInput[];
+
+	/**
+	 * Extensible module payload.
+	 * Known keys (collections, routes, config, etc.) are interpreted at runtime.
+	 */
+	[key: string]: unknown;
+}
+
 // ============================================================================
 // App Config Input — composite config/app.ts type
 // ============================================================================
@@ -338,7 +360,7 @@ export type RuntimeConfigInput = Partial<Pick<RuntimeConfig, "app" | "db">> &
  */
 export interface AppDefinition {
 	/** Modules from `modules.ts` — static module imports. */
-	modules?: ModuleDefinition[];
+	modules?: readonly AppModuleInput[];
 
 	/** Collections discovered from `collections/` directory. */
 	collections?: Record<string, AnyCollectionOrBuilder>;

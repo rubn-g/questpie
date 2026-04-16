@@ -66,6 +66,7 @@ export type {
 export type {
 	InferAppFromApp,
 	InferDbFromApp,
+	InferSessionFromAuthConfig,
 	InferSessionFromApp,
 } from "#questpie/server/config/context.js";
 export * from "#questpie/server/config/context.js";

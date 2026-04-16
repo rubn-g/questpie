@@ -897,24 +897,17 @@ export function detectFactoryExports(
 	const factoryAlt = factoryFunctions
 		.map((f) => f.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
 		.join("|");
+	const factorySet = new Set(factoryFunctions);
 
 	// ── Pass 1: Build factory variable map ──────────────────────
-	// Matches: [export] const/let/var X = factory(...) or factory<T>(...)
-	// Captures: [1] varName, [2] factoryName, [3] first string arg (optional)
-	const assignRe = new RegExp(
-		`(?:const|let|var)\\s+([a-zA-Z_$][a-zA-Z0-9_$]*)\\s*=\\s*(${factoryAlt})\\s*(?:<[^>]*>)?\\s*\\(\\s*(?:["']([^"']+)["'])?`,
-		"gm",
-	);
-
 	const factoryVars = new Map<
 		string,
 		{ factoryName: string; entityKey: string | null }
 	>();
-	let match: RegExpExecArray | null;
-	while ((match = assignRe.exec(content)) !== null) {
-		factoryVars.set(match[1], {
-			factoryName: match[2],
-			entityKey: match[3] ?? null,
+	for (const assignment of findFactoryAssignments(content, factorySet)) {
+		factoryVars.set(assignment.varName, {
+			factoryName: assignment.factoryName,
+			entityKey: assignment.entityKey,
 		});
 	}
 
@@ -925,6 +918,7 @@ export function detectFactoryExports(
 	// 2a. Direct exports: export const/let/var X
 	const directExportRe =
 		/\bexport\s+(?:const|let|var)\s+([a-zA-Z_$][a-zA-Z0-9_$]*)/gm;
+	let match: RegExpExecArray | null;
 	while ((match = directExportRe.exec(content)) !== null) {
 		const name = match[1];
 		const info = factoryVars.get(name);
@@ -1003,6 +997,307 @@ export function detectFactoryExports(
 	}
 
 	return results;
+}
+
+interface FactoryAssignmentMatch {
+	varName: string;
+	factoryName: string;
+	entityKey: string | null;
+}
+
+function findFactoryAssignments(
+	content: string,
+	factoryFunctions: Set<string>,
+): FactoryAssignmentMatch[] {
+	const matches: FactoryAssignmentMatch[] = [];
+	const declRe = /\b(?:const|let|var)\s+([a-zA-Z_$][a-zA-Z0-9_$]*)/gm;
+	let match: RegExpExecArray | null;
+
+	while ((match = declRe.exec(content)) !== null) {
+		const varName = match[1];
+		const assignment = parseFactoryAssignment(
+			content,
+			declRe.lastIndex,
+			factoryFunctions,
+		);
+		if (!assignment) continue;
+		matches.push({
+			varName,
+			factoryName: assignment.factoryName,
+			entityKey: assignment.entityKey,
+		});
+	}
+
+	return matches;
+}
+
+function parseFactoryAssignment(
+	content: string,
+	startIndex: number,
+	factoryFunctions: Set<string>,
+): { factoryName: string; entityKey: string | null } | null {
+	const equalsIndex = findDeclarationEquals(content, startIndex);
+	if (equalsIndex === -1) return null;
+
+	let index = skipWhitespaceAndComments(content, equalsIndex + 1);
+	const factoryName = readIdentifierAt(content, index);
+	if (!factoryName || !factoryFunctions.has(factoryName)) return null;
+
+	index += factoryName.length;
+	index = skipWhitespaceAndComments(content, index);
+
+	if (content[index] === "<") {
+		index = skipBalanced(content, index, "<", ">");
+		if (index === -1) return null;
+		index = skipWhitespaceAndComments(content, index);
+	}
+
+	if (content[index] !== "(") return null;
+
+	const entityKey = readFirstStringArgument(content, index + 1);
+	return { factoryName, entityKey };
+}
+
+function findDeclarationEquals(content: string, startIndex: number): number {
+	let index = startIndex;
+	let parenDepth = 0;
+	let braceDepth = 0;
+	let bracketDepth = 0;
+	let angleDepth = 0;
+
+	while (index < content.length) {
+		const ch = content[index];
+		const next = content[index + 1];
+
+		if (ch === '"' || ch === "'" || ch === "`") {
+			index = skipStringLiteral(content, index, ch);
+			continue;
+		}
+
+		if (ch === "/" && next === "/") {
+			index = skipLineComment(content, index + 2);
+			continue;
+		}
+
+		if (ch === "/" && next === "*") {
+			index = skipBlockComment(content, index + 2);
+			continue;
+		}
+
+		switch (ch) {
+			case "(":
+				parenDepth++;
+				index++;
+				continue;
+			case ")":
+				parenDepth = Math.max(0, parenDepth - 1);
+				index++;
+				continue;
+			case "{":
+				braceDepth++;
+				index++;
+				continue;
+			case "}":
+				braceDepth = Math.max(0, braceDepth - 1);
+				index++;
+				continue;
+			case "[":
+				bracketDepth++;
+				index++;
+				continue;
+			case "]":
+				bracketDepth = Math.max(0, bracketDepth - 1);
+				index++;
+				continue;
+			case "<":
+				angleDepth++;
+				index++;
+				continue;
+			case ">":
+				angleDepth = Math.max(0, angleDepth - 1);
+				index++;
+				continue;
+			case "=":
+				if (next === ">" || next === "=") {
+					index += 2;
+					continue;
+				}
+				if (
+					parenDepth === 0 &&
+					braceDepth === 0 &&
+					bracketDepth === 0 &&
+					angleDepth === 0
+				) {
+					return index;
+				}
+				index++;
+				continue;
+			case ";":
+			case "\n":
+				if (
+					parenDepth === 0 &&
+					braceDepth === 0 &&
+					bracketDepth === 0 &&
+					angleDepth === 0
+				) {
+					return -1;
+				}
+				index++;
+				continue;
+			default:
+				index++;
+		}
+	}
+
+	return -1;
+}
+
+function skipWhitespaceAndComments(content: string, startIndex: number): number {
+	let index = startIndex;
+
+	while (index < content.length) {
+		const ch = content[index];
+		const next = content[index + 1];
+
+		if (/\s/.test(ch)) {
+			index++;
+			continue;
+		}
+
+		if (ch === "/" && next === "/") {
+			index = skipLineComment(content, index + 2);
+			continue;
+		}
+
+		if (ch === "/" && next === "*") {
+			index = skipBlockComment(content, index + 2);
+			continue;
+		}
+
+		break;
+	}
+
+	return index;
+}
+
+function readIdentifierAt(content: string, startIndex: number): string | null {
+	const identRe = /[a-zA-Z_$][a-zA-Z0-9_$]*/y;
+	identRe.lastIndex = startIndex;
+	const match = identRe.exec(content);
+	return match?.[0] ?? null;
+}
+
+function readFirstStringArgument(
+	content: string,
+	startIndex: number,
+): string | null {
+	const index = skipWhitespaceAndComments(content, startIndex);
+	const quote = content[index];
+	if (quote !== '"' && quote !== "'") return null;
+
+	let cursor = index + 1;
+	let value = "";
+	while (cursor < content.length) {
+		const ch = content[cursor];
+		if (ch === "\\") {
+			value += content[cursor + 1] ?? "";
+			cursor += 2;
+			continue;
+		}
+		if (ch === quote) {
+			return value;
+		}
+		value += ch;
+		cursor++;
+	}
+
+	return null;
+}
+
+function skipBalanced(
+	content: string,
+	startIndex: number,
+	openChar: string,
+	closeChar: string,
+): number {
+	let depth = 0;
+	let index = startIndex;
+
+	while (index < content.length) {
+		const ch = content[index];
+		const next = content[index + 1];
+
+		if (ch === '"' || ch === "'" || ch === "`") {
+			index = skipStringLiteral(content, index, ch);
+			continue;
+		}
+
+		if (ch === "/" && next === "/") {
+			index = skipLineComment(content, index + 2);
+			continue;
+		}
+
+		if (ch === "/" && next === "*") {
+			index = skipBlockComment(content, index + 2);
+			continue;
+		}
+
+		if (ch === openChar) {
+			depth++;
+			index++;
+			continue;
+		}
+
+		if (ch === closeChar) {
+			depth--;
+			index++;
+			if (depth === 0) return index;
+			continue;
+		}
+
+		index++;
+	}
+
+	return -1;
+}
+
+function skipStringLiteral(
+	content: string,
+	startIndex: number,
+	quote: '"' | "'" | "`",
+): number {
+	let index = startIndex + 1;
+	while (index < content.length) {
+		const ch = content[index];
+		if (ch === "\\") {
+			index += 2;
+			continue;
+		}
+		if (ch === quote) {
+			return index + 1;
+		}
+		index++;
+	}
+	return index;
+}
+
+function skipLineComment(content: string, startIndex: number): number {
+	let index = startIndex;
+	while (index < content.length && content[index] !== "\n") {
+		index++;
+	}
+	return index;
+}
+
+function skipBlockComment(content: string, startIndex: number): number {
+	let index = startIndex;
+	while (index < content.length) {
+		if (content[index] === "*" && content[index + 1] === "/") {
+			return index + 2;
+		}
+		index++;
+	}
+	return index;
 }
 
 /**

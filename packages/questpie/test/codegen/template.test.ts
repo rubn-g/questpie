@@ -202,7 +202,15 @@ describe("generateTemplate — minimal (modules.ts only)", () => {
 
 	it("emits createApp call with modules", () => {
 		expect(code).toContain("export const app = await createApp(");
-		expect(code).toContain("modules: _modules as ModuleDefinition[]");
+		expect(code).toContain("modules: _modules,");
+		expect(code).not.toContain("ModuleDefinition[]");
+	});
+
+	it("derives session from auth config instead of typeof app", () => {
+		expect(code).toContain("type _AppSession =");
+		expect(code).toContain("InferSessionFromAuthConfig<_AppAuthConfig>");
+		expect(code).toContain("session: _AppSession;");
+		expect(code).not.toContain("(typeof app)['auth']");
 	});
 
 	it("emits createContext helper", () => {
@@ -221,6 +229,48 @@ describe("generateTemplate — minimal (modules.ts only)", () => {
 
 	it("does not emit seeds section when no seeds", () => {
 		expect(code).not.toContain("seeds:");
+	});
+});
+
+describe("generateTemplate — registry dedupe", () => {
+	it("emits ~fieldTypes exactly once when category and singleton both contribute", () => {
+		const result = minimalResult();
+		result.categories.set(
+			"fieldTypes",
+			new Map([
+				[
+					"color",
+					makeFile("color", {
+						varName: "_ftype_color",
+						importPath: "../fields/color",
+						exportType: "named",
+						namedExportName: "colorField",
+					}),
+				],
+			]),
+		);
+		result.singles.set(
+			"fields",
+			makeFile("fields", {
+				varName: "_fields",
+				importPath: "../fields",
+			}),
+		);
+
+		const code = generateTemplate({
+			configImportPath: "../questpie.config",
+			discovered: result,
+			categories: coreCategories(),
+			singletonFactories: coreSingletonFactories(),
+			discoverPatterns: serverTarget().discover,
+		});
+
+		const fieldTypeLines = code
+			.split("\n")
+			.filter((line) => line.includes('"~fieldTypes":'));
+		expect(fieldTypeLines).toEqual([
+			'\t\t\t"~fieldTypes": _Registry_FieldTypes & _AllModuleFields;',
+		]);
 	});
 });
 

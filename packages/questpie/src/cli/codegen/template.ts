@@ -88,7 +88,7 @@ export function generateTemplate(options: TemplateOptions): string {
 
 	// Import createApp + types
 	lines.push(
-		'import { createApp, createContextFactory, extractAppServices, type AppDefinition, type ModuleDefinition, type AppContext, type Registry, type QueueClient, type CollectionAPI } from "questpie";',
+		'import { createApp, createContextFactory, type AppDefinition, type CollectionAPI, type InferSessionFromAuthConfig, type QueueClient } from "questpie";',
 	);
 	lines.push("");
 
@@ -211,6 +211,21 @@ export function generateTemplate(options: TemplateOptions): string {
 	);
 	lines.push(
 		"type _MP<K extends string> = [_MPRaw<K>] extends [never] ? {} : _MPRaw<K>;",
+	);
+	lines.push('type _ModuleConfig = _MP<"config">;');
+	const authConfigFile = discovered.singles.get("authConfig");
+	const authFile = authConfigFile ?? discovered.singles.get("auth");
+	if (authFile) {
+		lines.push(
+			`type _AppAuthConfig = (_ModuleConfig extends { auth: infer TAuth } ? TAuth : {}) & typeof ${authFile.varName};`,
+		);
+	} else {
+		lines.push(
+			'type _AppAuthConfig = _ModuleConfig extends { auth: infer TAuth } ? TAuth : {};',
+		);
+	}
+	lines.push(
+		"type _AppSession = NonNullable<InferSessionFromAuthConfig<_AppAuthConfig>> | null;",
 	);
 	lines.push("");
 
@@ -497,9 +512,7 @@ export function generateTemplate(options: TemplateOptions): string {
 		lines.push("\t\t\ttables: (typeof app)['tables'];");
 		lines.push("");
 		lines.push("\t\t\t// Request-scoped");
-		lines.push(
-			"\t\t\tsession: (typeof app)['auth'] extends { api: { getSession: (...args: any[]) => Promise<infer TSession> } } ? NonNullable<TSession> | null : null;",
-		);
+		lines.push("\t\t\tsession: _AppSession;");
 		if (hasMessages) {
 			lines.push(
 				"\t\t\tt: (key: AppMessageKeys | (string & {}), params?: Record<string, unknown>, locale?: string) => string;",
@@ -581,8 +594,6 @@ export function generateTemplate(options: TemplateOptions): string {
 	lines.push("\tcollections: AppCollections & Record<string, any>;");
 	lines.push("\tglobals: AppGlobals & Record<string, any>;");
 	lines.push("\troutes: AppRoutes;");
-	const authConfigFile = discovered.singles.get("authConfig");
-	const authFile = authConfigFile ?? discovered.singles.get("auth");
 	if (authFile) {
 		lines.push(`\tauth: typeof ${authFile.varName};`);
 	}
@@ -668,9 +679,8 @@ function emitNewArchitectureRuntime(
 	lines.push("export const app = await createApp(");
 	lines.push("\t({");
 
-	// Modules — cast to ModuleDefinition[] to satisfy AppDefinition while
-	// preserving the concrete tuple type for MergeModuleProp<> in the type section.
-	lines.push(`\t\tmodules: ${modulesFile.varName} as ModuleDefinition[],`);
+	// Modules — preserve the concrete exported module types directly.
+	lines.push(`\t\tmodules: ${modulesFile.varName},`);
 
 	// ── Emit all categories ──────────────────────────────────────
 	for (const [catName, fileMap] of discovered.categories) {

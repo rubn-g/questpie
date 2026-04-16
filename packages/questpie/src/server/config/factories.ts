@@ -1,4 +1,15 @@
+import type { Auth } from "better-auth";
+
 import type { AuthConfig, AppConfigInput } from "./module-types.js";
+
+export type TypedAuthConfig<TSession = unknown> = AuthConfig & {
+	/**
+	 * Internal type-only channel used by codegen to recover the inferred Better
+	 * Auth session shape without forcing downstream apps to export an unnameable
+	 * plugin-instantiated config type.
+	 */
+	__questpieSessionType__?: TSession;
+};
 
 /**
  * Identity factory for `config/app.ts` — provides type inference for
@@ -36,6 +47,8 @@ export function appConfig<T extends AppConfigInput>(config: T): T {
  * });
  * ```
  */
-export function authConfig(config: AuthConfig): AuthConfig {
-	return config;
+export function authConfig<T extends AuthConfig>(
+	config: T,
+): TypedAuthConfig<Auth<T>["$Infer"]["Session"]> {
+	return config as TypedAuthConfig<Auth<T>["$Infer"]["Session"]>;
 }

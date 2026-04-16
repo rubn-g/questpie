@@ -954,6 +954,34 @@ describe("multi-export factory discovery", () => {
 		expect(blocks.has("heroBlock")).toBe(true);
 	});
 
+	it("discovers typed named factory exports", async () => {
+		await write(
+			"blocks/typed.ts",
+			'export const hero: ReturnType<typeof block> = block("hero");',
+		);
+
+		const result = await discoverFiles(rootDir, outDir, factoryOpts);
+		const blocks = result.categories.get("blocks")!;
+		expect(blocks.has("hero")).toBe(true);
+		expect(blocks.get("hero")!.namedExportName).toBe("hero");
+	});
+
+	it("discovers typed default-exported factory variables", async () => {
+		await write(
+			"blocks/typed-default.ts",
+			[
+				"type Builder = (value: string) => ReturnType<typeof block>;",
+				'const hero: ReturnType<Builder> = block("hero");',
+				"export default hero;",
+			].join("\n"),
+		);
+
+		const result = await discoverFiles(rootDir, outDir, factoryOpts);
+		const blocks = result.categories.get("blocks")!;
+		expect(blocks.has("hero")).toBe(true);
+		expect(blocks.get("hero")!.exportType).toBe("default");
+	});
+
 	it("discovers default inline factory export", async () => {
 		await write("blocks/hero.ts", 'export default block("hero");');
 
