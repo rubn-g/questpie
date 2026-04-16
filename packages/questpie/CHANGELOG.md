@@ -1,5 +1,11 @@
 # questpie
 
+## 3.0.2
+
+### Patch Changes
+
+- [`25b85ec`](https://github.com/questpie/questpie/commit/25b85ec54cfa7fdf38ee15548377d01191f0667a) Thanks [@drepkovsky](https://github.com/drepkovsky)! - Improve generated app context inference from `config/app.ts` and add typed route params helpers for custom routes.
+
 ## 3.0.1
 
 ### Patch Changes
