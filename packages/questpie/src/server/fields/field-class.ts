@@ -199,11 +199,24 @@ export class Field<TState extends FieldState = FieldState> {
 	/**
 	 * Escape hatch: modify the underlying Drizzle column builder.
 	 * The transform receives the column builder and returns a (possibly different) one.
+	 *
+	 * If the returned column has a narrower `$type<T>()`, it propagates to
+	 * the field's `data` type. A column whose `_.data` is still `unknown`
+	 * leaves the field's existing `data` in place.
 	 */
 	drizzle<TNewCol>(
 		fn: (col: TState["column"]) => TNewCol,
-	): Field<TState & { column: TNewCol }> {
-		return this._clone<{ column: TNewCol }>({ drizzleTransform: fn as any });
+	): Field<
+		Omit<TState, "column" | "data"> & {
+			column: TNewCol;
+			data: TNewCol extends { _: { data: infer D } }
+				? unknown extends D
+					? TState["data"]
+					: D
+				: TState["data"];
+		}
+	> {
+		return this._clone({ drizzleTransform: fn as any }) as any;
 	}
 
 	/**
