@@ -99,7 +99,7 @@ export function RelationCell({
 				<Tooltip>
 					<TooltipTrigger
 						render={
-							<span className="inline-flex max-w-[250px] items-center gap-1 overflow-hidden">
+							<span className="inline-flex max-w-[250px] flex-wrap items-center gap-1 overflow-hidden">
 								{visibleItems.map((item) => {
 									const itemId = getRelationItemId(item);
 									return (
@@ -117,7 +117,7 @@ export function RelationCell({
 								})}
 								{remainingCount > 0 && (
 									<Badge
-										variant="secondary"
+										variant="outline"
 										className="h-5 shrink-0 px-1.5 text-[10px]"
 									>
 										+{remainingCount}
@@ -137,26 +137,26 @@ export function RelationCell({
 									const canNavigate = targetCollection && id;
 									const key = id ?? label ?? `item-${idx}`;
 
-									return (
+									return canNavigate ? (
+										<button
+											key={key}
+											type="button"
+											onClick={(e) => {
+												e.stopPropagation();
+												handleChipClick(id, targetCollection);
+											}}
+											className="item-surface border-border hover:bg-accent hover:text-accent-foreground flex w-full items-center gap-2 px-2 py-1.5 text-left text-sm"
+										>
+											<span className="bg-muted-foreground/50 size-1.5 shrink-0 rounded-full" />
+											<span className="truncate">{label}</span>
+										</button>
+									) : (
 										<div
 											key={key}
-											className="flex items-center gap-1.5 text-xs"
+											className="item-surface border-border flex w-full items-center gap-2 px-2 py-1.5 text-sm"
 										>
-											<span className="bg-foreground/60 size-1 rounded-full" />
-											{canNavigate ? (
-												<button
-													type="button"
-													onClick={(e) => {
-														e.stopPropagation();
-														handleChipClick(id, targetCollection);
-													}}
-													className="text-primary text-left hover:underline"
-												>
-													{label}
-												</button>
-											) : (
-												<span>{label}</span>
-											)}
+											<span className="bg-muted-foreground/50 size-1.5 shrink-0 rounded-full" />
+											<span className="truncate">{label}</span>
 										</div>
 									);
 								})}
@@ -330,23 +330,26 @@ function ReverseRelationCell({
 								const canNavigate = sourceCollection && id;
 								const key = id ?? label ?? `item-${idx}`;
 
-								return (
-									<div key={key} className="flex items-center gap-1.5 text-xs">
-										<span className="bg-foreground/60 size-1 rounded-full" />
-										{canNavigate ? (
-											<button
-												type="button"
-												onClick={(e) => {
-													e.stopPropagation();
-													handleChipClick(id, sourceCollection);
-												}}
-												className="text-primary truncate text-left hover:underline"
-											>
-												{label}
-											</button>
-										) : (
-											<span className="truncate">{label}</span>
-										)}
+								return canNavigate ? (
+									<button
+										key={key}
+										type="button"
+										onClick={(e) => {
+											e.stopPropagation();
+											handleChipClick(id, sourceCollection);
+										}}
+										className="item-surface border-border hover:bg-accent hover:text-accent-foreground flex w-full items-center gap-2 px-2 py-1.5 text-left text-sm"
+									>
+										<span className="bg-muted-foreground/50 size-1.5 shrink-0 rounded-full" />
+										<span className="truncate">{label}</span>
+									</button>
+								) : (
+									<div
+										key={key}
+										className="item-surface border-border flex w-full items-center gap-2 px-2 py-1.5 text-sm"
+									>
+										<span className="bg-muted-foreground/50 size-1.5 shrink-0 rounded-full" />
+										<span className="truncate">{label}</span>
 									</div>
 								);
 							})}

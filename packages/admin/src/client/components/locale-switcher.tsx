@@ -68,7 +68,7 @@ export function LocaleSwitcher({
 
 	if (!hasResolvedValue) return null;
 
-	const codeLabel = currentLocale.code.toUpperCase();
+	const codeLabel = currentLocale.code;
 	const nameLabel = currentLocale.label
 		? resolveText(currentLocale.label)
 		: codeLabel;
@@ -82,7 +82,7 @@ export function LocaleSwitcher({
 		case "both":
 			labelElement = (
 				<span className="flex items-center gap-1">
-					<span className="tracking-wide uppercase">{codeLabel}</span>
+					<span className="font-chrome chrome-meta">{codeLabel}</span>
 					{currentLocale.label && (
 						<span className="text-muted-foreground font-normal">
 							{resolveText(currentLocale.label)}
@@ -94,7 +94,7 @@ export function LocaleSwitcher({
 		case "code":
 		default:
 			labelElement = (
-				<span className="tracking-wide uppercase">{codeLabel}</span>
+				<span className="font-chrome chrome-meta">{codeLabel}</span>
 			);
 			break;
 	}
@@ -182,7 +182,9 @@ export function LocaleSwitcher({
 								}}
 							/>
 						)}
-						<span className="font-medium uppercase">{locale.code}</span>
+						<span className="font-chrome chrome-meta font-medium">
+							{locale.code}
+						</span>
 						{locale.label && (
 							<span className="text-muted-foreground">
 								{resolveText(locale.label)}

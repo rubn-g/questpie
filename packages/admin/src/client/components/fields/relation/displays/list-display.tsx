@@ -26,14 +26,14 @@ function ListSkeleton({
 
 	if (editable) {
 		return (
-			<div className="border-border bg-card space-y-2 border p-3">
+			<div className="panel-surface space-y-2 p-3">
 				{skeletonKeys.map((key) => (
 					<div
 						key={key}
-						className="border-border bg-card flex items-center gap-2 border p-2"
+						className="item-surface border-border bg-card flex items-center gap-2 px-3 py-2.5"
 					>
-						<Skeleton className="size-3.5 rounded" />
-						<Skeleton className="h-4 max-w-[200px] flex-1 rounded" />
+						<Skeleton variant="text" className="size-3.5" />
+						<Skeleton variant="text" className="h-4 max-w-[200px] flex-1" />
 					</div>
 				))}
 			</div>
@@ -41,11 +41,14 @@ function ListSkeleton({
 	}
 
 	return (
-		<ul className="space-y-1">
+		<ul className="space-y-2">
 			{skeletonKeys.map((key) => (
-				<li key={key} className="flex items-center gap-1">
-					<Skeleton className="size-3 rounded" />
-					<Skeleton className="h-4 w-32 rounded" />
+				<li
+					key={key}
+					className="item-surface border-border bg-card flex items-center gap-2 px-3 py-2"
+				>
+					<Skeleton variant="text" className="size-3.5" />
+					<Skeleton variant="text" className="h-4 w-32" />
 				</li>
 			))}
 		</ul>
@@ -69,7 +72,7 @@ export function ListDisplay({
 		className: "size-3.5 text-muted-foreground shrink-0",
 	});
 	const smallIconElement = resolveIconElement(collectionIcon, {
-		className: "size-3 text-muted-foreground",
+		className: "size-3.5 text-muted-foreground shrink-0",
 	});
 
 	// Show skeleton when loading and no items
@@ -80,17 +83,17 @@ export function ListDisplay({
 	// Editable list with cards
 	if (editable) {
 		return (
-			<div className="border-border bg-card space-y-2 border p-3">
+			<div className="panel-surface space-y-2 p-3">
 				{items.map((item, index) => (
 					<div
 						key={item.id}
-						className="border-border bg-card flex items-center gap-2 border p-2"
+						className="item-surface border-border bg-card flex items-center gap-2 px-3 py-2.5"
 					>
 						{/* Drag Handle */}
 						{orderable && (
 							<button
 								type="button"
-								className="text-muted-foreground hover:text-foreground cursor-grab"
+								className="text-muted-foreground hover:text-foreground flex shrink-0 cursor-grab items-center"
 								aria-label={t("field.dragToReorder")}
 							>
 								<Icon icon="ph:dots-six-vertical" className="h-4 w-4" />
@@ -114,8 +117,8 @@ export function ListDisplay({
 							<Button
 								type="button"
 								variant="ghost"
-								size="icon"
-								className="h-7 w-7 shrink-0"
+								size="icon-xs"
+								className="shrink-0"
 								onClick={() => actions.onEdit?.(item)}
 								title={t("common.edit")}
 								aria-label={t("field.editItem")}
@@ -129,8 +132,8 @@ export function ListDisplay({
 							<Button
 								type="button"
 								variant="ghost"
-								size="icon"
-								className="h-7 w-7 shrink-0"
+								size="icon-xs"
+								className="shrink-0"
 								onClick={() => actions.onRemove?.(item)}
 								title={t("common.remove")}
 								aria-label={t("field.removeItem")}
@@ -145,8 +148,11 @@ export function ListDisplay({
 	}
 
 	// Read-only list
+	const itemSurfaceClass =
+		"item-surface border-border bg-card flex w-full items-center gap-2 px-3 py-2 text-sm";
+
 	return (
-		<ul className="space-y-1">
+		<ul className="space-y-2">
 			{items.map((item, index) => {
 				const displayText = renderItem
 					? renderItem(item, index)
@@ -159,11 +165,14 @@ export function ListDisplay({
 							<button
 								type="button"
 								onClick={() => actions.onEdit?.(item)}
-								className="text-primary inline-flex items-center gap-1 text-sm hover:underline"
+								className={cn(
+									itemSurfaceClass,
+									"hover:border-border hover:bg-accent hover:text-accent-foreground",
+								)}
 							>
 								{smallIconElement}
 								{displayText}
-								<Icon icon="ph:pencil" className="size-3" />
+								<Icon icon="ph:pencil" className="ml-auto size-3.5 shrink-0" />
 							</button>
 						</li>
 					);
@@ -176,11 +185,17 @@ export function ListDisplay({
 							<CollectionEditLink
 								collection={collection as any}
 								id={item.id}
-								className="text-primary inline-flex items-center gap-1 text-sm hover:underline"
+								className={cn(
+									itemSurfaceClass,
+									"hover:border-border hover:bg-accent hover:text-accent-foreground",
+								)}
 							>
 								{smallIconElement}
 								{displayText}
-								<Icon icon="ph:arrow-right" className="size-3" />
+								<Icon
+									icon="ph:arrow-right"
+									className="ml-auto size-3.5 shrink-0"
+								/>
 							</CollectionEditLink>
 						</li>
 					);
@@ -188,7 +203,7 @@ export function ListDisplay({
 
 				// Read-only
 				return (
-					<li key={item.id} className="flex items-center gap-1 text-sm">
+					<li key={item.id} className={itemSurfaceClass}>
 						{smallIconElement}
 						{displayText}
 					</li>

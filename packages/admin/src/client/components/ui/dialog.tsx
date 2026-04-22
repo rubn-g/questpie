@@ -53,7 +53,7 @@ function DialogContent({
 			<DialogPrimitive.Popup
 				data-slot="dialog-content"
 				className={cn(
-					"qa-dialog__content bg-background data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 border-border fixed top-1/2 left-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 gap-4 border p-4 text-sm duration-100 outline-none sm:max-w-md",
+					"qa-dialog__content rounded-md shadow-lg bg-background data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 border-border fixed top-1/2 left-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 gap-4 border p-4 text-sm duration-100 outline-none sm:max-w-md",
 					className,
 				)}
 				{...props}
@@ -122,7 +122,7 @@ function DialogTitle({ className, ...props }: DialogPrimitive.Title.Props) {
 		<DialogPrimitive.Title
 			data-slot="dialog-title"
 			className={cn(
-				"qa-dialog__title font-mono text-sm font-medium",
+				"qa-dialog__title font-chrome text-sm font-medium",
 				className,
 			)}
 			{...props}

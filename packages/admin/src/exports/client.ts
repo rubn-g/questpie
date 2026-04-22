@@ -74,6 +74,10 @@ export {
 } from "#questpie/admin/client/runtime/index.js";
 export { AdminLayout } from "#questpie/admin/client/views/layout/admin-layout.js";
 export { AdminLayoutProvider } from "#questpie/admin/client/views/layout/admin-layout-provider.js";
+export type {
+	AdminSidebarBrandProps,
+	AdminSidebarNavItemProps,
+} from "#questpie/admin/client/views/layout/admin-sidebar.js";
 // Router and layout
 export {
 	AdminRouter,
@@ -169,7 +173,10 @@ export {
 	resolveIconElement,
 } from "#questpie/admin/client/components/component-renderer.js";
 export { AcceptInviteForm } from "#questpie/admin/client/views/auth/accept-invite-form.js";
-export { AuthLayout } from "#questpie/admin/client/views/auth/auth-layout.js";
+export {
+	AuthLayout,
+	type AuthLayoutProps,
+} from "#questpie/admin/client/views/auth/auth-layout.js";
 export { ForgotPasswordForm } from "#questpie/admin/client/views/auth/forgot-password-form.js";
 // Auth forms (for custom layouts)
 export { LoginForm } from "#questpie/admin/client/views/auth/login-form.js";

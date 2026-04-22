@@ -45,8 +45,8 @@ export function SavedViewsTab({
 	return (
 		<div className="space-y-6 py-4">
 			{/* Save Current Configuration */}
-			<div className="bg-primary/5 border-primary/20 border p-4">
-				<p className="text-primary mb-2 block text-xs font-semibold uppercase">
+			<div className="panel-surface bg-muted/30 p-4">
+				<p className="text-muted-foreground font-chrome chrome-meta mb-2 block text-xs font-medium">
 					{t("viewOptions.saveCurrentConfig")}
 				</p>
 				<div className="flex gap-2">
@@ -78,7 +78,7 @@ export function SavedViewsTab({
 
 			{/* Saved Views List */}
 			<div className="space-y-2">
-				<p className="text-muted-foreground mb-2 text-xs font-semibold uppercase">
+				<p className="text-muted-foreground font-chrome chrome-meta mb-2 text-xs font-medium">
 					{t("viewOptions.savedViews")}
 				</p>
 
@@ -99,11 +99,11 @@ export function SavedViewsTab({
 						<button
 							type="button"
 							key={view.id}
-							className="border-border hover:border-primary/50 bg-background group flex w-full cursor-pointer items-center justify-between border p-3 text-left transition-all hover:shadow-sm"
+							className="panel-surface group hover:bg-accent hover:text-accent-foreground flex w-full cursor-pointer items-center justify-between p-3 text-left"
 							onClick={() => onLoadView(view)}
 						>
 							<div className="min-w-0 flex-1">
-								<p className="group-hover:text-primary truncate text-sm font-medium transition-colors">
+								<p className="truncate text-sm font-medium transition-colors">
 									{view.name}
 								</p>
 								<p className="text-muted-foreground flex gap-2 text-xs">
@@ -121,7 +121,7 @@ export function SavedViewsTab({
 									{view.isDefault && (
 										<>
 											<span>•</span>
-											<span className="text-primary">
+											<span className="text-foreground">
 												{t("viewOptions.defaultView")}
 											</span>
 										</>
@@ -144,7 +144,7 @@ export function SavedViewsTab({
 									icon="ph:arrow-right"
 									width={14}
 									height={14}
-									className="text-primary opacity-0 transition-opacity group-hover:opacity-100"
+									className="text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100"
 								/>
 							</div>
 						</button>

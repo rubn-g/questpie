@@ -813,7 +813,7 @@ function MultipleUploadInner({
 			)}
 
 			{isUploading && !canAddMore && (
-				<div className="text-muted-foreground flex items-center justify-center gap-2 border border-dashed p-4 text-sm">
+				<div className="panel-surface text-muted-foreground flex items-center justify-center gap-2 border-dashed p-4 text-sm">
 					{t("upload.uploading")} {progress}%
 				</div>
 			)}

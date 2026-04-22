@@ -128,6 +128,50 @@ export default adminConfig({
 });
 ```
 
+## Chrome Overrides
+
+To customize sidebar chrome without modifying your app shell, use file-first component overrides.
+
+### Brand area
+
+Replace the logo + name area:
+
+```tsx title="questpie/admin/components/admin-sidebar-brand.tsx"
+import type { AdminSidebarBrandProps } from "@questpie/admin/client";
+
+export default function SidebarBrand({ name, collapsed }: AdminSidebarBrandProps) {
+  return (
+    <div className="flex items-center gap-2">
+      <img src="/logo.svg" alt={name} className="size-6 shrink-0" />
+      {!collapsed && <span className="font-bold">{name}</span>}
+    </div>
+  );
+}
+```
+
+### Nav item rendering
+
+Replace every navigation item row:
+
+```tsx title="questpie/admin/components/admin-sidebar-nav-item.tsx"
+import type { AdminSidebarNavItemProps } from "@questpie/admin/client";
+
+export default function NavItem({ item, isActive, collapsed }: AdminSidebarNavItemProps) {
+  return (
+    <a
+      href={item.href}
+      className={`flex items-center gap-2 px-3 py-2 text-sm ${isActive ? "font-bold" : ""}`}
+    >
+      {!collapsed && <span>{typeof item.label === "string" ? item.label : item.label.en}</span>}
+    </a>
+  );
+}
+```
+
+Both overrides follow the same three-tier priority: **runtime prop** > **file-first** > **built-in**.
+
+Use a normal React component as the default export for these files. `React.lazy(...)` is fine too. Do **not** default-export a raw `() => import("...")` loader function for reserved sidebar overrides.
+
 ## Module Contributions
 
 Modules can contribute sidebar items. The `adminModule` adds an "Administration" section with user management. The `auditModule` adds an audit log item to that section. Your project-level sidebar merges with these contributions.

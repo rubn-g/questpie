@@ -10,6 +10,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import * as React from "react";
 import { toast } from "sonner";
 
+import type { MaybeLazyComponent } from "../../builder/types/common.js";
 import { ComponentRenderer } from "../../components/component-renderer";
 import {
 	DropdownMenu,
@@ -57,6 +58,7 @@ import {
 	selectContentLocale,
 	selectNavigate,
 	selectSetContentLocale,
+	useAdminStoreRaw,
 	useAdminStore,
 } from "../../runtime/provider";
 import type {
@@ -65,6 +67,7 @@ import type {
 	NavigationItem,
 } from "../../runtime/routes";
 import { getFlagUrl } from "../../utils/locale-to-flag";
+import { useLazyComponent } from "../../utils/use-lazy-component.js";
 
 // ============================================================================
 // Types
@@ -79,6 +82,34 @@ export interface LinkComponentProps {
 	children: React.ReactNode;
 	activeProps?: { className?: string };
 	activeOptions?: { exact?: boolean };
+}
+
+/**
+ * Props passed to a custom `adminSidebarBrand` override component.
+ *
+ * Register via `questpie/admin/components/admin-sidebar-brand.tsx`.
+ * Export path: `@questpie/admin/client`
+ */
+export interface AdminSidebarBrandProps {
+	/** Current brand name from server branding config */
+	name: string;
+	/** Whether the sidebar is in collapsed (icon-only) mode */
+	collapsed: boolean;
+}
+
+/**
+ * Props passed to a custom `adminSidebarNavItem` override component.
+ *
+ * Register via `questpie/admin/components/admin-sidebar-nav-item.tsx`.
+ * Export path: `@questpie/admin/client`
+ */
+export interface AdminSidebarNavItemProps {
+	/** The navigation item to render */
+	item: NavigationItem;
+	/** Whether this item matches the current route */
+	isActive: boolean;
+	/** Whether the sidebar is in collapsed (icon-only) mode */
+	collapsed: boolean;
 }
 
 /**
@@ -487,13 +518,15 @@ function isRouteActive(
  * Menu button styles - QUESTPIE design: clean, technical look
  */
 const menuButtonStyles = cn(
-	"flex w-full items-center gap-2.5 px-3 py-2 text-sm font-medium transition-colors duration-150",
+	"item-surface font-chrome flex w-full items-center gap-2.5 px-3 py-2 text-sm font-medium transition-colors duration-150",
 	"text-sidebar-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent",
 	"focus-visible:ring-sidebar-ring focus-visible:ring-1 focus-visible:outline-none",
 	"group-data-[collapsible=icon]:size-8 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-2",
 );
 
-const menuButtonActiveStyles = cn("bg-sidebar-primary/10 text-sidebar-primary");
+const menuButtonActiveStyles = cn(
+	"border-sidebar-border bg-[var(--sidebar-active-background)] text-[var(--sidebar-active-foreground)]",
+);
 
 /**
  * Active indicator bar positioned at the sidebar group edge.
@@ -502,7 +535,7 @@ const menuButtonActiveStyles = cn("bg-sidebar-primary/10 text-sidebar-primary");
 function ActiveIndicator({ depth }: { depth: number }) {
 	return (
 		<div
-			className="bg-sidebar-primary absolute top-0 bottom-0 w-0.5"
+			className="absolute top-0 bottom-0 w-0.5 bg-[var(--sidebar-active-indicator)]"
 			style={{ left: `${-depth * 0.75}rem` }}
 			aria-hidden="true"
 		/>
@@ -530,20 +563,6 @@ function NavItem({
 	const collapsed = state === "collapsed";
 	const resolveText = useResolveText();
 
-	// Close sidebar on mobile when navigating
-	const handleClick = React.useCallback(() => {
-		if (isMobile) {
-			setOpenMobile(false);
-		}
-	}, [isMobile, setOpenMobile]);
-
-	if (renderNavItem) {
-		const NavItemRenderer = renderNavItem;
-		return (
-			<NavItemRenderer item={item} isActive={isActive} collapsed={collapsed} />
-		);
-	}
-
 	const label = resolveText(item.label);
 
 	// External links and pages should use exact matching
@@ -558,6 +577,13 @@ function NavItem({
 		: {};
 
 	const ariaCurrent = isActive ? ("page" as const) : undefined;
+
+	// Close sidebar on mobile when navigating
+	const handleClick = React.useCallback(() => {
+		if (isMobile) {
+			setOpenMobile(false);
+		}
+	}, [isMobile, setOpenMobile]);
 
 	const linkContent = (
 		<LinkComponent
@@ -580,9 +606,8 @@ function NavItem({
 		</LinkComponent>
 	);
 
-	// Show tooltip when collapsed (desktop only)
-	if (collapsed && !isMobile) {
-		return (
+	const builtInNavItem =
+		collapsed && !isMobile ? (
 			<SidebarMenuItem
 				className="qa-sidebar__nav-item"
 				onClickCapture={handleClick}
@@ -614,19 +639,26 @@ function NavItem({
 					</TooltipContent>
 				</Tooltip>
 			</SidebarMenuItem>
+		) : (
+			<SidebarMenuItem
+				className={cn("qa-sidebar__nav-item", className)}
+				onClickCapture={handleClick}
+				aria-current={ariaCurrent}
+			>
+				{isActive && <ActiveIndicator depth={depth} />}
+				{linkContent}
+			</SidebarMenuItem>
+		);
+
+	if (renderNavItem) {
+		return (
+			<React.Suspense fallback={builtInNavItem}>
+				{renderNavItem({ item, isActive, collapsed })}
+			</React.Suspense>
 		);
 	}
 
-	return (
-		<SidebarMenuItem
-			className={cn("qa-sidebar__nav-item", className)}
-			onClickCapture={handleClick}
-			aria-current={ariaCurrent}
-		>
-			{isActive && <ActiveIndicator depth={depth} />}
-			{linkContent}
-		</SidebarMenuItem>
-	);
+	return builtInNavItem;
 }
 
 // ============================================================================
@@ -744,7 +776,7 @@ function NavGroup({
 					}
 				>
 					{group.icon && <RenderIcon icon={group.icon} className="size-3.5" />}
-					<span className="flex-1 text-left font-mono">{groupLabel}</span>
+					<span className="flex-1 text-left">{groupLabel}</span>
 					{group.collapsible && (
 						<Icon
 							icon="ph:caret-down"
@@ -833,15 +865,15 @@ function UserFooterSkeleton({ collapsed }: { collapsed: boolean }) {
 		<SidebarFooter className="border-sidebar-border border-t p-2">
 			<div
 				className={cn(
-					"flex items-center gap-2.5 p-2",
+					"item-surface border-sidebar-border/40 flex items-center gap-2.5 p-2",
 					collapsed && "justify-center",
 				)}
 			>
 				<Skeleton className="size-8 shrink-0" />
 				{!collapsed && (
 					<div className="grid flex-1 gap-1">
-						<Skeleton className="h-3 w-24" />
-						<Skeleton className="h-2 w-32" />
+						<Skeleton variant="text" className="h-3 w-24" />
+						<Skeleton variant="text" className="h-2 w-32" />
 					</div>
 				)}
 			</div>
@@ -932,22 +964,22 @@ function UserFooter() {
 					<DropdownMenu>
 						<DropdownMenuTrigger
 							className={cn(
-								"flex w-full items-center gap-2.5 p-2 text-left transition-colors duration-150",
+								"qa-sidebar__user-trigger flex w-full items-center gap-2.5 rounded-sm p-2 text-left transition-colors duration-150",
 								"hover:bg-sidebar-accent text-sidebar-foreground",
 								"focus-visible:ring-sidebar-ring focus-visible:ring-1 focus-visible:outline-none",
 								collapsed && "justify-center",
 							)}
 						>
-							<div className="qa-sidebar__user-avatar bg-sidebar-primary/10 text-sidebar-primary border-sidebar-primary/20 flex size-8 shrink-0 items-center justify-center border">
+							<div className="qa-sidebar__user-avatar border-sidebar-border bg-sidebar-accent text-sidebar-accent-foreground flex size-8 shrink-0 items-center justify-center border">
 								<Icon icon="ph:user-bold" className="size-4" />
 							</div>
 							{!collapsed && (
 								<>
 									<div className="grid flex-1 text-left leading-tight">
-										<span className="qa-sidebar__user-name truncate text-xs font-medium">
+										<span className="qa-sidebar__user-name truncate text-sm font-medium">
 											{displayName}
 										</span>
-										<span className="qa-sidebar__user-email text-sidebar-foreground/70 truncate text-[10px]">
+										<span className="qa-sidebar__user-email text-sidebar-foreground/70 truncate text-xs">
 											{displayEmail}
 										</span>
 									</div>
@@ -965,12 +997,10 @@ function UserFooter() {
 							className="w-56"
 						>
 							<div className="px-2 py-1.5">
-								<p className="text-xs font-medium">{displayName}</p>
-								<p className="text-muted-foreground text-[10px]">
-									{displayEmail}
-								</p>
+								<p className="text-sm font-medium">{displayName}</p>
+								<p className="text-muted-foreground text-xs">{displayEmail}</p>
 								{user.role && (
-									<p className="text-muted-foreground mt-0.5 text-[10px] capitalize">
+									<p className="text-muted-foreground mt-0.5 text-xs capitalize">
 										{user.role}
 									</p>
 								)}
@@ -1003,7 +1033,7 @@ function UserFooter() {
 														e.currentTarget.style.display = "none";
 													}}
 												/>
-												<span className="w-6 text-xs font-medium uppercase">
+												<span className="font-chrome chrome-meta w-6 text-xs font-medium">
 													{locale.code}
 												</span>
 												<span className="flex-1">{locale.label}</span>
@@ -1041,7 +1071,7 @@ function UserFooter() {
 														e.currentTarget.style.display = "none";
 													}}
 												/>
-												<span className="w-6 text-xs font-medium uppercase">
+												<span className="font-chrome chrome-meta w-6 text-xs font-medium">
 													{locale.code}
 												</span>
 												<span className="flex-1">
@@ -1120,6 +1150,34 @@ export function AdminSidebar({
 	// Persisted sidebar section collapse state
 	const { isSectionCollapsed, toggleSection } = useSidebarCollapsedSections();
 
+	// Resolve reserved component overrides from the admin registry.
+	// Priority: runtime prop (renderBrand / renderNavItem) > registry > built-in.
+	const adminStore = useAdminStoreRaw();
+	const admin = adminStore?.getState().admin;
+	const { Component: BrandOverride } = useLazyComponent(
+		admin?.getComponent("adminSidebarBrand") as MaybeLazyComponent | undefined,
+		{ allowDynamicImportLoaders: false },
+	);
+	const { Component: NavItemOverride } = useLazyComponent(
+		admin?.getComponent("adminSidebarNavItem") as
+			| MaybeLazyComponent
+			| undefined,
+		{ allowDynamicImportLoaders: false },
+	);
+
+	// Build effective render functions: prop wins, then registry, then built-in (undefined)
+	const effectiveRenderBrand =
+		renderBrand ??
+		(BrandOverride
+			? (props: AdminSidebarBrandProps) => <BrandOverride {...props} />
+			: undefined);
+
+	const effectiveRenderNavItem =
+		renderNavItem ??
+		(NavItemOverride
+			? (props: AdminSidebarNavItemProps) => <NavItemOverride {...props} />
+			: undefined);
+
 	// Close sidebar on mobile when navigating
 	const handleBrandClick = React.useCallback(() => {
 		if (isMobile) {
@@ -1127,24 +1185,45 @@ export function AdminSidebar({
 		}
 	}, [isMobile, setOpenMobile]);
 
-	const brandContent = renderBrand ? (
-		renderBrand({ name: brandName, collapsed })
-	) : (
-		<>
-			<QuestpieSymbol />
-			{!collapsed && (
-				<div className="grid flex-1 text-left leading-tight">
-					<span className="truncate font-bold tracking-tight">{brandName}</span>
-				</div>
-			)}
-		</>
+	const renderBuiltInBrand = React.useCallback(
+		(isCollapsed: boolean) => (
+			<>
+				<QuestpieSymbol />
+				{!isCollapsed && (
+					<div className="grid flex-1 text-left leading-tight">
+						<span className="qa-sidebar__brand-name font-chrome truncate text-sm font-medium">
+							{brandName}
+						</span>
+					</div>
+				)}
+			</>
+		),
+		[brandName],
 	);
+
+	const renderBrandContent = React.useCallback(
+		(isCollapsed: boolean) => {
+			const builtInBrand = renderBuiltInBrand(isCollapsed);
+			if (!effectiveRenderBrand) {
+				return builtInBrand;
+			}
+
+			return (
+				<React.Suspense fallback={builtInBrand}>
+					{effectiveRenderBrand({ name: brandName, collapsed: isCollapsed })}
+				</React.Suspense>
+			);
+		},
+		[brandName, effectiveRenderBrand, renderBuiltInBrand],
+	);
+
+	const brandContent = renderBrandContent(collapsed);
 
 	const brandLink = (
 		<LinkComponent
 			to={basePath}
 			className={cn(
-				"qa-sidebar__brand flex items-center gap-2.5 p-2 transition-colors duration-150",
+				"qa-sidebar__brand flex items-center gap-2.5 rounded-sm p-2 transition-colors duration-150",
 				"hover:bg-sidebar-accent",
 				collapsed && "justify-center",
 			)}
@@ -1166,16 +1245,12 @@ export function AdminSidebar({
 										<LinkComponent
 											to={basePath}
 											className={cn(
-												"flex items-center gap-2.5 p-2 transition-colors duration-150",
+												"flex items-center gap-2.5 rounded-sm p-2 transition-colors duration-150",
 												"hover:bg-sidebar-accent",
 												"justify-center",
 											)}
 										>
-											{renderBrand ? (
-												renderBrand({ name: brandName, collapsed: true })
-											) : (
-												<QuestpieSymbol />
-											)}
+											{renderBrandContent(true)}
 										</LinkComponent>
 									}
 								/>
@@ -1204,7 +1279,7 @@ export function AdminSidebar({
 							group={group}
 							activeRoute={activeRoute}
 							LinkComponent={LinkComponent}
-							renderNavItem={renderNavItem}
+							renderNavItem={effectiveRenderNavItem}
 							basePath={basePath}
 							useActiveProps={useActiveProps}
 							isSectionCollapsed={isSectionCollapsed}

@@ -1714,7 +1714,7 @@ export default function FormView({
 
 			{/* Warning banner - show when same user has document open elsewhere */}
 			{isOpenElsewhere && (
-				<div className="bg-info/10 border-info/30 mb-4 flex items-center gap-3 border p-3">
+				<div className="qa-form-view__open-elsewhere-banner bg-info/10 border-info/30 mb-4 flex items-center gap-3 border p-3">
 					<Icon icon="ph:browser" className="text-info size-5" />
 					<p className="text-info text-sm">{t("lock.openElsewhere")}</p>
 				</div>

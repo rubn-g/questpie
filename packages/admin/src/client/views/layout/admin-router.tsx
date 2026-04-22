@@ -14,15 +14,16 @@
  */
 
 import { Icon } from "@iconify/react";
+import { useQueryClient } from "@tanstack/react-query";
 import * as React from "react";
 
 import type { PageDefinition } from "../../builder/page/page.js";
 import type { MaybeLazyComponent } from "../../builder/types/common.js";
 import type { ComponentRegistry } from "../../builder/types/field-types.js";
 import type { DashboardConfig } from "../../builder/types/ui-config.js";
+import { Button } from "../../components/ui/button.js";
 import { Card } from "../../components/ui/card.js";
 import { Skeleton } from "../../components/ui/skeleton.js";
-import { useQueryClient } from "@tanstack/react-query";
 import { useSuspenseAdminConfig } from "../../hooks/use-admin-config";
 import { getCollectionMetaQueryOptions } from "../../hooks/use-collection-meta";
 import { useCollectionSchema } from "../../hooks/use-collection-schema";
@@ -548,24 +549,23 @@ function DefaultDashboard() {
 		<div className="qa-default-dashboard container">
 			<div className="mb-8 flex items-end justify-between">
 				<div>
-					<h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-					<p className="text-muted-foreground mt-1 font-mono text-xs tracking-widest uppercase">
+					<h1 className="text-3xl font-semibold">Dashboard</h1>
+					<p className="text-muted-foreground font-chrome chrome-meta mt-1 text-xs">
 						{date}
 					</p>
 				</div>
 			</div>
 
 			<div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-				<Card className="relative overflow-hidden p-6">
-					<div className="bg-primary/10 absolute -top-12 -right-12 h-32 w-32 rounded-full blur-3xl" />
-					<div className="relative">
+				<Card className="p-6">
+					<div>
 						<div className="mb-4 flex items-center gap-3">
 							<div className="bg-primary h-2 w-2 rounded-full" />
-							<h3 className="text-primary font-mono text-xs font-bold tracking-widest uppercase">
+							<h3 className="text-muted-foreground font-chrome chrome-meta text-xs font-medium">
 								System Status
 							</h3>
 						</div>
-						<h2 className="mb-2 text-xl font-bold">Welcome back</h2>
+						<h2 className="mb-2 text-xl font-semibold">Welcome back</h2>
 						<p className="text-muted-foreground text-sm leading-relaxed">
 							Select a collection from the sidebar to manage your content.
 						</p>
@@ -600,10 +600,8 @@ function RestrictedAccess({
 }) {
 	return (
 		<div className="qa-restricted-access container py-12">
-			<Card className="relative mx-auto max-w-lg overflow-hidden p-8 text-center">
-				<div className="bg-muted absolute -top-16 -right-16 h-40 w-40 rounded-full blur-3xl" />
-				<div className="bg-muted absolute -bottom-16 -left-16 h-40 w-40 rounded-full blur-3xl" />
-				<div className="relative">
+			<Card className="mx-auto max-w-lg p-8 text-center">
+				<div>
 					<div className="bg-muted mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full">
 						<Icon
 							icon="ph:lock-simple"
@@ -617,14 +615,10 @@ function RestrictedAccess({
 						available in the admin panel. It may be hidden or you don't have
 						permission to access it.
 					</p>
-					<button
-						type="button"
-						onClick={() => navigate(basePath)}
-						className="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex items-center gap-2 px-4 py-2 text-sm font-medium transition-colors"
-					>
+					<Button variant="outline" onClick={() => navigate(basePath)}>
 						<Icon icon="ph:arrow-left" className="h-4 w-4" />
 						Back to Dashboard
-					</button>
+					</Button>
 				</div>
 			</Card>
 		</div>

@@ -38,7 +38,7 @@ export function Toolbar({
 		<div
 			data-slot="toolbar"
 			className={cn(
-				"qa-toolbar bg-card border-border border",
+				"qa-toolbar rounded-sm bg-card border-border border",
 				"flex items-center gap-2 p-1",
 				className,
 			)}

@@ -6,6 +6,7 @@ import { Icon } from "@iconify/react";
 import * as React from "react";
 
 import { useResolveText, useTranslation } from "../../../../i18n/hooks";
+import { cn } from "../../../../lib/utils";
 import { CollectionEditLink } from "../../../admin-link";
 import { Button } from "../../../ui/button";
 import { Skeleton } from "../../../ui/skeleton";
@@ -41,14 +42,11 @@ function CardsSkeleton({
 	return (
 		<div className={`grid gap-4 ${gridCols[gridColumns]}`}>
 			{skeletonKeys.map((key) => (
-				<div
-					key={key}
-					className="border-border bg-card overflow-hidden border"
-				>
+				<div key={key} className="panel-surface overflow-hidden">
 					{hasImage && <Skeleton className="aspect-video w-full" />}
 					<div className="space-y-2 p-3">
-						<Skeleton className="h-5 w-3/4 rounded" />
-						<Skeleton className="h-4 w-1/2 rounded" />
+						<Skeleton variant="text" className="h-5 w-3/4" />
+						<Skeleton variant="text" className="h-4 w-1/2" />
 					</div>
 				</div>
 			))}
@@ -101,9 +99,16 @@ export function CardsDisplay({
 				const image = getImage(item);
 				const subtitle = getSubtitle(item);
 				const meta = getMeta(item);
+				const isInteractive = editable || !!actions?.onEdit || linkToDetail;
 
 				const cardContent = (
-					<div className="border-border bg-card hover:bg-card h-full overflow-hidden border transition-colors">
+					<div
+						className={cn(
+							"panel-surface h-full overflow-hidden",
+							isInteractive &&
+								"hover:border-border hover:bg-accent/30 hover:text-foreground",
+						)}
+					>
 						{image && (
 							<div className="bg-muted aspect-video">
 								<img
@@ -130,8 +135,7 @@ export function CardsDisplay({
 											<Button
 												type="button"
 												variant="ghost"
-												size="icon"
-												className="h-7 w-7"
+												size="icon-xs"
 												onClick={(e) => {
 													e.preventDefault();
 													e.stopPropagation();
@@ -146,8 +150,7 @@ export function CardsDisplay({
 											<Button
 												type="button"
 												variant="ghost"
-												size="icon"
-												className="h-7 w-7"
+												size="icon-xs"
 												onClick={(e) => {
 													e.preventDefault();
 													e.stopPropagation();
@@ -165,7 +168,7 @@ export function CardsDisplay({
 								<div className="text-muted-foreground mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs">
 									{meta.map((m) => (
 										<span key={String(m.label)}>
-											<span className="font-medium">
+											<span className="font-chrome chrome-meta mr-1 font-medium">
 												{resolveText(m.label)}:
 											</span>
 											{m.value}

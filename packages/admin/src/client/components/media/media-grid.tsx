@@ -127,7 +127,7 @@ function MediaGridSkeleton({ columns = 4 }: { columns?: 2 | 3 | 4 | 5 }) {
 			{skeletonKeys.map((key) => (
 				<div key={key} className="space-y-2">
 					<Skeleton className="aspect-square w-full" />
-					<Skeleton className="h-4 w-3/4" />
+					<Skeleton variant="text" className="h-4 w-3/4" />
 				</div>
 			))}
 		</div>
@@ -170,12 +170,12 @@ function AssetItem({
 			type="button"
 			onClick={handleClick}
 			className={cn(
-				"group relative aspect-square w-full overflow-hidden border",
+				"panel-surface group relative aspect-square w-full overflow-hidden",
 				"focus-visible:ring-ring transition-all focus-visible:ring-2 focus-visible:outline-none",
 				selected
-					? "ring-primary border-primary ring-2"
-					: "border-border hover:border-border",
-				"bg-muted",
+					? "border-primary ring-ring/30 ring-2"
+					: "hover:border-border hover:bg-accent/20",
+				"bg-card",
 			)}
 		>
 			{/* Thumbnail or icon */}
@@ -193,7 +193,7 @@ function AssetItem({
 						getAssetTypeColor(asset.mimeType),
 					)}
 				>
-					<span className="text-muted-foreground text-xs font-medium uppercase">
+					<span className="text-muted-foreground chrome-meta text-xs font-medium">
 						{asset.mimeType?.split("/")[1]?.slice(0, 4) || "FILE"}
 					</span>
 				</div>
@@ -206,7 +206,7 @@ function AssetItem({
 						"absolute top-2 right-2 flex size-5 items-center justify-center rounded-full border-2 transition-all",
 						selected
 							? "bg-primary border-primary"
-							: "border-white bg-black/20 group-hover:bg-black/40",
+							: "border-border bg-background/80 text-muted-foreground group-hover:bg-background",
 					)}
 				>
 					{selected && (
@@ -279,8 +279,8 @@ export function MediaGrid({
 		return (
 			<div
 				className={cn(
-					"flex flex-col items-center justify-center border border-dashed p-12",
-					"bg-muted text-muted-foreground",
+					"panel-surface flex flex-col items-center justify-center border-dashed p-12",
+					"text-muted-foreground",
 					className,
 				)}
 			>

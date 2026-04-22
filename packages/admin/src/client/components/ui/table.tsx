@@ -6,12 +6,12 @@ function Table({ className, ...props }: React.ComponentProps<"table">) {
 	return (
 		<div
 			data-slot="table-container"
-			className="qa-table-container scrollbar-thin relative min-w-0 w-full overflow-x-auto"
+			className="qa-table-container scrollbar-thin relative w-full min-w-0 overflow-x-auto"
 		>
 			<table
 				data-slot="table"
 				className={cn(
-					"qa-table w-full caption-bottom border-separate border-spacing-0 text-xs",
+					"qa-table w-full caption-bottom border-separate border-spacing-0 text-sm",
 					className,
 				)}
 				{...props}
@@ -92,7 +92,7 @@ function TableHead({
 			data-slot="table-head"
 			data-sticky-left={isSticky ? "" : undefined}
 			className={cn(
-				"qa-table__head text-muted-foreground bg-card h-10 min-w-[100px] px-4 text-left align-middle font-mono text-[10px] font-semibold tracking-[0.08em] whitespace-nowrap uppercase [&:has([role=checkbox])]:px-2",
+				"qa-table__head font-chrome text-muted-foreground bg-card chrome-meta h-10 min-w-[100px] px-4 text-left align-middle text-xs font-medium whitespace-nowrap [&:has([role=checkbox])]:px-2",
 				// Sticky column styles - solid background
 				isSticky && "sticky z-20 min-w-0",
 				// Only show border on last sticky column

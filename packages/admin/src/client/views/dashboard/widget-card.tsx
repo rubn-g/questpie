@@ -69,8 +69,7 @@ interface WidgetCardProps {
 const variantStyles: Record<WidgetCardVariant, string> = {
 	default: "",
 	compact: "py-3 gap-3",
-	featured:
-		"border-primary/30 bg-gradient-to-br from-primary/5 to-transparent",
+	featured: "border-primary/20 bg-primary/5",
 };
 
 const variantContentStyles: Record<WidgetCardVariant, string> = {
@@ -176,11 +175,7 @@ export function WidgetCard({
 		if (loadingSkeleton) {
 			return (
 				<Card
-					className={cn(
-						"flex flex-col",
-						variantStyles[variant],
-						className,
-					)}
+					className={cn("flex flex-col", variantStyles[variant], className)}
 				>
 					<CardHeader>
 						<Skeleton className="h-4 w-24" />

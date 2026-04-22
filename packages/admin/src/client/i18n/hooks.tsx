@@ -15,6 +15,7 @@ import type {
 	I18nText,
 	UseTranslationResult,
 } from "./types";
+import { resolveDateFnsLocale } from "./date-locale";
 
 // ============================================================================
 // Context
@@ -148,6 +149,15 @@ function useLocale(): string {
  */
 function useSetLocale(): I18nAdapter["setLocale"] {
 	return useI18n().setLocale;
+}
+
+/**
+ * Returns the date-fns `Locale` object matching the current admin UI locale.
+ * Only `enUS` is bundled by default — register others via `registerDateFnsLocale`.
+ */
+export function useDateFnsLocale() {
+	const { locale } = useTranslation();
+	return resolveDateFnsLocale(locale);
 }
 
 // ============================================================================

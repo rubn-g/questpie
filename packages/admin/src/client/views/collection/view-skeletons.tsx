@@ -9,12 +9,14 @@ import { Skeleton } from "../../components/ui/skeleton";
 
 function TableSkeletonRow({ isLast = false }: { isLast?: boolean }) {
 	return (
-		<div className={`flex items-center gap-4 p-4 ${isLast ? "" : "border-b"}`}>
-			<Skeleton className="h-4 w-4" />
-			<Skeleton className="h-4 w-48" />
-			<Skeleton className="h-4 w-20" />
-			<Skeleton className="h-4 w-24" />
-			<Skeleton className="ml-auto h-4 w-16" />
+		<div
+			className={`border-border flex items-center gap-4 px-4 py-3 ${isLast ? "border-0" : "border-b"}`}
+		>
+			<Skeleton variant="text" className="h-4 w-4" />
+			<Skeleton variant="text" className="h-4 w-48" />
+			<Skeleton variant="text" className="h-4 w-20" />
+			<Skeleton variant="text" className="h-4 w-24" />
+			<Skeleton variant="text" className="ml-auto h-4 w-16" />
 		</div>
 	);
 }
@@ -22,18 +24,18 @@ function TableSkeletonRow({ isLast = false }: { isLast?: boolean }) {
 function FormFieldSkeleton() {
 	return (
 		<div className="space-y-2">
-			<Skeleton className="h-4 w-24" />
+			<Skeleton variant="text" className="h-4 w-24" />
 			<Skeleton className="h-10 w-full" />
 		</div>
 	);
 }
 
 function ToolbarIconSkeleton() {
-	return <Skeleton className="h-8 w-8" />;
+	return <Skeleton variant="text" className="h-8 w-8" />;
 }
 
 function ContentLineSkeleton({ width }: { width: string }) {
-	return <Skeleton className={`h-4 ${width}`} />;
+	return <Skeleton variant="text" className={`h-4 ${width}`} />;
 }
 
 /**
@@ -48,8 +50,8 @@ export function TableViewSkeleton() {
 				{/* Header */}
 				<div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
 					<div className="space-y-1">
-						<Skeleton className="h-8 w-48" />
-						<Skeleton className="h-4 w-64" />
+						<Skeleton variant="text" className="h-8 w-48" />
+						<Skeleton variant="text" className="h-4 w-64" />
 					</div>
 					<Skeleton className="h-9 w-32" />
 				</div>
@@ -62,14 +64,14 @@ export function TableViewSkeleton() {
 				</div>
 
 				{/* Table */}
-				<div className="border">
+				<div className="panel-surface overflow-hidden">
 					{/* Header row */}
-					<div className="bg-muted flex items-center gap-4 border-b p-4">
-						<Skeleton className="h-4 w-4" />
-						<Skeleton className="h-4 w-32" />
-						<Skeleton className="h-4 w-24" />
-						<Skeleton className="h-4 w-24" />
-						<Skeleton className="ml-auto h-4 w-20" />
+					<div className="border-border bg-muted flex items-center gap-4 border-b px-4 py-3">
+						<Skeleton variant="text" className="h-4 w-4" />
+						<Skeleton variant="text" className="h-4 w-32" />
+						<Skeleton variant="text" className="h-4 w-24" />
+						<Skeleton variant="text" className="h-4 w-24" />
+						<Skeleton variant="text" className="ml-auto h-4 w-20" />
 					</div>
 					{/* Data rows */}
 					<TableSkeletonRow />
@@ -95,8 +97,8 @@ export function FormViewSkeleton() {
 				{/* Header */}
 				<div className="flex items-center justify-between">
 					<div className="flex items-center gap-3">
-						<Skeleton className="h-8 w-8" /> {/* Back button */}
-						<Skeleton className="h-8 w-48" />
+						<Skeleton variant="text" className="h-8 w-8" /> {/* Back button */}
+						<Skeleton variant="text" className="h-8 w-48" />
 					</div>
 					<div className="flex items-center gap-2">
 						<Skeleton className="h-9 w-20" />
@@ -113,7 +115,7 @@ export function FormViewSkeleton() {
 
 					{/* Textarea field */}
 					<div className="space-y-2">
-						<Skeleton className="h-4 w-32" />
+						<Skeleton variant="text" className="h-4 w-32" />
 						<Skeleton className="h-32 w-full" />
 					</div>
 				</div>
@@ -131,7 +133,7 @@ function RichTextEditorSkeleton() {
 	return (
 		<div className="space-y-2">
 			{/* Toolbar */}
-			<div className="bg-muted flex items-center gap-1 rounded-t-md border p-2">
+			<div className="panel-surface bg-muted flex items-center gap-1 rounded-b-none border-b-0 p-2">
 				<ToolbarIconSkeleton />
 				<ToolbarIconSkeleton />
 				<ToolbarIconSkeleton />
@@ -142,7 +144,7 @@ function RichTextEditorSkeleton() {
 				<ToolbarIconSkeleton />
 			</div>
 			{/* Content area */}
-			<div className="min-h-[200px] rounded-b-md border border-t-0 p-4">
+			<div className="panel-surface min-h-[200px] rounded-t-none border-t-0 p-4">
 				<div className="space-y-2">
 					<ContentLineSkeleton width="w-full" />
 					<ContentLineSkeleton width="w-3/4" />

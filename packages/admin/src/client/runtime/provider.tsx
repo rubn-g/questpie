@@ -591,7 +591,7 @@ function useHasAdminProvider(): boolean {
  * Get the raw store from context (or null if outside provider).
  * For advanced use cases where you need conditional store access.
  */
-function useAdminStoreRaw(): AdminStore | null {
+export function useAdminStoreRaw(): AdminStore | null {
 	return useContext(AdminStoreContext);
 }
 

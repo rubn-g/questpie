@@ -160,7 +160,7 @@ export function RichTextEditor({
 			) : (
 				<div
 					className={cn(
-						"qp-rich-text-editor bg-transparent border border-input",
+						"qp-rich-text-editor panel-surface border-input overflow-hidden",
 						disabled || readOnly ? "opacity-60" : "",
 						error ? "border-destructive" : "border-border",
 					)}
@@ -192,8 +192,7 @@ type RichTextEditorCoreProps = {
 	readOnly?: boolean;
 	error?: string;
 	locale?: string;
-	features: Required<RichTextEditorProps["features"]> &
-		Record<string, boolean>;
+	features: Required<RichTextEditorProps["features"]> & Record<string, boolean>;
 	resolvedExtensions: AnyExtension[];
 	showCharacterCount?: boolean;
 	maxCharacters?: number;
@@ -294,7 +293,7 @@ function RichTextEditorCore({
 		<>
 			<div
 				className={cn(
-					"qp-rich-text-editor bg-transparent border border-input",
+					"qp-rich-text-editor panel-surface border-input overflow-hidden",
 					disabled || readOnly ? "opacity-60" : "",
 					error ? "border-destructive" : "border-border",
 				)}

@@ -38,12 +38,9 @@ function GridSkeleton({
 	return (
 		<div className={`grid gap-2 ${gridCols[gridColumns]}`}>
 			{skeletonKeys.map((key) => (
-				<div
-					key={key}
-					className="border-border bg-card flex items-center gap-2 border p-2"
-				>
-					<Skeleton className="size-8 shrink-0 rounded" />
-					<Skeleton className="h-4 max-w-[120px] flex-1 rounded" />
+				<div key={key} className="panel-surface flex items-center gap-2 p-2.5">
+					<Skeleton className="size-8 shrink-0" />
+					<Skeleton variant="text" className="h-4 max-w-[120px] flex-1" />
 				</div>
 			))}
 		</div>
@@ -76,11 +73,18 @@ export function GridDisplay({
 		<div className={`grid gap-2 ${gridCols[gridColumns]}`}>
 			{items.map((item) => {
 				const image = getImage(item);
+				const isInteractive = editable || !!actions?.onEdit || linkToDetail;
 
 				const gridContent = (
-					<div className="border-border bg-card hover:bg-card flex h-full items-center gap-2 border p-2 transition-colors">
+					<div
+						className={cn(
+							"item-surface border-border bg-card flex h-full items-center gap-2 px-3 py-2.5 transition-colors",
+							isInteractive &&
+								"hover:border-border hover:bg-accent hover:text-accent-foreground",
+						)}
+					>
 						{image ? (
-							<div className="bg-muted size-8 shrink-0 overflow-hidden rounded">
+							<div className="bg-muted size-8 shrink-0 overflow-hidden rounded-sm">
 								<img
 									src={image}
 									alt={getTitle(item)}
@@ -88,7 +92,7 @@ export function GridDisplay({
 								/>
 							</div>
 						) : collectionIcon ? (
-							<div className="bg-muted flex size-8 shrink-0 items-center justify-center rounded">
+							<div className="bg-muted flex size-8 shrink-0 items-center justify-center rounded-sm">
 								{resolveIconElement(collectionIcon, {
 									className: "size-4 text-muted-foreground",
 								})}
@@ -102,8 +106,7 @@ export function GridDisplay({
 									<Button
 										type="button"
 										variant="ghost"
-										size="icon"
-										className="h-6 w-6"
+										size="icon-xs"
 										onClick={(e) => {
 											e.preventDefault();
 											e.stopPropagation();
@@ -118,8 +121,7 @@ export function GridDisplay({
 									<Button
 										type="button"
 										variant="ghost"
-										size="icon"
-										className="h-6 w-6"
+										size="icon-xs"
 										onClick={(e) => {
 											e.preventDefault();
 											e.stopPropagation();

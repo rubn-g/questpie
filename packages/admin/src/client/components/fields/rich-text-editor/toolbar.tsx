@@ -88,9 +88,9 @@ export function ToolbarButton({
 			disabled={disabled}
 			onClick={onClick}
 			className={cn(
-				"text-muted-foreground hover:text-foreground hover:bg-transparent",
-				"data-[active=true]:text-foreground data-[active=true]:bg-transparent",
-				"aria-expanded:bg-transparent",
+				"item-surface text-muted-foreground hover:border-border hover:bg-background hover:text-foreground",
+				"data-[active=true]:border-border data-[active=true]:bg-background data-[active=true]:text-foreground",
+				"aria-expanded:border-border aria-expanded:bg-background",
 				className,
 			)}
 			{...rest}
@@ -141,7 +141,7 @@ export function RichTextToolbar({
 	const isEditable = !disabled;
 
 	return (
-		<div className="bg-muted flex flex-wrap items-center gap-1.5 border-b p-1.5">
+		<div className="border-border bg-muted flex flex-wrap items-center gap-1.5 border-b p-1.5">
 			{/* History Controls */}
 			{features.history && (
 				<ToolbarGroup>
@@ -166,7 +166,7 @@ export function RichTextToolbar({
 			{features.heading && (
 				<ToolbarGroup>
 					<select
-						className="border-input bg-transparent h-6 border px-2 text-xs"
+						className="border-input bg-background h-7 rounded-xs border px-2.5 text-sm outline-none"
 						value={headingValue}
 						onChange={(event) => onHeadingChange(event.target.value)}
 						disabled={!isEditable}

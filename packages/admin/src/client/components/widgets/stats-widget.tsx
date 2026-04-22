@@ -142,15 +142,6 @@ function getDateRange(preset: DateFilterPreset): { gte: Date; lte: Date } {
 	}
 }
 
-// Variant styles for the card border/background
-const variantStyles = {
-	default: "",
-	primary: "border-primary/30 bg-primary/5",
-	success: "border-success/30 bg-success/5",
-	warning: "border-warning/30 bg-warning/5",
-	danger: "border-destructive/30 bg-destructive/5",
-};
-
 // Variant styles for the value text
 const variantValueStyles = {
 	default: "",
@@ -247,7 +238,6 @@ export default function StatsWidget({ config }: StatsWidgetProps) {
 				error instanceof Error ? error : error ? new Error(String(error)) : null
 			}
 			onRefresh={() => refetch()}
-			className={variantStyles[variant]}
 		>
 			<div className={cn("text-2xl font-bold", variantValueStyles[variant])}>
 				{count.toLocaleString()}

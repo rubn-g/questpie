@@ -44,7 +44,7 @@ export const AdminTopbar = React.memo(function AdminTopbar({
 	return (
 		<header
 			role="banner"
-			className="qa-topbar border-border bg-background/92 backdrop-blur-sm relative sticky top-0 z-50 flex h-14 w-full items-center justify-between border-b px-4 md:px-6"
+			className="qa-topbar border-border bg-background relative sticky top-0 z-50 flex h-14 w-full items-center justify-between border-b px-4 md:px-6"
 		>
 			<div className="qa-topbar__left flex items-center gap-2">
 				{/* Sidebar toggle - works for both mobile (opens sheet) and desktop (collapses) */}
@@ -52,7 +52,7 @@ export const AdminTopbar = React.memo(function AdminTopbar({
 
 				{/* Mobile: show current page title */}
 				{resolvedBreadcrumbs.length > 0 && (
-					<span className="qa-topbar__mobile-title text-foreground max-w-[140px] truncate font-mono text-xs font-medium md:hidden">
+					<span className="qa-topbar__mobile-title font-chrome text-foreground max-w-[140px] truncate text-xs font-medium md:hidden">
 						{resolveText(
 							resolvedBreadcrumbs[resolvedBreadcrumbs.length - 1].label,
 						)}
@@ -62,7 +62,7 @@ export const AdminTopbar = React.memo(function AdminTopbar({
 				{/* Breadcrumbs */}
 				<nav
 					aria-label="Breadcrumb"
-					className="qa-topbar__breadcrumbs text-muted-foreground hidden items-center gap-1.5 font-mono text-xs md:flex"
+					className="qa-topbar__breadcrumbs font-chrome text-muted-foreground hidden items-center gap-1.5 text-xs md:flex"
 				>
 					{resolvedBreadcrumbs.map((crumb) => {
 						const CrumbIcon = crumb.icon;
@@ -157,7 +157,7 @@ export const AdminTopbar = React.memo(function AdminTopbar({
 					variant="outline"
 					onClick={onSearchOpen}
 					size="icon-sm"
-					className="qa-topbar__search-btn text-muted-foreground gap-2 md:size-auto md:h-9 md:w-64 md:justify-between md:px-3"
+					className="qa-topbar__search-btn bg-card text-muted-foreground gap-2 md:size-auto md:h-9 md:w-64 md:justify-between md:px-3"
 					aria-label={t("ui.searchPlaceholder")}
 				>
 					<span className="flex items-center gap-2">

@@ -73,6 +73,35 @@ The logo appears in:
 
 Use an SVG for best results across light/dark themes.
 
+## File-First Logo Override
+
+For full control over the sidebar brand area (logo + name HTML), create a file-first override component. This replaces the entire brand slot in the sidebar header without touching your app shell.
+
+```tsx title="questpie/admin/components/admin-sidebar-brand.tsx"
+import type { AdminSidebarBrandProps } from "@questpie/admin/client";
+
+export default function MyBrand({ name, collapsed }: AdminSidebarBrandProps) {
+  return (
+    <div className="flex items-center gap-2">
+      <img src="/my-logo.svg" alt={name} className="size-6 shrink-0" />
+      {!collapsed && <span className="font-bold tracking-tight">{name}</span>}
+    </div>
+  );
+}
+```
+
+The `name` prop still comes from `config/admin.ts` branding — data flow is unchanged. Only the rendering changes.
+
+Use a normal React component as the default export for this file. Do **not** default-export a raw `() => import("...")` loader function here.
+
+Alternatively, if your app shell owns `<AdminSidebar>`, you can pass `renderBrand` directly:
+
+```tsx
+<AdminSidebar renderBrand={({ name, collapsed }) => <MyBrand name={name} collapsed={collapsed} />} />
+```
+
+Runtime props take priority over file-first overrides.
+
 ## Theming
 
 For deeper customization of colors, typography, and layout, see the [Theming guide](/docs/workspace/setup) and the admin package's `THEMING.md`.

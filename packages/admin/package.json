@@ -28,7 +28,10 @@
 		"./server": "./src/exports/server.ts",
 		"./shared": "./src/exports/shared.ts",
 		"./*": "./*",
-		"./client/styles/index.css": "./src/client/styles/index.css"
+		"./client/styles/base.css": "./src/client/styles/base.css",
+		"./client/styles/brutal.css": "./src/client/styles/brutal.css",
+		"./client/styles/index.css": "./src/client/styles/index.css",
+		"./client/styles/soft.css": "./src/client/styles/soft.css"
 	},
 	"publishConfig": {
 		"access": "public",
@@ -40,7 +43,10 @@
 			"./server": "./dist/server.mjs",
 			"./shared": "./dist/shared.mjs",
 			"./*": "./*",
-			"./client/styles/index.css": "./dist/client/styles/index.css"
+			"./client/styles/base.css": "./dist/client/styles/base.css",
+			"./client/styles/brutal.css": "./dist/client/styles/brutal.css",
+			"./client/styles/index.css": "./dist/client/styles/index.css",
+			"./client/styles/soft.css": "./dist/client/styles/soft.css"
 		}
 	},
 	"scripts": {

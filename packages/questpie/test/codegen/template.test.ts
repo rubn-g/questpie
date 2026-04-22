@@ -649,7 +649,7 @@ describe("generateTemplate — services", () => {
 // ─────────────────────────────────────────────────────────────────────────────
 
 describe("generateTemplate — emails", () => {
-	it("emits MailerService import when emails exist", () => {
+	it("emits MailerService type only once when emails exist", () => {
 		const result = minimalResult();
 		cat(result, "emails").set(
 			"welcome",
@@ -663,7 +663,8 @@ describe("generateTemplate — emails", () => {
 			singletonFactories: coreSingletonFactories(),
 		});
 
-		expect(code).toContain('import type { MailerService } from "questpie"');
+		expect(code).toContain("type MailerService");
+		expect(code.match(/MailerService/g)?.length).toBe(2);
 	});
 
 	it("emits email: MailerService<AppEmailTemplates> in AppContext", () => {

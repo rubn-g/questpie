@@ -203,7 +203,7 @@ export function BlockLibrarySidebar({
 												className="text-muted-foreground h-4 w-4"
 											/>
 										)}
-										<h4 className="text-muted-foreground text-xs font-semibold tracking-wide uppercase">
+										<h4 className="text-muted-foreground font-chrome chrome-meta text-xs font-semibold">
 											{getCategoryDisplayLabel(category.config)}
 										</h4>
 									</div>
@@ -215,8 +215,8 @@ export function BlockLibrarySidebar({
 												type="button"
 												key={block.name}
 												className={cn(
-													"flex flex-col items-start gap-2 border p-3 text-left",
-													"hover:border-primary hover:bg-accent transition-colors",
+													"panel-surface flex flex-col items-start gap-2 p-3 text-left",
+													"hover:border-border hover:bg-accent transition-colors",
 													"focus-visible:ring-primary focus:outline-none focus-visible:ring-2",
 												)}
 												onClick={() => handleSelectBlock(block.name)}

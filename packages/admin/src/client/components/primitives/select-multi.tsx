@@ -218,7 +218,7 @@ export function SelectMulti<TValue extends string = string>({
 			aria-invalid={ariaInvalid}
 			tabIndex={0}
 			className={cn(
-				"qa-select-multi border-input bg-transparent font-mono flex min-h-9 w-full flex-wrap items-center gap-1 border px-3 py-1.5 text-sm transition-colors",
+				"qa-select-multi rounded-sm font-chrome border-input bg-transparent flex min-h-9 w-full flex-wrap items-center gap-1 border px-3 py-1.5 text-sm transition-colors",
 				"focus-within:ring-ring focus-within:border-ring focus-within:ring-2",
 				disabled && "cursor-not-allowed opacity-50",
 				ariaInvalid && "border-destructive ring-destructive/20",

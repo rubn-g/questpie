@@ -236,11 +236,7 @@ export function AssetPreview({
 	if (variant === "thumbnail") {
 		// Show skeleton when loading and no actual asset data
 		if (isLoadingAsset) {
-			return (
-				<Skeleton
-					className={cn("aspect-square w-full", className)}
-				/>
-			);
+			return <Skeleton className={cn("aspect-square w-full", className)} />;
 		}
 
 		const isInteractive = onClick && !disabled && asset.id;
@@ -356,17 +352,15 @@ export function AssetPreview({
 		if (isLoadingAsset) {
 			return (
 				<div
-					className={cn(
-						"flex items-center gap-2 border p-2",
-						"bg-muted border-border",
-						className,
-					)}
+					className={cn("panel-surface flex items-center gap-2 p-2", className)}
 				>
-					{showDragHandle && <Skeleton className="-ml-1 size-4 rounded" />}
-					<Skeleton className="size-8 shrink-0 rounded" />
+					{showDragHandle && (
+						<Skeleton variant="text" className="-ml-1 size-4" />
+					)}
+					<Skeleton className="size-8 shrink-0" />
 					<div className="min-w-0 flex-1 space-y-1.5">
-						<Skeleton className="h-4 w-32 rounded" />
-						<Skeleton className="h-3 w-16 rounded" />
+						<Skeleton variant="text" className="h-4 w-32" />
+						<Skeleton variant="text" className="h-3 w-16" />
 					</div>
 				</div>
 			);
@@ -389,10 +383,9 @@ export function AssetPreview({
 		return (
 			<div
 				className={cn(
-					"group flex items-center gap-2 border p-2",
-					"bg-muted border-border",
+					"panel-surface group flex items-center gap-2 p-2",
 					disabled && "opacity-60",
-					onClick && !disabled && "hover:border-border cursor-pointer",
+					onClick && !disabled && "hover:bg-accent/20 cursor-pointer",
 					className,
 				)}
 				{...compactInteractiveProps}
@@ -409,7 +402,7 @@ export function AssetPreview({
 				)}
 
 				{/* Icon or thumbnail */}
-				<div className="bg-muted flex size-8 shrink-0 items-center justify-center overflow-hidden rounded">
+				<div className="bg-muted flex size-8 shrink-0 items-center justify-center overflow-hidden rounded-sm">
 					{thumbnailUrl && !imageError ? (
 						<img
 							src={thumbnailUrl}
@@ -494,17 +487,11 @@ export function AssetPreview({
 	// Show skeleton when loading and no actual asset data
 	if (isLoadingAsset) {
 		return (
-			<div
-				className={cn(
-					"overflow-hidden border",
-					"bg-muted border-border",
-					className,
-				)}
-			>
+			<div className={cn("panel-surface overflow-hidden", className)}>
 				<Skeleton className="aspect-video w-full" />
 				<div className="space-y-1.5 p-3">
-					<Skeleton className="h-4 w-3/4 rounded" />
-					<Skeleton className="h-3 w-1/2 rounded" />
+					<Skeleton variant="text" className="h-4 w-3/4" />
+					<Skeleton variant="text" className="h-3 w-1/2" />
 				</div>
 			</div>
 		);
@@ -527,10 +514,9 @@ export function AssetPreview({
 	return (
 		<div
 			className={cn(
-				"group relative overflow-hidden border",
-				"bg-muted border-border",
+				"panel-surface group relative overflow-hidden",
 				disabled && "opacity-60",
-				onClick && !disabled && "hover:border-border cursor-pointer",
+				onClick && !disabled && "hover:bg-accent/20 cursor-pointer",
 				className,
 			)}
 			{...cardInteractiveProps}
@@ -562,7 +548,7 @@ export function AssetPreview({
 							className="text-muted-foreground size-12"
 						/>
 						{extension && (
-							<span className="bg-muted text-muted-foreground rounded px-2 py-0.5 text-xs font-medium">
+							<span className="item-surface border-border bg-muted text-muted-foreground px-2 py-0.5 text-xs font-medium">
 								{extension}
 							</span>
 						)}
@@ -581,9 +567,9 @@ export function AssetPreview({
 								<span className="text-muted-foreground text-sm font-medium">
 									{progress}%
 								</span>
-								<div className="bg-muted h-1.5 w-24 overflow-hidden rounded-full">
+								<div className="bg-muted h-1.5 w-24 overflow-hidden rounded-sm">
 									<div
-										className="bg-primary h-full rounded-full transition-all duration-300"
+										className="bg-primary h-full rounded-sm transition-all duration-300"
 										style={{ width: `${progress}%` }}
 									/>
 								</div>
@@ -610,7 +596,7 @@ export function AssetPreview({
 			</div>
 
 			{/* File info footer */}
-			<div className="flex items-center gap-2 border-t p-2">
+			<div className="border-border flex items-center gap-2 border-t p-2">
 				<div className="min-w-0 flex-1">
 					<p className="truncate text-sm font-medium" title={filename}>
 						{filename}

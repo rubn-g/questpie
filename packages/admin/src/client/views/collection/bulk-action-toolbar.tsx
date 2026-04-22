@@ -367,7 +367,7 @@ export function BulkActionToolbar<TItem = any>({
 							</div>
 
 							{/* Divider between filter and selection segments */}
-							{hasSelection && <div className="bg-border h-4 w-px shrink-0" />}
+							{hasSelection && <div className="qa-bulk-toolbar__divider bg-border h-4 w-px shrink-0" aria-hidden="true" />}
 						</>
 					)}
 
@@ -380,7 +380,7 @@ export function BulkActionToolbar<TItem = any>({
 							</span>
 
 							{/* Divider */}
-							<div className="bg-border h-4 w-px shrink-0" />
+							<div className="qa-bulk-toolbar__divider bg-border h-4 w-px shrink-0" aria-hidden="true" />
 
 							{/* Select dropdown */}
 							<DropdownMenu>

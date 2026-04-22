@@ -105,9 +105,6 @@ export function coreCodegenPlugin(): CodegenPlugin {
 						prefix: "email",
 						typeEmit: "emails",
 						createAppKey: "emailTemplates",
-						extraTypeImports: [
-							'import type { MailerService } from "questpie";',
-						],
 						registryKey: "emails",
 						includeInAppState: false,
 						extractFromModules: false,
@@ -317,7 +314,9 @@ export function resolveTargetGraph(
 
 			// Merge categories (deep per category key — arrays are concatenated)
 			if (contribution.categories) {
-				for (const [catKey, catDecl] of Object.entries(contribution.categories)) {
+				for (const [catKey, catDecl] of Object.entries(
+					contribution.categories,
+				)) {
 					const existing = target.categories[catKey];
 					if (existing) {
 						// Collect array fields before Object.assign overwrites them
@@ -326,7 +325,10 @@ export function resolveTargetGraph(
 						Object.assign(existing, catDecl);
 						// Concatenate array properties
 						if (catDecl.factoryImports && prevFactoryImports) {
-							existing.factoryImports = [...prevFactoryImports, ...catDecl.factoryImports];
+							existing.factoryImports = [
+								...prevFactoryImports,
+								...catDecl.factoryImports,
+							];
 						}
 					} else {
 						target.categories[catKey] = catDecl;
@@ -355,10 +357,7 @@ export function resolveTargetGraph(
 					);
 				}
 				if (reg.fieldExtensions) {
-					Object.assign(
-						target.registries.fieldExtensions,
-						reg.fieldExtensions,
-					);
+					Object.assign(target.registries.fieldExtensions, reg.fieldExtensions);
 				}
 				if (reg.singletonFactories) {
 					Object.assign(
@@ -654,6 +653,7 @@ function validateGeneratedSyntax(code: string, filePath: string): void {
 		throw new Error(
 			`[codegen] Generated code has syntax errors in ${relPath}:\n${msg}\n\n` +
 				`This is a codegen bug — the template produced invalid TypeScript.`,
+			{ cause: err },
 		);
 	}
 }
@@ -762,10 +762,7 @@ export async function runAllTargets(
 					for (const [relPath, content] of Object.entries(
 						output.additionalFiles,
 					)) {
-						validateGeneratedSyntax(
-							content,
-							join(targetOutDir, relPath),
-						);
+						validateGeneratedSyntax(content, join(targetOutDir, relPath));
 					}
 				}
 

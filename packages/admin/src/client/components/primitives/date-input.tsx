@@ -5,7 +5,7 @@ import { format } from "date-fns";
 import { useState } from "react";
 import { DayPicker } from "react-day-picker";
 
-import { useResolveText } from "../../i18n/hooks";
+import { useDateFnsLocale, useResolveText } from "../../i18n/hooks";
 import { cn } from "../../lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import type {
@@ -42,6 +42,7 @@ export function DateInput({
 	"aria-invalid": ariaInvalid,
 }: DateInputProps) {
 	const resolveText = useResolveText();
+	const dateFnsLocale = useDateFnsLocale();
 	const [open, setOpen] = useState(false);
 
 	const handleSelect = (date: Date | undefined) => {
@@ -61,7 +62,7 @@ export function DateInput({
 				disabled={disabled}
 				aria-invalid={ariaInvalid}
 				className={cn(
-					"qa-date-input border-input bg-transparent font-mono flex h-9 w-full items-center justify-start gap-2 border px-3 py-2 text-sm",
+					"qa-date-input rounded-sm font-chrome border-input bg-transparent flex h-9 w-full items-center justify-start gap-2 border px-3 py-2 text-sm",
 					"hover:bg-accent hover:text-accent-foreground",
 					"focus-visible:ring-ring focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none",
 					"disabled:cursor-not-allowed disabled:opacity-50",
@@ -86,12 +87,13 @@ export function DateInput({
 					mode="single"
 					selected={value ?? undefined}
 					onSelect={handleSelect}
+					locale={dateFnsLocale}
 					disabled={(date) => {
 						if (minDate && date < minDate) return true;
 						if (maxDate && date > maxDate) return true;
 						return false;
 					}}
-					className="p-3"
+					className="qa-date-picker font-chrome p-3"
 					classNames={{
 						months: "flex flex-col sm:flex-row gap-2",
 						month: "flex flex-col gap-4",
@@ -99,11 +101,11 @@ export function DateInput({
 						caption_label: "text-sm font-medium",
 						nav: "absolute inset-x-0 top-0 flex items-center justify-between px-1",
 						button_previous: cn(
-							"flex size-8 items-center justify-center",
+							"rounded-sm flex size-8 items-center justify-center",
 							"hover:bg-accent bg-transparent p-0 opacity-50 hover:opacity-100",
 						),
 						button_next: cn(
-							"flex size-8 items-center justify-center",
+							"rounded-sm flex size-8 items-center justify-center",
 							"hover:bg-accent bg-transparent p-0 opacity-50 hover:opacity-100",
 						),
 						month_grid: "w-full border-collapse",
@@ -113,7 +115,7 @@ export function DateInput({
 						week: "flex w-full mt-2",
 						day: "relative p-0 text-center text-sm focus-within:relative focus-within:z-20 [&:has([aria-selected])]:bg-accent [&:has([aria-selected].day-outside)]:bg-accent",
 						day_button: cn(
-							"size-9 p-0 font-normal",
+							"rounded-xs size-9 p-0 font-normal",
 							"hover:bg-accent hover:text-accent-foreground",
 							"focus-visible:ring-ring focus-visible:ring-2 focus-visible:ring-offset-2",
 						),
@@ -158,6 +160,7 @@ export function DateTimeInput({
 	"aria-invalid": ariaInvalid,
 }: DateTimeInputProps) {
 	const resolveText = useResolveText();
+	const dateFnsLocale = useDateFnsLocale();
 	const [open, setOpen] = useState(false);
 	const [timeValue, setTimeValue] = useState(() => {
 		if (!value) return "";
@@ -205,7 +208,7 @@ export function DateTimeInput({
 				disabled={disabled}
 				aria-invalid={ariaInvalid}
 				className={cn(
-					"qa-datetime-input border-input bg-transparent font-mono flex h-9 w-full items-center justify-start gap-2 border px-3 py-2 text-sm",
+					"qa-datetime-input rounded-sm font-chrome border-input bg-transparent flex h-9 w-full items-center justify-start gap-2 border px-3 py-2 text-sm",
 					"hover:bg-accent hover:text-accent-foreground",
 					"focus-visible:ring-ring focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none",
 					"disabled:cursor-not-allowed disabled:opacity-50",
@@ -230,12 +233,13 @@ export function DateTimeInput({
 					mode="single"
 					selected={value ?? undefined}
 					onSelect={handleDateSelect}
+					locale={dateFnsLocale}
 					disabled={(date) => {
 						if (minDate && date < minDate) return true;
 						if (maxDate && date > maxDate) return true;
 						return false;
 					}}
-					className="p-3"
+					className="qa-date-picker font-chrome p-3"
 					classNames={{
 						months: "flex flex-col sm:flex-row gap-2",
 						month: "flex flex-col gap-4",
@@ -243,11 +247,11 @@ export function DateTimeInput({
 						caption_label: "text-sm font-medium",
 						nav: "absolute inset-x-0 top-0 flex items-center justify-between px-1",
 						button_previous: cn(
-							"flex size-8 items-center justify-center",
+							"rounded-sm flex size-8 items-center justify-center",
 							"hover:bg-accent bg-transparent p-0 opacity-50 hover:opacity-100",
 						),
 						button_next: cn(
-							"flex size-8 items-center justify-center",
+							"rounded-sm flex size-8 items-center justify-center",
 							"hover:bg-accent bg-transparent p-0 opacity-50 hover:opacity-100",
 						),
 						month_grid: "w-full border-collapse",
@@ -257,7 +261,7 @@ export function DateTimeInput({
 						week: "flex w-full mt-2",
 						day: "relative p-0 text-center text-sm focus-within:relative focus-within:z-20 [&:has([aria-selected])]:bg-accent [&:has([aria-selected].day-outside)]:bg-accent",
 						day_button: cn(
-							"size-9 p-0 font-normal",
+							"rounded-xs size-9 p-0 font-normal",
 							"hover:bg-accent hover:text-accent-foreground",
 							"focus-visible:ring-ring focus-visible:ring-2 focus-visible:ring-offset-2",
 						),
@@ -276,7 +280,7 @@ export function DateTimeInput({
 						value={timeValue}
 						onChange={handleTimeChange}
 						className={cn(
-							"border-input bg-transparent font-mono flex h-9 w-full border px-3 py-2 text-sm",
+							"qa-time-input border-input bg-transparent flex h-9 w-full border px-3 py-2 text-sm",
 							"focus-visible:ring-ring focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none",
 						)}
 					/>
@@ -311,6 +315,7 @@ function DateRangeInput({
 	"aria-invalid": ariaInvalid,
 }: DateRangeInputProps) {
 	const resolveText = useResolveText();
+	const dateFnsLocale = useDateFnsLocale();
 	const [open, setOpen] = useState(false);
 
 	const handleSelect = (range: { from?: Date; to?: Date } | undefined) => {
@@ -341,7 +346,7 @@ function DateRangeInput({
 				disabled={disabled}
 				aria-invalid={ariaInvalid}
 				className={cn(
-					"qa-date-range-input border-input bg-transparent font-mono flex h-9 w-full items-center justify-start gap-2 border px-3 py-2 text-sm",
+					"qa-date-range-input rounded-sm font-chrome border-input bg-transparent flex h-9 w-full items-center justify-start gap-2 border px-3 py-2 text-sm",
 					"hover:bg-accent hover:text-accent-foreground",
 					"focus-visible:ring-ring focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none",
 					"disabled:cursor-not-allowed disabled:opacity-50",
@@ -368,13 +373,14 @@ function DateRangeInput({
 							: undefined
 					}
 					onSelect={handleSelect}
+					locale={dateFnsLocale}
 					numberOfMonths={2}
 					disabled={(date) => {
 						if (minDate && date < minDate) return true;
 						if (maxDate && date > maxDate) return true;
 						return false;
 					}}
-					className="p-3"
+					className="qa-date-picker font-chrome p-3"
 					classNames={{
 						months: "flex flex-col sm:flex-row gap-4",
 						month: "flex flex-col gap-4",
@@ -382,11 +388,11 @@ function DateRangeInput({
 						caption_label: "text-sm font-medium",
 						nav: "absolute inset-x-0 top-0 flex items-center justify-between px-1",
 						button_previous: cn(
-							"flex size-8 items-center justify-center",
+							"rounded-sm flex size-8 items-center justify-center",
 							"hover:bg-accent bg-transparent p-0 opacity-50 hover:opacity-100",
 						),
 						button_next: cn(
-							"flex size-8 items-center justify-center",
+							"rounded-sm flex size-8 items-center justify-center",
 							"hover:bg-accent bg-transparent p-0 opacity-50 hover:opacity-100",
 						),
 						month_grid: "w-full border-collapse",
@@ -396,7 +402,7 @@ function DateRangeInput({
 						week: "flex w-full mt-2",
 						day: "relative p-0 text-center text-sm focus-within:relative focus-within:z-20 [&:has([aria-selected])]:bg-accent [&:has([aria-selected].day-outside)]:bg-accent",
 						day_button: cn(
-							"size-9 p-0 font-normal",
+							"rounded-xs size-9 p-0 font-normal",
 							"hover:bg-accent hover:text-accent-foreground",
 							"focus-visible:ring-ring focus-visible:ring-2 focus-visible:ring-offset-2",
 						),

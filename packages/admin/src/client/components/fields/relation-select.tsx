@@ -25,7 +25,11 @@ import { resolveIconElement } from "../component-renderer";
 import { SelectSingle } from "../primitives/select-single";
 import type { SelectOption } from "../primitives/types";
 import { ResourceSheet } from "../sheets/resource-sheet";
-import { Button } from "../ui/button";
+import {
+	InputGroup,
+	InputGroupAddon,
+	InputGroupButton,
+} from "../ui/input-group";
 import { LocaleBadge } from "./locale-badge";
 
 export interface RelationSelectProps<_T extends QuestpieApp> {
@@ -243,12 +247,10 @@ export function RelationSelect<T extends QuestpieApp>({
 	}, [queryClient, queryOpts, targetCollection, value]);
 
 	// Fetch selected item details using the hook
-	const { data: selectedItem } = useCollectionItem(
-		targetCollection,
-		value || "",
-		undefined,
-		{ enabled: !!value },
-	);
+	const { data: selectedItem, isLoading: isLoadingSelectedItem } =
+		useCollectionItem(targetCollection, value || "", undefined, {
+			enabled: !!value,
+		});
 
 	const selectedOptions = React.useMemo(() => {
 		if (!selectedItem) return [];
@@ -298,7 +300,7 @@ export function RelationSelect<T extends QuestpieApp>({
 				<div className="flex items-center gap-2">
 					<label
 						htmlFor={name}
-						className="flex items-center gap-1.5 text-sm font-medium"
+						className="font-chrome flex items-center gap-1.5 text-sm font-medium"
 					>
 						{resolveIconElement(collectionIconRef, {
 							className: "size-3.5 text-muted-foreground",
@@ -310,9 +312,14 @@ export function RelationSelect<T extends QuestpieApp>({
 				</div>
 			)}
 
-			<div className="flex items-stretch gap-0">
-				{/* Searchable Select Dropdown - uses server-side search */}
-				<div className="min-w-0 flex-1">
+			{!readOnly ? (
+				<InputGroup
+					className={cn(
+						"h-9",
+						error && "border-destructive ring-destructive/20 ring-[2px]",
+					)}
+				>
+					{/* Searchable Select Dropdown - uses server-side search */}
 					<SelectSingle
 						id={name}
 						value={value || null}
@@ -334,53 +341,78 @@ export function RelationSelect<T extends QuestpieApp>({
 						}
 						prefetchOnMount
 						placeholder={resolvedPlaceholder || `${selectLabel}...`}
-						disabled={disabled || readOnly}
+						disabled={disabled}
 						clearable={!required}
 						emptyMessage={noResultsLabel}
 						drawerTitle={selectLabel}
-						className={cn(
-							!readOnly && "rounded-r-none",
-							error && "border-destructive",
-						)}
+						selectedLabel={
+							selectedItem?._title || selectedItem?.id || undefined
+						}
+						isLoadingValue={!!value && isLoadingSelectedItem}
+						asInputGroupControl
 						aria-invalid={!!error}
 					/>
-				</div>
 
-				{/* Action Buttons */}
-				{!readOnly && (
-					<div className="flex">
+					{/* Action Buttons */}
+					<InputGroupAddon align="inline-end">
 						{/* Edit button (only if value is set) */}
 						{value && (
-							<Button
-								type="button"
-								variant="outline"
-								size="icon"
+							<InputGroupButton
+								size="icon-sm"
 								onClick={handleOpenEdit}
 								disabled={disabled}
 								title={t("collection.edit", { name: labelText })}
 								aria-label={t("collection.edit", { name: labelText })}
-								className="rounded-none border-l-0"
 							>
-								<Icon icon="ph:pencil" className="h-4 w-4" />
-							</Button>
+								<Icon icon="ph:pencil" className="size-3.5" />
+							</InputGroupButton>
 						)}
 
 						{/* Create button */}
-						<Button
-							type="button"
-							variant="outline"
-							size="icon"
+						<InputGroupButton
+							size="icon-sm"
 							onClick={handleOpenCreate}
 							disabled={disabled}
 							title={createLabel}
 							aria-label={createLabel}
-							className="rounded-l-none border-l-0"
 						>
-							<Icon icon="ph:plus" className="h-4 w-4" />
-						</Button>
-					</div>
-				)}
-			</div>
+							<Icon icon="ph:plus" className="size-3.5" />
+						</InputGroupButton>
+					</InputGroupAddon>
+				</InputGroup>
+			) : (
+				/* Read-only: plain select, no action buttons */
+				<SelectSingle
+					id={name}
+					value={value || null}
+					onChange={handleValueChange}
+					options={selectedOptions}
+					loadOptions={loadOptions}
+					queryKey={(search) =>
+						queryOpts.key([
+							"collections",
+							targetCollection,
+							"find",
+							{
+								limit: 50,
+								locale,
+								search,
+								where: filter ? filter({}) : undefined,
+							},
+						])
+					}
+					prefetchOnMount
+					placeholder={resolvedPlaceholder || `${selectLabel}...`}
+					disabled
+					clearable={false}
+					emptyMessage={noResultsLabel}
+					drawerTitle={selectLabel}
+					selectedLabel={selectedItem?._title || selectedItem?.id || undefined}
+					isLoadingValue={!!value && isLoadingSelectedItem}
+					className={cn(error && "border-destructive")}
+					aria-invalid={!!error}
+				/>
+			)}
 
 			{/* Error message */}
 			{error && <p className="text-destructive text-sm">{error}</p>}

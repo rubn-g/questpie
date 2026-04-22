@@ -255,14 +255,46 @@ export default function AdminRoute() {
 
 ### 4. Tailwind CSS
 
-Import admin styles and scan the admin package:
+Import a theme preset and scan the admin package:
 
 ```css
 @import "tailwindcss";
-@import "@questpie/admin/styles/index.css";
+/* Default: brutal (sharp corners, no shadows) */
+@import "@questpie/admin/client/styles/index.css";
+/* Or: soft (rounded corners, shadows) */
+/* @import "@questpie/admin/client/styles/soft.css"; */
 
 @source "../node_modules/@questpie/admin/dist";
 ```
+
+Available presets: `index.css` (brutal default), `brutal.css`, `soft.css`, `base.css` (base only).
+
+## Chrome Overrides (File-First)
+
+Place component files in `questpie/admin/components/` to override specific UI chrome without changing your app shell:
+
+| File | What it overrides |
+| ---- | ---------------- |
+| `admin-sidebar-brand.tsx` | Sidebar logo + name area |
+| `admin-sidebar-nav-item.tsx` | Each navigation item row |
+| `admin-auth-layout.tsx` | Auth page wrapper (login, reset, etc.) |
+
+```tsx title="questpie/admin/components/admin-sidebar-brand.tsx"
+import type { AdminSidebarBrandProps } from "@questpie/admin/client";
+
+export default function MyBrand({ name, collapsed }: AdminSidebarBrandProps) {
+  return (
+    <div className="flex items-center gap-2">
+      <img src="/logo.svg" alt={name} className="size-6 shrink-0" />
+      {!collapsed && <span className="font-bold">{name}</span>}
+    </div>
+  );
+}
+```
+
+These files are discovered by codegen exactly like any other component file — no factory call needed, just a default export.
+
+For these reserved override files, default-export a React component (sync or `React.lazy(...)`). Do **not** default-export a raw `() => import("...")` loader function.
 
 ## Block Editor
 

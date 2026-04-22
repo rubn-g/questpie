@@ -8,8 +8,7 @@ import { cn } from "../../lib/utils";
 
 interface EmptyStateProps {
 	/**
-	 * Title text (displayed in mono uppercase)
-	 * @example "NO_DATA_FOUND"
+	 * Title text
 	 */
 	title: string;
 
@@ -45,7 +44,7 @@ interface EmptyStateProps {
 // ============================================================================
 
 /**
- * EmptyState - Cyber-styled empty state component
+ * EmptyState - Empty state component with theme-adaptive styling
  *
  * @example
  * ```tsx
@@ -73,7 +72,7 @@ export function EmptyState({
 		<div
 			data-slot="empty-state"
 			className={cn(
-				"qa-empty-state relative flex flex-col items-center justify-center",
+				"qa-empty-state relative flex flex-col items-center justify-center rounded-sm",
 				"border-border bg-card border border-dashed",
 				height,
 				className,
@@ -84,17 +83,17 @@ export function EmptyState({
 				{Icon ? (
 					<Icon className="text-muted-foreground/50 mx-auto mb-4 size-8" />
 				) : (
-					<div className="bg-primary mx-auto mb-4 size-1.5" />
+					<div className="bg-muted-foreground/30 mx-auto mb-4 size-2 rounded-full" />
 				)}
 
 				{/* Title */}
-				<p className="text-muted-foreground font-mono text-sm tracking-wider uppercase">
+				<p className="qa-empty-state__title font-chrome text-foreground text-sm font-medium">
 					{title}
 				</p>
 
 				{/* Description */}
 				{description && (
-					<p className="text-muted-foreground/60 mt-2 text-xs">{description}</p>
+					<p className="text-muted-foreground mt-2 text-sm">{description}</p>
 				)}
 
 				{/* Action */}

@@ -403,7 +403,7 @@ export function RelationPicker<T extends QuestpieApp>({
 				<div className="flex items-center gap-2">
 					<label
 						htmlFor={name}
-						className="flex items-center gap-1.5 text-sm font-medium"
+						className="font-chrome flex items-center gap-1.5 text-sm font-medium"
 					>
 						{resolveIconElement(collectionIconRef, {
 							className: "size-3.5 text-muted-foreground",
@@ -411,7 +411,7 @@ export function RelationPicker<T extends QuestpieApp>({
 						{resolvedLabel}
 						{required && <span className="text-destructive">*</span>}
 						{maxItems && (
-							<span className="text-muted-foreground ml-2 text-xs">
+							<span className="text-muted-foreground font-chrome chrome-meta ml-2 text-xs">
 								({selectedIds.length}/{maxItems})
 							</span>
 						)}
@@ -442,7 +442,7 @@ export function RelationPicker<T extends QuestpieApp>({
 
 			{/* Add More */}
 			{!readOnly && canAddMore && (
-				<div className="flex gap-2">
+				<div className="qa-relation-picker__add-more flex gap-2">
 					{/* Searchable Select to add existing items - uses server-side search */}
 					<div className="flex-1">
 						<SelectSingle
@@ -488,7 +488,7 @@ export function RelationPicker<T extends QuestpieApp>({
 
 			{/* Empty State - only show when not loading */}
 			{selectedIds.length === 0 && !isLoadingItems && (
-				<div className="border border-dashed p-4 text-center">
+				<div className="qa-relation-picker__empty-state panel-surface border-dashed p-4 text-center">
 					<p className="text-muted-foreground text-sm">
 						{resolvedPlaceholder || emptyLabel}
 					</p>

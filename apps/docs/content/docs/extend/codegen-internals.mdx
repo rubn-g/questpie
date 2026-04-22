@@ -295,6 +295,20 @@ packages/admin/src/server/modules/
 
 Each target's `moduleRoot` determines where to look within each module directory. The admin-client target uses `moduleRoot: "client"`, so it discovers from `modules/admin/client/`.
 
+## Reserved Component Keys
+
+Some keys in the `components` category are **reserved** for built-in chrome overrides. These are not registered via factory calls — they come from plain React component files under `questpie/admin/components/`. Codegen discovers them by filename and registers them under the reserved key:
+
+| File | Key | Consumed by |
+| ---- | --- | ----------- |
+| `admin-sidebar-brand.tsx` | `adminSidebarBrand` | `AdminSidebar` |
+| `admin-sidebar-nav-item.tsx` | `adminSidebarNavItem` | `AdminSidebar` (each nav row) |
+| `admin-auth-layout.tsx` | `adminAuthLayout` | `AuthLayout` (all auth pages) |
+
+These keys are runtime-only: they never appear in type augmentation, are not validated by the projection validator, and do not generate types. They are resolved at render time via `admin.getComponent(key)`.
+
+For these reserved files, the default export should be a React component (sync or `React.lazy(...)`). Unlike many registry entries, you should not default-export a raw `() => import("...")` loader function here.
+
 ## Related Pages
 
 - [File Convention](/docs/backend/architecture/file-convention) — What files are discovered

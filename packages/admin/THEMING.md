@@ -2,13 +2,37 @@
 
 ## How Theming Works
 
-The admin UI is **theme-agnostic**. All visual styling is controlled by a single CSS file:
+The admin UI is **theme-agnostic**. All visual styling is controlled by CSS files in `packages/admin/src/client/styles/`. Components use standard Tailwind utilities (`bg-card`, `border-border`, `rounded-md`, `shadow-sm`) which resolve to values defined in the theme CSS. To create a completely different visual identity, you only change the CSS — zero component changes needed.
 
-```
-packages/admin/src/client/styles/index.css
+## Theme Presets
+
+Import one preset instead of `index.css`:
+
+| Import | Style |
+| ------ | ----- |
+| `@questpie/admin/client/styles/index.css` | Brutal (default, backward compat) |
+| `@questpie/admin/client/styles/brutal.css` | Brutal — sharp corners, no shadows |
+| `@questpie/admin/client/styles/soft.css` | Soft — rounded corners (8px), standard shadows |
+| `@questpie/admin/client/styles/base.css` | Base only — no shadow scale, full control |
+
+```css
+/* Option A: default (brutal) */
+@import "@questpie/admin/client/styles/index.css";
+
+/* Option B: explicit brutal */
+@import "@questpie/admin/client/styles/brutal.css";
+
+/* Option C: soft rounded */
+@import "@questpie/admin/client/styles/soft.css";
+
+/* Option D: base only, define your own shadow scale */
+@import "@questpie/admin/client/styles/base.css";
+@theme inline {
+  --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+}
 ```
 
-Components use standard Tailwind utilities (`bg-card`, `border-border`, `rounded-md`, `shadow-sm`) which resolve to values defined in the theme CSS. To create a completely different visual identity, you only change the CSS file — zero component changes needed.
+All presets share the same color palette, typography, and animations — only `--radius` and `--shadow-*` differ.
 
 ## CSS Variables
 
@@ -66,26 +90,23 @@ Components use standard Tailwind utilities (`bg-card`, `border-border`, `rounded
 
 ## Creating a Custom Theme
 
-1. Copy `packages/admin/src/client/styles/index.css`
-2. Change the CSS variable values
-3. Import your copy instead
+1. Start from a preset: import `brutal.css`, `soft.css`, or `base.css`
+2. Override CSS variable values after the import
+3. That's it — zero component changes needed
 
-### Example: "Soft" theme
+### Example: branded soft theme
 
 ```css
-:root {
-	--radius: 8px;
-	--border: #e5e5e5;
-	--card: #fafafa;
-}
+@import "@questpie/admin/client/styles/soft.css";
 
-@theme inline {
-	--shadow-sm: 0 1px 2px rgb(0 0 0 / 0.05);
-	--shadow-md: 0 4px 6px rgb(0 0 0 / 0.1);
+:root {
+  --primary: oklch(0.55 0.22 260);   /* blue brand */
+  --ring:    oklch(0.55 0.22 260);
+  --radius:  6px;                     /* slightly less round than soft default */
 }
 
 body::before {
-	display: none; /* No grid texture */
+  display: none; /* no grid texture */
 }
 ```
 

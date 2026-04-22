@@ -57,6 +57,21 @@ interface SelectSingleProps<
 	emptyMessage?: string;
 	/** Title for mobile drawer */
 	drawerTitle?: string;
+	/**
+	 * Label to display for the selected value when it cannot be resolved from options yet.
+	 * Used as a fallback during async loading (e.g. relation fields resolving item title).
+	 */
+	selectedLabel?: string;
+	/**
+	 * Show a loading spinner in the trigger while the selected value's label is being resolved.
+	 * Use this when the selected item is being fetched asynchronously.
+	 */
+	isLoadingValue?: boolean;
+	/**
+	 * Render the trigger without its own border/rounded corners for use inside InputGroup.
+	 * Adds data-slot="input-group-control" for InputGroup focus-ring support.
+	 */
+	asInputGroupControl?: boolean;
 }
 
 /**
@@ -96,6 +111,9 @@ export function SelectSingle<TValue extends string = string>({
 	id,
 	"aria-invalid": ariaInvalid,
 	drawerTitle = "Select option",
+	selectedLabel,
+	isLoadingValue = false,
+	asInputGroupControl = false,
 }: SelectSingleProps<TValue>) {
 	const resolvedStaticOptions = staticOptions ?? EMPTY_OPTIONS;
 	const resolveText = useResolveText();
@@ -160,15 +178,17 @@ export function SelectSingle<TValue extends string = string>({
 		);
 	}, [allOptions, search, loadOptions, resolveText]);
 
-	// Get label for a value
+	// Get label for a value — falls back to selectedLabel, then raw value string
 	const getLabel = useCallback(
 		(val: TValue): string => {
 			const option = allOptions.find(
 				(opt: SelectOption<TValue>) => opt.value === val,
 			);
-			return option?.label ? resolveText(option.label) : String(val);
+			if (option?.label) return resolveText(option.label);
+			if (selectedLabel) return selectedLabel;
+			return String(val);
 		},
-		[allOptions, resolveText],
+		[allOptions, resolveText, selectedLabel],
 	);
 
 	const handleSelect = useCallback(
@@ -201,17 +221,37 @@ export function SelectSingle<TValue extends string = string>({
 			aria-controls={listboxId}
 			aria-invalid={ariaInvalid}
 			disabled={disabled}
+			data-slot={asInputGroupControl ? "input-group-control" : undefined}
 			className={cn(
 				"qa-select-single w-full justify-between font-normal",
 				!value && "text-muted-foreground",
+				// flex-1 min-w-0: override Button's shrink-0 so the control yields
+				// space to sibling InputGroupAddon buttons. The CSS rule in base.css
+				// targeting [data-slot="input-group-control"] provides the same fix
+				// at the CSS layer as a safety net.
+				asInputGroupControl &&
+					"flex-1 min-w-0 h-full rounded-none border-0 shadow-none focus-visible:ring-0",
 				className,
 			)}
 		>
-			<span className="truncate">
-				{value ? getLabel(value) : resolvedPlaceholder}
+			<span className="flex min-w-0 flex-1 items-center gap-1.5 truncate">
+				{isLoadingValue && value ? (
+					<Icon
+						icon="ph:circle-notch"
+						className="text-muted-foreground size-3 shrink-0 animate-spin"
+					/>
+				) : null}
+				<span
+					className={cn(
+						"truncate",
+						isLoadingValue && value && "text-muted-foreground",
+					)}
+				>
+					{value ? getLabel(value) : resolvedPlaceholder}
+				</span>
 			</span>
 			<div className="flex shrink-0 items-center gap-1">
-				{clearable && value && !disabled && (
+				{clearable && value && !disabled && !isLoadingValue && (
 					<span
 						role="button"
 						tabIndex={-1}

@@ -98,7 +98,10 @@ function highlightText(text: string, query: string): React.ReactNode {
 		i % 2 === 1
 			? React.createElement(
 					"mark",
-					{ key: i, className: "bg-yellow-200/50" },
+					{
+						key: i,
+						className: "bg-accent text-accent-foreground rounded-xs px-0.5",
+					},
 					part,
 				)
 			: part,
@@ -161,7 +164,7 @@ const SearchGroup = React.memo(function SearchGroup({
 
 	return (
 		<div className="mb-4 last:mb-0">
-			<h3 className="text-muted-foreground mb-2 px-2 font-mono text-[10px] font-black tracking-[0.2em] uppercase">
+			<h3 className="qa-global-search__group-title text-muted-foreground font-chrome chrome-meta mb-2 px-2.5 text-xs font-medium">
 				{resolveText(title)}
 			</h3>
 			<div className="space-y-0.5">
@@ -175,11 +178,12 @@ const SearchGroup = React.memo(function SearchGroup({
 							type="button"
 							onClick={() => onSelect(item)}
 							onMouseEnter={() => onHover(globalIndex)}
+							data-selected={isSelected}
 							className={cn(
-								"flex w-full items-center gap-3 px-3 py-2.5 text-sm transition-colors outline-none",
+								"item-surface flex w-full items-center gap-3 border-transparent px-3 py-2.5 text-sm transition-colors outline-none",
 								isSelected
-									? "bg-accent text-accent-foreground"
-									: "hover:bg-accent hover:text-accent-foreground",
+									? "border-border bg-accent text-accent-foreground"
+									: "hover:border-border hover:bg-accent hover:text-accent-foreground",
 							)}
 						>
 							{item.icon && (
@@ -437,7 +441,7 @@ export function GlobalSearch({
 				showCloseButton={false}
 			>
 				{/* Search Input */}
-				<div className="qa-global-search__input-area flex items-center border-b px-3">
+				<div className="qa-global-search__input-area border-border bg-background flex items-center border-b px-3">
 					<Icon
 						icon="ph:magnifying-glass"
 						className="text-muted-foreground mr-2 h-5 w-5 shrink-0"

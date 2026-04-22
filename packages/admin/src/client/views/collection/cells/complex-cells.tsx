@@ -133,10 +133,10 @@ export function ObjectCell({
 							return (
 								<div key={key} className="py-1">
 									<div className="flex items-center gap-1.5 text-xs font-medium">
-										<span className="bg-foreground/60 size-1 rounded-full" />
+										<span className="bg-muted-foreground/50 size-1.5 rounded-full" />
 										{label}
 									</div>
-									<div className="border-border mt-0.5 ml-2.5 space-y-0.5 border-l pl-2">
+									<div className="bg-muted/50 mt-1 ml-3 space-y-0.5 rounded-sm px-2 py-1.5">
 										{nestedEntries.map(([k, v]) => (
 											<div
 												key={k}
@@ -160,10 +160,10 @@ export function ObjectCell({
 							return (
 								<div
 									key={key}
-									className="flex items-center justify-between gap-2 py-0.5 text-xs"
+									className="item-surface border-border flex items-center justify-between gap-2 px-2 py-1 text-xs"
 								>
 									<span className="flex items-center gap-1.5">
-										<span className="bg-foreground/60 size-1 rounded-full" />
+										<span className="bg-muted-foreground/50 size-1.5 rounded-full" />
 										<span className="text-muted-foreground">{label}</span>
 									</span>
 									<Badge variant="secondary" className="h-4 px-1 text-[10px]">
@@ -177,10 +177,10 @@ export function ObjectCell({
 						return (
 							<div
 								key={key}
-								className="flex items-center justify-between gap-2 py-0.5 text-xs"
+								className="item-surface border-border flex items-center justify-between gap-2 px-2 py-1 text-xs"
 							>
 								<span className="flex items-center gap-1.5">
-									<span className="bg-foreground/60 size-1 rounded-full" />
+									<span className="bg-muted-foreground/50 size-1.5 rounded-full" />
 									<span className="text-muted-foreground">{label}</span>
 								</span>
 								<span className="max-w-[140px] truncate font-medium">
@@ -303,11 +303,11 @@ export function ArrayCell({
 							return (
 								<div key={String(itemId)} className="py-1">
 									<div className="flex items-center gap-1.5 text-xs font-medium">
-										<span className="bg-foreground/60 size-1 rounded-full" />
+										<span className="bg-muted-foreground/50 size-1.5 rounded-full" />
 										{label}
 									</div>
 									{details.length > 0 && (
-										<div className="border-border mt-0.5 ml-2.5 space-y-0.5 border-l pl-2">
+										<div className="bg-muted/50 mt-1 ml-3 space-y-0.5 rounded-sm px-2 py-1.5">
 											{details.map(([k, v]) => {
 												const itemFieldDef = itemFields?.[k];
 												return (
@@ -333,9 +333,9 @@ export function ArrayCell({
 						return (
 							<div
 								key={`item-${String(item)}`}
-								className="flex items-center gap-1.5 py-0.5 text-xs"
+								className="item-surface border-border flex items-center gap-1.5 px-2 py-1 text-xs"
 							>
-								<span className="bg-foreground/60 size-1 rounded-full" />
+								<span className="bg-muted-foreground/50 size-1.5 rounded-full" />
 								{formatPrimitiveValue(item)}
 							</div>
 						);

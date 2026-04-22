@@ -336,8 +336,8 @@ function FilterValueInput({
 					<SelectValue placeholder={t("viewOptions.valuePlaceholder")} />
 				</SelectTrigger>
 				<SelectContent>
-					<SelectItem value="true">True</SelectItem>
-					<SelectItem value="false">False</SelectItem>
+					<SelectItem value="true">{t("common.yes")}</SelectItem>
+					<SelectItem value="false">{t("common.no")}</SelectItem>
 				</SelectContent>
 			</Select>
 		);
@@ -624,7 +624,7 @@ export function FiltersTab({
 			})}
 
 			{filters.length === 0 && (
-				<div className="border-border text-muted-foreground border border-dashed p-8 text-center text-sm">
+				<div className="panel-surface text-muted-foreground border-dashed p-8 text-center text-sm">
 					{t("viewOptions.noActiveFilters")}
 				</div>
 			)}

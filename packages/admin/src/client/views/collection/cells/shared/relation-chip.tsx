@@ -8,6 +8,7 @@
 
 import type * as React from "react";
 
+import { Badge } from "../../../../components/ui/badge";
 import { useResolveText } from "../../../../i18n/hooks";
 import { cn } from "../../../../lib/utils";
 import {
@@ -91,40 +92,41 @@ export function RelationChip({
 
 	if (canInteract) {
 		const href = `/admin/collections/${targetCollection}/${id}`;
-		const chipClassName = cn(
-			"qa-relation-chip inline-flex items-center gap-1 px-2 py-0.5 text-xs",
-			"bg-primary/10 text-primary hover:bg-primary/20",
-			"cursor-pointer transition-colors",
-			"border-primary/20 hover:border-primary/40 border",
-			className,
-		);
 
 		// If onClick provided, use button-like behavior but keep href for accessibility
 		return (
-			<a
-				href={href}
-				onClick={handleClick}
-				onPointerDown={(e) => e.stopPropagation()}
-				className={chipClassName}
+			<Badge
+				variant="secondary"
+				render={
+					<a
+						href={href}
+						onClick={handleClick}
+						onPointerDown={(e) => e.stopPropagation()}
+					/>
+				}
+				className={cn(
+					"qa-relation-chip item-surface border-border cursor-pointer gap-1.5",
+					"hover:bg-accent hover:text-accent-foreground",
+					className,
+				)}
 			>
 				{avatar}
 				{label}
-			</a>
+			</Badge>
 		);
 	}
 
 	// Non-clickable chip (no target collection or id)
 	return (
-		<span
+		<Badge
+			variant="secondary"
 			className={cn(
-				"qa-relation-chip inline-flex items-center gap-1 px-2 py-0.5 text-xs",
-				"bg-muted text-muted-foreground",
-				"border-border border",
+				"qa-relation-chip item-surface border-border gap-1.5",
 				className,
 			)}
 		>
 			{avatar}
 			{label}
-		</span>
+		</Badge>
 	);
 }

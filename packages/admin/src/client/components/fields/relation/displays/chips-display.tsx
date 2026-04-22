@@ -22,7 +22,7 @@ function ChipsSkeleton({ count = 3 }: { count?: number }) {
 	return (
 		<div className="flex flex-wrap gap-2">
 			{skeletonKeys.map((key) => (
-				<Skeleton key={key} className="h-6 w-20 rounded-full" />
+				<Skeleton key={key} variant="chip" className="h-6 w-20" />
 			))}
 		</div>
 	);
@@ -49,7 +49,7 @@ export function ChipsDisplay({
 	}
 
 	return (
-		<div className="flex flex-wrap gap-2">
+		<div className="qa-chips-display flex flex-wrap gap-2">
 			{items.map((item) => {
 				const displayText = getItemDisplayValue(item);
 
@@ -58,7 +58,7 @@ export function ChipsDisplay({
 					return (
 						<div
 							key={item.id}
-							className="bg-secondary inline-flex items-center gap-1 border py-1 pr-1 pl-2"
+							className="qa-chips-display__chip item-surface border-border bg-secondary text-secondary-foreground inline-flex min-h-6 items-center gap-1 py-0.5 pr-1 pl-2"
 						>
 							{iconElement}
 							<span className="text-sm">{displayText}</span>
@@ -66,8 +66,7 @@ export function ChipsDisplay({
 								<Button
 									type="button"
 									variant="ghost"
-									size="icon"
-									className="h-5 w-5"
+									size="icon-xs"
 									onClick={() => actions.onEdit?.(item)}
 									aria-label={t("field.editItem")}
 								>
@@ -78,8 +77,7 @@ export function ChipsDisplay({
 								<Button
 									type="button"
 									variant="ghost"
-									size="icon"
-									className="h-5 w-5"
+									size="icon-xs"
 									onClick={() => actions.onRemove?.(item)}
 									aria-label={t("field.removeItem")}
 								>
@@ -101,7 +99,7 @@ export function ChipsDisplay({
 						>
 							<Badge
 								variant="secondary"
-								className="hover:bg-secondary cursor-pointer gap-1"
+								className="item-surface border-border hover:bg-accent hover:text-accent-foreground cursor-pointer gap-1"
 							>
 								{iconElement}
 								{displayText}
@@ -122,7 +120,7 @@ export function ChipsDisplay({
 						>
 							<Badge
 								variant="secondary"
-								className="hover:bg-secondary cursor-pointer gap-1"
+								className="item-surface border-border hover:bg-accent hover:text-accent-foreground cursor-pointer gap-1"
 							>
 								{iconElement}
 								{displayText}
@@ -133,7 +131,11 @@ export function ChipsDisplay({
 
 				// Read-only badge
 				return (
-					<Badge key={item.id} variant="secondary" className="gap-1">
+					<Badge
+						key={item.id}
+						variant="secondary"
+						className="item-surface border-border gap-1"
+					>
 						{iconElement}
 						{displayText}
 					</Badge>

@@ -237,9 +237,7 @@ export function AdminLayout({
 
 	return (
 		<BreadcrumbProvider>
-			<div
-				className={cn("qa-admin-layout bg-background min-h-screen", className)}
-			>
+			<div className={cn("qa-admin-layout min-h-screen", className)}>
 				{/* Skip to main content link — visible on focus for keyboard users */}
 				<a
 					href="#main-content"

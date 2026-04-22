@@ -147,7 +147,7 @@ const _globExt: Record<string, { stateKey: string; resolve: (v: any) => any }> =
  * import { collection } from "#questpie/factories";
  *
  * export default collection("posts")
- *   .fields(({ f }) => ({ title: f.text({ required: true }) }))
+ *   .fields(({ f }) => ({ title: f.text(255).required() }))
  *   .admin(({ c }) => ({ icon: c.icon("ph:article") }))
  *   .list(({ v, f }) => v.collectionTable({ columns: [f.title] }))
  * ```

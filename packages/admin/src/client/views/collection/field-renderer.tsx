@@ -20,6 +20,7 @@ import {
 	scopeDependencies,
 	trackDependencies,
 } from "../../utils/dependency-tracker";
+import { useLazyComponent } from "../../utils/use-lazy-component.js";
 import {
 	buildComponentProps,
 	type FieldContext,
@@ -138,80 +139,6 @@ function computeDynamicDependencyPaths({
 		scopedValues,
 	);
 	return scopeDependencies(trackedDeps, fieldPrefix);
-}
-
-/**
- * Resolve a MaybeLazyComponent to a concrete React component.
- * Handles direct components, React.lazy, and `() => import(...)` loaders.
- */
-function useLazyComponent(loader: MaybeLazyComponent | undefined): {
-	Component: React.ComponentType<any> | null;
-	loading: boolean;
-} {
-	const [state, setState] = React.useState<{
-		Component: React.ComponentType<any> | null;
-		loading: boolean;
-	}>(() => {
-		if (!loader) return { Component: null, loading: false };
-
-		// Check if it's a lazy loader function (not a React component)
-		const isLazyLoader =
-			typeof loader === "function" &&
-			!loader.prototype?.render &&
-			!loader.prototype?.isReactComponent &&
-			loader.length === 0 &&
-			// Exclude React.lazy exotic components — they render directly
-			!(loader as any).$$typeof;
-
-		if (!isLazyLoader) {
-			return { Component: loader as React.ComponentType<any>, loading: false };
-		}
-
-		return { Component: null, loading: true };
-	});
-
-	React.useEffect(() => {
-		if (!loader) {
-			setState({ Component: null, loading: false });
-			return;
-		}
-
-		const isLazyLoader =
-			typeof loader === "function" &&
-			!loader.prototype?.render &&
-			!loader.prototype?.isReactComponent &&
-			loader.length === 0 &&
-			!(loader as any).$$typeof;
-
-		if (!isLazyLoader) {
-			setState({
-				Component: loader as React.ComponentType<any>,
-				loading: false,
-			});
-			return;
-		}
-
-		let mounted = true;
-		(async () => {
-			try {
-				const result = await (loader as () => Promise<any>)();
-				if (mounted) {
-					const Component = result.default || result;
-					setState({ Component, loading: false });
-				}
-			} catch {
-				if (mounted) {
-					setState({ Component: null, loading: false });
-				}
-			}
-		})();
-
-		return () => {
-			mounted = false;
-		};
-	}, [loader]);
-
-	return state;
 }
 
 /**

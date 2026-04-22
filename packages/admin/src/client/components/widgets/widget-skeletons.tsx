@@ -29,16 +29,16 @@ export function ChartWidgetSkeleton() {
 	return (
 		<div className="flex h-48 w-full items-end gap-2 pt-4">
 			{/* Bar chart style skeleton */}
-			<Skeleton className="h-[40%] flex-1 rounded-t" />
-			<Skeleton className="h-[65%] flex-1 rounded-t" />
-			<Skeleton className="h-[45%] flex-1 rounded-t" />
-			<Skeleton className="h-[80%] flex-1 rounded-t" />
-			<Skeleton className="h-[55%] flex-1 rounded-t" />
-			<Skeleton className="h-[70%] flex-1 rounded-t" />
-			<Skeleton className="h-[50%] flex-1 rounded-t" />
-			<Skeleton className="h-[75%] flex-1 rounded-t" />
-			<Skeleton className="h-[60%] flex-1 rounded-t" />
-			<Skeleton className="h-[85%] flex-1 rounded-t" />
+			<Skeleton className="h-[40%] flex-1 rounded-t-sm" />
+			<Skeleton className="h-[65%] flex-1 rounded-t-sm" />
+			<Skeleton className="h-[45%] flex-1 rounded-t-sm" />
+			<Skeleton className="h-[80%] flex-1 rounded-t-sm" />
+			<Skeleton className="h-[55%] flex-1 rounded-t-sm" />
+			<Skeleton className="h-[70%] flex-1 rounded-t-sm" />
+			<Skeleton className="h-[50%] flex-1 rounded-t-sm" />
+			<Skeleton className="h-[75%] flex-1 rounded-t-sm" />
+			<Skeleton className="h-[60%] flex-1 rounded-t-sm" />
+			<Skeleton className="h-[85%] flex-1 rounded-t-sm" />
 		</div>
 	);
 }
@@ -134,9 +134,9 @@ export function TableWidgetSkeleton({
 		<div className="-mx-5">
 			{/* Header */}
 			<div className="border-border flex gap-4 border-b px-5 py-2">
-				<Skeleton className="h-4 w-24" />
-				{columns > 1 && <Skeleton className="h-4 flex-1" />}
-				{columns > 2 && <Skeleton className="h-4 flex-1" />}
+				<Skeleton variant="text" className="h-4 w-24" />
+				{columns > 1 && <Skeleton variant="text" className="h-4 flex-1" />}
+				{columns > 2 && <Skeleton variant="text" className="h-4 flex-1" />}
 			</div>
 			{/* Rows */}
 			<TableSkeletonRow columns={columns} />
@@ -162,9 +162,9 @@ function TableSkeletonRow({
 				last && "border-0",
 			)}
 		>
-			<Skeleton className="h-4 w-20" />
-			{columns > 1 && <Skeleton className="h-4 flex-1" />}
-			{columns > 2 && <Skeleton className="h-4 flex-1" />}
+			<Skeleton variant="text" className="h-4 w-20" />
+			{columns > 1 && <Skeleton variant="text" className="h-4 flex-1" />}
+			{columns > 2 && <Skeleton variant="text" className="h-4 flex-1" />}
 		</div>
 	);
 }
@@ -190,7 +190,7 @@ function TimelineSkeletonItem({ last = false }: { last?: boolean }) {
 		<div className="flex gap-3">
 			{/* Timeline dot */}
 			<div className="flex flex-col items-center">
-				<Skeleton className="h-3 w-3 rounded-full" />
+				<Skeleton variant="avatar" className="h-3 w-3" />
 				{!last && <Skeleton className="mt-1 w-0.5 flex-1" />}
 			</div>
 			{/* Content */}
@@ -211,11 +211,11 @@ export function ProgressWidgetSkeleton() {
 	return (
 		<div className="space-y-3">
 			<div className="flex items-center justify-between">
-				<Skeleton className="h-4 w-32" />
-				<Skeleton className="h-4 w-12" />
+				<Skeleton variant="text" className="h-4 w-32" />
+				<Skeleton variant="text" className="h-4 w-12" />
 			</div>
-			<Skeleton className="h-2 w-full rounded-full" />
-			<Skeleton className="h-3 w-24" />
+			<Skeleton variant="chip" className="h-2 w-full" />
+			<Skeleton variant="text" className="h-3 w-24" />
 		</div>
 	);
 }
