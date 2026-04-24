@@ -1496,18 +1496,22 @@ function TableViewInner({
 							{groupedRowModel.map((entry: any) => {
 								if (entry.type === "group") {
 									return (
-										<TableRow key={entry.key} className="hover:bg-transparent">
+										<TableRow
+											key={entry.key}
+											className="h-auto border-b-0 hover:bg-transparent"
+										>
 											<TableCell className="w-9 min-w-9 px-1.5" />
 											<TableCell
 												colSpan={Math.max(
 													table.getVisibleLeafColumns().length - 1,
 													1,
 												)}
-												className="bg-background text-muted-foreground sticky top-8 z-20 py-2 font-mono text-[11px] font-semibold tracking-[0.12em] uppercase"
+												className="bg-background sticky top-8 z-20 pt-4 pb-2"
 											>
 												<button
 													type="button"
-													className="hover:text-foreground flex items-center gap-2 transition-colors"
+													aria-expanded={!entry.collapsed}
+													className="text-muted-foreground hover:text-foreground focus-visible:ring-ring/40 -ml-1 inline-flex min-h-8 items-center gap-2 rounded-md px-1 font-mono text-[11px] font-semibold tracking-[0.12em] uppercase transition-colors focus-visible:ring-2 focus-visible:outline-none"
 													onClick={() =>
 														viewState.toggleCollapsedGroup(entry.key)
 													}
@@ -1518,11 +1522,11 @@ function TableViewInner({
 																? "ph:caret-right"
 																: "ph:caret-down"
 														}
-														className="size-3.5"
+														className="size-3.5 shrink-0"
 													/>
 													<span>{entry.label}</span>
 													{groupingConfig?.showCounts !== false && (
-														<span className="text-muted-foreground/70 tabular-nums">
+														<span className="bg-muted text-muted-foreground inline-flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[10px] tracking-normal tabular-nums">
 															{entry.count}
 														</span>
 													)}
