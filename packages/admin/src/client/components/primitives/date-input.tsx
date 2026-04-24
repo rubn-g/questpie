@@ -36,7 +36,7 @@ const datePickerClassNames = {
 	day: "relative p-0 text-center text-sm focus-within:relative focus-within:z-20 [&:has([aria-selected])]:bg-transparent [&:has([aria-selected].day-outside)]:bg-transparent",
 	day_button: cn(
 		"size-9 rounded-[var(--control-radius-inner)] p-0 text-sm font-normal transition-[background-color,color,box-shadow,transform] duration-150 ease-out",
-		"hover:bg-surface-high hover:text-foreground active:scale-[0.98]",
+		"hover:bg-surface-high hover:text-foreground active:scale-[0.96]",
 		"focus-visible:ring-ring/20 focus-visible:ring-3 focus-visible:outline-none",
 	),
 	selected:

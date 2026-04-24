@@ -186,7 +186,7 @@ export function AssetThumbnail({
 					<img
 						src={url}
 						alt={filename || "Asset"}
-						className="size-8 rounded border object-cover"
+						className="image-outline size-8 rounded object-cover"
 					/>
 					{showFilename && filename && (
 						<span className="max-w-[100px] truncate text-xs" title={filename}>
@@ -244,7 +244,7 @@ export function AssetThumbnail({
 					<img
 						src={url}
 						alt={filename || "Asset"}
-						className="size-10 rounded border object-cover"
+						className="image-outline size-10 rounded object-cover"
 					/>
 				</div>
 			);
@@ -296,7 +296,7 @@ export function AssetThumbnail({
 					<img
 						src={url}
 						alt={alt || filename || "Asset preview"}
-						className="max-h-[400px] w-full object-contain"
+						className="image-outline max-h-[400px] w-full object-contain"
 					/>
 				</div>
 			)}

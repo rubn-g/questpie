@@ -171,7 +171,7 @@ function AssetItem({
 			onClick={handleClick}
 			className={cn(
 				"panel-surface group relative aspect-square w-full overflow-hidden",
-				"focus-visible:ring-ring transition-all focus-visible:ring-2 focus-visible:outline-none",
+				"focus-visible:ring-ring transition-[background-color,border-color,box-shadow,transform] focus-visible:ring-2 focus-visible:outline-none active:scale-[0.96]",
 				selected
 					? "border-border-strong bg-surface-high ring-ring/20 ring-2"
 					: "hover:border-border hover:bg-accent/20",
@@ -183,7 +183,7 @@ function AssetItem({
 				<img
 					src={thumbnailUrl}
 					alt={asset.alt || asset.filename || "Asset"}
-					className="h-full w-full object-cover"
+					className="image-outline h-full w-full object-cover"
 					onError={() => setImageError(true)}
 				/>
 			) : (
@@ -203,7 +203,7 @@ function AssetItem({
 			{showCheckbox && (
 				<div
 					className={cn(
-						"absolute top-2 right-2 flex size-5 items-center justify-center rounded-full border-2 transition-all",
+						"absolute top-2 right-2 flex size-5 items-center justify-center rounded-full border-2 transition-[background-color,border-color,color,opacity,transform]",
 						selected
 							? "border-foreground bg-foreground text-background"
 							: "border-border bg-background/80 text-muted-foreground group-hover:bg-background",

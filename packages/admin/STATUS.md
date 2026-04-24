@@ -543,7 +543,7 @@ import { Link, Outlet, useLocation } from "@tanstack/react-router";
 import { admin } from "@/admin/admin";
 import { appClient } from "@/lib/client";
 import { queryClient } from "@/lib/query-client";
-import "@questpie/admin/styles/index.css";
+import "@questpie/admin/client/styles/index.css";
 
 const adminInstance = Admin.from(admin);
 

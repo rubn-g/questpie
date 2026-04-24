@@ -378,7 +378,7 @@ export function Dropzone({
 									className="text-muted-foreground size-10 animate-spin"
 								/>
 								{typeof progress === "number" && (
-									<span className="text-muted-foreground absolute inset-0 flex items-center justify-center text-xs font-medium">
+									<span className="text-muted-foreground absolute inset-0 flex items-center justify-center text-xs font-medium tabular-nums">
 										{progress}%
 									</span>
 								)}
@@ -409,7 +409,7 @@ export function Dropzone({
 						{loading && typeof progress === "number" && (
 							<div className="bg-muted mx-auto mt-2 h-1.5 w-32 overflow-hidden rounded-full">
 								<div
-									className="bg-primary h-full rounded-full transition-all duration-300"
+									className="bg-primary h-full rounded-full transition-[width] duration-300"
 									style={{ width: `${progress}%` }}
 								/>
 							</div>

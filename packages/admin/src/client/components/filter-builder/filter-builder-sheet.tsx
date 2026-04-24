@@ -266,7 +266,7 @@ export function FilterBuilderSheet({
 							<TabsTrigger value="filters" className="flex-1">
 								{t("viewOptions.filters")}
 								{localConfig.filters.length > 0 && (
-									<span className="bg-foreground text-background ml-1.5 rounded-full px-1.5 py-0.5 text-xs">
+									<span className="bg-foreground text-background ml-1.5 rounded-full px-1.5 py-0.5 text-xs tabular-nums">
 										{localConfig.filters.length}
 									</span>
 								)}

@@ -98,6 +98,18 @@ export interface ListViewConfig {
 	columns?: string[];
 	/** Default sort configuration */
 	defaultSort?: { field: string; direction: "asc" | "desc" };
+	/**
+	 * Enables reorder mode for this list.
+	 * Requires a numeric field named `order` on the collection.
+	 */
+	orderable?:
+		| boolean
+		| {
+				/** Direction used when rendering the ordered list */
+				direction?: "asc" | "desc";
+				/** Gap between generated order values when writes are enabled */
+				step?: number;
+		  };
 	/** Searchable fields */
 	searchable?: string[];
 	/** Filterable fields */

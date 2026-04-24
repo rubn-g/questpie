@@ -5,8 +5,8 @@ import {
 	useQuery,
 } from "@tanstack/react-query";
 import type { Questpie } from "questpie";
-import type { AnyQuestpieClient } from "../builder";
 
+import type { AnyQuestpieClient } from "../builder";
 import type {
 	RegisteredCMS,
 	RegisteredCollectionNames,
@@ -257,6 +257,52 @@ export function useCollectionUpdate<K extends ResolvedCollectionNames>(
 			queryClient.invalidateQueries({
 				queryKey: itemQueryKey,
 			});
+			(mutationOptions?.onSettled as any)?.(data, error, variables, context);
+		},
+		...mutationOptions,
+	} as any);
+}
+
+/**
+ * Hook to update multiple collection items with distinct data per record.
+ */
+export function useCollectionUpdateBatch<K extends ResolvedCollectionNames>(
+	collection: K,
+	mutationOptions?: Omit<UseMutationOptions, "mutationFn">,
+): any {
+	const { client, queryOpts, queryClient, locale } = useQuestpieQueryOptions();
+
+	const listQueryKey = queryOpts.key([
+		"collections",
+		collection as string,
+		"find",
+		locale,
+	]);
+	const countQueryKey = queryOpts.key([
+		"collections",
+		collection as string,
+		"count",
+		locale,
+	]);
+	const itemQueryKey = queryOpts.key([
+		"collections",
+		collection as string,
+		"findOne",
+		locale,
+	]);
+
+	return useMutation({
+		mutationFn: (params: any) =>
+			(client.collections as any)[collection as string].updateBatch(params, {
+				locale,
+			}),
+		onSuccess: (data: any, variables: any, context: any) => {
+			(mutationOptions?.onSuccess as any)?.(data, variables, context);
+		},
+		onSettled: (data: any, error: any, variables: any, context: any) => {
+			queryClient.invalidateQueries({ queryKey: listQueryKey });
+			queryClient.invalidateQueries({ queryKey: countQueryKey });
+			queryClient.invalidateQueries({ queryKey: itemQueryKey });
 			(mutationOptions?.onSettled as any)?.(data, error, variables, context);
 		},
 		...mutationOptions,

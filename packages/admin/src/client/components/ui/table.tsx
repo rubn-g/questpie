@@ -1,4 +1,4 @@
-import type * as React from "react";
+import * as React from "react";
 
 import { cn } from "../../lib/utils";
 
@@ -56,18 +56,21 @@ function TableFooter({ className, ...props }: React.ComponentProps<"tfoot">) {
 	);
 }
 
-function TableRow({ className, ...props }: React.ComponentProps<"tr">) {
-	return (
-		<tr
-			data-slot="table-row"
-			className={cn(
-				"qa-table__row group/row hover:bg-muted/40 data-[state=selected]:bg-muted border-border/60 h-9 border-b bg-transparent transition-colors",
-				className,
-			)}
-			{...props}
-		/>
-	);
-}
+const TableRow = React.forwardRef<
+	HTMLTableRowElement,
+	React.ComponentProps<"tr">
+>(({ className, ...props }, ref) => (
+	<tr
+		ref={ref}
+		data-slot="table-row"
+		className={cn(
+			"qa-table__row group/row hover:bg-accent data-[state=selected]:bg-muted border-border/60 h-9 border-b bg-transparent transition-colors",
+			className,
+		)}
+		{...props}
+	/>
+));
+TableRow.displayName = "TableRow";
 
 interface TableHeadProps extends React.ComponentProps<"th"> {
 	/** Make this column sticky on the left. Value is the left offset in pixels. */
@@ -89,11 +92,11 @@ function TableHead({
 			data-slot="table-head"
 			data-sticky-left={isSticky ? "" : undefined}
 			className={cn(
-				"qa-table__head font-chrome text-muted-foreground bg-background chrome-meta h-8 min-w-[100px] px-3 text-left align-middle text-[11px] font-medium whitespace-nowrap [&:has([role=checkbox])]:px-2",
+				"qa-table__head font-chrome text-muted-foreground bg-background chrome-meta h-8 min-w-[100px] overflow-hidden px-3 text-left align-middle text-[11px] font-medium text-ellipsis whitespace-nowrap [&:has([role=checkbox])]:px-2",
 				isSticky && "sticky z-20 min-w-0",
 				// Only show border on last sticky column
 				showStickyBorder &&
-					"after:bg-border after:absolute after:top-0 after:right-0 after:bottom-0 after:w-px",
+					"after:bg-border relative after:absolute after:top-0 after:right-0 after:bottom-0 after:w-px",
 				className,
 			)}
 			style={{
@@ -125,21 +128,20 @@ function TableCell({
 			data-slot="table-cell"
 			data-sticky-left={isSticky ? "" : undefined}
 			className={cn(
-				"qa-table__cell min-w-[100px] px-3 py-1.5 align-middle whitespace-nowrap [&:has([role=checkbox])]:px-2",
+				"qa-table__cell min-w-[100px] overflow-hidden px-3 py-1.5 align-middle text-ellipsis whitespace-nowrap tabular-nums transition-colors [&:has([role=checkbox])]:px-2",
 				isSticky &&
-					"group-hover/row:bg-muted/40 group-data-[state=selected]/row:bg-muted bg-background sticky z-10 min-w-0",
+					"group-data-[state=selected]/row:bg-muted group-hover/row:bg-accent bg-background sticky z-10 min-w-0",
 				// Only show border on last sticky column
 				showStickyBorder &&
-					"after:bg-border after:absolute after:top-0 after:right-0 after:bottom-0 after:w-px",
+					"after:bg-border relative after:absolute after:top-0 after:right-0 after:bottom-0 after:w-px",
 				className,
 			)}
 			style={{
 				...style,
 				...(isSticky ? { left: stickyLeft } : {}),
 			}}
-		>
-			{props.children}
-		</td>
+			{...props}
+		/>
 	);
 }
 

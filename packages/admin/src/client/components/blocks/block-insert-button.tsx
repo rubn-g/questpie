@@ -89,13 +89,13 @@ export function BlockInsertButton({
 			<button
 				type="button"
 				className={cn(
-					"group text-muted-foreground hover:text-foreground relative flex items-center gap-2 text-xs font-medium transition-colors",
+					"group text-muted-foreground hover:text-foreground relative flex min-h-10 items-center gap-2 text-xs font-medium transition-colors active:scale-[0.96]",
 					className,
 				)}
 				onClick={handleOpen}
 			>
 				{/* Add button */}
-				<div className="border-border bg-background text-muted-foreground group-hover:border-foreground group-hover:text-foreground relative z-10 flex h-5 w-5 items-center justify-center rounded-full border transition-all">
+				<div className="border-border bg-background text-muted-foreground group-hover:border-foreground group-hover:text-foreground relative z-10 flex h-5 w-5 items-center justify-center rounded-full border transition-[background-color,border-color,color]">
 					<Icon icon="ph:plus" className="h-3 w-3" />
 				</div>
 

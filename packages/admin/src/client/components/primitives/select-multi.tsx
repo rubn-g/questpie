@@ -186,7 +186,11 @@ export function SelectMulti<TValue extends string = string>({
 	);
 
 	const handleRemove = useCallback(
-		(removedValue: TValue, e?: React.MouseEvent) => {
+		(
+			removedValue: TValue,
+			e?: React.MouseEvent | React.PointerEvent | React.KeyboardEvent,
+		) => {
+			e?.preventDefault();
 			e?.stopPropagation();
 			onChange(resolvedValue.filter((v) => v !== removedValue));
 		},
@@ -194,11 +198,25 @@ export function SelectMulti<TValue extends string = string>({
 	);
 
 	const handleClearAll = useCallback(
-		(e: React.MouseEvent) => {
+		(e: React.MouseEvent | React.PointerEvent | React.KeyboardEvent) => {
+			e.preventDefault();
 			e.stopPropagation();
 			onChange([]);
 		},
 		[onChange],
+	);
+
+	const handleTriggerKeyDown = useCallback(
+		(event: React.KeyboardEvent) => {
+			if (
+				resolvedValue.length > 0 &&
+				!disabled &&
+				(event.key === "Backspace" || event.key === "Delete")
+			) {
+				handleClearAll(event);
+			}
+		},
+		[disabled, handleClearAll, resolvedValue.length],
 	);
 
 	const showLoading = isFetching || externalLoading;
@@ -232,16 +250,22 @@ export function SelectMulti<TValue extends string = string>({
 			) : (
 				<>
 					{visibleChips.map((val) => (
-						<Badge key={String(val)} variant="secondary" className="gap-1 pr-1">
+						<Badge
+							key={String(val)}
+							variant="secondary"
+							className="min-h-7 gap-1 pr-1"
+						>
 							<span className="max-w-24 truncate">{getLabel(val)}</span>
 							{!disabled && (
-								<button
-									type="button"
+								<span
+									aria-hidden="true"
+									title="Remove option"
+									onPointerDown={(e) => handleRemove(val, e)}
 									onClick={(e) => handleRemove(val, e)}
-									className="hover:bg-muted-foreground/20 rounded-full p-0.5"
+									className="hover:bg-muted-foreground/20 inline-flex size-5 items-center justify-center rounded-full transition-colors"
 								>
 									<Icon icon="ph:x" className="size-2.5" />
-								</button>
+								</span>
 							)}
 						</Badge>
 					))}
@@ -254,13 +278,15 @@ export function SelectMulti<TValue extends string = string>({
 			)}
 			<div className="ml-auto flex shrink-0 items-center gap-1">
 				{resolvedValue.length > 0 && !disabled && (
-					<button
-						type="button"
+					<span
+						aria-hidden="true"
+						title="Clear all"
+						onPointerDown={handleClearAll}
 						onClick={handleClearAll}
-						className="hover:bg-muted p-0.5 opacity-50 hover:opacity-100"
+						className="hover:bg-muted inline-flex size-6 items-center justify-center rounded-md opacity-60 transition-[background-color,opacity] hover:opacity-100"
 					>
 						<Icon icon="ph:x" className="size-3" />
-					</button>
+					</span>
 				)}
 				<Icon icon="ph:plus" className="size-3.5 opacity-50" />
 			</div>
@@ -316,7 +342,7 @@ export function SelectMulti<TValue extends string = string>({
 				</CommandGroup>
 			</CommandList>
 			{maxSelections && (
-				<div className="text-muted-foreground border-t p-2 text-center text-xs">
+				<div className="text-muted-foreground border-t p-2 text-center text-xs tabular-nums">
 					{resolvedValue.length} / {maxSelections} selected
 				</div>
 			)}
@@ -331,6 +357,7 @@ export function SelectMulti<TValue extends string = string>({
 					<button
 						type="button"
 						disabled={disabled}
+						onKeyDown={handleTriggerKeyDown}
 						className="w-full text-left"
 					>
 						{TriggerContent}
@@ -354,6 +381,7 @@ export function SelectMulti<TValue extends string = string>({
 					<button
 						type="button"
 						disabled={disabled}
+						onKeyDown={handleTriggerKeyDown}
 						className="w-full text-left"
 					>
 						{TriggerContent}

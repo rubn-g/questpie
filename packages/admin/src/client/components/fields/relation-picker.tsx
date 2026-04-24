@@ -411,7 +411,7 @@ export function RelationPicker<T extends QuestpieApp>({
 						{resolvedLabel}
 						{required && <span className="text-destructive">*</span>}
 						{maxItems && (
-							<span className="text-muted-foreground font-chrome chrome-meta ml-2 text-xs">
+							<span className="text-muted-foreground font-chrome chrome-meta ml-2 text-xs tabular-nums">
 								({selectedIds.length}/{maxItems})
 							</span>
 						)}
@@ -490,14 +490,14 @@ export function RelationPicker<T extends QuestpieApp>({
 			{/* Empty State - only show when not loading */}
 			{selectedIds.length === 0 && !isLoadingItems && (
 				<div className="qa-relation-picker__empty-state panel-surface border-dashed p-4 text-center">
-					<p className="text-muted-foreground text-sm">
+					<p className="text-muted-foreground text-sm text-pretty">
 						{resolvedPlaceholder || emptyLabel}
 					</p>
 				</div>
 			)}
 
 			{/* Error message */}
-			{error && <p className="text-destructive text-sm">{error}</p>}
+			{error && <p className="text-destructive text-sm text-pretty">{error}</p>}
 
 			{/* Side Sheet for Create/Edit */}
 			<ResourceSheet

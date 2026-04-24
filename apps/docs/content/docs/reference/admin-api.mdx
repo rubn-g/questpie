@@ -59,7 +59,6 @@ export default adminConfig({
 	},
 	branding: {
 		name: { en: "My CMS", sk: "Moj CMS" },
-		logo: "/logo.svg",
 	},
 	locale: {
 		locales: ["en", "sk"],
@@ -83,31 +82,32 @@ export default adminConfig({
 
 The admin panel has three independent ownership layers:
 
-| Layer | Owner | Where |
-| ----- | ----- | ------ |
-| **App shell** | Your app | `app/admin/layout.tsx` (or equivalent) — wraps `AdminRouter`/`AdminLayout` with your router, auth client, QueryClientProvider |
-| **Structure & navigation** | Server config | `config/admin.ts` — sidebar sections, dashboard, branding name |
-| **Chrome overrides** | Client file discovery | `questpie/admin/components/` — reserved component files |
+| Layer                      | Owner                 | Where                                                                                                                                           |
+| -------------------------- | --------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| **App shell**              | Your app              | `app/admin/layout.tsx` (or equivalent) — wraps `AdminRouter`/`AdminLayout` with your router, auth client, QueryClientProvider, favicon, and CSS |
+| **Structure & navigation** | Server config         | `config/admin.ts` — sidebar sections, dashboard, branding name                                                                                  |
+| **Chrome overrides**       | Client file discovery | `questpie/admin/components/` — reserved component files                                                                                         |
 
 ### `config/admin.ts` responsibilities
 
 `config/admin.ts` controls:
+
 - Sidebar sections and navigation items
 - Dashboard layout and widgets
-- Brand name and favicon
+- Brand name metadata
 - Locale settings
 
-It does **not** control React-level chrome (sidebar HTML, auth page layout). Those belong in the app shell or file-first overrides.
+It does **not** control favicon, CSS theme selection, or React-level chrome (sidebar HTML, auth page layout). Those belong in the app shell or file-first overrides.
 
 ### File-first chrome overrides
 
 Place one of these files in `questpie/admin/components/` to override specific chrome pieces without touching the app shell:
 
-| File | Registry key | What it replaces |
-| ---- | ------------ | ---------------- |
-| `admin-sidebar-brand.tsx` | `adminSidebarBrand` | Sidebar logo + name area |
-| `admin-sidebar-nav-item.tsx` | `adminSidebarNavItem` | Each navigation item row |
-| `admin-auth-layout.tsx` | `adminAuthLayout` | Auth page wrapper (login, reset, etc.) |
+| File                         | Registry key          | What it replaces                       |
+| ---------------------------- | --------------------- | -------------------------------------- |
+| `admin-sidebar-brand.tsx`    | `adminSidebarBrand`   | Sidebar logo + name area               |
+| `admin-sidebar-nav-item.tsx` | `adminSidebarNavItem` | Each navigation item row               |
+| `admin-auth-layout.tsx`      | `adminAuthLayout`     | Auth page wrapper (login, reset, etc.) |
 
 These files use the standard `questpie/admin/components/` discovery pattern — they are plain React component files, **not** wrapped in a factory call.
 
@@ -119,12 +119,12 @@ Important: the default export should be a React component (sync or `React.lazy(.
 import type { AdminSidebarBrandProps } from "@questpie/admin/client";
 
 export default function MyBrand({ name, collapsed }: AdminSidebarBrandProps) {
-  return (
-    <div className="flex items-center gap-2">
-      <img src="/logo.svg" alt={name} className="size-6" />
-      {!collapsed && <span className="font-bold">{name}</span>}
-    </div>
-  );
+	return (
+		<div className="flex items-center gap-2">
+			<img src="/logo.svg" alt={name} className="size-6" />
+			{!collapsed && <span className="font-bold">{name}</span>}
+		</div>
+	);
 }
 ```
 
@@ -133,16 +133,20 @@ export default function MyBrand({ name, collapsed }: AdminSidebarBrandProps) {
 ```tsx title="questpie/admin/components/admin-auth-layout.tsx"
 import type { AuthLayoutProps } from "@questpie/admin/client";
 
-export default function MyAuthLayout({ title, children, footer }: AuthLayoutProps) {
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-zinc-950">
-      <div className="w-full max-w-sm space-y-4 p-6">
-        <h1 className="text-2xl font-bold text-white">{title}</h1>
-        {children}
-        {footer && <div className="text-sm text-zinc-400">{footer}</div>}
-      </div>
-    </div>
-  );
+export default function MyAuthLayout({
+	title,
+	children,
+	footer,
+}: AuthLayoutProps) {
+	return (
+		<div className="min-h-screen flex items-center justify-center bg-zinc-950">
+			<div className="w-full max-w-sm space-y-4 p-6">
+				<h1 className="text-2xl font-bold text-white">{title}</h1>
+				{children}
+				{footer && <div className="text-sm text-zinc-400">{footer}</div>}
+			</div>
+		</div>
+	);
 }
 ```
 

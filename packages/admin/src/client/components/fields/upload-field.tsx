@@ -384,7 +384,7 @@ function SingleUploadInner({
 	return (
 		<div className={className}>
 			{unresolvedCollectionMessage && (
-				<p className="border-warning/40 bg-warning/5 text-warning mb-2 border px-3 py-2 text-xs">
+				<p className="border-warning/40 bg-warning/5 text-warning mb-2 border px-3 py-2 text-xs text-pretty">
 					{unresolvedCollectionMessage}
 				</p>
 			)}
@@ -453,7 +453,9 @@ function SingleUploadInner({
 				/>
 			)}
 
-			{error && <p className="text-destructive mt-1 text-xs">{error}</p>}
+			{error && (
+				<p className="text-destructive mt-1 text-xs text-pretty">{error}</p>
+			)}
 		</div>
 	);
 }
@@ -697,7 +699,7 @@ function MultipleUploadInner({
 	return (
 		<div className={className}>
 			{unresolvedCollectionMessage && (
-				<p className="border-warning/40 bg-warning/5 text-warning mb-2 border px-3 py-2 text-xs">
+				<p className="border-warning/40 bg-warning/5 text-warning mb-2 border px-3 py-2 text-xs text-pretty">
 					{unresolvedCollectionMessage}
 				</p>
 			)}
@@ -813,7 +815,7 @@ function MultipleUploadInner({
 			)}
 
 			{isUploading && !canAddMore && (
-				<div className="panel-surface text-muted-foreground flex items-center justify-center gap-2 border-dashed p-4 text-sm">
+				<div className="panel-surface text-muted-foreground flex items-center justify-center gap-2 border-dashed p-4 text-sm tabular-nums">
 					{t("upload.uploading")} {progress}%
 				</div>
 			)}

@@ -201,11 +201,27 @@ export function SelectSingle<TValue extends string = string>({
 	);
 
 	const handleClear = useCallback(
-		(e: React.MouseEvent) => {
+		(e: React.MouseEvent | React.PointerEvent | React.KeyboardEvent) => {
+			e.preventDefault();
 			e.stopPropagation();
 			onChange(null);
 		},
 		[onChange],
+	);
+
+	const handleTriggerKeyDown = useCallback(
+		(event: React.KeyboardEvent) => {
+			if (
+				clearable &&
+				value &&
+				!disabled &&
+				!isLoadingValue &&
+				(event.key === "Backspace" || event.key === "Delete")
+			) {
+				handleClear(event);
+			}
+		},
+		[clearable, disabled, handleClear, isLoadingValue, value],
 	);
 
 	const showLoading = isFetching || externalLoading;
@@ -221,6 +237,7 @@ export function SelectSingle<TValue extends string = string>({
 			aria-invalid={ariaInvalid}
 			disabled={disabled}
 			hasValue={!!value}
+			onKeyDown={handleTriggerKeyDown}
 			asInputGroupControl={asInputGroupControl}
 			className={cn(
 				// flex-1 min-w-0: override Button's shrink-0 so the control yields
@@ -249,16 +266,11 @@ export function SelectSingle<TValue extends string = string>({
 			<div className="flex h-full shrink-0 items-center gap-1">
 				{clearable && value && !disabled && !isLoadingValue && (
 					<span
-						role="button"
-						tabIndex={-1}
+						aria-hidden="true"
+						title="Clear selection"
+						onPointerDown={handleClear}
 						onClick={handleClear}
-						onKeyDown={(event) => {
-							if (event.key === "Enter" || event.key === " ") {
-								event.preventDefault();
-								handleClear(event as unknown as React.MouseEvent);
-							}
-						}}
-						className="hover:bg-surface-high -mr-1 rounded p-0.5 opacity-50 hover:opacity-100"
+						className="hover:bg-surface-high -mr-1 inline-flex size-6 items-center justify-center rounded-md opacity-60 transition-[background-color,opacity] hover:opacity-100"
 					>
 						<Icon icon="ph:x" className="size-3" />
 					</span>

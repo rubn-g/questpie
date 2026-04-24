@@ -682,7 +682,7 @@ function SectionLayoutRenderer({
 					</h3>
 				)}
 				{section.description && (
-					<p className="text-muted-foreground mt-1 text-sm">
+					<p className="text-muted-foreground mt-1 text-sm text-pretty">
 						{resolveText(section.description, "", formValues)}
 					</p>
 				)}
@@ -700,7 +700,7 @@ function SectionLayoutRenderer({
 				defaultValue={defaultOpen ? [value] : []}
 				className="w-full"
 			>
-				<AccordionItem value={value} className="border px-4">
+				<AccordionItem value={value} className="border-transparent px-4">
 					<AccordionTrigger className="hover:no-underline">
 						<span className="font-semibold">
 							{resolveText(section.label, "Section", formValues)}
@@ -708,7 +708,7 @@ function SectionLayoutRenderer({
 					</AccordionTrigger>
 					<AccordionContent className="pt-2 pb-4">
 						{section.description && (
-							<p className="text-muted-foreground mb-4 text-sm">
+							<p className="text-muted-foreground mb-4 text-sm text-pretty">
 								{resolveText(section.description, "", formValues)}
 							</p>
 						)}

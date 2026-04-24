@@ -49,7 +49,7 @@ function SheetContent({
 	showOverlay?: boolean;
 }) {
 	const overlayClassName = animated
-		? "qa-sheet__overlay data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 fixed inset-0 z-50 bg-black/80 duration-200 data-ending-style:opacity-0 data-starting-style:opacity-0"
+		? "qa-sheet__overlay motion-overlay fixed inset-0 z-50 bg-black/80 data-ending-style:opacity-0 data-starting-style:opacity-0"
 		: "qa-sheet__overlay fixed inset-0 z-50 bg-black/80";
 
 	const contentClassName = animated
@@ -62,10 +62,7 @@ function SheetContent({
 			<SheetPrimitive.Popup
 				data-slot="sheet-content"
 				data-side={side}
-				className={cn(
-					contentClassName,
-					className,
-				)}
+				className={cn(contentClassName, className)}
 				{...props}
 			>
 				{children}

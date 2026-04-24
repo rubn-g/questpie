@@ -83,6 +83,31 @@ const FIELD_TYPES_NEEDING_FIELD_DEF = new Set([
 	"reverseRelation",
 ]);
 
+function getDefaultColumnSize(fieldType: string): number {
+	switch (fieldType) {
+		case "number":
+		case "boolean":
+			return 120;
+		case "date":
+		case "datetime":
+		case "time":
+			return 180;
+		case "select":
+			return 160;
+		case "relation":
+		case "reverseRelation":
+			return 220;
+		case "upload":
+		case "uploadMany":
+			return 160;
+		case "textarea":
+		case "richText":
+			return 360;
+		default:
+			return 240;
+	}
+}
+
 // ============================================================================
 // Column Builder
 // ============================================================================
@@ -201,6 +226,8 @@ export function buildColumns<TData extends Record<string, unknown>>(
 					const value = row.getValue("_title");
 					return <TextCell value={value} />;
 				},
+				size: 360,
+				minSize: 220,
 				enableSorting: false, // _title is virtual, can't sort on it directly
 			};
 			return columnDef;
@@ -261,6 +288,7 @@ export function buildColumns<TData extends Record<string, unknown>>(
 		const columnDef: ColumnDef<TData> = {
 			id: fieldName, // Always use field name as id for consistent lookup
 			accessorKey: isComputed ? undefined : accessorKey, // Computed fields don't have accessor
+			size: getDefaultColumnSize(fieldType),
 			header: () => (
 				<ColumnHeader label={headerLabel} fallback={headerFallback} />
 			),

@@ -137,28 +137,29 @@ Group headers use the Autopilot task-list treatment:
 
 ## Order Field And Drag Reorder
 
-Ordering is possible but should not be part of the first layout pass.
+Ordering should feel first-class and Linear-like, not like a technical admin toggle. The initial implementation is a safe mode affordance and typed config; drag/write behavior comes only after scope and pagination semantics are explicit.
 
 Suggested config:
 
 ```ts
 list: {
-	order: {
-		field: "sortOrder",
+	orderable: {
 		direction: "asc",
-		scope: ["parent", "status"],
 		step: 10,
 	},
 }
 ```
 
+The collection must define a numeric field named `order`. This is a convention, not magic: authors opt in with `orderable`, and the field name makes it clear that reorder writes update display order rather than business data like `price`.
+
 UI rules:
 
-- Reorder mode toggle near view options.
-- Show a drag handle column only in reorder mode.
-- Reorder only when sorted by the configured order field.
-- Disable or warn during active search.
-- Be explicit about pagination/scope limitations.
+- Reorder mode toggle near view actions with compact neutral styling, never primary purple.
+- Show a quiet handle/ordered-state column only in reorder mode.
+- Reorder only when sorted by the conventional `order` field.
+- Disable during active search, grouping, filter state, or sort mismatch.
+- Do not fake persistence. Until writes are wired, the mode is explicit and read-only.
+- Be explicit about pagination/scope limitations before enabling production writes.
 
 Production reorder should use a dedicated transactional API rather than many independent row updates:
 
@@ -168,7 +169,7 @@ POST /admin/collections/:collection/reorder
 
 ```json
 {
-	"field": "sortOrder",
+	"field": "order",
 	"ids": ["a", "b", "c"],
 	"scope": { "parent": null, "status": "published" }
 }
@@ -186,7 +187,7 @@ Suggested config:
 list: {
 	tree: {
 		parentField: "parent",
-		orderField: "sortOrder",
+		orderField: "order",
 		defaultExpandedDepth: 1,
 	},
 }
@@ -238,6 +239,12 @@ Recommendation:
 - Build structured row model or separate `collectionTree` view.
 - Define search/filter/pagination semantics.
 
+### Future: Admin Motion And Polish Pass
+
+- Run the whole admin through `make-interfaces-feel-better` for spacing, optical alignment, hit areas, typography, tabular numbers, focus states, and interaction polish.
+- Run a dedicated `ui-animation` pass for natural motion: shared motion tokens, tooltip/popover/sheet transitions, row/reorder movement, contextual icon feedback, reduced-motion handling, and interruption-safe animations.
+- Keep the pass separate from data/modeling work so animation does not hide state bugs or incomplete reorder/tree semantics.
+
 ## Backend Primitive Audit
 
 Existing primitives we should reuse:
@@ -250,13 +257,16 @@ Existing primitives we should reuse:
 - Admin already has `.list()` as the right server config extension point. New built-in table options should extend `ListViewConfig`; no new codegen category is needed.
 - Admin saved views and preferences already store JSON, so user-specific group/search/view settings can be added by extending `ViewConfiguration` without a database shape change.
 
+Implemented or in-progress primitives:
+
+- Top-level `find({ groupBy })` exists for grouped list pagination/counts.
+- Heterogeneous batch update exists: `updateBatch({ updates: [{ id, data }] })`. It is the foundation for reorder because it updates different values per row in one transaction while reusing normal update behavior.
+
 Missing primitives:
 
-- No top-level `groupBy` or aggregate collection query API exists. Current aggregate support is limited to relation aggregation on `hasMany` relations.
-- Heterogeneous batch update exists as backend work-in-progress: `updateBatch({ updates: [{ id, data }] })`. It is the foundation for reorder because it updates different values per row in one transaction while reusing normal update behavior.
 - No dedicated reorder API exists.
 - No backend tree API exists: no `findTree`, no move-node API, no cycle prevention, no sibling-scoped reorder primitive.
-- No list config exists yet for `grouping`, `order`, `tree`, `search.placement`, or `viewOptions.placement`.
+- No list config exists yet for `tree`, `search.placement`, or `viewOptions.placement`.
 
 Required extension surfaces for any new `.list()` option:
 
@@ -268,8 +278,8 @@ Required extension surfaces for any new `.list()` option:
 
 Backend work by phase:
 
-- Phase 1 and 2 need no new backend primitives. Layout, search icon placement, view options icon placement, flat rows, and client-side grouping can be implemented with existing APIs.
-- Phase 3 grouping can start client-side over the current page. Accurate cross-page group counts require a future top-level aggregate/group API.
+- Phase 1 and 2 need no new backend primitives. Layout, search icon placement, view options icon placement, and flat rows can be implemented with existing APIs.
+- Phase 3 grouping uses core `find({ groupBy })` for cross-page group counts and group pagination.
 - Phase 4 reorder should build on `updateBatch` first. A dedicated reorder endpoint can still be added later for rank-gap conflict handling, scoped reindexing, and clearer API semantics.
 - Phase 5 tree/hierarchy should introduce explicit tree semantics or a dedicated `collectionTree` view. Parent self-relations are enough to store the data, but not enough for safe tree UI behavior.
 

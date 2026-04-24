@@ -11,7 +11,7 @@ export const getAllServices = createServerFn({ method: "GET" })
 		const result = await app.collections.services.find(
 			{
 				where: { isActive: true },
-				orderBy: { price: "asc" },
+				orderBy: [{ order: "asc" }, { price: "asc" }],
 				with: { image: true },
 			},
 			ctx,

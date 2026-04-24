@@ -153,6 +153,8 @@ export interface AdminListViewSchema {
 	columns?: string[];
 	/** Default sort configuration */
 	defaultSort?: { field: string; direction: "asc" | "desc" };
+	/** Enables reorder mode for this list using the conventional `order` field */
+	orderable?: boolean | { direction?: "asc" | "desc"; step?: number };
 	/** Searchable fields */
 	searchable?: string[];
 	/** Filterable fields */
@@ -972,6 +974,7 @@ function extractAdminConfig(
 			view: stateAny.adminList.view,
 			columns: stateAny.adminList.columns,
 			defaultSort: stateAny.adminList.defaultSort,
+			orderable: stateAny.adminList.orderable,
 			searchable: stateAny.adminList.searchable,
 			filterable: stateAny.adminList.filterable,
 			grouping: stateAny.adminList.grouping,

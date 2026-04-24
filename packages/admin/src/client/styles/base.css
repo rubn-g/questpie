@@ -95,8 +95,8 @@
 	--secondary-foreground: #ececec;
 	--primary: #b700ff;
 	--primary-foreground: #ffffff;
-	--destructive: #222222;
-	--destructive-foreground: #ececec;
+	--destructive: #ff5f6d;
+	--destructive-foreground: #1c0b0f;
 	--success: #222222;
 	--success-foreground: #ececec;
 	--warning: #222222;
@@ -119,6 +119,13 @@
 	--surface-shadow: none;
 	--floating-radius: 0.875rem;
 	--floating-shadow: 0 18px 40px -28px rgba(0, 0, 0, 0.72);
+	--motion-duration-fast: 100ms;
+	--motion-duration-base: 150ms;
+	--motion-duration-slow: 200ms;
+	--motion-ease-enter: cubic-bezier(0.22, 1, 0.36, 1);
+	--motion-ease-move: cubic-bezier(0.25, 1, 0.5, 1);
+	--motion-ease-standard: cubic-bezier(0.2, 0, 0, 1);
+	--motion-scale-enter: 0.98;
 
 	/* Neutral charts/statuses: color is not primary communication. */
 	--chart-1: #ececec;
@@ -184,8 +191,8 @@
 	--secondary-foreground: #1c1c1c;
 	--primary: #b700ff;
 	--primary-foreground: #ffffff;
-	--destructive: #f0f0f0;
-	--destructive-foreground: #1c1c1c;
+	--destructive: #d92d3a;
+	--destructive-foreground: #ffffff;
 	--success: #f0f0f0;
 	--success-foreground: #1c1c1c;
 	--warning: #f0f0f0;
@@ -308,8 +315,8 @@
 	background-color: var(--control-background);
 	box-shadow: var(--control-shadow);
 	transition-property: background-color, border-color, color, box-shadow;
-	transition-duration: 150ms;
-	transition-timing-function: ease-out;
+	transition-duration: var(--motion-duration-base);
+	transition-timing-function: var(--motion-ease-standard);
 }
 
 @utility floating-surface {
@@ -317,6 +324,37 @@
 	border-radius: var(--floating-radius);
 	background-color: var(--popover);
 	box-shadow: var(--floating-shadow);
+}
+
+@utility motion-interactive {
+	transition-property:
+		background-color, border-color, color, box-shadow, opacity, transform;
+	transition-duration: var(--motion-duration-base);
+	transition-timing-function: var(--motion-ease-standard);
+}
+
+@utility motion-floating {
+	transition-property: opacity, transform;
+	transition-duration: var(--motion-duration-base);
+	transition-timing-function: var(--motion-ease-enter);
+}
+
+@utility motion-floating-fast {
+	transition-property: opacity, transform;
+	transition-duration: var(--motion-duration-fast);
+	transition-timing-function: var(--motion-ease-enter);
+}
+
+@utility motion-sheet {
+	transition-property: opacity, transform;
+	transition-duration: var(--motion-duration-slow);
+	transition-timing-function: var(--motion-ease-move);
+}
+
+@utility motion-overlay {
+	transition-property: opacity, backdrop-filter;
+	transition-duration: var(--motion-duration-base);
+	transition-timing-function: var(--motion-ease-standard);
 }
 
 /* =============================================================================
@@ -565,8 +603,8 @@
 	background-color: transparent;
 	transition-property:
 		background-color, border-color, color, box-shadow, opacity, transform;
-	transition-duration: 150ms;
-	transition-timing-function: ease-out;
+	transition-duration: var(--motion-duration-base);
+	transition-timing-function: var(--motion-ease-standard);
 }
 
 @utility panel-surface {
@@ -576,8 +614,18 @@
 	box-shadow: var(--surface-shadow);
 	transition-property:
 		background-color, border-color, color, box-shadow, opacity, transform;
-	transition-duration: 150ms;
-	transition-timing-function: ease-out;
+	transition-duration: var(--motion-duration-base);
+	transition-timing-function: var(--motion-ease-standard);
+}
+
+@utility image-outline {
+	outline: 1px solid rgba(255, 255, 255, 0.1);
+	outline-offset: -1px;
+}
+
+.light .image-outline,
+:root.light .image-outline {
+	outline-color: rgba(0, 0, 0, 0.1);
 }
 
 /* =============================================================================

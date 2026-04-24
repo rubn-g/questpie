@@ -67,12 +67,12 @@ function UploadManyCell({ value }: { value: unknown }) {
 							key={(asset.id as string) || index}
 							src={asset.url as string}
 							alt={(asset.filename as string) || "Asset"}
-							className="bg-background size-6 rounded border object-cover"
+							className="image-outline bg-background size-6 rounded object-cover"
 						/>
 					))}
 				</div>
 				{remaining > 0 && (
-					<span className="text-muted-foreground ml-1 text-xs">
+					<span className="text-muted-foreground ml-1 text-xs tabular-nums">
 						+{remaining}
 					</span>
 				)}

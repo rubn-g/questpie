@@ -182,7 +182,7 @@ export function TableDisplay({
 											<CollectionEditLink
 												collection={collection as any}
 												id={item.id}
-												className="item-surface text-muted-foreground hover:border-border hover:bg-accent hover:text-accent-foreground inline-flex size-6 items-center justify-center"
+												className="item-surface text-muted-foreground hover:border-border hover:bg-accent hover:text-accent-foreground inline-flex min-h-10 min-w-10 items-center justify-center active:scale-[0.96]"
 											>
 												<Icon icon="ph:arrow-right" className="size-4" />
 											</CollectionEditLink>

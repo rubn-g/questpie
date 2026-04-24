@@ -378,6 +378,7 @@ export function MediaPickerDialog({
 							Cancel
 						</Button>
 						<Button
+							className="tabular-nums"
 							onClick={handleSelect}
 							disabled={selectedIds.size === 0 || isLoading}
 						>

@@ -166,7 +166,7 @@ export function RichTextToolbar({
 			{features.heading && (
 				<ToolbarGroup>
 					<select
-						className="control-surface h-7 rounded-[var(--control-radius-inner)] px-2.5 text-sm outline-none"
+						className="control-surface h-8 rounded-[var(--control-radius-inner)] px-2.5 text-sm outline-none"
 						value={headingValue}
 						onChange={(event) => onHeadingChange(event.target.value)}
 						disabled={!isEditable}

@@ -58,7 +58,7 @@ export function ChipsDisplay({
 					return (
 						<div
 							key={item.id}
-							className="qa-chips-display__chip item-surface border-border bg-secondary text-secondary-foreground inline-flex min-h-6 items-center gap-1 py-0.5 pr-1 pl-2"
+							className="qa-chips-display__chip item-surface border-border bg-secondary text-secondary-foreground inline-flex min-h-8 items-center gap-1 py-0.5 pr-1 pl-2"
 						>
 							{iconElement}
 							<span className="text-sm">{displayText}</span>
@@ -67,6 +67,7 @@ export function ChipsDisplay({
 									type="button"
 									variant="ghost"
 									size="icon-xs"
+									className="relative after:absolute after:-inset-1"
 									onClick={() => actions.onEdit?.(item)}
 									aria-label={t("field.editItem")}
 								>
@@ -78,6 +79,7 @@ export function ChipsDisplay({
 									type="button"
 									variant="ghost"
 									size="icon-xs"
+									className="relative after:absolute after:-inset-1"
 									onClick={() => actions.onRemove?.(item)}
 									aria-label={t("field.removeItem")}
 								>
@@ -95,7 +97,7 @@ export function ChipsDisplay({
 							key={item.id}
 							type="button"
 							onClick={() => actions.onEdit?.(item)}
-							className="inline-flex"
+							className="focus-visible:ring-ring/40 inline-flex rounded-md focus-visible:ring-2 focus-visible:outline-none active:scale-[0.96]"
 						>
 							<Badge
 								variant="secondary"
@@ -116,7 +118,7 @@ export function ChipsDisplay({
 							key={item.id}
 							collection={collection as any}
 							id={item.id}
-							className="inline-flex"
+							className="focus-visible:ring-ring/40 inline-flex rounded-md focus-visible:ring-2 focus-visible:outline-none active:scale-[0.96]"
 						>
 							<Badge
 								variant="secondary"

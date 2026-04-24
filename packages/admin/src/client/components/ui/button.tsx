@@ -6,7 +6,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "../../lib/utils";
 
 const buttonVariants = cva(
-	"qa-button font-chrome group/button text-foreground focus-visible:border-border-strong focus-visible:ring-ring/20 aria-invalid:border-border-strong aria-invalid:ring-ring/20 inline-flex shrink-0 cursor-pointer items-center justify-center rounded-[var(--control-radius)] border border-transparent bg-clip-padding text-sm font-medium whitespace-nowrap transition-[background-color,color,border-color,box-shadow,transform,opacity] duration-150 ease-out outline-none select-none focus-visible:ring-[3px] active:scale-[0.96] disabled:pointer-events-none disabled:opacity-50 disabled:active:scale-100 aria-invalid:ring-[3px] [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+	"qa-button font-chrome group/button text-foreground focus-visible:border-border-strong focus-visible:ring-ring/20 aria-invalid:border-border-strong aria-invalid:ring-ring/20 inline-flex shrink-0 cursor-pointer items-center justify-center rounded-[var(--control-radius)] border border-transparent bg-clip-padding text-sm font-medium whitespace-nowrap transition-[background-color,color,border-color,box-shadow,transform,opacity] duration-150 ease-out outline-none select-none focus-visible:ring-[3px] active:scale-[0.96] disabled:pointer-events-none disabled:opacity-50 disabled:active:scale-100 aria-invalid:ring-[3px] motion-reduce:active:scale-100 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
 	{
 		variants: {
 			variant: {
@@ -19,7 +19,7 @@ const buttonVariants = cva(
 				ghost:
 					"text-muted-foreground hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground",
 				destructive:
-					"border-border bg-destructive text-destructive-foreground hover:bg-accent focus-visible:ring-ring/20 shadow-[var(--control-shadow)]",
+					"bg-destructive text-destructive-foreground hover:bg-destructive/90 focus-visible:ring-destructive/25 border-transparent shadow-[var(--control-shadow)]",
 				link: "text-foreground h-auto px-0 underline-offset-4 hover:underline",
 			},
 			size: {
@@ -41,16 +41,26 @@ const buttonVariants = cva(
 	},
 );
 
+type ButtonProps = ButtonPrimitive.Props &
+	VariantProps<typeof buttonVariants> & {
+		static?: boolean;
+	};
+
 function Button({
 	className,
 	variant = "default",
 	size = "default",
+	static: staticPress = false,
 	...props
-}: ButtonPrimitive.Props & VariantProps<typeof buttonVariants>) {
+}: ButtonProps) {
 	return (
 		<ButtonPrimitive
 			data-slot="button"
-			className={cn(buttonVariants({ variant, size, className }))}
+			className={cn(
+				buttonVariants({ variant, size }),
+				staticPress && "active:scale-100",
+				className,
+			)}
 			{...props}
 		/>
 	);

@@ -42,7 +42,7 @@ function DropdownMenuContent({
 				<MenuPrimitive.Popup
 					data-slot="dropdown-menu-content"
 					className={cn(
-						"qa-dropdown-menu__content floating-surface text-popover-foreground data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 max-h-(--available-height) w-(--anchor-width) min-w-48 origin-(--transform-origin) overflow-x-hidden overflow-y-auto p-1.5 duration-150 outline-none data-closed:overflow-hidden",
+						"qa-dropdown-menu__content floating-surface motion-floating text-popover-foreground z-50 max-h-(--available-height) w-(--anchor-width) min-w-48 origin-(--transform-origin) overflow-x-hidden overflow-y-auto p-1.5 outline-none data-closed:overflow-hidden data-ending-style:scale-[var(--motion-scale-enter)] data-ending-style:opacity-0 data-starting-style:scale-[var(--motion-scale-enter)] data-starting-style:opacity-0",
 						className,
 					)}
 					{...props}
@@ -91,7 +91,7 @@ function DropdownMenuItem({
 			data-inset={inset}
 			data-variant={variant}
 			className={cn(
-				"qa-dropdown-menu__item item-surface focus:border-border focus:bg-accent focus:text-accent-foreground data-[variant=destructive]:text-foreground data-[variant=destructive]:focus:border-border data-[variant=destructive]:focus:bg-accent data-[variant=destructive]:focus:text-foreground not-data-[variant=destructive]:focus:**:text-accent-foreground group/dropdown-menu-item relative flex min-h-9 cursor-default items-center gap-2.5 px-3 py-2 text-sm outline-hidden select-none data-disabled:pointer-events-none data-disabled:opacity-50 data-[inset]:pl-9 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+				"qa-dropdown-menu__item item-surface focus:border-border focus:bg-accent focus:text-accent-foreground data-[variant=destructive]:text-destructive data-[variant=destructive]:focus:border-destructive/30 data-[variant=destructive]:focus:bg-destructive/10 data-[variant=destructive]:focus:text-destructive not-data-[variant=destructive]:focus:**:text-accent-foreground group/dropdown-menu-item relative flex min-h-9 cursor-default items-center gap-2.5 px-3 py-2 text-sm outline-hidden select-none data-disabled:pointer-events-none data-disabled:opacity-50 data-[inset]:pl-9 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
 				className,
 			)}
 			{...props}
@@ -139,7 +139,7 @@ function DropdownMenuSubContent({
 		<DropdownMenuContent
 			data-slot="dropdown-menu-sub-content"
 			className={cn(
-				"qa-dropdown-menu__sub-content data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 border-border bg-popover text-popover-foreground w-auto min-w-32 border p-1 duration-100",
+				"qa-dropdown-menu__sub-content w-auto min-w-32 p-1",
 				className,
 			)}
 			align={align}

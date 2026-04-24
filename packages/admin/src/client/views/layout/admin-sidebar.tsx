@@ -536,7 +536,7 @@ function isRouteActive(
  * Menu button styles - QUESTPIE design: clean, technical look
  */
 const menuButtonStyles = cn(
-	"item-surface font-chrome flex w-full items-center gap-2 px-2 py-2 text-[13px] font-medium transition-[background-color,color,border-color,transform] duration-150 ease-out active:scale-[0.99]",
+	"item-surface font-chrome flex w-full items-center gap-2 px-2 py-2 text-[13px] font-medium transition-[background-color,color,border-color,transform] duration-150 ease-out active:scale-[0.96]",
 	"text-sidebar-foreground/75 hover:bg-sidebar-accent hover:text-sidebar-foreground",
 	"focus-visible:ring-sidebar-ring focus-visible:ring-1 focus-visible:outline-none",
 	"group-data-[collapsible=icon]:size-8 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-2",
@@ -980,7 +980,7 @@ function UserFooter({
 					<DropdownMenu>
 						<DropdownMenuTrigger
 							className={cn(
-								"qa-sidebar__user-trigger flex w-full items-center gap-2.5 rounded-md p-2 text-left transition-[background-color,color,transform] duration-150 ease-out active:scale-[0.99]",
+								"qa-sidebar__user-trigger flex w-full items-center gap-2.5 rounded-md p-2 text-left transition-[background-color,color,transform] duration-150 ease-out active:scale-[0.96]",
 								"hover:bg-sidebar-accent text-sidebar-foreground",
 								"focus-visible:ring-sidebar-ring focus-visible:ring-1 focus-visible:outline-none",
 								collapsed && "justify-center",
@@ -1070,7 +1070,7 @@ function UserFooter({
 												<img
 													src={getFlagUrl(locale.code)}
 													alt={locale.code}
-													className="h-3 w-4 object-cover"
+													className="image-outline h-3 w-4 object-cover"
 													onError={(e) => {
 														e.currentTarget.style.display = "none";
 													}}
@@ -1108,7 +1108,7 @@ function UserFooter({
 														locale.flagCountryCode ?? locale.code,
 													)}
 													alt={locale.code}
-													className="h-3 w-4 object-cover"
+													className="image-outline h-3 w-4 object-cover"
 													onError={(e) => {
 														e.currentTarget.style.display = "none";
 													}}
@@ -1272,7 +1272,7 @@ export function AdminSidebar({
 		<LinkComponent
 			to={basePath}
 			className={cn(
-				"qa-sidebar__brand flex items-center gap-2 rounded-md p-2 transition-[background-color,color,transform] duration-150 ease-out active:scale-[0.99]",
+				"qa-sidebar__brand flex items-center gap-2 rounded-md p-2 transition-[background-color,color,transform] duration-150 ease-out active:scale-[0.96]",
 				"hover:bg-sidebar-accent",
 				collapsed && "justify-center",
 			)}
@@ -1317,7 +1317,7 @@ export function AdminSidebar({
 										<LinkComponent
 											to={basePath}
 											className={cn(
-												"flex items-center gap-2 rounded-md p-2 transition-[background-color,color,transform] duration-150 ease-out active:scale-[0.99]",
+												"flex items-center gap-2 rounded-md p-2 transition-[background-color,color,transform] duration-150 ease-out active:scale-[0.96]",
 												"hover:bg-sidebar-accent",
 												"justify-center",
 											)}

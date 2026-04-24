@@ -227,7 +227,7 @@ export function ArrayField({
 						{resolvedLabel}
 						{required && <span className="text-destructive">*</span>}
 						{maxItems && (
-							<span className="text-muted-foreground ml-2 text-xs">
+							<span className="text-muted-foreground ml-2 text-xs tabular-nums">
 								({fields.length}/{maxItems})
 							</span>
 						)}
@@ -236,13 +236,15 @@ export function ArrayField({
 				</div>
 			)}
 			{resolvedDescription && (
-				<p className="text-muted-foreground text-sm">{resolvedDescription}</p>
+				<p className="text-muted-foreground text-sm text-pretty">
+					{resolvedDescription}
+				</p>
 			)}
 
 			<div className="space-y-2">
 				{fields.length === 0 ? (
-					<div className="border border-dashed p-4 text-center">
-						<p className="text-muted-foreground text-sm">
+					<div className="panel-surface border-dashed p-4 text-center">
+						<p className="text-muted-foreground text-sm text-pretty">
 							{resolvedPlaceholder || emptyLabel}
 						</p>
 					</div>
@@ -270,26 +272,26 @@ export function ArrayField({
 										<Button
 											type="button"
 											variant="ghost"
-											size="icon"
-											className="h-6 w-6"
+											size="icon-sm"
+											className="relative after:absolute after:-inset-1"
 											onClick={() => handleMove(index, index - 1)}
 											disabled={!canMoveUp || disabled}
 											title={t("field.moveUp")}
 											aria-label={t("field.moveUp")}
 										>
-											<Icon icon="ph:caret-up" className="h-3 w-3" />
+											<Icon icon="ph:caret-up" className="size-3.5" />
 										</Button>
 										<Button
 											type="button"
 											variant="ghost"
-											size="icon"
-											className="h-6 w-6"
+											size="icon-sm"
+											className="relative after:absolute after:-inset-1"
 											onClick={() => handleMove(index, index + 1)}
 											disabled={!canMoveDown || disabled}
 											title={t("field.moveDown")}
 											aria-label={t("field.moveDown")}
 										>
-											<Icon icon="ph:caret-down" className="h-3 w-3" />
+											<Icon icon="ph:caret-down" className="size-3.5" />
 										</Button>
 									</div>
 								)}
@@ -297,14 +299,14 @@ export function ArrayField({
 									<Button
 										type="button"
 										variant="ghost"
-										size="icon"
-										className="h-6 w-6"
+										size="icon-sm"
+										className="relative after:absolute after:-inset-1"
 										onClick={() => handleRemove(index)}
 										disabled={disabled}
 										title={t("common.remove")}
 										aria-label={t("field.removeItem")}
 									>
-										<Icon icon="ph:trash" className="h-3 w-3" />
+										<Icon icon="ph:trash" className="size-3.5" />
 									</Button>
 								)}
 							</div>
@@ -325,7 +327,7 @@ export function ArrayField({
 				</Button>
 			)}
 
-			{error && <p className="text-destructive text-sm">{error}</p>}
+			{error && <p className="text-destructive text-sm text-pretty">{error}</p>}
 		</div>
 	);
 }

@@ -350,7 +350,7 @@ function JsonCodeEditor({
 
 				{/* Parse error indicator */}
 				{parseError && (
-					<div className="text-destructive absolute top-2 right-2 flex items-center gap-1 text-xs">
+					<div className="text-destructive bg-background/80 absolute top-2 right-2 flex items-center gap-1 px-1 text-xs text-pretty backdrop-blur-sm">
 						<Icon icon="ph:warning-circle-fill" className="size-3" />
 						{parseError}
 					</div>
@@ -415,5 +415,5 @@ function JsonFormEditor({
 		readOnly,
 	});
 
-	return <div className="border p-4">{formContent}</div>;
+	return <div className="panel-surface p-4">{formContent}</div>;
 }

@@ -136,6 +136,17 @@ export interface ListViewConfig<TFieldNames extends string = string> {
 	};
 
 	/**
+	 * Enables reorder mode for this list.
+	 * Requires a numeric field named `order` on the collection.
+	 */
+	orderable?:
+		| boolean
+		| {
+				direction?: "asc" | "desc";
+				step?: number;
+		  };
+
+	/**
 	 * Enable search
 	 * @default true
 	 */

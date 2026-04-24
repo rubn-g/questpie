@@ -8,7 +8,7 @@ QUESTPIE follows a **server-first** architecture. All schema, layout, and behavi
 
 | Layer      | Package                               | Defines                                                           |
 | ---------- | ------------------------------------- | ----------------------------------------------------------------- |
-| **Server** | `questpie` + `@questpie/admin/server` | Schema, fields, access, hooks, sidebar, dashboard, branding       |
+| **Server** | `questpie` + `@questpie/admin/server` | Schema, fields, access, hooks, sidebar, dashboard, branding name  |
 | **Client** | `@questpie/admin/client`              | Field renderers, view renderers, component registry, UI overrides |
 
 ## Installation
@@ -39,7 +39,7 @@ import { adminModule } from "@questpie/admin/server";
 export default [adminModule] as const;
 ```
 
-Branding, sidebar, dashboard, and admin locale are configured via `config/admin.ts`:
+Branding name, sidebar, dashboard, and admin locale are configured via `config/admin.ts`:
 
 ```ts
 // config/admin.ts
@@ -382,7 +382,7 @@ import {
 import { adminModule, auditModule } from "@questpie/admin/server";
 
 // Styles
-import "@questpie/admin/styles/index.css";
+import "@questpie/admin/client/styles/index.css";
 ```
 
 ## Component Stack

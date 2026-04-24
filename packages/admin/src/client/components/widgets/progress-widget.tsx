@@ -95,7 +95,7 @@ export default function ProgressWidget({ config }: ProgressWidgetProps) {
 				<div className="bg-muted h-2 w-full overflow-hidden rounded-full">
 					<div
 						className={cn(
-							"h-full rounded-full transition-all duration-500",
+							"h-full rounded-full transition-[width] duration-500",
 							getProgressColor(),
 						)}
 						style={{ width: `${percentage}%` }}
@@ -105,12 +105,14 @@ export default function ProgressWidget({ config }: ProgressWidgetProps) {
 
 			{/* Labels */}
 			<div className="flex items-center justify-between text-sm">
-				<span className="text-muted-foreground">
+				<span className="text-muted-foreground tabular-nums">
 					{data.label ||
 						`${data.current.toLocaleString()} / ${data.target.toLocaleString()}`}
 				</span>
 				{showPercentage && (
-					<span className="font-medium">{percentageFormatted}%</span>
+					<span className="font-medium tabular-nums">
+						{percentageFormatted}%
+					</span>
 				)}
 			</div>
 

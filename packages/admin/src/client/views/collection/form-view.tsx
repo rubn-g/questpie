@@ -1706,7 +1706,7 @@ export default function FormView({
 						<img
 							src={blockedByUser.image}
 							alt=""
-							className="size-8 rounded-full"
+							className="image-outline size-8 rounded-full"
 						/>
 					) : (
 						<div className="bg-warning/20 flex size-8 items-center justify-center rounded-full">

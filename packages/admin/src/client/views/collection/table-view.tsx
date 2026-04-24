@@ -5,6 +5,25 @@
  * This is the default list view registered in the admin view registry.
  */
 
+import {
+	closestCenter,
+	DndContext,
+	type DragEndEvent,
+	type DragOverEvent,
+	type DragStartEvent,
+	KeyboardSensor,
+	PointerSensor,
+	useSensor,
+	useSensors,
+} from "@dnd-kit/core";
+import {
+	arrayMove,
+	SortableContext,
+	sortableKeyboardCoordinates,
+	useSortable,
+	verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import { Icon } from "@iconify/react";
 import {
 	type ColumnDef,
@@ -56,11 +75,17 @@ import {
 	TableHeader,
 	TableRow,
 } from "../../components/ui/table";
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+} from "../../components/ui/tooltip";
 import { useActions } from "../../hooks/use-action";
 import {
 	useCollectionDelete,
 	useCollectionList,
 	useCollectionRestore,
+	useCollectionUpdateBatch,
 } from "../../hooks/use-collection";
 import { useCollectionFields } from "../../hooks/use-collection-fields";
 import { useSuspenseCollectionMeta } from "../../hooks/use-collection-meta";
@@ -218,6 +243,7 @@ function mapListSchemaToConfig(list?: {
 	view?: string;
 	columns?: string[];
 	defaultSort?: { field: string; direction: "asc" | "desc" };
+	orderable?: ListViewConfig["orderable"];
 	searchable?: string[];
 	filterable?: string[];
 	grouping?: ListViewConfig["grouping"];
@@ -228,6 +254,7 @@ function mapListSchemaToConfig(list?: {
 	const config: ListViewConfig = {};
 	if (list.columns?.length) config.columns = list.columns;
 	if (list.defaultSort) config.defaultSort = list.defaultSort as any;
+	if (list.orderable) config.orderable = list.orderable;
 	if (list.searchable?.length) {
 		config.searchFields = list.searchable as any;
 		config.searchable = true;
@@ -285,6 +312,44 @@ function getGroupSortIndex(value: unknown, field?: AvailableField): number {
 		(option) => String(option.value) === String(compareValue),
 	);
 	return index === -1 ? Number.MAX_SAFE_INTEGER : index;
+}
+
+function SortableTableRow({
+	id,
+	className,
+	children,
+	...props
+}: React.ComponentProps<typeof TableRow> & { id: string }): React.ReactElement {
+	const {
+		attributes,
+		listeners,
+		setNodeRef,
+		transform,
+		transition,
+		isDragging,
+	} = useSortable({ id });
+
+	return (
+		<TableRow
+			ref={setNodeRef}
+			className={cn(
+				"cursor-grab touch-none select-none active:cursor-grabbing",
+				isDragging &&
+					"bg-muted ring-border-strong relative z-30 opacity-95 shadow-md ring-1",
+				className,
+			)}
+			style={{
+				transform: CSS.Transform.toString(transform),
+				transition,
+				...(props.style ?? {}),
+			}}
+			{...attributes}
+			{...listeners}
+			{...props}
+		>
+			{children}
+		</TableRow>
+	);
 }
 
 /**
@@ -514,6 +579,16 @@ function TableViewInner({
 	});
 	const [searchTerm, setSearchTerm] = useState("");
 	const [isSearchPanelOpen, setIsSearchPanelOpen] = useState(false);
+	const [isReorderMode, setIsReorderMode] = useState(false);
+	const [optimisticOrderIds, setOptimisticOrderIds] = useState<string[] | null>(
+		null,
+	);
+	const optimisticOrderIdsRef = React.useRef<string[] | null>(null);
+	const reorderStartOrderIdsRef = React.useRef<string[] | null>(null);
+
+	React.useEffect(() => {
+		optimisticOrderIdsRef.current = optimisticOrderIds;
+	}, [optimisticOrderIds]);
 
 	// Default columns using configured columns from .list() or auto-detection
 	// When .list({ columns: [...] }) is defined, those become the defaults
@@ -527,6 +602,15 @@ function TableViewInner({
 	);
 	const groupingConfig = resolvedListConfig?.grouping;
 	const defaultGroupBy = groupingConfig?.defaultField ?? null;
+	const orderableConfig = resolvedListConfig?.orderable;
+	const isOrderableEnabled = !!orderableConfig;
+	const orderField = "order";
+	const orderDirection =
+		typeof orderableConfig === "object"
+			? (orderableConfig.direction ?? "asc")
+			: "asc";
+	const orderStep =
+		typeof orderableConfig === "object" ? (orderableConfig.step ?? 10) : 10;
 
 	// View state (filters, sort, visible columns, realtime) - with database persistence
 	// Uses Suspense internally for loading preferences
@@ -537,6 +621,32 @@ function TableViewInner({
 		user?.id,
 	);
 	const effectiveRealtime = viewState.config.realtime ?? resolvedRealtime;
+	const isKnownSortField = React.useCallback(
+		(field: string | undefined) =>
+			!!field && (field === "_title" || !!resolvedFields?.[field]),
+		[resolvedFields],
+	);
+	const hasOrderField = isKnownSortField(orderField);
+	const canUseOrderableSort = isOrderableEnabled && hasOrderField;
+	const effectiveSort = useMemo(() => {
+		if (isKnownSortField(viewState.config.sortConfig?.field)) {
+			return viewState.config.sortConfig;
+		}
+		if (isKnownSortField(resolvedListConfig?.defaultSort?.field)) {
+			return resolvedListConfig.defaultSort;
+		}
+		if (canUseOrderableSort) {
+			return { field: orderField, direction: orderDirection };
+		}
+		return null;
+	}, [
+		viewState.config.sortConfig,
+		resolvedListConfig?.defaultSort,
+		canUseOrderableSort,
+		orderField,
+		orderDirection,
+		isKnownSortField,
+	]);
 
 	// Build query options from view state (filters, sort)
 	const queryOptions = useMemo(() => {
@@ -744,7 +854,7 @@ function TableViewInner({
 
 		// Keep grouped pages contiguous by sorting by the group field before row sort.
 		const groupBy = viewState.config.groupBy;
-		const sortConfig = viewState.config.sortConfig;
+		const sortConfig = effectiveSort;
 		if (groupBy && sortConfig?.field && sortConfig.field !== groupBy) {
 			options.orderBy = [
 				{ [groupBy]: "asc" },
@@ -768,7 +878,7 @@ function TableViewInner({
 		viewState.config.filters,
 		viewState.config.includeDeleted,
 		viewState.config.groupBy,
-		viewState.config.sortConfig,
+		effectiveSort,
 		viewState.config.pagination?.page,
 		viewState.config.pagination?.pageSize,
 		resolvedFields,
@@ -821,6 +931,7 @@ function TableViewInner({
 	// Delete mutation for bulk actions
 	const deleteMutation = useCollectionDelete(collection as any);
 	const restoreMutation = useCollectionRestore(collection as any);
+	const updateBatchMutation = useCollectionUpdateBatch(collection as any);
 
 	// Build available fields from config for column picker
 	// All fields are available in Options, but defaults come from .list() config
@@ -841,6 +952,18 @@ function TableViewInner({
 		const selectCol: ColumnDef<any> = {
 			id: "_select",
 			header: ({ table: t }) => {
+				if (isReorderMode) {
+					return (
+						<div
+							className="text-muted-foreground/60 flex h-8 items-center justify-center"
+							title="Order"
+							aria-label="Order"
+						>
+							<Icon icon="ph:dots-six-vertical" className="size-3.5" />
+						</div>
+					);
+				}
+
 				const isAllSelected = t.getIsAllPageRowsSelected();
 				const isSomeSelected = t.getIsSomePageRowsSelected();
 				return (
@@ -861,6 +984,18 @@ function TableViewInner({
 				);
 			},
 			cell: ({ row }) => {
+				if (isReorderMode) {
+					return (
+						<div
+							className="text-muted-foreground/50 group-hover:text-muted-foreground flex h-8 items-center justify-center transition-colors"
+							title="Order handle preview"
+							aria-label="Order handle preview"
+						>
+							<Icon icon="ph:dots-six-vertical" className="size-3.5" />
+						</div>
+					);
+				}
+
 				const isSelected = row.getIsSelected();
 				const canSelect = row.getCanSelect();
 				return (
@@ -969,6 +1104,7 @@ function TableViewInner({
 		viewState.config.visibleColumns,
 		defaultColumns,
 		collectionMeta,
+		isReorderMode,
 		actions.row,
 		collection,
 		actionHelpers,
@@ -976,10 +1112,9 @@ function TableViewInner({
 		t,
 	]);
 
-	// Table sorting state - cascade: saved prefs → list defaultSort → empty
+	// Table sorting state - cascade: saved prefs -> list defaultSort -> order field -> empty
 	const [sorting, setSorting] = React.useState<SortingState>(() => {
-		const sortSource =
-			viewState.config.sortConfig ?? (resolvedListConfig as any)?.defaultSort;
+		const sortSource = effectiveSort;
 		if (sortSource?.field) {
 			return [
 				{
@@ -1034,9 +1169,95 @@ function TableViewInner({
 		realtime: effectiveRealtime,
 	});
 
-	// Search results are already sorted by score, list results are server-sorted
-	const filteredItems = items;
+	React.useEffect(() => {
+		if (!isReorderMode) {
+			setOptimisticOrderIds(null);
+			return;
+		}
+
+		setOptimisticOrderIds((current) => {
+			const itemIds = items.map((item: any) => String(item.id));
+			if (!current) return itemIds;
+
+			const knownIds = new Set(itemIds);
+			const next = current.filter((id) => knownIds.has(id));
+			for (const id of itemIds) {
+				if (!next.includes(id)) next.push(id);
+			}
+
+			return next;
+		});
+	}, [isReorderMode, items]);
+
+	// Search results are already sorted by score, list results are server-sorted.
+	// While reordering, keep the dropped row order locally until the server/refetch catches up.
+	const filteredItems = useMemo(() => {
+		if (!isReorderMode || !optimisticOrderIds) return items;
+
+		const itemsById = new Map(
+			items.map((item: any) => [String(item.id), item]),
+		);
+		const seen = new Set<string>();
+		const ordered = optimisticOrderIds
+			.map((id) => {
+				const item = itemsById.get(id);
+				if (item) seen.add(id);
+				return item;
+			})
+			.filter(Boolean);
+
+		for (const item of items as any[]) {
+			const id = String(item.id);
+			if (!seen.has(id)) ordered.push(item);
+		}
+
+		return ordered;
+	}, [isReorderMode, items, optimisticOrderIds]);
 	const hasActiveFilters = viewState.config.filters.length > 0;
+	const isOrderSortActive =
+		canUseOrderableSort &&
+		effectiveSort?.field === orderField &&
+		(effectiveSort.direction ?? "asc") === orderDirection;
+	const hasMultiplePages = !isSearching && (listData?.totalPages ?? 1) > 1;
+	const reorderHardBlocker = !isOrderableEnabled
+		? "Enable orderable before reordering"
+		: !hasOrderField
+			? "Add a numeric order field before reordering"
+			: isSearching
+				? "Clear search to reorder"
+				: viewState.config.groupBy
+					? "Remove grouping to reorder"
+					: hasActiveFilters
+						? "Clear filters to reorder"
+						: hasMultiplePages
+							? "Show one page of items to reorder"
+							: null;
+	const reorderTooltip =
+		reorderHardBlocker ??
+		(isOrderSortActive
+			? isReorderMode
+				? "Exit reorder mode"
+				: "Reorder items"
+			: `Switch to ${orderField} sort and reorder`);
+	const reorderAriaLabel = reorderHardBlocker
+		? `Reorder unavailable: ${reorderHardBlocker}`
+		: isReorderMode
+			? "Exit reorder mode"
+			: "Enter reorder mode";
+	const canReorder = isOrderableEnabled && !reorderHardBlocker;
+	const handleReorderToggle = React.useCallback(() => {
+		if (!canReorder) return;
+
+		if (!isOrderSortActive) {
+			const nextSort = { field: orderField, direction: orderDirection };
+			setSorting([{ id: nextSort.field, desc: nextSort.direction === "desc" }]);
+			viewState.setSort(nextSort);
+			setIsReorderMode(true);
+			return;
+		}
+
+		setIsReorderMode((active) => !active);
+	}, [canReorder, isOrderSortActive, orderDirection, viewState]);
 	const hasViewOptionsState =
 		hasActiveFilters ||
 		!!viewState.config.groupBy ||
@@ -1045,6 +1266,11 @@ function TableViewInner({
 	const clearFilters = () => {
 		viewState.setConfig({ ...viewState.config, filters: [] });
 	};
+	React.useEffect(() => {
+		if (isReorderMode && !canReorder) {
+			setIsReorderMode(false);
+		}
+	}, [isReorderMode, canReorder]);
 
 	const table = useReactTable({
 		data: filteredItems as any[],
@@ -1062,6 +1288,107 @@ function TableViewInner({
 	});
 
 	const tableRows = table.getRowModel().rows;
+	const sortableRowIds = useMemo(
+		() => tableRows.map((row) => String(row.id)),
+		[tableRows],
+	);
+	const reorderSensors = useSensors(
+		useSensor(PointerSensor),
+		useSensor(KeyboardSensor, {
+			coordinateGetter: sortableKeyboardCoordinates,
+		}),
+	);
+	const handleReorderDragStart = React.useCallback(
+		(_event: DragStartEvent) => {
+			reorderStartOrderIdsRef.current = sortableRowIds;
+			setOptimisticOrderIds((current) => current ?? sortableRowIds);
+		},
+		[sortableRowIds],
+	);
+	const handleReorderDragOver = React.useCallback(
+		(event: DragOverEvent) => {
+			if (updateBatchMutation.isPending) return;
+
+			const { active, over } = event;
+			if (!over || active.id === over.id) return;
+
+			setOptimisticOrderIds((current) => {
+				const order = current ?? sortableRowIds;
+				const oldIndex = order.indexOf(String(active.id));
+				const newIndex = order.indexOf(String(over.id));
+				if (oldIndex === -1 || newIndex === -1 || oldIndex === newIndex) {
+					return current;
+				}
+
+				return arrayMove(order, oldIndex, newIndex);
+			});
+		},
+		[sortableRowIds, updateBatchMutation.isPending],
+	);
+	const handleReorderDragCancel = React.useCallback(() => {
+		setOptimisticOrderIds(reorderStartOrderIdsRef.current);
+		reorderStartOrderIdsRef.current = null;
+	}, []);
+	const handleReorderDragEnd = React.useCallback(
+		async (event: DragEndEvent) => {
+			if (updateBatchMutation.isPending) return;
+
+			const { active, over } = event;
+			const previousOrderIds =
+				reorderStartOrderIdsRef.current ?? sortableRowIds;
+			reorderStartOrderIdsRef.current = null;
+			if (!over) {
+				setOptimisticOrderIds(previousOrderIds);
+				return;
+			}
+
+			const liveOrderIds = optimisticOrderIdsRef.current;
+			const hasLiveReorder =
+				!!liveOrderIds &&
+				liveOrderIds.join("\0") !== previousOrderIds.join("\0");
+			let nextOrderIds = hasLiveReorder ? liveOrderIds : previousOrderIds;
+			if (!hasLiveReorder && active.id !== over.id) {
+				const oldIndex = previousOrderIds.indexOf(String(active.id));
+				const newIndex = previousOrderIds.indexOf(String(over.id));
+				if (oldIndex !== -1 && newIndex !== -1 && oldIndex !== newIndex) {
+					nextOrderIds = arrayMove(previousOrderIds, oldIndex, newIndex);
+				}
+			}
+
+			if (nextOrderIds.join("\0") === previousOrderIds.join("\0")) {
+				return;
+			}
+
+			setOptimisticOrderIds(nextOrderIds);
+			const rowsById = new Map(tableRows.map((row) => [String(row.id), row]));
+			const reorderedRows = nextOrderIds
+				.map((id) => rowsById.get(id))
+				.filter((row): row is (typeof tableRows)[number] => !!row);
+
+			try {
+				await updateBatchMutation.mutateAsync({
+					updates: reorderedRows.map((row, index) => ({
+						id: String(row.id),
+						data: { [orderField]: (index + 1) * orderStep },
+					})),
+				});
+				actionHelpers.toast.success("Order saved");
+			} catch (error) {
+				setOptimisticOrderIds(previousOrderIds);
+				actionHelpers.toast.error(
+					error instanceof Error ? error.message : "Could not save order",
+				);
+			}
+		},
+		[
+			sortableRowIds,
+			tableRows,
+			updateBatchMutation,
+			orderField,
+			orderStep,
+			actionHelpers.toast,
+		],
+	);
 	const groupedRowModel = useMemo(() => {
 		const rows = tableRows;
 		const groupBy = viewState.config.groupBy;
@@ -1333,35 +1660,77 @@ function TableViewInner({
 					)}
 					actions={
 						<>
+							{isOrderableEnabled && (
+								<Tooltip>
+									<TooltipTrigger
+										render={
+											<Button
+												variant="outline"
+												size="icon-sm"
+												className={cn(
+													"relative aria-disabled:opacity-50",
+													isReorderMode &&
+														"border-foreground bg-foreground text-background hover:bg-foreground/90 hover:text-background",
+												)}
+												onClick={handleReorderToggle}
+												aria-label={reorderAriaLabel}
+												aria-disabled={!canReorder || undefined}
+												aria-pressed={isReorderMode}
+											>
+												<Icon icon="ph:arrows-down-up" />
+											</Button>
+										}
+									/>
+									<TooltipContent side="bottom" align="end">
+										{reorderTooltip}
+									</TooltipContent>
+								</Tooltip>
+							)}
 							{showSearch && (
-								<Button
-									variant="outline"
-									size="icon-sm"
-									className="relative"
-									onClick={() => setIsSearchPanelOpen((open) => !open)}
-									title={t("common.search")}
-									aria-label={t("common.search")}
-								>
-									<Icon icon="ph:magnifying-glass" />
-									{searchTerm && (
-										<span className="bg-foreground absolute top-1 right-1 size-1.5 rounded-full" />
-									)}
-								</Button>
+								<Tooltip>
+									<TooltipTrigger
+										render={
+											<Button
+												variant="outline"
+												size="icon-sm"
+												className="relative"
+												onClick={() => setIsSearchPanelOpen((open) => !open)}
+												aria-label={t("common.search")}
+											>
+												<Icon icon="ph:magnifying-glass" />
+												{searchTerm && (
+													<span className="bg-foreground absolute top-1 right-1 size-1.5 rounded-full" />
+												)}
+											</Button>
+										}
+									/>
+									<TooltipContent side="bottom" align="end">
+										{t("common.search")}
+									</TooltipContent>
+								</Tooltip>
 							)}
 							{showFilters && (
-								<Button
-									variant="outline"
-									size="icon-sm"
-									className="relative"
-									onClick={() => setIsSheetOpen(true)}
-									title={t("viewOptions.title")}
-									aria-label={t("viewOptions.title")}
-								>
-									<Icon icon="ph:sliders-horizontal" />
-									{hasViewOptionsState && (
-										<span className="bg-foreground absolute top-1 right-1 size-1.5 rounded-full" />
-									)}
-								</Button>
+								<Tooltip>
+									<TooltipTrigger
+										render={
+											<Button
+												variant="outline"
+												size="icon-sm"
+												className="relative"
+												onClick={() => setIsSheetOpen(true)}
+												aria-label={t("viewOptions.title")}
+											>
+												<Icon icon="ph:sliders-horizontal" />
+												{hasViewOptionsState && (
+													<span className="bg-foreground absolute top-1 right-1 size-1.5 rounded-full" />
+												)}
+											</Button>
+										}
+									/>
+									<TooltipContent side="bottom" align="end">
+										{t("viewOptions.title")}
+									</TooltipContent>
+								</Tooltip>
 							)}
 							{headerActions}
 							{((actions.header.primary?.length ?? 0) > 0 ||
@@ -1393,6 +1762,27 @@ function TableViewInner({
 					</div>
 				)}
 
+				{isReorderMode && canUseOrderableSort && (
+					<div className="border-border/70 bg-muted/30 text-muted-foreground flex min-h-10 items-center justify-between gap-3 border-y px-3 py-2 font-mono text-xs">
+						<div className="flex min-w-0 items-center gap-2">
+							<span className="bg-foreground text-background inline-flex size-5 items-center justify-center rounded-full">
+								<Icon icon="ph:arrows-down-up" className="size-3" />
+							</span>
+							<span className="text-foreground font-medium">Reorder mode</span>
+							<span className="hidden sm:inline">
+								Sorted by {orderField} {orderDirection}.
+							</span>
+						</div>
+						<Button
+							variant="ghost"
+							size="xs"
+							onClick={() => setIsReorderMode(false)}
+						>
+							Done
+						</Button>
+					</div>
+				)}
+
 				{/* Floating toolbar - shows when rows selected OR filters active */}
 				<BulkActionToolbar
 					table={table}
@@ -1412,6 +1802,8 @@ function TableViewInner({
 				{/* Table */}
 				<div className="qa-table-view__table-wrapper min-w-0">
 					<Table
+						className="table-fixed"
+						style={{ width: `max(100%, ${table.getTotalSize()}px)` }}
 						aria-label={resolveText(
 							(config as any)?.label ?? schema?.admin?.config?.label,
 							collection,
@@ -1421,18 +1813,14 @@ function TableViewInner({
 							{table.getHeaderGroups().map((headerGroup) => (
 								<TableRow key={headerGroup.id} className="hover:bg-transparent">
 									{headerGroup.headers.map((header, headerIndex) => {
-										// First column (checkbox) is sticky at left=0, width ~36px
-										// Second column (title) is sticky at left=36px
-										const stickyLeft =
-											headerIndex === 0
-												? 0
-												: headerIndex === 1
-													? 36
-													: undefined;
-										// Only show border on the last sticky column (title)
-										const showStickyBorder = false;
 										// Checkbox column gets compact styling
 										const isCheckboxCol = headerIndex === 0;
+										const columnWidth = header.getSize();
+										const columnStyle = {
+											width: columnWidth,
+											minWidth: columnWidth,
+											maxWidth: columnWidth,
+										};
 
 										// Determine aria-sort for sortable columns
 										const sortDirection = header.column.getIsSorted();
@@ -1451,11 +1839,10 @@ function TableViewInner({
 										return (
 											<TableHead
 												key={header.id}
-												stickyLeft={stickyLeft}
-												showStickyBorder={showStickyBorder}
 												className={
 													isCheckboxCol ? "w-9 min-w-9 px-1.5" : undefined
 												}
+												style={columnStyle}
 												aria-sort={ariaSort}
 											>
 												{header.isPlaceholder ? null : (
@@ -1463,7 +1850,7 @@ function TableViewInner({
 														type="button"
 														className={
 															header.column.getCanSort()
-																? "hover:text-foreground flex cursor-pointer items-center gap-2 transition-colors select-none"
+																? "hover:text-foreground focus-visible:ring-ring/40 -mx-1.5 flex min-h-7 cursor-pointer items-center gap-2 rounded-md px-1.5 transition-colors select-none focus-visible:ring-2 focus-visible:outline-none"
 																: ""
 														}
 														onClick={header.column.getToggleSortingHandler()}
@@ -1492,156 +1879,179 @@ function TableViewInner({
 								</TableRow>
 							))}
 						</TableHeader>
-						<TableBody>
-							{groupedRowModel.map((entry: any) => {
-								if (entry.type === "group") {
-									return (
-										<TableRow
-											key={entry.key}
-											className="h-auto border-b-0 hover:bg-transparent"
-										>
-											<TableCell className="w-9 min-w-9 px-1.5" />
-											<TableCell
-												colSpan={Math.max(
-													table.getVisibleLeafColumns().length - 1,
-													1,
-												)}
-												className="bg-background sticky top-8 z-20 pt-4 pb-2"
-											>
-												<button
-													type="button"
-													aria-expanded={!entry.collapsed}
-													className="text-muted-foreground hover:text-foreground focus-visible:ring-ring/40 -ml-1 inline-flex min-h-8 items-center gap-2 rounded-md px-1 font-mono text-[11px] font-semibold tracking-[0.12em] uppercase transition-colors focus-visible:ring-2 focus-visible:outline-none"
-													onClick={() =>
-														viewState.toggleCollapsedGroup(entry.key)
-													}
+						<DndContext
+							sensors={reorderSensors}
+							collisionDetection={closestCenter}
+							onDragStart={handleReorderDragStart}
+							onDragOver={handleReorderDragOver}
+							onDragCancel={handleReorderDragCancel}
+							onDragEnd={handleReorderDragEnd}
+						>
+							<SortableContext
+								items={sortableRowIds}
+								strategy={verticalListSortingStrategy}
+							>
+								<TableBody>
+									{groupedRowModel.map((entry: any) => {
+										if (entry.type === "group") {
+											return (
+												<TableRow
+													key={entry.key}
+													className="h-auto border-b-0 hover:bg-transparent"
 												>
-													<Icon
-														icon={
-															entry.collapsed
-																? "ph:caret-right"
-																: "ph:caret-down"
-														}
-														className="size-3.5 shrink-0"
-													/>
-													<span>{entry.label}</span>
-													{groupingConfig?.showCounts !== false && (
-														<span className="bg-muted text-muted-foreground inline-flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[10px] tracking-normal tabular-nums">
-															{entry.count}
-														</span>
-													)}
-												</button>
-											</TableCell>
-										</TableRow>
-									);
-								}
-
-								const row = entry.row;
-								const isRowDeleted = !!(row.original as any)?.deletedAt;
-								return (
-									<TableRow
-										key={row.id}
-										data-state={row.getIsSelected() && "selected"}
-										className={cn(
-											"group",
-											isHighlighted(row.id) && "animate-realtime-pulse",
-											isRowDeleted && "opacity-50",
-										)}
-									>
-										{row
-											.getVisibleCells()
-											.map((cell: any, cellIndex: number) => {
-												// First column (checkbox) is sticky at left=0, width ~36px
-												// Second column (title) is sticky at left=36px
-												const stickyLeft =
-													cellIndex === 0
-														? 0
-														: cellIndex === 1
-															? 36
-															: undefined;
-												// Only show border on the last sticky column (title)
-												const showStickyBorder = false;
-												// Checkbox column gets compact styling
-												const isCheckboxCol = cellIndex === 0;
-
-												// Title column (index 1) is clickable
-												const isTitleCol = cellIndex === 1;
-
-												return (
+													<TableCell className="w-9 min-w-9 px-1.5" />
 													<TableCell
-														key={cell.id}
-														stickyLeft={stickyLeft}
-														showStickyBorder={showStickyBorder}
-														className={
-															isCheckboxCol ? "w-9 min-w-9 px-1.5" : undefined
-														}
+														colSpan={Math.max(
+															table.getVisibleLeafColumns().length - 1,
+															1,
+														)}
+														className="bg-background sticky top-8 z-20 pt-4 pb-2"
 													>
-														{isTitleCol ? (
-															<div className="flex items-center gap-2">
-																<button
-																	type="button"
-																	onClick={() => handleRowClick(row.original)}
-																	className="decoration-muted-foreground/50 hover:decoration-foreground cursor-pointer text-left underline underline-offset-2 transition-colors"
-																>
-																	{flexRender(
+														<button
+															type="button"
+															aria-expanded={!entry.collapsed}
+															className="text-muted-foreground hover:text-foreground focus-visible:ring-ring/40 -ml-1 inline-flex min-h-8 items-center gap-2 rounded-md px-1 font-mono text-[11px] font-semibold tracking-[0.12em] uppercase transition-colors focus-visible:ring-2 focus-visible:outline-none"
+															onClick={() =>
+																viewState.toggleCollapsedGroup(entry.key)
+															}
+														>
+															<Icon
+																icon={
+																	entry.collapsed
+																		? "ph:caret-right"
+																		: "ph:caret-down"
+																}
+																className="size-3.5 shrink-0"
+															/>
+															<span>{entry.label}</span>
+															{groupingConfig?.showCounts !== false && (
+																<span className="bg-muted text-muted-foreground inline-flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[10px] tracking-normal tabular-nums">
+																	{entry.count}
+																</span>
+															)}
+														</button>
+													</TableCell>
+												</TableRow>
+											);
+										}
+
+										const row = entry.row;
+										const isRowDeleted = !!(row.original as any)?.deletedAt;
+										const DataRow = isReorderMode ? SortableTableRow : TableRow;
+										return (
+											<DataRow
+												id={String(row.id)}
+												key={row.id}
+												data-state={row.getIsSelected() && "selected"}
+												className={cn(
+													"group",
+													isReorderMode && "bg-muted/[0.18]",
+													isHighlighted(row.id) && "animate-realtime-pulse",
+													isRowDeleted && "opacity-50",
+												)}
+											>
+												{row
+													.getVisibleCells()
+													.map((cell: any, cellIndex: number) => {
+														// Checkbox column gets compact styling
+														const isCheckboxCol = cellIndex === 0;
+														const columnWidth = cell.column.getSize();
+														const columnStyle = {
+															width: columnWidth,
+															minWidth: columnWidth,
+															maxWidth: columnWidth,
+														};
+
+														// Title column (index 1) is clickable
+														const isTitleCol = cellIndex === 1;
+
+														return (
+															<TableCell
+																key={cell.id}
+																className={
+																	isCheckboxCol
+																		? "w-9 min-w-9 px-1.5"
+																		: undefined
+																}
+																style={columnStyle}
+															>
+																{isTitleCol ? (
+																	<div className="flex min-w-0 items-center gap-2">
+																		<button
+																			type="button"
+																			onClick={() =>
+																				handleRowClick(row.original)
+																			}
+																			disabled={isReorderMode}
+																			className={cn(
+																				"decoration-muted-foreground/50 hover:decoration-foreground max-w-full min-w-0 text-left underline underline-offset-2 transition-colors disabled:cursor-default disabled:no-underline",
+																				!isReorderMode && "cursor-pointer",
+																			)}
+																		>
+																			{flexRender(
+																				cell.column.columnDef.cell,
+																				cell.getContext(),
+																			)}
+																		</button>
+																		{isRowDeleted && (
+																			<span className="text-destructive bg-destructive/10 inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-xs">
+																				<Icon
+																					icon="ph:trash"
+																					className="size-3"
+																				/>
+																				{t("common.deleted")}
+																			</span>
+																		)}
+																		{isDocLocked(row.id) &&
+																			(() => {
+																				const lock = getLock(row.id);
+																				const user = lock
+																					? getLockUser(lock)
+																					: null;
+																				return (
+																					<span
+																						className="text-muted-foreground bg-muted inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-xs"
+																						title={
+																							user?.name ??
+																							user?.email ??
+																							"Someone is editing"
+																						}
+																					>
+																						{user?.image ? (
+																							<img
+																								src={user.image}
+																								alt=""
+																								className="image-outline size-4 rounded-full"
+																							/>
+																						) : (
+																							<Icon
+																								icon="ph:pencil-simple"
+																								className="size-3"
+																							/>
+																						)}
+																						<span className="max-w-20 truncate">
+																							{user?.name?.split(" ")[0] ??
+																								t("table.editing")}
+																						</span>
+																					</span>
+																				);
+																			})()}
+																	</div>
+																) : (
+																	flexRender(
 																		cell.column.columnDef.cell,
 																		cell.getContext(),
-																	)}
-																</button>
-																{isRowDeleted && (
-																	<span className="text-destructive bg-destructive/10 inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-xs">
-																		<Icon icon="ph:trash" className="size-3" />
-																		{t("common.deleted")}
-																	</span>
+																	)
 																)}
-																{isDocLocked(row.id) &&
-																	(() => {
-																		const lock = getLock(row.id);
-																		const user = lock
-																			? getLockUser(lock)
-																			: null;
-																		return (
-																			<span
-																				className="text-muted-foreground bg-muted inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-xs"
-																				title={
-																					user?.name ??
-																					user?.email ??
-																					"Someone is editing"
-																				}
-																			>
-																				{user?.image ? (
-																					<img
-																						src={user.image}
-																						alt=""
-																						className="size-4 rounded-full"
-																					/>
-																				) : (
-																					<Icon
-																						icon="ph:pencil-simple"
-																						className="size-3"
-																					/>
-																				)}
-																				<span className="max-w-20 truncate">
-																					{user?.name?.split(" ")[0] ??
-																						t("table.editing")}
-																				</span>
-																			</span>
-																		);
-																	})()}
-															</div>
-														) : (
-															flexRender(
-																cell.column.columnDef.cell,
-																cell.getContext(),
-															)
-														)}
-													</TableCell>
-												);
-											})}
-									</TableRow>
-								);
-							})}
-						</TableBody>
+															</TableCell>
+														);
+													})}
+											</DataRow>
+										);
+									})}
+								</TableBody>
+							</SortableContext>
+						</DndContext>
 					</Table>
 					{/* Empty state rendered outside table to avoid colSpan/border-separate width issues */}
 					{!table.getRowModel().rows.length &&
@@ -1666,7 +2076,7 @@ function TableViewInner({
 				{/* Footer - Pagination */}
 				{!isSearching && (
 					<div
-						className="qa-table-view__pagination flex items-center justify-between gap-4 py-2"
+						className="qa-table-view__pagination flex items-center justify-between gap-4 py-2 tabular-nums"
 						role="navigation"
 						aria-label={t("table.pagination")}
 					>
@@ -1746,7 +2156,7 @@ function TableViewInner({
 											key={pageNum}
 											variant={currentPage === pageNum ? "secondary" : "ghost"}
 											size="sm"
-											className="size-8 min-w-[32px] p-0"
+											className="size-8 min-w-[32px] p-0 tabular-nums"
 											onClick={() => viewState.setPage(pageNum)}
 											aria-label={`Page ${pageNum}`}
 											aria-current={
@@ -1783,7 +2193,7 @@ function TableViewInner({
 				{/* Search mode footer */}
 				{isSearching && (
 					<div
-						className="text-muted-foreground flex items-center gap-2 py-2 text-sm"
+						className="text-muted-foreground flex items-center gap-2 py-2 text-sm tabular-nums"
 						aria-live="polite"
 						aria-atomic="true"
 					>

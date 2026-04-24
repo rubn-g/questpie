@@ -256,14 +256,13 @@ interface SidebarDividerItem {
 }
 
 /**
- * Branding configuration
+ * Branding metadata. React chrome and app shell details are configured outside
+ * this legacy client-side type surface.
  */
 interface BrandingConfig {
 	/** Brand name - supports inline translations */
 	name?: I18nText;
 	logo?: IconComponent | ComponentReference;
-	favicon?: string;
-	primaryColor?: string;
 }
 
 /**

@@ -114,7 +114,7 @@ export function CardsDisplay({
 								<img
 									src={image}
 									alt={getTitle(item)}
-									className="h-full w-full object-cover"
+									className="image-outline h-full w-full object-cover"
 								/>
 							</div>
 						)}
@@ -136,6 +136,7 @@ export function CardsDisplay({
 												type="button"
 												variant="ghost"
 												size="icon-xs"
+												className="relative after:absolute after:-inset-1"
 												onClick={(e) => {
 													e.preventDefault();
 													e.stopPropagation();
@@ -151,6 +152,7 @@ export function CardsDisplay({
 												type="button"
 												variant="ghost"
 												size="icon-xs"
+												className="relative after:absolute after:-inset-1"
 												onClick={(e) => {
 													e.preventDefault();
 													e.stopPropagation();

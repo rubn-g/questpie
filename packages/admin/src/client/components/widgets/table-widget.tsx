@@ -234,7 +234,7 @@ export default function TableWidget({
 						<button
 							key={item.id}
 							type="button"
-							className="qa-table-widget__row border-border hover:bg-muted flex w-full cursor-pointer items-center gap-2 border-b px-5 py-2.5 text-left transition-all last:border-0"
+							className="qa-table-widget__row border-border hover:bg-muted flex w-full cursor-pointer items-center gap-2 border-b px-5 py-2.5 text-left transition-[background-color,border-color,color] last:border-0 active:scale-[0.96]"
 							onClick={() => handleRowClick(item)}
 						>
 							{columns.map((column) => (
