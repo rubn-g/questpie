@@ -906,19 +906,20 @@ export function AutoFormFields<T extends QuestpieApp, K extends string>({
 	fieldPrefix,
 	allCollectionsConfig,
 }: AutoFormFieldsProps<T, K>): React.ReactElement {
+	const isActionForm = collection === "__action__";
 	// Use the appropriate hook based on mode
 	const collectionResult = useCollectionFields(
 		mode === "collection" ? collection : "",
 		{
 			fallbackFields: mode === "collection" ? config?.fields : undefined,
-			schemaQueryOptions: { enabled: mode === "collection" },
+			schemaQueryOptions: { enabled: mode === "collection" && !isActionForm },
 		},
 	);
 	const globalResult = useGlobalFields(mode === "global" ? collection : "", {
 		schemaQueryOptions: { enabled: mode === "global" },
 	});
 	const { data: collectionMeta } = useCollectionMeta(collection as any, {
-		enabled: mode === "collection",
+		enabled: mode === "collection" && !isActionForm,
 	});
 	const { data: globalMeta } = useGlobalMeta(collection as any, {
 		enabled: mode === "global",
@@ -1058,7 +1059,7 @@ export function AutoFormFields<T extends QuestpieApp, K extends string>({
 					<aside
 						className={cn(
 							"qa-form-fields__sidebar",
-							"border-border w-full @max-2xl:border-b @max-2xl:pb-4 @2xl:border-l @2xl:pl-4",
+							"border-border-subtle w-full @max-2xl:border-b @max-2xl:pb-4 @2xl:border-l @2xl:pl-4",
 							"w-full @2xl:max-w-xs",
 						)}
 					>

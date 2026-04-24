@@ -433,6 +433,22 @@ type CollectionAPI<
 	) => Promise<CollectionSelect<TCollection>[]>;
 
 	/**
+	 * Update multiple records with distinct data per record
+	 */
+	updateBatch: (
+		params: {
+			updates: Array<{
+				id: string;
+				data: UpdateInput<
+					CollectionUpdate<TCollection>,
+					ResolveRelationsDeep<CollectionRelations<TCollection>, TCollections>
+				>;
+			}>;
+		},
+		options?: LocaleOptions,
+	) => Promise<CollectionSelect<TCollection>[]>;
+
+	/**
 	 * Delete multiple records matching a where clause
 	 */
 	deleteMany: (
@@ -1042,6 +1058,21 @@ export function createClient<TApp extends QuestpieApp>(
 					return request(path, {
 						method: "PATCH",
 						body: JSON.stringify({ where, data }),
+					});
+				},
+
+				updateBatch: async (
+					{ updates }: { updates: Array<{ id: string; data: any }> },
+					options: LocaleOptions = {},
+				) => {
+					const queryString = qs.stringify(options, {
+						skipNulls: true,
+						arrayFormat: "brackets",
+					});
+					const path = `${apiBasePath}/${collectionName}/update-batch${queryString ? `?${queryString}` : ""}`;
+					return request(path, {
+						method: "POST",
+						body: JSON.stringify({ updates }),
 					});
 				},
 

@@ -34,7 +34,7 @@ export function RichTextBubbleMenu({
 	return (
 		<TiptapBubbleMenu
 			editor={editor}
-			className="panel-surface bg-popover text-popover-foreground flex items-center gap-1 p-1 shadow-sm"
+			className="floating-surface text-popover-foreground flex items-center gap-1 p-1"
 		>
 			{features.bold && (
 				<ToolbarButton

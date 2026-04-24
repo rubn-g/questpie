@@ -38,6 +38,7 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "../../components/ui/dropdown-menu";
+import { EmptyState } from "../../components/ui/empty-state";
 import { Label } from "../../components/ui/label";
 import {
 	useGlobal,
@@ -54,6 +55,7 @@ import { useTransitionStage } from "../../hooks/use-transition-stage";
 import { useResolveText, useTranslation } from "../../i18n/hooks";
 import { useSafeContentLocales, useScopedLocale } from "../../runtime";
 import { AutoFormFields } from "../collection/auto-form-fields";
+import { AdminViewHeader } from "../layout/admin-view-layout";
 
 // ============================================================================
 // Helper Functions
@@ -530,21 +532,24 @@ export default function GlobalFormView({
 
 	if (dataError) {
 		return (
-			<div className="text-muted-foreground flex h-64 flex-col items-center justify-center gap-3">
-				<Icon icon="ph:warning-circle" className="text-destructive size-8" />
-				<p className="text-sm">
-					{dataError instanceof Error
-						? dataError.message
-						: t("errors.failedToLoad")}
-				</p>
-				<button
-					type="button"
-					className="hover:text-foreground text-sm underline"
-					onClick={() => window.location.reload()}
-				>
-					{t("common.retry")}
-				</button>
-			</div>
+			<EmptyState
+				variant="error"
+				iconName="ph:warning-circle"
+				title={t("error.failedToLoad")}
+				description={dataError instanceof Error ? dataError.message : undefined}
+				height="h-64"
+				action={
+					<Button
+						variant="outline"
+						size="sm"
+						className="gap-2"
+						onClick={() => window.location.reload()}
+					>
+						<Icon icon="ph:arrow-clockwise" className="size-3.5" />
+						{t("common.retry")}
+					</Button>
+				}
+			/>
 		);
 	}
 
@@ -567,13 +572,11 @@ export default function GlobalFormView({
 				onSubmit={form.handleSubmit(onSubmit)}
 				className="qa-global-form w-full space-y-4"
 			>
-				{/* Header - Title & Actions */}
-				<div className="qa-global-form__header flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-					<div className="min-w-0 flex-1">
-						<div className="flex flex-wrap items-center gap-3">
-							<h1 className="qa-global-form__title text-2xl font-extrabold tracking-tight md:text-3xl">
-								{globalLabel}
-							</h1>
+				<AdminViewHeader
+					className="qa-global-form__header"
+					title={globalLabel}
+					titleAccessory={
+						<>
 							{localeOptions.length > 0 && (
 								<LocaleSwitcher
 									locales={localeOptions}
@@ -581,81 +584,94 @@ export default function GlobalFormView({
 									onChange={setContentLocale}
 								/>
 							)}
-
-							{/* Workflow stage badge */}
 							{workflowEnabled && currentStage && (
 								<Badge variant="outline" className="gap-1.5">
 									<Icon icon="ph:git-branch" className="size-3" />
 									{currentStageLabel}
 								</Badge>
 							)}
-						</div>
-						{showMeta && globalData?.updatedAt && (
-							<p className="qa-global-form__meta text-muted-foreground mt-1 text-xs">
+						</>
+					}
+					meta={
+						showMeta && globalData?.updatedAt ? (
+							<span>
 								{t("form.lastUpdated")}: {formatDate(globalData.updatedAt)}
-							</p>
-						)}
-					</div>
+							</span>
+						) : undefined
+					}
+					actions={
+						<>
+							{headerActions}
 
-					<div className="qa-global-form__actions flex shrink-0 items-center gap-2">
-						{headerActions}
-
-						{/* Workflow transition dropdown */}
-						{workflowEnabled && allowedTransitions.length > 0 && (
-							<DropdownMenu>
-								<DropdownMenuTrigger
-									render={
-										<Button type="button" variant="outline" className="gap-2" />
-									}
-								>
-									<Icon icon="ph:arrows-left-right" className="size-4" />
-									{t("workflow.transition")}
-								</DropdownMenuTrigger>
-								<DropdownMenuContent align="end">
-									{allowedTransitions.map((stage) => (
-										<DropdownMenuItem
-											key={stage.name}
-											onClick={() =>
-												setTransitionTarget({
-													name: stage.name,
-													label: stage.label,
-												})
-											}
-										>
-											<Icon icon="ph:arrow-right" className="mr-2 size-4" />
-											{stage.label || stage.name}
-										</DropdownMenuItem>
-									))}
-								</DropdownMenuContent>
-							</DropdownMenu>
-						)}
-
-						<Button
-							type="button"
-							variant="outline"
-							size="icon"
-							className="size-9"
-							onClick={() => setIsHistoryOpen(true)}
-							title={t("history.title")}
-						>
-							<Icon icon="ph:clock-counter-clockwise" className="size-4" />
-							<span className="sr-only">{t("history.title")}</span>
-						</Button>
-						<Button type="submit" disabled={isSubmitting} className="gap-2">
-							{isSubmitting ? (
-								<>
-									<Icon icon="ph:spinner-gap" className="size-4 animate-spin" />
-									{t("common.loading")}
-								</>
-							) : (
-								<>
-									<Icon icon="ph:check" width={16} height={16} />
-									{t("common.save")}
-								</>
+							{/* Workflow transition dropdown */}
+							{workflowEnabled && allowedTransitions.length > 0 && (
+								<DropdownMenu>
+									<DropdownMenuTrigger
+										render={
+											<Button
+												type="button"
+												variant="outline"
+												size="sm"
+												className="gap-2"
+											/>
+										}
+									>
+										<Icon icon="ph:arrows-left-right" className="size-3.5" />
+										{t("workflow.transition")}
+									</DropdownMenuTrigger>
+									<DropdownMenuContent align="end">
+										{allowedTransitions.map((stage) => (
+											<DropdownMenuItem
+												key={stage.name}
+												onClick={() =>
+													setTransitionTarget({
+														name: stage.name,
+														label: stage.label,
+													})
+												}
+											>
+												<Icon icon="ph:arrow-right" className="mr-2 size-4" />
+												{stage.label || stage.name}
+											</DropdownMenuItem>
+										))}
+									</DropdownMenuContent>
+								</DropdownMenu>
 							)}
-						</Button>
-					</div>
-				</div>
+
+							<Button
+								type="button"
+								variant="outline"
+								size="icon-sm"
+								onClick={() => setIsHistoryOpen(true)}
+								title={t("history.title")}
+							>
+								<Icon icon="ph:clock-counter-clockwise" className="size-3.5" />
+								<span className="sr-only">{t("history.title")}</span>
+							</Button>
+							<Button
+								type="submit"
+								size="sm"
+								disabled={isSubmitting}
+								className="gap-2"
+							>
+								{isSubmitting ? (
+									<>
+										<Icon
+											icon="ph:spinner-gap"
+											className="size-4 animate-spin"
+										/>
+										{t("common.loading")}
+									</>
+								) : (
+									<>
+										<Icon icon="ph:check" width={16} height={16} />
+										{t("common.save")}
+									</>
+								)}
+							</Button>
+						</>
+					}
+				/>
 
 				{/* Main Content - Form Fields */}
 				<AutoFormFields

@@ -83,8 +83,8 @@ export function ConfirmationDialog({
 				<DialogHeader>
 					<div className="flex items-start gap-3">
 						{config.destructive && (
-							<div className="bg-destructive/10 flex size-10 shrink-0 items-center justify-center rounded-full">
-								<Icon icon="ph:warning" className="text-destructive size-5" />
+							<div className="border-border-subtle bg-surface-low text-foreground-subtle flex size-10 shrink-0 items-center justify-center rounded-full border">
+								<Icon icon="ph:warning" className="size-5" />
 							</div>
 						)}
 						<div className="space-y-1">

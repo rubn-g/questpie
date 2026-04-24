@@ -105,13 +105,13 @@ export function RelationChip({
 					/>
 				}
 				className={cn(
-					"qa-relation-chip item-surface border-border cursor-pointer gap-1.5",
-					"hover:bg-accent hover:text-accent-foreground",
+					"qa-relation-chip item-surface hover:bg-surface-high cursor-pointer gap-1.5 border-transparent bg-transparent",
+					"text-muted-foreground hover:text-foreground max-w-40",
 					className,
 				)}
 			>
 				{avatar}
-				{label}
+				<span className="truncate">{label}</span>
 			</Badge>
 		);
 	}
@@ -121,12 +121,12 @@ export function RelationChip({
 		<Badge
 			variant="secondary"
 			className={cn(
-				"qa-relation-chip item-surface border-border gap-1.5",
+				"qa-relation-chip item-surface text-muted-foreground max-w-40 gap-1.5 border-transparent bg-transparent",
 				className,
 			)}
 		>
 			{avatar}
-			{label}
+			<span className="truncate">{label}</span>
 		</Badge>
 	);
 }

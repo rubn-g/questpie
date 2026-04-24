@@ -395,7 +395,7 @@ function LivePreviewContent({
 							aria-label="Resize preview pane"
 							onMouseDown={handleMouseDown}
 							onClick={(e) => e.preventDefault()}
-							className="bg-border hover:bg-primary/40 w-1 shrink-0 cursor-col-resize appearance-none border-0 p-0 transition-colors"
+							className="bg-border hover:bg-border-strong w-1 shrink-0 cursor-col-resize appearance-none border-0 p-0 transition-colors"
 						/>
 
 						{/* Preview panel */}

@@ -12,6 +12,7 @@ import { toast } from "sonner";
 
 import type { MaybeLazyComponent } from "../../builder/types/common.js";
 import { ComponentRenderer } from "../../components/component-renderer";
+import { Button } from "../../components/ui/button";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -33,6 +34,7 @@ import {
 	SidebarMenu,
 	SidebarMenuItem,
 	SidebarSeparator,
+	SidebarTrigger,
 	useSidebar,
 } from "../../components/ui/sidebar";
 import { Skeleton } from "../../components/ui/skeleton";
@@ -112,6 +114,8 @@ export interface AdminSidebarNavItemProps {
 	collapsed: boolean;
 }
 
+type AdminSidebarTheme = "light" | "dark" | "system";
+
 /**
  * AdminSidebar props
  */
@@ -165,6 +169,11 @@ export interface AdminSidebarProps {
 	footer?: React.ReactNode;
 
 	/**
+	 * Opens the global admin search.
+	 */
+	onSearchOpen?: () => void;
+
+	/**
 	 * Content to render after the brand header.
 	 * Perfect for scope/tenant pickers in multi-tenant apps.
 	 *
@@ -193,6 +202,15 @@ export interface AdminSidebarProps {
 	 * ```
 	 */
 	beforeFooter?: React.ReactNode;
+
+	/** Current admin theme for the built-in user menu theme switcher. */
+	theme?: AdminSidebarTheme;
+
+	/** Change admin theme from the built-in user menu theme switcher. */
+	setTheme?: (theme: AdminSidebarTheme) => void;
+
+	/** Show theme switcher in the sidebar user menu. */
+	showThemeToggle?: boolean;
 
 	/**
 	 * Use framework-specific active link props (e.g., TanStack Router's activeProps)
@@ -462,7 +480,7 @@ function QuestpieSymbol({ className }: { className?: string }) {
 				stroke="currentColor"
 				strokeWidth="2"
 				strokeLinecap="square"
-				className="text-[#0a0a0a] dark:text-white"
+				className="text-foreground"
 			/>
 			<path d="M23 13H13V23H23V13Z" fill="#B700FF" />
 		</svg>
@@ -518,29 +536,15 @@ function isRouteActive(
  * Menu button styles - QUESTPIE design: clean, technical look
  */
 const menuButtonStyles = cn(
-	"item-surface font-chrome flex w-full items-center gap-2.5 px-3 py-2 text-sm font-medium transition-colors duration-150",
-	"text-sidebar-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent",
+	"item-surface font-chrome flex w-full items-center gap-2 px-2 py-2 text-[13px] font-medium transition-[background-color,color,border-color,transform] duration-150 ease-out active:scale-[0.99]",
+	"text-sidebar-foreground/75 hover:bg-sidebar-accent hover:text-sidebar-foreground",
 	"focus-visible:ring-sidebar-ring focus-visible:ring-1 focus-visible:outline-none",
 	"group-data-[collapsible=icon]:size-8 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-2",
 );
 
 const menuButtonActiveStyles = cn(
-	"border-sidebar-border bg-[var(--sidebar-active-background)] text-[var(--sidebar-active-foreground)]",
+	"border-transparent bg-[var(--sidebar-active-background)] text-[var(--sidebar-active-foreground)]",
 );
-
-/**
- * Active indicator bar positioned at the sidebar group edge.
- * Uses negative left offset to compensate for SidebarGroupContent nesting padding.
- */
-function ActiveIndicator({ depth }: { depth: number }) {
-	return (
-		<div
-			className="absolute top-0 bottom-0 w-0.5 bg-[var(--sidebar-active-indicator)]"
-			style={{ left: `${-depth * 0.75}rem` }}
-			aria-hidden="true"
-		/>
-	);
-}
 
 function NavItem({
 	item,
@@ -613,7 +617,6 @@ function NavItem({
 				onClickCapture={handleClick}
 				aria-current={ariaCurrent}
 			>
-				{isActive && <ActiveIndicator depth={0} />}
 				<Tooltip>
 					<TooltipTrigger
 						render={
@@ -645,7 +648,6 @@ function NavItem({
 				onClickCapture={handleClick}
 				aria-current={ariaCurrent}
 			>
-				{isActive && <ActiveIndicator depth={depth} />}
 				{linkContent}
 			</SidebarMenuItem>
 		);
@@ -824,7 +826,7 @@ function NavGroup({
 										)}
 										LinkComponent={LinkComponent}
 										renderNavItem={renderNavItem}
-										useActiveProps={useActiveProps}
+										useActiveProps={useActiveProps && !activeRoute}
 										depth={depth}
 									/>
 								);
@@ -881,7 +883,15 @@ function UserFooterSkeleton({ collapsed }: { collapsed: boolean }) {
 	);
 }
 
-function UserFooter() {
+function UserFooter({
+	theme = "system",
+	setTheme,
+	showThemeToggle,
+}: {
+	theme?: AdminSidebarTheme;
+	setTheme?: (theme: AdminSidebarTheme) => void;
+	showThemeToggle?: boolean;
+}) {
 	const { state, isMobile, setOpenMobile } = useSidebar();
 	const collapsed = state === "collapsed";
 
@@ -914,6 +924,12 @@ function UserFooter() {
 	const contentLocale = useAdminStore(selectContentLocale);
 	const setContentLocale = useAdminStore(selectSetContentLocale);
 	const hasMultipleContentLocales = (contentLocales?.locales?.length ?? 0) > 1;
+	const shouldShowThemeToggle = !!setTheme && showThemeToggle !== false;
+	const themeOptions = [
+		{ value: "light", label: t("ui.themeLight"), icon: "ph:sun" },
+		{ value: "dark", label: t("ui.themeDark"), icon: "ph:moon" },
+		{ value: "system", label: t("ui.themeSystem"), icon: "ph:monitor" },
+	] as const;
 
 	// Close sidebar on mobile when navigating
 	const closeSidebarOnMobile = React.useCallback(() => {
@@ -957,20 +973,20 @@ function UserFooter() {
 	const displayEmail = user.email || "";
 
 	return (
-		<SidebarFooter className="qa-sidebar__footer border-sidebar-border border-t p-2">
+		<SidebarFooter className="qa-sidebar__footer border-sidebar-border/70 border-t p-2">
 			<SidebarMenu>
 				{/* User Menu */}
 				<SidebarMenuItem>
 					<DropdownMenu>
 						<DropdownMenuTrigger
 							className={cn(
-								"qa-sidebar__user-trigger flex w-full items-center gap-2.5 rounded-sm p-2 text-left transition-colors duration-150",
+								"qa-sidebar__user-trigger flex w-full items-center gap-2.5 rounded-md p-2 text-left transition-[background-color,color,transform] duration-150 ease-out active:scale-[0.99]",
 								"hover:bg-sidebar-accent text-sidebar-foreground",
 								"focus-visible:ring-sidebar-ring focus-visible:ring-1 focus-visible:outline-none",
 								collapsed && "justify-center",
 							)}
 						>
-							<div className="qa-sidebar__user-avatar border-sidebar-border bg-sidebar-accent text-sidebar-accent-foreground flex size-8 shrink-0 items-center justify-center border">
+							<div className="qa-sidebar__user-avatar border-sidebar-border bg-sidebar-accent text-sidebar-accent-foreground flex size-8 shrink-0 items-center justify-center rounded-md border">
 								<Icon icon="ph:user-bold" className="size-4" />
 							</div>
 							{!collapsed && (
@@ -979,7 +995,7 @@ function UserFooter() {
 										<span className="qa-sidebar__user-name truncate text-sm font-medium">
 											{displayName}
 										</span>
-										<span className="qa-sidebar__user-email text-sidebar-foreground/70 truncate text-xs">
+										<span className="qa-sidebar__user-email text-sidebar-foreground/55 truncate text-xs">
 											{displayEmail}
 										</span>
 									</div>
@@ -1011,6 +1027,32 @@ function UserFooter() {
 								<Icon icon="ph:user-circle" className="size-4" />
 								{t("auth.myAccount")}
 							</DropdownMenuItem>
+							{/* Theme Switcher */}
+							{shouldShowThemeToggle && (
+								<DropdownMenuSub>
+									<DropdownMenuSubTrigger>
+										<Icon icon="ph:circle-half" />
+										{t("ui.toggleTheme")}
+									</DropdownMenuSubTrigger>
+									<DropdownMenuSubContent>
+										{themeOptions.map((option) => (
+											<DropdownMenuItem
+												key={option.value}
+												onClick={() => setTheme(option.value)}
+											>
+												<Icon icon={option.icon} className="size-4" />
+												<span className="flex-1">{option.label}</span>
+												{theme === option.value && (
+													<Icon
+														icon="ph:check"
+														className="text-foreground size-4"
+													/>
+												)}
+											</DropdownMenuItem>
+										))}
+									</DropdownMenuSubContent>
+								</DropdownMenuSub>
+							)}
 							{/* UI Language Switcher */}
 							{hasMultipleUiLocales && (
 								<DropdownMenuSub>
@@ -1040,7 +1082,7 @@ function UserFooter() {
 												{locale.code === uiLocale && (
 													<Icon
 														icon="ph:check"
-														className="text-primary size-4"
+														className="text-foreground size-4"
 													/>
 												)}
 											</DropdownMenuItem>
@@ -1080,7 +1122,7 @@ function UserFooter() {
 												{locale.code === contentLocale && (
 													<Icon
 														icon="ph:check"
-														className="text-primary size-4"
+														className="text-foreground size-4"
 													/>
 												)}
 											</DropdownMenuItem>
@@ -1135,8 +1177,12 @@ export function AdminSidebar({
 	renderBrand,
 	renderNavItem,
 	footer,
+	onSearchOpen,
 	afterBrand,
 	beforeFooter,
+	theme,
+	setTheme,
+	showThemeToggle,
 	useActiveProps = true,
 }: AdminSidebarProps): React.ReactElement {
 	// Resolve navigation from server config, brandName from props or store
@@ -1144,8 +1190,11 @@ export function AdminSidebar({
 		brandName: brandNameProp,
 	});
 
-	const { state, isMobile, setOpenMobile } = useSidebar();
+	const { state, isMobile, setOpenMobile, toggleSidebar } = useSidebar();
 	const collapsed = state === "collapsed";
+	const currentActiveRoute =
+		activeRoute ??
+		(typeof window !== "undefined" ? window.location.pathname : undefined);
 
 	// Persisted sidebar section collapse state
 	const { isSectionCollapsed, toggleSection } = useSidebarCollapsedSections();
@@ -1223,7 +1272,7 @@ export function AdminSidebar({
 		<LinkComponent
 			to={basePath}
 			className={cn(
-				"qa-sidebar__brand flex items-center gap-2.5 rounded-sm p-2 transition-colors duration-150",
+				"qa-sidebar__brand flex items-center gap-2 rounded-md p-2 transition-[background-color,color,transform] duration-150 ease-out active:scale-[0.99]",
 				"hover:bg-sidebar-accent",
 				collapsed && "justify-center",
 			)}
@@ -1232,11 +1281,34 @@ export function AdminSidebar({
 		</LinkComponent>
 	);
 
+	const sidebarActions = (
+		<div className="qa-sidebar__header-actions flex shrink-0 items-center gap-1">
+			{onSearchOpen && (
+				<Button
+					type="button"
+					variant="ghost"
+					size="icon-xs"
+					className="text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+					onClick={onSearchOpen}
+					title="Search"
+					aria-label="Search"
+				>
+					<Icon icon="ph:magnifying-glass" />
+				</Button>
+			)}
+			<SidebarTrigger className="text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-foreground" />
+		</div>
+	);
+
 	return (
-		<Sidebar collapsible="icon" className={cn("qa-sidebar", className)}>
+		<Sidebar
+			collapsible="icon"
+			variant="inset"
+			className={cn("qa-sidebar bg-sidebar relative border-none", className)}
+		>
 			{/* Brand Header */}
-			<SidebarHeader className="qa-sidebar__header border-sidebar-border border-b p-2">
-				<SidebarMenu>
+			<SidebarHeader className="qa-sidebar__header h-auto flex-row items-center gap-2 border-none px-3 pt-3 pb-1">
+				<SidebarMenu className="min-w-0 flex-1">
 					<SidebarMenuItem onClickCapture={handleBrandClick}>
 						{collapsed && !isMobile ? (
 							<Tooltip>
@@ -1245,7 +1317,7 @@ export function AdminSidebar({
 										<LinkComponent
 											to={basePath}
 											className={cn(
-												"flex items-center gap-2.5 rounded-sm p-2 transition-colors duration-150",
+												"flex items-center gap-2 rounded-md p-2 transition-[background-color,color,transform] duration-150 ease-out active:scale-[0.99]",
 												"hover:bg-sidebar-accent",
 												"justify-center",
 											)}
@@ -1261,27 +1333,62 @@ export function AdminSidebar({
 						)}
 					</SidebarMenuItem>
 				</SidebarMenu>
+				{!collapsed && sidebarActions}
 			</SidebarHeader>
+
+			{collapsed && !isMobile && (
+				<div className="qa-sidebar__collapsed-peek group/peek absolute top-4 -right-3 z-50 flex items-center">
+					<Button
+						type="button"
+						variant="ghost"
+						size="icon-xs"
+						className="border-sidebar-border/70 bg-sidebar text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-foreground h-8 w-3 rounded-l-none rounded-r-md border border-l-0 p-0 shadow-[var(--floating-shadow)]"
+						onClick={toggleSidebar}
+						aria-label="Expand sidebar"
+					>
+						<span className="h-3 w-0.5 rounded-full bg-current opacity-55" />
+					</Button>
+					<div className="floating-surface ml-1 flex scale-95 items-center gap-1 p-1 opacity-0 transition-[opacity,transform] duration-150 ease-out group-focus-within/peek:scale-100 group-focus-within/peek:opacity-100 group-hover/peek:scale-100 group-hover/peek:opacity-100">
+						<SidebarTrigger
+							className="text-muted-foreground hover:bg-muted hover:text-foreground"
+							aria-label="Expand sidebar"
+						/>
+						{onSearchOpen && (
+							<Button
+								type="button"
+								variant="ghost"
+								size="icon-sm"
+								className="text-muted-foreground hover:bg-muted hover:text-foreground"
+								onClick={onSearchOpen}
+								title="Search"
+								aria-label="Search"
+							>
+								<Icon icon="ph:magnifying-glass" />
+							</Button>
+						)}
+					</div>
+				</div>
+			)}
 
 			{/* After Brand Slot - for scope pickers, etc */}
 			{afterBrand && !collapsed && (
-				<div className="qa-sidebar__after-brand border-sidebar-border border-b px-3 py-2">
+				<div className="qa-sidebar__after-brand border-sidebar-border/70 border-b px-3 py-2">
 					{afterBrand}
 				</div>
 			)}
 
 			{/* Navigation */}
-			<SidebarContent className="qa-sidebar__content">
+			<SidebarContent className="qa-sidebar__content gap-3 px-2 py-3">
 				<nav aria-label="Admin navigation" className="qa-sidebar__nav">
 					{navigation.map((group, index) => (
 						<NavGroup
 							key={group.id ?? `group-${index}`}
 							group={group}
-							activeRoute={activeRoute}
+							activeRoute={currentActiveRoute}
 							LinkComponent={LinkComponent}
 							renderNavItem={effectiveRenderNavItem}
 							basePath={basePath}
-							useActiveProps={useActiveProps}
+							useActiveProps={useActiveProps && !currentActiveRoute}
 							isSectionCollapsed={isSectionCollapsed}
 							toggleSection={toggleSection}
 						/>
@@ -1291,13 +1398,19 @@ export function AdminSidebar({
 
 			{/* Before Footer Slot - for additional actions */}
 			{beforeFooter && !collapsed && (
-				<div className="qa-sidebar__before-footer border-sidebar-border border-t px-3 py-2">
+				<div className="qa-sidebar__before-footer border-sidebar-border/70 border-t px-3 py-2">
 					{beforeFooter}
 				</div>
 			)}
 
 			{/* Footer */}
-			{footer ?? <UserFooter />}
+			{footer ?? (
+				<UserFooter
+					theme={theme}
+					setTheme={setTheme}
+					showThemeToggle={showThemeToggle}
+				/>
+			)}
 		</Sidebar>
 	);
 }

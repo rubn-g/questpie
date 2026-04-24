@@ -218,8 +218,8 @@ export function SelectMulti<TValue extends string = string>({
 			aria-invalid={ariaInvalid}
 			tabIndex={0}
 			className={cn(
-				"qa-select-multi rounded-sm font-chrome border-input bg-transparent flex min-h-9 w-full flex-wrap items-center gap-1 border px-3 py-1.5 text-sm transition-colors",
-				"focus-within:ring-ring focus-within:border-ring focus-within:ring-2",
+				"qa-select-multi control-surface font-chrome flex h-auto min-h-[var(--control-height)] w-full flex-wrap items-center gap-1 px-3 py-1.5 text-sm",
+				"hover:bg-surface-low focus-within:border-border-strong focus-within:ring-ring/20 aria-expanded:border-border-strong aria-expanded:ring-ring/20 focus-within:ring-3 aria-expanded:ring-3",
 				disabled && "cursor-not-allowed opacity-50",
 				ariaInvalid && "border-destructive ring-destructive/20",
 				className,
@@ -302,7 +302,7 @@ export function SelectMulti<TValue extends string = string>({
 									className={cn(
 										"flex size-4 items-center justify-center border",
 										isSelected
-											? "bg-primary border-primary text-primary-foreground"
+											? "border-foreground bg-foreground text-background"
 											: "border-muted-foreground/30",
 									)}
 								>

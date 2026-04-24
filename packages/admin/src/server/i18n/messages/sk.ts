@@ -40,6 +40,7 @@ export default {
 	"common.view": "Zobraziť",
 	"common.open": "Otvoriť",
 	"common.retry": "Skúsiť znova",
+	"common.backToList": "Späť na zoznam",
 	"common.submit": "Odoslať",
 	"common.deleted": "Vymazaný",
 
@@ -342,6 +343,7 @@ export default {
 	"table.hideColumn": "Skryť stĺpec",
 	"table.showColumn": "Zobraziť stĺpec",
 	"table.noItemsInCollection": "V tejto kolekcii sa nenašli žiadne položky",
+	"table.emptyDescription": "Záznamy sa tu zobrazia hneď po vytvorení.",
 	"table.pagination": "Stránkovanie",
 	"table.editing": "Upravuje",
 
@@ -664,6 +666,15 @@ export default {
 		other: "{{count}} aktívnych filtrov",
 	},
 	"viewOptions.clearFilters": "Vymazať filtre",
+	"viewOptions.noResultsDescription":
+		"Aktívnym filtrom nezodpovedá žiadny záznam. Upravte ich alebo vymažte, aby ste videli viac výsledkov.",
+
+	// Vyhľadávanie v kolekcii
+	"collectionSearch.placeholder": "Hľadať záznamy...",
+	"collectionSearch.noResults": "Nenašli sa žiadne zodpovedajúce záznamy",
+	"collectionSearch.noResultsDescription":
+		"Skúste iný výraz alebo vymažte vyhľadávanie a vráťte sa na celý zoznam.",
+	"collectionSearch.searching": "Hľadá sa...",
 
 	// Verzie
 	"version.history": "História verzií",

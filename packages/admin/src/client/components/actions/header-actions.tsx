@@ -130,7 +130,7 @@ export function HeaderActions<TItem = any>({
 	}
 
 	return (
-		<div className="qa-header-actions flex items-center gap-2">
+		<div className="qa-header-actions flex items-center gap-1.5">
 			{/* Primary actions as buttons */}
 			{visiblePrimary.map((action) => (
 				<ActionButton
@@ -138,6 +138,7 @@ export function HeaderActions<TItem = any>({
 					action={action}
 					collection={collection}
 					helpers={helpers}
+					size="sm"
 					onOpenDialog={onOpenDialog}
 				/>
 			))}
@@ -147,9 +148,9 @@ export function HeaderActions<TItem = any>({
 				<DropdownMenu>
 					<DropdownMenuTrigger
 						nativeButton={false}
-						render={<Button variant="outline" size="icon" className="size-9" />}
+						render={<Button variant="outline" size="icon-sm" />}
 					>
-						<Icon icon="ph:dots-three-vertical" className="size-4" />
+						<Icon icon="ph:dots-three-vertical" className="size-3.5" />
 						<span className="sr-only">More actions</span>
 					</DropdownMenuTrigger>
 					<DropdownMenuContent align="end">

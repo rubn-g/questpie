@@ -345,8 +345,8 @@ export function Dropzone({
 			onDrop={handleDrop}
 			className={cn(
 				"qa-dropzone relative flex min-h-[120px] cursor-pointer flex-col items-center justify-center gap-2 border-2 border-dashed p-6 text-center transition-colors",
-				"border-border bg-muted hover:border-border hover:bg-muted",
-				isDragging && "border-primary bg-primary/5",
+				"border-border-subtle bg-muted hover:border-border hover:bg-muted",
+				isDragging && "border-border-strong bg-surface-high",
 				error && "border-destructive/50 bg-destructive/5",
 				(disabled || loading) && "pointer-events-none opacity-60",
 				className,
@@ -388,7 +388,7 @@ export function Dropzone({
 								icon="ph:cloud-arrow-up"
 								className={cn(
 									"size-10 transition-colors",
-									isDragging ? "text-primary" : "text-muted-foreground",
+									isDragging ? "text-foreground" : "text-muted-foreground",
 								)}
 							/>
 						)}
@@ -396,12 +396,7 @@ export function Dropzone({
 
 					{/* Label */}
 					<div className="space-y-1">
-						<p
-							className={cn(
-								"text-sm font-medium",
-								isDragging ? "text-primary" : "text-foreground",
-							)}
-						>
+						<p className="text-foreground text-sm font-medium">
 							{loading ? t("dropzone.uploading") : label || t("dropzone.label")}
 						</p>
 

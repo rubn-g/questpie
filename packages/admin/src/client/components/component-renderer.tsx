@@ -98,7 +98,7 @@ export function Badge({
 }: BadgeProps): React.ReactElement {
 	const colorClasses: Record<string, string> = {
 		default: "bg-muted text-muted-foreground",
-		primary: "bg-primary/10 text-primary",
+		primary: "bg-surface-high text-foreground",
 		secondary: "bg-secondary text-secondary-foreground",
 		destructive: "bg-destructive/10 text-destructive",
 		success: "bg-success/10 text-success",

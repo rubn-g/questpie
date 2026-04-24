@@ -160,7 +160,7 @@ export function RichTextEditor({
 			) : (
 				<div
 					className={cn(
-						"qp-rich-text-editor panel-surface border-input overflow-hidden",
+						"qp-rich-text-editor control-surface h-auto min-h-[160px] overflow-hidden",
 						disabled || readOnly ? "opacity-60" : "",
 						error ? "border-destructive" : "border-border",
 					)}
@@ -293,7 +293,7 @@ function RichTextEditorCore({
 		<>
 			<div
 				className={cn(
-					"qp-rich-text-editor panel-surface border-input overflow-hidden",
+					"qp-rich-text-editor control-surface h-auto min-h-[160px] overflow-hidden",
 					disabled || readOnly ? "opacity-60" : "",
 					error ? "border-destructive" : "border-border",
 				)}
@@ -360,7 +360,7 @@ function RichTextEditorCore({
 
 				{/* Character Count */}
 				{allowCharacterCount && showCharacterCount && (
-					<div className="bg-muted text-muted-foreground flex items-center justify-between border-t px-2 py-1 text-xs">
+					<div className="bg-surface-low text-muted-foreground border-border-subtle flex items-center justify-between border-t px-2 py-1 text-xs">
 						<span>
 							{characterCount.words} word{characterCount.words === 1 ? "" : "s"}
 						</span>

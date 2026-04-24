@@ -442,7 +442,7 @@ export function RelationPicker<T extends QuestpieApp>({
 
 			{/* Add More */}
 			{!readOnly && canAddMore && (
-				<div className="qa-relation-picker__add-more flex gap-2">
+				<div className="qa-relation-picker__add-more flex items-center gap-2">
 					{/* Searchable Select to add existing items - uses server-side search */}
 					<div className="flex-1">
 						<SelectSingle
@@ -476,6 +476,7 @@ export function RelationPicker<T extends QuestpieApp>({
 						type="button"
 						variant="outline"
 						size="icon"
+						className="text-muted-foreground hover:text-foreground size-10"
 						onClick={handleOpenCreate}
 						disabled={disabled}
 						title={createLabel}

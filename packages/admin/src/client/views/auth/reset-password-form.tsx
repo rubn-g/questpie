@@ -109,10 +109,10 @@ export function ResetPasswordForm({
 	if (isSuccess) {
 		return (
 			<div className={cn("space-y-4 text-center", className)}>
-				<div className="bg-primary/10 mx-auto flex size-12 items-center justify-center">
+				<div className="bg-surface-high mx-auto flex size-12 items-center justify-center rounded-lg">
 					<Icon
 						icon="ph:check-circle-duotone"
-						className="text-primary size-6"
+						className="text-foreground size-6"
 					/>
 				</div>
 				<div className="space-y-2">

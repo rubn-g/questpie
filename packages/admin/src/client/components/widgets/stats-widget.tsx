@@ -145,7 +145,7 @@ function getDateRange(preset: DateFilterPreset): { gte: Date; lte: Date } {
 // Variant styles for the value text
 const variantValueStyles = {
 	default: "",
-	primary: "text-primary",
+	primary: "text-foreground",
 	success: "text-success",
 	warning: "text-warning",
 	danger: "text-destructive",

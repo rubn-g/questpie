@@ -337,7 +337,7 @@ export function BulkActionToolbar<TItem = any>({
 											icon="ph:funnel-fill"
 											width={14}
 											height={14}
-											className="text-primary"
+											className="text-foreground"
 										/>
 										{t("viewOptions.activeFilters", { count: filterCount })}
 									</Button>
@@ -347,7 +347,7 @@ export function BulkActionToolbar<TItem = any>({
 											icon="ph:funnel-fill"
 											width={14}
 											height={14}
-											className="text-primary"
+											className="text-foreground"
 										/>
 										<span className="text-sm font-medium whitespace-nowrap">
 											{t("viewOptions.activeFilters", { count: filterCount })}
@@ -367,7 +367,12 @@ export function BulkActionToolbar<TItem = any>({
 							</div>
 
 							{/* Divider between filter and selection segments */}
-							{hasSelection && <div className="qa-bulk-toolbar__divider bg-border h-4 w-px shrink-0" aria-hidden="true" />}
+							{hasSelection && (
+								<div
+									className="qa-bulk-toolbar__divider bg-border h-4 w-px shrink-0"
+									aria-hidden="true"
+								/>
+							)}
 						</>
 					)}
 
@@ -380,7 +385,10 @@ export function BulkActionToolbar<TItem = any>({
 							</span>
 
 							{/* Divider */}
-							<div className="qa-bulk-toolbar__divider bg-border h-4 w-px shrink-0" aria-hidden="true" />
+							<div
+								className="qa-bulk-toolbar__divider bg-border h-4 w-px shrink-0"
+								aria-hidden="true"
+							/>
 
 							{/* Select dropdown */}
 							<DropdownMenu>

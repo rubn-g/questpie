@@ -134,7 +134,7 @@ export function SetupPage({
 						<button
 							type="button"
 							onClick={handleLoginClick}
-							className="text-primary hover:underline"
+							className="text-foreground underline-offset-4 hover:underline"
 						>
 							Sign in
 						</button>

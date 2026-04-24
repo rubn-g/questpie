@@ -27,6 +27,7 @@ import type {
 	CollectionBuilderState,
 	ListViewConfig,
 } from "../../builder/types/collection-types";
+import { ActionButton } from "../../components/actions/action-button";
 import { ActionDialog } from "../../components/actions/action-dialog";
 import { HeaderActions } from "../../components/actions/header-actions";
 import { FilterBuilderSheet } from "../../components/filter-builder/filter-builder-sheet";
@@ -55,11 +56,6 @@ import {
 	TableHeader,
 	TableRow,
 } from "../../components/ui/table";
-import {
-	Toolbar,
-	ToolbarSection,
-	ToolbarSeparator,
-} from "../../components/ui/toolbar";
 import { useActions } from "../../hooks/use-action";
 import {
 	useCollectionDelete,
@@ -95,6 +91,7 @@ import {
 	autoExpandFields,
 	hasFieldsToExpand,
 } from "../../utils/auto-expand-fields";
+import { AdminViewHeader, AdminViewLayout } from "../layout/admin-view-layout";
 import { BulkActionToolbar } from "./bulk-action-toolbar";
 import {
 	buildColumns,
@@ -118,17 +115,36 @@ const actionRegistry = createActionRegistryProxy<any>();
 
 type ServerActionReference =
 	| string
+	| (() => unknown)
 	| { type?: string; config?: Record<string, unknown> };
+
+function getActionReferenceType(
+	reference: ServerActionReference,
+): string | undefined {
+	if (typeof reference === "string") return reference;
+	if (typeof reference === "function") {
+		const actionType = (reference as { type?: unknown }).type;
+		if (typeof actionType === "string") return actionType;
+
+		const resolved = reference();
+		return typeof resolved === "string" ? resolved : undefined;
+	}
+	return typeof reference?.type === "string" ? reference.type : undefined;
+}
 
 function resolveBuiltinListAction(
 	reference: ServerActionReference,
 ): ActionDefinition | null {
-	const type =
-		typeof reference === "string"
-			? reference
-			: typeof reference?.type === "string"
-				? reference.type
-				: undefined;
+	if (
+		typeof reference === "object" &&
+		reference !== null &&
+		"id" in reference &&
+		"handler" in reference
+	) {
+		return reference as ActionDefinition;
+	}
+
+	const type = getActionReferenceType(reference);
 
 	const config =
 		typeof reference === "object" && reference !== null
@@ -163,6 +179,41 @@ function mapActionReferencesToDefinitions(
 		.filter((action): action is ActionDefinition => action !== null);
 }
 
+function mapListActionsToDefinitions(
+	actions?: unknown,
+): ActionsConfig | undefined {
+	if (!actions || typeof actions !== "object") return undefined;
+
+	const listActions = actions as {
+		header?: {
+			primary?: unknown;
+			secondary?: unknown;
+		};
+		row?: unknown;
+		bulk?: unknown;
+	};
+
+	const header = listActions.header
+		? {
+				primary: mapActionReferencesToDefinitions(listActions.header.primary),
+				secondary: mapActionReferencesToDefinitions(
+					listActions.header.secondary,
+				),
+			}
+		: undefined;
+
+	const row = mapActionReferencesToDefinitions(listActions.row);
+	const bulk = mapActionReferencesToDefinitions(listActions.bulk);
+
+	if (!header && row.length === 0 && bulk.length === 0) return undefined;
+
+	return {
+		...(header ? { header } : {}),
+		...(row.length > 0 ? { row } : {}),
+		...(bulk.length > 0 ? { bulk } : {}),
+	};
+}
+
 function mapListSchemaToConfig(list?: {
 	view?: string;
 	columns?: string[];
@@ -181,33 +232,7 @@ function mapListSchemaToConfig(list?: {
 		config.searchable = true;
 	}
 
-	if (list.actions && typeof list.actions === "object") {
-		const listActions = list.actions as {
-			header?: {
-				primary?: unknown;
-				secondary?: unknown;
-			};
-			bulk?: unknown;
-		};
-
-		const header = listActions.header
-			? {
-					primary: mapActionReferencesToDefinitions(listActions.header.primary),
-					secondary: mapActionReferencesToDefinitions(
-						listActions.header.secondary,
-					),
-				}
-			: undefined;
-
-		const bulk = mapActionReferencesToDefinitions(listActions.bulk);
-
-		if (header || bulk.length > 0) {
-			config.actions = {
-				...(header ? { header } : {}),
-				...(bulk.length > 0 ? { bulk } : {}),
-			};
-		}
-	}
+	config.actions = mapListActionsToDefinitions(list.actions);
 
 	return config;
 }
@@ -359,8 +384,12 @@ function TableViewInner({
 
 	// Use actionsConfig from prop or from config.list view config
 	// Actions are now stored in the list view config, not at collection level
-	const resolvedActionsConfig =
+	const rawActionsConfig =
 		actionsConfig ?? (resolvedListConfig as any)?.actions;
+	const resolvedActionsConfig = React.useMemo(
+		() => mapListActionsToDefinitions(rawActionsConfig),
+		[rawActionsConfig],
+	);
 
 	const { serverActions } = useServerActions({ collection });
 
@@ -434,6 +463,7 @@ function TableViewInner({
 		legacyKey: "viewOptions",
 	});
 	const [searchTerm, setSearchTerm] = useState("");
+	const [isSearchPanelOpen, setIsSearchPanelOpen] = useState(false);
 
 	// Default columns using configured columns from .list() or auto-detection
 	// When .list({ columns: [...] }) is defined, those become the defaults
@@ -830,12 +860,49 @@ function TableViewInner({
 			}
 		}
 
+		if (actions.row.length > 0) {
+			orderedColumns.push({
+				id: "_actions",
+				header: () => <span className="sr-only">{t("common.actions")}</span>,
+				cell: ({ row }) => (
+					<div
+						className="flex justify-end gap-1"
+						onClick={(event) => event.stopPropagation()}
+						onKeyDown={(event) => event.stopPropagation()}
+					>
+						{actions.row.map((action) => (
+							<ActionButton
+								key={action.id}
+								action={action}
+								collection={collection}
+								item={row.original}
+								helpers={actionHelpers}
+								size="icon-sm"
+								iconOnly
+								onOpenDialog={(dialogAction) =>
+									openDialog(dialogAction, row.original)
+								}
+							/>
+						))}
+					</div>
+				),
+				size: 72,
+				enableSorting: false,
+				enableHiding: false,
+			});
+		}
+
 		return orderedColumns;
 	}, [
 		columns,
 		viewState.config.visibleColumns,
 		defaultColumns,
 		collectionMeta,
+		actions.row,
+		collection,
+		actionHelpers,
+		openDialog,
+		t,
 	]);
 
 	// Table sorting state - cascade: saved prefs → list defaultSort → empty
@@ -898,6 +965,14 @@ function TableViewInner({
 
 	// Search results are already sorted by score, list results are server-sorted
 	const filteredItems = items;
+	const hasActiveFilters = viewState.config.filters.length > 0;
+	const hasViewOptionsState =
+		hasActiveFilters ||
+		viewState.config.visibleColumns.length !== defaultColumns.length ||
+		!!viewState.config.includeDeleted;
+	const clearFilters = () => {
+		viewState.setConfig({ ...viewState.config, filters: [] });
+	};
 
 	const table = useReactTable({
 		data: filteredItems as any[],
@@ -992,23 +1067,29 @@ function TableViewInner({
 	);
 
 	if (listError && !isSearching) {
+		const errorMessage =
+			listError instanceof Error ? listError.message : undefined;
+
 		return (
 			<div className="container">
-				<div className="text-muted-foreground flex h-64 flex-col items-center justify-center gap-3">
-					<Icon icon="ph:warning-circle" className="text-destructive size-8" />
-					<p className="text-sm">
-						{listError instanceof Error
-							? listError.message
-							: t("errors.failedToLoad")}
-					</p>
-					<Button
-						variant="outline"
-						size="sm"
-						onClick={() => window.location.reload()}
-					>
-						{t("common.retry")}
-					</Button>
-				</div>
+				<EmptyState
+					variant="error"
+					iconName="ph:warning-circle"
+					title={t("error.failedToLoad")}
+					description={errorMessage}
+					height="h-64"
+					action={
+						<Button
+							variant="outline"
+							size="sm"
+							className="gap-2"
+							onClick={() => window.location.reload()}
+						>
+							<Icon icon="ph:arrow-clockwise" className="size-3.5" />
+							{t("common.retry")}
+						</Button>
+					}
+				/>
 			</div>
 		);
 	}
@@ -1031,90 +1112,122 @@ function TableViewInner({
 		);
 	}
 
+	const emptyStateTitle =
+		isSearching || hasActiveFilters
+			? t("collectionSearch.noResults")
+			: t("table.noItemsInCollection");
+	const emptyStateDescription = isSearching
+		? t("collectionSearch.noResultsDescription")
+		: hasActiveFilters
+			? t("viewOptions.noResultsDescription")
+			: t("table.emptyDescription");
+	const emptyStateAction =
+		isSearching || hasActiveFilters ? (
+			<>
+				{isSearching && (
+					<Button
+						variant="outline"
+						size="sm"
+						className="gap-2"
+						onClick={() => setSearchTerm("")}
+					>
+						<Icon icon="ph:x" className="size-3.5" />
+						{t("common.clear")}
+					</Button>
+				)}
+				{hasActiveFilters && (
+					<Button
+						variant="outline"
+						size="sm"
+						className="gap-2"
+						onClick={clearFilters}
+					>
+						<Icon icon="ph:funnel-x" className="size-3.5" />
+						{t("viewOptions.clearFilters")}
+					</Button>
+				)}
+			</>
+		) : undefined;
+
 	return (
-		<div className="qa-table-view min-w-0">
-			<div className="qa-table-view__inner min-w-0 space-y-4">
-				{/* Header - Title & Actions */}
-				<div className="qa-table-view__header flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-					<div className="min-w-0 flex-1">
-						<div className="flex items-center gap-3">
-							<h1 className="qa-table-view__title truncate text-2xl font-extrabold tracking-tight md:text-3xl">
-								{resolveText(
-									(config as any)?.label ?? schema?.admin?.config?.label,
-									collection,
-								)}
-							</h1>
-							{localeOptions.length > 0 && (
-								<LocaleSwitcher
-									locales={localeOptions}
-									value={contentLocale}
-									onChange={setContentLocale}
+		<AdminViewLayout
+			header={
+				<AdminViewHeader
+					title={resolveText(
+						(config as any)?.label ?? schema?.admin?.config?.label,
+						collection,
+					)}
+					titleAccessory={
+						localeOptions.length > 0 ? (
+							<LocaleSwitcher
+								locales={localeOptions}
+								value={contentLocale}
+								onChange={setContentLocale}
+							/>
+						) : undefined
+					}
+					description={resolveText(
+						(config as any)?.description ?? schema?.admin?.config?.description,
+					)}
+					actions={
+						<>
+							{showSearch && (
+								<Button
+									variant="outline"
+									size="icon-sm"
+									className="relative"
+									onClick={() => setIsSearchPanelOpen((open) => !open)}
+									title={t("common.search")}
+									aria-label={t("common.search")}
+								>
+									<Icon icon="ph:magnifying-glass" />
+									{searchTerm && (
+										<span className="bg-foreground absolute top-1 right-1 size-1.5 rounded-full" />
+									)}
+								</Button>
+							)}
+							{showFilters && (
+								<Button
+									variant="outline"
+									size="icon-sm"
+									className="relative"
+									onClick={() => setIsSheetOpen(true)}
+									title={t("viewOptions.title")}
+									aria-label={t("viewOptions.title")}
+								>
+									<Icon icon="ph:sliders-horizontal" />
+									{hasViewOptionsState && (
+										<span className="bg-foreground absolute top-1 right-1 size-1.5 rounded-full" />
+									)}
+								</Button>
+							)}
+							{headerActions}
+							{((actions.header.primary?.length ?? 0) > 0 ||
+								(actions.header.secondary?.length ?? 0) > 0) && (
+								<HeaderActions
+									actions={actions.header}
+									collection={collection}
+									helpers={actionHelpers}
+									onOpenDialog={(action) => openDialog(action)}
 								/>
 							)}
-						</div>
-						{((config as any)?.description ??
-						schema?.admin?.config?.description) ? (
-							<p className="qa-table-view__description text-muted-foreground mt-1 line-clamp-2 text-sm">
-								{resolveText(
-									(config as any)?.description ??
-										schema?.admin?.config?.description,
-								)}
-							</p>
-						) : null}
-					</div>
-					<div className="flex shrink-0 items-center gap-2">
-						{headerActions}
-						{((actions.header.primary?.length ?? 0) > 0 ||
-							(actions.header.secondary?.length ?? 0) > 0) && (
-							<HeaderActions
-								actions={actions.header}
-								collection={collection}
-								helpers={actionHelpers}
-								onOpenDialog={(action) => openDialog(action)}
-							/>
-						)}
-					</div>
-				</div>
-
-				{/* Toolbar */}
-				{showToolbar && (
-					<div className="space-y-2">
-						<Toolbar>
-							{/* Search */}
-							{showSearch && (
-								<ToolbarSection className="flex-1">
-									<SearchInput
-										value={searchTerm}
-										onChange={(e) => setSearchTerm(e.target.value)}
-										onClear={() => setSearchTerm("")}
-										placeholder={t("common.search")}
-										containerClassName="border-none bg-transparent dark:bg-transparent"
-									/>
-								</ToolbarSection>
-							)}
-
-							{/* Separator + Options */}
-							{showFilters && (
-								<>
-									{showSearch && <ToolbarSeparator />}
-									<ToolbarSection>
-										<Button
-											variant="outline"
-											size="sm"
-											onClick={() => setIsSheetOpen(true)}
-											className="gap-2"
-										>
-											<Icon
-												icon="ph:sliders-horizontal"
-												width={16}
-												height={16}
-											/>
-											{t("viewOptions.title")}
-										</Button>
-									</ToolbarSection>
-								</>
-							)}
-						</Toolbar>
+						</>
+					}
+				/>
+			}
+			contentClassName="overflow-y-auto pb-3"
+		>
+			<div className="qa-table-view min-w-0 space-y-4">
+				{/* Search */}
+				{showToolbar && showSearch && (isSearchPanelOpen || searchTerm) && (
+					<div className="max-w-xl">
+						<SearchInput
+							value={searchTerm}
+							onChange={(e) => setSearchTerm(e.target.value)}
+							onClear={() => setSearchTerm("")}
+							placeholder={t("common.search")}
+							containerClassName="h-10"
+						/>
 					</div>
 				)}
 
@@ -1131,13 +1244,11 @@ function TableViewInner({
 					onBulkRestore={handleBulkRestore}
 					filterCount={viewState.config.filters.length}
 					onOpenFilters={() => setIsSheetOpen(true)}
-					onClearFilters={() =>
-						viewState.setConfig({ ...viewState.config, filters: [] })
-					}
+					onClearFilters={clearFilters}
 				/>
 
 				{/* Table */}
-				<div className="qa-table-view__table-wrapper rounded-md shadow-xs bg-card border-border min-w-0 overflow-x-auto border">
+				<div className="qa-table-view__table-wrapper bg-card border-border min-w-0 overflow-x-auto rounded-md border shadow-xs">
 					<Table
 						aria-label={resolveText(
 							(config as any)?.label ?? schema?.admin?.config?.label,
@@ -1323,12 +1434,17 @@ function TableViewInner({
 					{!table.getRowModel().rows.length &&
 						(emptyState || (
 							<EmptyState
-								title="NO_RESULTS"
-								description={
+								variant={isSearching || hasActiveFilters ? "search" : "empty"}
+								iconName={
 									isSearching
-										? t("collectionSearch.noResults")
-										: t("table.noItemsInCollection")
+										? "ph:magnifying-glass"
+										: hasActiveFilters
+											? "ph:funnel-x"
+											: "ph:tray"
 								}
+								title={emptyStateTitle}
+								description={emptyStateDescription}
+								action={emptyStateAction}
 								height="h-48"
 							/>
 						))}
@@ -1499,6 +1615,6 @@ function TableViewInner({
 					/>
 				)}
 			</div>
-		</div>
+		</AdminViewLayout>
 	);
 }

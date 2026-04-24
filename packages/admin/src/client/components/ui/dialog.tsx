@@ -31,7 +31,7 @@ function DialogOverlay({
 		<DialogPrimitive.Backdrop
 			data-slot="dialog-overlay"
 			className={cn(
-				"qa-dialog__overlay data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 fixed inset-0 isolate z-50 bg-black/80 duration-100",
+				"qa-dialog__overlay data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 fixed inset-0 isolate z-50 bg-black/70 backdrop-blur-[2px] duration-150",
 				className,
 			)}
 			{...props}
@@ -53,7 +53,7 @@ function DialogContent({
 			<DialogPrimitive.Popup
 				data-slot="dialog-content"
 				className={cn(
-					"qa-dialog__content rounded-md shadow-lg bg-background data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 border-border fixed top-1/2 left-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 gap-4 border p-4 text-sm duration-100 outline-none sm:max-w-md",
+					"qa-dialog__content floating-surface text-popover-foreground data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 fixed top-1/2 left-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 gap-4 p-5 text-sm duration-150 outline-none sm:max-w-md",
 					className,
 				)}
 				{...props}
@@ -109,7 +109,10 @@ function DialogFooter({
 		>
 			{children}
 			{showCloseButton && (
-				<DialogPrimitive.Close nativeButton={false} render={<Button variant="outline" />}>
+				<DialogPrimitive.Close
+					nativeButton={false}
+					render={<Button variant="outline" />}
+				>
 					Close
 				</DialogPrimitive.Close>
 			)}

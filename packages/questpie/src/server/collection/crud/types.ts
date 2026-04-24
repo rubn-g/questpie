@@ -1166,6 +1166,20 @@ export interface UpdateManyParams<
 }
 
 /**
+ * Update multiple records with distinct data per record.
+ */
+export interface UpdateBatchParams<
+	TUpdate = any,
+	TRelations = any,
+	TId = string,
+> {
+	updates: Array<{
+		id: TId;
+		data: UpdateInput<TUpdate, TRelations>;
+	}>;
+}
+
+/**
  * Delete single record params
  */
 export interface DeleteParams<TId = string> {
@@ -1405,6 +1419,15 @@ export interface CRUD<
 	 */
 	update(
 		params: UpdateManyParams<TUpdate, TSelect, TRelations>,
+		context?: CRUDContext,
+	): Promise<TSelect[]>;
+
+	/**
+	 * Update multiple records with distinct data per record.
+	 * Runs each update through the normal update pipeline in one transaction.
+	 */
+	updateBatch(
+		params: UpdateBatchParams<TUpdate, TRelations, TId>,
 		context?: CRUDContext,
 	): Promise<TSelect[]>;
 

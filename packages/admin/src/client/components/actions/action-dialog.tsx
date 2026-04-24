@@ -114,6 +114,21 @@ function FormDialogContent<TItem>({
 	const { config } = handler;
 	const resolveText = useResolveText();
 	const { t } = useTranslation();
+	const defaultValues = React.useMemo(() => {
+		const values: Record<string, any> = {};
+
+		for (const [fieldName, fieldDef] of Object.entries(config.fields)) {
+			const options = fieldDef["~options"] as Record<string, any> | undefined;
+			if (options?.defaultValue !== undefined) {
+				values[fieldName] = options.defaultValue;
+			}
+		}
+
+		return {
+			...values,
+			...(config.defaultValues || {}),
+		};
+	}, [config.fields, config.defaultValues]);
 
 	// Create resolver from field definitions
 	const resolver = React.useMemo(() => {
@@ -121,7 +136,7 @@ function FormDialogContent<TItem>({
 	}, [config.fields]);
 
 	const form = useForm({
-		defaultValues: config.defaultValues || {},
+		defaultValues,
 		resolver,
 	});
 

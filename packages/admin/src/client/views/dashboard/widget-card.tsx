@@ -69,7 +69,7 @@ interface WidgetCardProps {
 const variantStyles: Record<WidgetCardVariant, string> = {
 	default: "",
 	compact: "py-3 gap-3",
-	featured: "border-primary/20 bg-primary/5",
+	featured: "border-border-strong bg-surface-low",
 };
 
 const variantContentStyles: Record<WidgetCardVariant, string> = {

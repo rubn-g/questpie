@@ -64,7 +64,7 @@ function TableRow({ className, ...props }: React.ComponentProps<"tr">) {
 				// Alternating row colors (zebra striping) with solid backgrounds
 				// Using group/row for sticky cells to match
 				// Fixed height for consistent row appearance
-				"qa-table__row group/row bg-background hover:bg-muted data-[state=selected]:bg-accent border-border h-10 border-b transition-colors",
+				"qa-table__row group/row bg-background hover:bg-muted data-[state=selected]:bg-accent border-border h-9 border-b transition-colors",
 				className,
 			)}
 			{...props}
@@ -92,7 +92,7 @@ function TableHead({
 			data-slot="table-head"
 			data-sticky-left={isSticky ? "" : undefined}
 			className={cn(
-				"qa-table__head font-chrome text-muted-foreground bg-card chrome-meta h-10 min-w-[100px] px-4 text-left align-middle text-xs font-medium whitespace-nowrap [&:has([role=checkbox])]:px-2",
+				"qa-table__head font-chrome text-muted-foreground bg-card chrome-meta h-9 min-w-[100px] px-4 text-left align-middle text-xs font-medium whitespace-nowrap [&:has([role=checkbox])]:px-2",
 				// Sticky column styles - solid background
 				isSticky && "sticky z-20 min-w-0",
 				// Only show border on last sticky column
@@ -129,7 +129,7 @@ function TableCell({
 			data-slot="table-cell"
 			data-sticky-left={isSticky ? "" : undefined}
 			className={cn(
-				"qa-table__cell min-w-[100px] px-4 py-2.5 align-middle whitespace-nowrap [&:has([role=checkbox])]:px-2",
+				"qa-table__cell min-w-[100px] px-4 py-1.5 align-middle whitespace-nowrap [&:has([role=checkbox])]:px-2",
 				// Sticky column styles - inherit row background for zebra/hover/selected
 				isSticky && "sticky z-10 min-w-0 bg-inherit",
 				// Only show border on last sticky column

@@ -10,4 +10,4 @@ Improve admin form sidebar responsiveness and add file-first admin chrome/theme 
 - Add optional non-animated/non-overlay sheet rendering for nested sidebars.
 - Add file-first chrome overrides for the sidebar brand area, sidebar nav rows, and the shared auth layout.
 - Export stable override prop types from `@questpie/admin/client` for custom sidebar and auth components.
-- Split admin CSS into reusable `base.css`, `brutal.css`, and `soft.css` presets while keeping `index.css` as the brutal default.
+- Keep admin styling on a single reusable `base.css` stylesheet, with `index.css` as its default alias.

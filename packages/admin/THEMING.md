@@ -4,35 +4,28 @@
 
 The admin UI is **theme-agnostic**. All visual styling is controlled by CSS files in `packages/admin/src/client/styles/`. Components use standard Tailwind utilities (`bg-card`, `border-border`, `rounded-md`, `shadow-sm`) which resolve to values defined in the theme CSS. To create a completely different visual identity, you only change the CSS — zero component changes needed.
 
-## Theme Presets
+## Stylesheet Entry Points
 
-Import one preset instead of `index.css`:
+Import the admin base stylesheet and override CSS variables in your app CSS:
 
-| Import | Style |
-| ------ | ----- |
-| `@questpie/admin/client/styles/index.css` | Brutal (default, backward compat) |
-| `@questpie/admin/client/styles/brutal.css` | Brutal — sharp corners, no shadows |
-| `@questpie/admin/client/styles/soft.css` | Soft — rounded corners (8px), standard shadows |
-| `@questpie/admin/client/styles/base.css` | Base only — no shadow scale, full control |
+| Import                                    | Style                                                |
+| ----------------------------------------- | ---------------------------------------------------- |
+| `@questpie/admin/client/styles/index.css` | Default alias for base                               |
+| `@questpie/admin/client/styles/base.css`  | Base tokens, Tailwind mappings, and shared utilities |
 
 ```css
-/* Option A: default (brutal) */
+/* Default */
 @import "@questpie/admin/client/styles/index.css";
 
-/* Option B: explicit brutal */
-@import "@questpie/admin/client/styles/brutal.css";
-
-/* Option C: soft rounded */
-@import "@questpie/admin/client/styles/soft.css";
-
-/* Option D: base only, define your own shadow scale */
+/* Or explicit base */
 @import "@questpie/admin/client/styles/base.css";
+
 @theme inline {
-  --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+	--shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.1);
 }
 ```
 
-All presets share the same color palette, typography, and animations — only `--radius` and `--shadow-*` differ.
+`index.css` and `base.css` currently resolve to the same admin base style.
 
 ## CSS Variables
 
@@ -90,23 +83,19 @@ All presets share the same color palette, typography, and animations — only `-
 
 ## Creating a Custom Theme
 
-1. Start from a preset: import `brutal.css`, `soft.css`, or `base.css`
+1. Import `base.css`
 2. Override CSS variable values after the import
 3. That's it — zero component changes needed
 
-### Example: branded soft theme
+### Example: branded theme
 
 ```css
-@import "@questpie/admin/client/styles/soft.css";
+@import "@questpie/admin/client/styles/base.css";
 
 :root {
-  --primary: oklch(0.55 0.22 260);   /* blue brand */
-  --ring:    oklch(0.55 0.22 260);
-  --radius:  6px;                     /* slightly less round than soft default */
-}
-
-body::before {
-  display: none; /* no grid texture */
+	--primary: oklch(0.55 0.22 260); /* blue brand */
+	--ring: oklch(0.55 0.22 260);
+	--radius: 6px;
 }
 ```
 
@@ -121,10 +110,6 @@ The CSS uses the standard convention:
 
 This is compatible with `next-themes`, custom `ThemeProvider`, or any library that toggles a `.dark` class. Tailwind's `dark:` variant works automatically.
 
-## Grid Texture
-
-The background grid is a `body::before` pseudo-element using `--primary` color at 3% opacity with 40px spacing. To disable it, add `body::before { display: none; }` to your theme.
-
 ## Shadow & Radius Scale
 
-The default brutalist theme sets all shadows to `none` and all radii to `0px` via `@theme inline`. Components still use `shadow-sm`, `rounded-md` etc. — they just resolve to the theme values.
+The base stylesheet defines standard shadows and an 8px radius. Components use `shadow-sm`, `rounded-md`, etc. so custom themes can change the final visual system by overriding `--shadow-*` and `--radius` values.

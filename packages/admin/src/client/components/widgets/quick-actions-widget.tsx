@@ -74,14 +74,14 @@ export default function QuickActionsWidget({
 	const variantStyles = {
 		default: "hover:bg-muted cursor-pointer",
 		primary:
-			"bg-primary/5 hover:bg-primary/10 border-primary/20 text-primary [&_svg]:text-primary cursor-pointer",
+			"border-border-strong bg-surface-high text-foreground hover:bg-surface-highest [&_svg]:text-foreground cursor-pointer",
 		secondary: "hover:bg-secondary cursor-pointer",
 		outline: "border border-border hover:bg-muted cursor-pointer",
 	};
 
 	const iconVariantStyles = {
 		default: "bg-muted text-muted-foreground",
-		primary: "bg-primary/10 text-primary",
+		primary: "bg-surface-high text-foreground",
 		secondary: "bg-secondary text-secondary-foreground",
 		outline: "bg-background text-muted-foreground",
 	};

@@ -153,7 +153,7 @@ export function FilterBuilderSheet({
 				</SheetHeader>
 
 				<div className="flex-1 overflow-y-auto px-6">
-					<div className="border-border bg-muted mt-4 border px-3 py-2">
+					<div className="border-border-subtle bg-surface-low mt-4 rounded-xl border p-3">
 						<div className="flex items-center justify-between gap-3">
 							<div>
 								<p className="text-sm font-medium">Realtime Updates</p>
@@ -171,7 +171,7 @@ export function FilterBuilderSheet({
 					</div>
 
 					{supportsSoftDelete && (
-						<div className="border-border bg-muted mt-3 border px-3 py-2">
+						<div className="border-border-subtle bg-surface-low mt-3 rounded-xl border p-3">
 							<div className="flex items-center justify-between gap-3">
 								<div>
 									<p className="text-sm font-medium">
@@ -199,7 +199,7 @@ export function FilterBuilderSheet({
 							<TabsTrigger value="filters" className="flex-1">
 								{t("viewOptions.filters")}
 								{localConfig.filters.length > 0 && (
-									<span className="bg-primary text-primary-foreground ml-1.5 rounded-full px-1.5 py-0.5 text-xs">
+									<span className="bg-foreground text-background ml-1.5 rounded-full px-1.5 py-0.5 text-xs">
 										{localConfig.filters.length}
 									</span>
 								)}
@@ -245,11 +245,7 @@ export function FilterBuilderSheet({
 
 				<SheetFooter className="mt-4 border-t px-6 py-4">
 					<div className="flex w-full gap-2">
-						<Button
-							variant="outline"
-							onClick={handleReset}
-							className="flex-1"
-						>
+						<Button variant="outline" onClick={handleReset} className="flex-1">
 							{t("viewOptions.reset")}
 						</Button>
 						<Button onClick={handleApply} className="flex-1">

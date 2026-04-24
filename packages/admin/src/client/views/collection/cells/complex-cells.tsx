@@ -465,14 +465,14 @@ export function BlocksCell({ value }: { value: unknown }) {
 				render={
 					<span
 						className={cn(
-							"inline-flex items-center gap-1.5 text-xs",
-							"text-muted-foreground hover:text-foreground",
-							"max-w-[220px] cursor-default transition-colors",
+							"inline-flex h-6 max-w-[240px] cursor-default items-center gap-2 rounded-md px-1.5 text-xs",
+							"text-muted-foreground hover:bg-surface-high hover:text-foreground",
+							"transition-[background-color,color] duration-150 ease-out",
 						)}
 					>
 						<Badge
-							variant="secondary"
-							className="h-4 min-w-4 shrink-0 px-1 text-[10px]"
+							variant="outline"
+							className="h-5 min-w-5 shrink-0 px-1.5 text-[10px]"
 						>
 							{total}
 						</Badge>
@@ -486,29 +486,29 @@ export function BlocksCell({ value }: { value: unknown }) {
 			<TooltipContent
 				side="bottom"
 				align="start"
-				className="bg-popover border-border w-64 max-w-[90vw] p-0"
+				className="w-64 max-w-[90vw] p-1"
 			>
-				<div className="text-muted-foreground border-border flex items-center justify-between border-b px-2 py-1.5 text-[11px]">
+				<div className="text-muted-foreground flex items-center justify-between px-2 py-1 text-[11px]">
 					<span>{t("cell.blocks")}</span>
-					<Badge variant="secondary" className="h-4 px-1 text-[10px]">
+					<Badge variant="outline" className="h-5 px-1.5 text-[10px]">
 						{total}
 					</Badge>
 				</div>
-				<div className="max-h-[280px] space-y-0.5 overflow-y-auto p-2">
+				<div className="max-h-[280px] space-y-0.5 overflow-y-auto p-1">
 					{entries.slice(0, 10).map((entry) => (
 						<div
 							key={entry.type}
-							className="flex items-center justify-between gap-2 py-0.5 text-xs"
+							className="flex h-7 items-center justify-between gap-2 rounded-md px-2 text-xs"
 						>
 							<span className="truncate">{entry.label}</span>
-							<Badge variant="secondary" className="h-4 px-1 text-[10px]">
+							<Badge variant="outline" className="h-5 px-1.5 text-[10px]">
 								{entry.count}
 							</Badge>
 						</div>
 					))}
 				</div>
 				{entries.length > 10 && (
-					<div className="text-muted-foreground border-border border-t py-1.5 text-center text-[11px]">
+					<div className="text-muted-foreground py-1.5 text-center text-[11px]">
 						{t("cell.more", { count: entries.length - 10 })}
 					</div>
 				)}

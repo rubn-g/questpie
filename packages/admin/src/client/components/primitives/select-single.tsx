@@ -8,7 +8,6 @@ import { useCallback, useDeferredValue, useId, useMemo, useState } from "react";
 import { useIsMobile } from "../../hooks/use-media-query";
 import { useResolveText } from "../../i18n/hooks";
 import { cn } from "../../lib/utils";
-import { Button } from "../ui/button";
 import {
 	Command,
 	CommandEmpty,
@@ -25,6 +24,7 @@ import {
 	DrawerTrigger,
 } from "../ui/drawer";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { FieldSelectTrigger } from "./field-select-control";
 import type { BasePrimitiveProps, SelectOption, SelectOptions } from "./types";
 import { flattenOptions } from "./types";
 
@@ -213,24 +213,20 @@ export function SelectSingle<TValue extends string = string>({
 	const listboxId = `${instanceId}-listbox`;
 
 	const TriggerButton = (
-		<Button
+		<FieldSelectTrigger
 			id={id}
-			variant="outline"
 			role="combobox"
 			aria-expanded={open}
 			aria-controls={listboxId}
 			aria-invalid={ariaInvalid}
 			disabled={disabled}
-			data-slot={asInputGroupControl ? "input-group-control" : undefined}
+			hasValue={!!value}
+			asInputGroupControl={asInputGroupControl}
 			className={cn(
-				"qa-select-single w-full justify-between font-normal",
-				!value && "text-muted-foreground",
 				// flex-1 min-w-0: override Button's shrink-0 so the control yields
 				// space to sibling InputGroupAddon buttons. The CSS rule in base.css
 				// targeting [data-slot="input-group-control"] provides the same fix
 				// at the CSS layer as a safety net.
-				asInputGroupControl &&
-					"flex-1 min-w-0 h-full rounded-none border-0 shadow-none focus-visible:ring-0",
 				className,
 			)}
 		>
@@ -250,7 +246,7 @@ export function SelectSingle<TValue extends string = string>({
 					{value ? getLabel(value) : resolvedPlaceholder}
 				</span>
 			</span>
-			<div className="flex shrink-0 items-center gap-1">
+			<div className="flex h-full shrink-0 items-center gap-1">
 				{clearable && value && !disabled && !isLoadingValue && (
 					<span
 						role="button"
@@ -262,14 +258,14 @@ export function SelectSingle<TValue extends string = string>({
 								handleClear(event as unknown as React.MouseEvent);
 							}
 						}}
-						className="hover:bg-muted -mr-1 p-0.5 opacity-50 hover:opacity-100"
+						className="hover:bg-surface-high -mr-1 rounded p-0.5 opacity-50 hover:opacity-100"
 					>
 						<Icon icon="ph:x" className="size-3" />
 					</span>
 				)}
 				<Icon icon="ph:caret-up-down" className="size-3.5 opacity-50" />
 			</div>
-		</Button>
+		</FieldSelectTrigger>
 	);
 
 	const CommandContent = (

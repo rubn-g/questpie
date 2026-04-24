@@ -52,6 +52,7 @@ import {
 } from "../../components/ui/tabs";
 import { useResolveText, useTranslation } from "../../i18n/hooks";
 import { cn } from "../../lib/utils";
+import { AdminViewHeader } from "../layout/admin-view-layout";
 import { DashboardWidget } from "./dashboard-widget";
 
 // ============================================================================
@@ -220,87 +221,89 @@ function DashboardHeader({
 	const secondaryActions = actions?.filter((a) => a !== primaryAction) || [];
 
 	return (
-		<div className="qa-dashboard__header mb-8 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-			<div className="min-w-0 flex-1">
-				{title && (
-					<h1 className="qa-dashboard__title text-2xl font-extrabold tracking-tight md:text-3xl">
-						{title}
-					</h1>
-				)}
-				{description && (
-					<p className="qa-dashboard__description text-muted-foreground mt-1">
-						{description}
-					</p>
-				)}
-			</div>
-			{actions && actions.length > 0 && (
-				<div className="flex shrink-0 items-center gap-2">
-					{/* Primary action always visible */}
-					{primaryAction && (
-						<Button
-							key={primaryAction.id}
-							variant={
-								primaryAction.variant === "primary"
-									? "default"
-									: primaryAction.variant || "default"
-							}
-							onClick={() => handleActionClick(primaryAction)}
-						>
-							{resolveIconElement(primaryAction.icon, {
-								"data-icon": "inline-start",
-							})}
-							{resolveText(primaryAction.label)}
-						</Button>
-					)}
-
-					{/* Secondary actions: visible on md+, hidden on mobile */}
-					{secondaryActions.map((action) => {
-						const iconElement = resolveIconElement(action.icon, {
-							"data-icon": "inline-start",
-						});
-						const variant = action.variant || "default";
-
-						return (
+		<AdminViewHeader
+			className="qa-dashboard__header mb-4"
+			title={title}
+			description={description}
+			actions={
+				actions && actions.length > 0 ? (
+					<>
+						{/* Primary action always visible */}
+						{primaryAction && (
 							<Button
-								key={action.id}
-								variant={variant === "primary" ? "default" : variant}
-								onClick={() => handleActionClick(action)}
-								className="hidden md:inline-flex"
-							>
-								{iconElement}
-								{resolveText(action.label)}
-							</Button>
-						);
-					})}
-
-					{/* Dropdown for secondary actions on mobile */}
-					{secondaryActions.length > 0 && (
-						<DropdownMenu>
-							<DropdownMenuTrigger
-								render={
-									<Button variant="outline" size="icon" className="md:hidden">
-										<Icon icon="ph:dots-three-vertical" className="size-4" />
-									</Button>
+								key={primaryAction.id}
+								variant={
+									primaryAction.variant === "primary"
+										? "default"
+										: primaryAction.variant || "default"
 								}
-							/>
-							<DropdownMenuContent align="end">
-								{secondaryActions.map((action) => (
-									<DropdownMenuItem
-										key={action.id}
-										onClick={() => handleActionClick(action)}
-									>
-										{resolveIconElement(action.icon, {
-											className: "size-4 mr-2",
-										})}
-										{resolveText(action.label)}
-									</DropdownMenuItem>
-								))}
-							</DropdownMenuContent>
-						</DropdownMenu>
-					)}
-				</div>
-			)}
-		</div>
+								size="sm"
+								onClick={() => handleActionClick(primaryAction)}
+							>
+								{resolveIconElement(primaryAction.icon, {
+									"data-icon": "inline-start",
+								})}
+								{resolveText(primaryAction.label)}
+							</Button>
+						)}
+
+						{/* Secondary actions: visible on md+, hidden on mobile */}
+						{secondaryActions.map((action) => {
+							const iconElement = resolveIconElement(action.icon, {
+								"data-icon": "inline-start",
+							});
+							const variant = action.variant || "default";
+
+							return (
+								<Button
+									key={action.id}
+									variant={variant === "primary" ? "default" : variant}
+									size="sm"
+									onClick={() => handleActionClick(action)}
+									className="hidden md:inline-flex"
+								>
+									{iconElement}
+									{resolveText(action.label)}
+								</Button>
+							);
+						})}
+
+						{/* Dropdown for secondary actions on mobile */}
+						{secondaryActions.length > 0 && (
+							<DropdownMenu>
+								<DropdownMenuTrigger
+									render={
+										<Button
+											variant="outline"
+											size="icon-sm"
+											className="md:hidden"
+										>
+											<Icon
+												icon="ph:dots-three-vertical"
+												className="size-3.5"
+											/>
+										</Button>
+									}
+								/>
+								<DropdownMenuContent align="end">
+									{secondaryActions.map((action) => (
+										<DropdownMenuItem
+											key={action.id}
+											onClick={() => handleActionClick(action)}
+										>
+											{resolveIconElement(action.icon, {
+												className: "size-4 mr-2",
+											})}
+											{resolveText(action.label)}
+										</DropdownMenuItem>
+									))}
+								</DropdownMenuContent>
+							</DropdownMenu>
+						)}
+					</>
+				) : undefined
+			}
+		/>
 	);
 }
 
@@ -595,10 +598,7 @@ function TabContentRenderer({
 
 	return (
 		<div
-			className={cn(
-				"@container grid items-start gap-4",
-				getGridClass(columns),
-			)}
+			className={cn("@container grid items-start gap-4", getGridClass(columns))}
 		>
 			{tab.items.map((item, index) => (
 				<LayoutItemRenderer

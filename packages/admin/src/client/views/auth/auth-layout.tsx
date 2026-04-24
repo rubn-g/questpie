@@ -44,6 +44,32 @@ export type AuthLayoutProps = {
 	className?: string;
 };
 
+function AuthBrandMark({ className }: { className?: string }) {
+	return (
+		<svg
+			xmlns="http://www.w3.org/2000/svg"
+			viewBox="0 0 24 24"
+			fill="none"
+			className={cn("text-foreground size-16 shrink-0", className)}
+			aria-label="QUESTPIE"
+		>
+			<path
+				d="M2 2H22V10"
+				stroke="currentColor"
+				strokeWidth="2"
+				strokeLinecap="square"
+			/>
+			<path
+				d="M2 2V22H10"
+				stroke="currentColor"
+				strokeWidth="2"
+				strokeLinecap="square"
+			/>
+			<path d="M23 13H13V23H23V13Z" fill="#B700FF" />
+		</svg>
+	);
+}
+
 /**
  * Built-in centered card layout (fallback when no override is registered).
  */
@@ -56,30 +82,52 @@ function AuthLayoutBuiltIn({
 	className,
 }: AuthLayoutProps) {
 	return (
-		<div className="qa-auth-layout bg-background flex min-h-screen flex-col items-center justify-center p-4">
-			<div className="qa-auth-layout__content w-full max-w-sm space-y-6">
-				{/* Logo */}
-				{logo && (
-					<div className="qa-auth-layout__logo flex justify-center">{logo}</div>
-				)}
-
-				{/* Main Card */}
-				<Card className={cn("qa-auth-layout__card shadow-md w-full", className)}>
-					<CardHeader className="qa-auth-layout__card-header text-center">
-						<CardTitle className="text-lg">{title}</CardTitle>
-						{description && <CardDescription>{description}</CardDescription>}
-					</CardHeader>
-					<CardContent className="qa-auth-layout__card-content">
-						{children}
-					</CardContent>
-				</Card>
-
-				{/* Footer */}
-				{footer && (
-					<div className="qa-auth-layout__footer text-muted-foreground text-center text-xs">
-						{footer}
+		<div className="qa-auth-layout bg-background text-foreground flex min-h-screen">
+			<section className="qa-auth-layout__brand-panel bg-muted/20 relative hidden w-[40%] flex-col items-center justify-center overflow-hidden md:flex lg:w-[45%]">
+				<div className="qa-auth-layout__brand-grid pointer-events-none absolute inset-0 opacity-70" />
+				<div className="qa-auth-layout__brand-glow pointer-events-none absolute h-[520px] w-[520px] rounded-full" />
+				<div className="relative z-10 flex flex-col items-center gap-6 px-8 text-center">
+					{logo ?? <AuthBrandMark />}
+					<div className="flex flex-col items-center gap-2">
+						<span className="text-foreground text-2xl font-bold tracking-[-0.05em]">
+							QUESTPIE
+						</span>
+						<p className="text-muted-foreground/60 max-w-sm text-xs tracking-[0.22em] text-balance uppercase">
+							Build apps · Run companies · One platform
+						</p>
 					</div>
-				)}
+				</div>
+			</section>
+
+			<div className="qa-auth-layout__form-panel flex min-h-screen flex-1 items-center justify-center px-4 py-10 sm:px-6 lg:px-10">
+				<div className="qa-auth-layout__content w-full max-w-sm space-y-6">
+					<div className="qa-auth-layout__mobile-brand flex justify-center md:hidden">
+						{logo ?? <AuthBrandMark className="size-12" />}
+					</div>
+
+					<Card
+						className={cn(
+							"qa-auth-layout__card border-border-subtle w-full shadow-sm",
+							className,
+						)}
+					>
+						<CardHeader className="qa-auth-layout__card-header text-left">
+							<CardTitle className="text-xl font-semibold tracking-[-0.02em]">
+								{title}
+							</CardTitle>
+							{description && <CardDescription>{description}</CardDescription>}
+						</CardHeader>
+						<CardContent className="qa-auth-layout__card-content">
+							{children}
+						</CardContent>
+					</Card>
+
+					{footer && (
+						<div className="qa-auth-layout__footer text-muted-foreground text-center text-xs">
+							{footer}
+						</div>
+					)}
+				</div>
 			</div>
 		</div>
 	);
@@ -110,9 +158,9 @@ function AuthLayoutBuiltIn({
  */
 export function AuthLayout(props: AuthLayoutProps) {
 	const adminStore = useAdminStoreRaw();
-	const overrideLoader = adminStore?.getState().admin.getComponent(
-		"adminAuthLayout",
-	) as MaybeLazyComponent | undefined;
+	const overrideLoader = adminStore
+		?.getState()
+		.admin.getComponent("adminAuthLayout") as MaybeLazyComponent | undefined;
 	const { Component: Override } = useLazyComponent(overrideLoader, {
 		allowDynamicImportLoaders: false,
 	});

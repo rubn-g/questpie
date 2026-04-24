@@ -181,7 +181,7 @@ function RadioGroup<TValue extends string = string>({
 							onChange={() => onChange(option.value)}
 							disabled={option.disabled || disabled}
 							className={cn(
-								"accent-primary size-4 shrink-0",
+								"accent-foreground size-4 shrink-0",
 								"disabled:cursor-not-allowed disabled:opacity-50",
 							)}
 						/>

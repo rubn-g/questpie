@@ -13,7 +13,7 @@ import type * as React from "react";
 import type { ComponentReference } from "#questpie/admin/server/augmentation.js";
 
 import type { I18nText } from "../../i18n/types";
-import type { FieldDefinition } from "../field/field";
+import type { FieldInstance } from "../field/field";
 import type { IconComponent, MaybeLazyComponent } from "./common";
 
 // ============================================================================
@@ -147,7 +147,7 @@ export interface ActionFormConfig<TItem = any> {
 	/** Dialog description */
 	description?: I18nText;
 	/** Form fields using FieldDefinition */
-	fields: Record<string, FieldDefinition>;
+	fields: Record<string, FieldInstance>;
 	/** Default values */
 	defaultValues?: Record<string, any>;
 	/** Submit handler */
@@ -302,6 +302,8 @@ export interface HeaderActionsConfig<TItem = any> {
 export interface ActionsConfig<TItem = any> {
 	/** Actions displayed in the header area (create, import, etc.) */
 	header?: HeaderActionsConfig<TItem>;
+	/** Actions displayed per row in list/table views */
+	row?: ActionDefinition<TItem>[];
 	/** Actions for bulk operations on selected items (deleteMany, duplicate, etc.) */
 	bulk?: ActionDefinition<TItem>[];
 }

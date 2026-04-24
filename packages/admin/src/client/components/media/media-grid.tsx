@@ -89,7 +89,7 @@ function getAssetTypeColor(mimeType?: string): string {
 	const type = mimeType.toLowerCase();
 
 	if (type.startsWith("image/")) return "bg-info/10";
-	if (type.startsWith("video/")) return "bg-primary/10";
+	if (type.startsWith("video/")) return "bg-surface-high";
 	if (type.startsWith("audio/")) return "bg-success/10";
 	if (type === "application/pdf") return "bg-destructive/10";
 
@@ -173,7 +173,7 @@ function AssetItem({
 				"panel-surface group relative aspect-square w-full overflow-hidden",
 				"focus-visible:ring-ring transition-all focus-visible:ring-2 focus-visible:outline-none",
 				selected
-					? "border-primary ring-ring/30 ring-2"
+					? "border-border-strong bg-surface-high ring-ring/20 ring-2"
 					: "hover:border-border hover:bg-accent/20",
 				"bg-card",
 			)}
@@ -205,13 +205,11 @@ function AssetItem({
 					className={cn(
 						"absolute top-2 right-2 flex size-5 items-center justify-center rounded-full border-2 transition-all",
 						selected
-							? "bg-primary border-primary"
+							? "border-foreground bg-foreground text-background"
 							: "border-border bg-background/80 text-muted-foreground group-hover:bg-background",
 					)}
 				>
-					{selected && (
-						<Icon icon="ph:check-bold" className="size-3 text-white" />
-					)}
+					{selected && <Icon icon="ph:check-bold" className="size-3" />}
 				</div>
 			)}
 

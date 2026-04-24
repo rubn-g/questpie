@@ -6,6 +6,7 @@ import { Icon } from "@iconify/react";
 import * as React from "react";
 
 import { useTranslation } from "../../../../i18n/hooks";
+import { cn } from "../../../../lib/utils";
 import { CollectionEditLink } from "../../../admin-link";
 import { resolveIconElement } from "../../../component-renderer";
 import { Button } from "../../../ui/button";

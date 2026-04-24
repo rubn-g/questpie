@@ -29,9 +29,7 @@
 		"./shared": "./src/exports/shared.ts",
 		"./*": "./*",
 		"./client/styles/base.css": "./src/client/styles/base.css",
-		"./client/styles/brutal.css": "./src/client/styles/brutal.css",
-		"./client/styles/index.css": "./src/client/styles/index.css",
-		"./client/styles/soft.css": "./src/client/styles/soft.css"
+		"./client/styles/index.css": "./src/client/styles/index.css"
 	},
 	"publishConfig": {
 		"access": "public",
@@ -44,9 +42,7 @@
 			"./shared": "./dist/shared.mjs",
 			"./*": "./*",
 			"./client/styles/base.css": "./dist/client/styles/base.css",
-			"./client/styles/brutal.css": "./dist/client/styles/brutal.css",
-			"./client/styles/index.css": "./dist/client/styles/index.css",
-			"./client/styles/soft.css": "./dist/client/styles/soft.css"
+			"./client/styles/index.css": "./dist/client/styles/index.css"
 		}
 	},
 	"scripts": {
@@ -107,11 +103,11 @@
 	},
 	"devDependencies": {
 		"@rollup/plugin-babel": "^6.1.0",
-		"bun-types": "latest",
 		"@tanstack/db": "^0.1.1",
 		"@types/react": "^19.2.0",
 		"@types/react-dom": "^19.2.0",
 		"babel-plugin-react-compiler": "^1.0.0",
+		"bun-types": "latest",
 		"shadcn": "^3.6.1",
 		"tinyglobby": "^0.2.15",
 		"tsdown": "^0.18.3",

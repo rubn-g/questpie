@@ -18,7 +18,11 @@ import type {
 } from "../../builder/types/action-types";
 import { resolveIconElement } from "../../components/component-renderer";
 import { useResolveText, useTranslation } from "../../i18n/hooks";
-import { selectAuthClient, useAdminStore } from "../../runtime/provider";
+import {
+	selectAuthClient,
+	selectClient,
+	useAdminStore,
+} from "../../runtime/provider";
 import { Button } from "../ui/button";
 import { ConfirmationDialog } from "./confirmation-dialog";
 
@@ -70,6 +74,7 @@ export function ActionButton<TItem = any>({
 	const resolveText = useResolveText();
 	const { t } = useTranslation();
 	const authClient = useAdminStore(selectAuthClient);
+	const client = useAdminStore(selectClient);
 	const queryClient = useQueryClient();
 	const [showConfirm, setShowConfirm] = React.useState(false);
 	const [isLoading, setIsLoading] = React.useState(false);
@@ -141,13 +146,22 @@ export function ActionButton<TItem = any>({
 				const method = handler.method ? handler.method : "POST";
 				const endpoint = handler.endpoint.replace("{id}", itemId);
 				try {
-					// This would need actual API implementation
-					// For now, we'll show a placeholder
-					helpers.toast.info(`API call: ${method} ${endpoint}`);
-					helpers.refresh();
+					const collectionClient = (client as any).collections?.[collection];
+					if (method === "DELETE" && collectionClient?.delete) {
+						if (!itemId) throw new Error(t("toast.deleteFailed"));
+
+						await collectionClient.delete({ id: itemId });
+						helpers.toast.success(t("toast.deleteSuccess"));
+						await helpers.invalidateCollection(collection);
+					} else {
+						helpers.toast.info(`API call: ${method} ${endpoint}`);
+						helpers.refresh();
+					}
 					setIsLoading(false);
 				} catch (error) {
-					helpers.toast.error(t("error.actionFailed"));
+					helpers.toast.error(
+						error instanceof Error ? error.message : t("error.actionFailed"),
+					);
 					setIsLoading(false);
 				}
 				break;
@@ -200,6 +214,7 @@ export function ActionButton<TItem = any>({
 	const iconElement = resolveIconElement(action.icon, {
 		"data-icon": "inline-start",
 	});
+	const label = resolveText(action.label);
 
 	return (
 		<>
@@ -209,9 +224,10 @@ export function ActionButton<TItem = any>({
 				onClick={handleClick}
 				disabled={isDisabled || isLoading}
 				className={className}
+				title={iconOnly ? label : undefined}
 			>
 				{iconElement}
-				{!iconOnly && resolveText(action.label)}
+				{iconOnly ? <span className="sr-only">{label}</span> : label}
 			</Button>
 
 			{action.confirmation && (

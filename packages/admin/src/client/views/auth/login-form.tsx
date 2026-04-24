@@ -180,7 +180,7 @@ export function LoginForm({
 							<label className="text-muted-foreground flex items-center gap-2 text-xs">
 								<input
 									type="checkbox"
-									className="border-border accent-primary"
+									className="border-border accent-foreground"
 									{...register("rememberMe")}
 								/>
 								{t("auth.rememberMe")}

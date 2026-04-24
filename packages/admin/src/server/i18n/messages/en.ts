@@ -40,6 +40,7 @@ export default {
 	"common.view": "View",
 	"common.open": "Open",
 	"common.retry": "Retry",
+	"common.backToList": "Back to list",
 	"common.submit": "Submit",
 	"common.deleted": "Deleted",
 
@@ -331,6 +332,7 @@ export default {
 	"table.hideColumn": "Hide column",
 	"table.showColumn": "Show column",
 	"table.noItemsInCollection": "No items found in this collection",
+	"table.emptyDescription": "Records will appear here once they are created.",
 	"table.pagination": "Pagination",
 	"table.editing": "Editing",
 
@@ -665,6 +667,8 @@ export default {
 		other: "{{count}} filters active",
 	},
 	"viewOptions.clearFilters": "Clear filters",
+	"viewOptions.noResultsDescription":
+		"No records match the active filters. Adjust or clear them to see more results.",
 
 	// Filter Operators
 	"filter.contains": "Contains",
@@ -726,6 +730,8 @@ export default {
 	// Collection Search
 	"collectionSearch.placeholder": "Search records...",
 	"collectionSearch.noResults": "No matching records found",
+	"collectionSearch.noResultsDescription":
+		"Try a different search term or clear the search to return to the full list.",
 	"collectionSearch.searching": "Searching...",
 
 	// Audit Log

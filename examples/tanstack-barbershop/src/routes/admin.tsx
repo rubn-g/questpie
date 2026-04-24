@@ -29,14 +29,21 @@ function AdminLink({
 	className,
 	children,
 	activeProps,
+	activeOptions,
 }: {
 	to: string;
 	className?: string;
 	children: React.ReactNode;
 	activeProps?: { className?: string };
+	activeOptions?: { exact?: boolean };
 }) {
 	return (
-		<Link to={to} className={className} activeProps={activeProps}>
+		<Link
+			to={to}
+			className={className}
+			activeProps={activeProps}
+			activeOptions={activeOptions}
+		>
 			{children}
 		</Link>
 	);

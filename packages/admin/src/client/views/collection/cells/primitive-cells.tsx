@@ -184,7 +184,7 @@ export function EmailCell({ value }: { value: unknown }) {
 	if (value === null || value === undefined || value === "") {
 		return <span className="text-muted-foreground">-</span>;
 	}
-	return <span className="text-primary">{String(value)}</span>;
+	return <span className="text-foreground">{String(value)}</span>;
 }
 
 /**

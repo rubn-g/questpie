@@ -1,3 +1,4 @@
+import { Icon as IconifyIcon } from "@iconify/react";
 import type * as React from "react";
 
 import { cn } from "../../lib/utils";
@@ -5,6 +6,8 @@ import { cn } from "../../lib/utils";
 // ============================================================================
 // Types
 // ============================================================================
+
+type EmptyStateVariant = "empty" | "error" | "search";
 
 interface EmptyStateProps {
 	/**
@@ -21,6 +24,17 @@ interface EmptyStateProps {
 	 * Optional icon component
 	 */
 	icon?: React.ComponentType<{ className?: string }>;
+
+	/**
+	 * Optional Iconify icon name
+	 */
+	iconName?: string;
+
+	/**
+	 * Visual treatment
+	 * @default "empty"
+	 */
+	variant?: EmptyStateVariant;
 
 	/**
 	 * Optional action button/element
@@ -64,40 +78,62 @@ export function EmptyState({
 	title,
 	description,
 	icon: Icon,
+	iconName,
+	variant = "empty",
 	action,
 	height = "h-48",
 	className,
 }: EmptyStateProps): React.ReactElement {
+	const resolvedIconName =
+		iconName ??
+		(variant === "error"
+			? "ph:warning-circle"
+			: variant === "search"
+				? "ph:magnifying-glass"
+				: "ph:tray");
+
 	return (
 		<div
 			data-slot="empty-state"
+			data-variant={variant}
+			role={variant === "error" ? "alert" : undefined}
 			className={cn(
-				"qa-empty-state relative flex flex-col items-center justify-center rounded-sm",
-				"border-border bg-card border border-dashed",
+				"qa-empty-state panel-surface relative flex flex-col items-center justify-center border-dashed px-6 py-10 text-center",
 				height,
 				className,
 			)}
 		>
-			<div className="text-center">
-				{/* Glow dot or icon */}
-				{Icon ? (
-					<Icon className="text-muted-foreground/50 mx-auto mb-4 size-8" />
-				) : (
-					<div className="bg-muted-foreground/30 mx-auto mb-4 size-2 rounded-full" />
-				)}
+			<div className="flex max-w-lg flex-col items-center">
+				<div
+					className={cn(
+						"mb-5 flex size-12 items-center justify-center rounded-[var(--control-radius)] border",
+						variant === "error"
+							? "border-destructive/25 bg-destructive/10 text-destructive"
+							: "border-border-subtle bg-surface-low text-muted-foreground",
+					)}
+				>
+					{Icon ? (
+						<Icon className="size-5" />
+					) : (
+						<IconifyIcon icon={resolvedIconName} className="size-5" />
+					)}
+				</div>
 
-				{/* Title */}
-				<p className="qa-empty-state__title font-chrome text-foreground text-sm font-medium">
+				<p className="qa-empty-state__title font-chrome text-foreground max-w-sm text-sm font-semibold text-balance">
 					{title}
 				</p>
 
-				{/* Description */}
 				{description && (
-					<p className="text-muted-foreground mt-2 text-sm">{description}</p>
+					<p className="qa-empty-state__description text-muted-foreground mt-2 max-w-md text-sm/relaxed text-pretty">
+						{description}
+					</p>
 				)}
 
-				{/* Action */}
-				{action && <div className="mt-4">{action}</div>}
+				{action && (
+					<div className="qa-empty-state__action mt-5 flex flex-wrap items-center justify-center gap-2">
+						{action}
+					</div>
+				)}
 			</div>
 		</div>
 	);

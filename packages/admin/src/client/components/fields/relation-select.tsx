@@ -22,14 +22,11 @@ import { useResolveText, useTranslation } from "../../i18n/hooks";
 import { cn } from "../../lib/utils";
 import { selectClient, useAdminStore } from "../../runtime";
 import { resolveIconElement } from "../component-renderer";
+import { FieldSelectActionGroup } from "../primitives/field-select-control";
 import { SelectSingle } from "../primitives/select-single";
 import type { SelectOption } from "../primitives/types";
 import { ResourceSheet } from "../sheets/resource-sheet";
-import {
-	InputGroup,
-	InputGroupAddon,
-	InputGroupButton,
-} from "../ui/input-group";
+import { InputGroupAddon, InputGroupButton } from "../ui/input-group";
 import { LocaleBadge } from "./locale-badge";
 
 export interface RelationSelectProps<_T extends QuestpieApp> {
@@ -313,12 +310,7 @@ export function RelationSelect<T extends QuestpieApp>({
 			)}
 
 			{!readOnly ? (
-				<InputGroup
-					className={cn(
-						"h-9",
-						error && "border-destructive ring-destructive/20 ring-[2px]",
-					)}
-				>
+				<FieldSelectActionGroup error={!!error}>
 					{/* Searchable Select Dropdown - uses server-side search */}
 					<SelectSingle
 						id={name}
@@ -354,11 +346,12 @@ export function RelationSelect<T extends QuestpieApp>({
 					/>
 
 					{/* Action Buttons */}
-					<InputGroupAddon align="inline-end">
+					<InputGroupAddon align="inline-end" className="gap-0.5 pr-1">
 						{/* Edit button (only if value is set) */}
 						{value && (
 							<InputGroupButton
 								size="icon-sm"
+								className="text-muted-foreground hover:bg-surface-high hover:text-foreground"
 								onClick={handleOpenEdit}
 								disabled={disabled}
 								title={t("collection.edit", { name: labelText })}
@@ -371,6 +364,7 @@ export function RelationSelect<T extends QuestpieApp>({
 						{/* Create button */}
 						<InputGroupButton
 							size="icon-sm"
+							className="text-muted-foreground hover:bg-surface-high hover:text-foreground"
 							onClick={handleOpenCreate}
 							disabled={disabled}
 							title={createLabel}
@@ -379,7 +373,7 @@ export function RelationSelect<T extends QuestpieApp>({
 							<Icon icon="ph:plus" className="size-3.5" />
 						</InputGroupButton>
 					</InputGroupAddon>
-				</InputGroup>
+				</FieldSelectActionGroup>
 			) : (
 				/* Read-only: plain select, no action buttons */
 				<SelectSingle

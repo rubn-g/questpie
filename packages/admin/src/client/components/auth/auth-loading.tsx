@@ -57,7 +57,7 @@ export function AuthLoading({
 				className,
 			)}
 		>
-			<Spinner className="text-primary size-8" />
+			<Spinner className="text-foreground size-8" />
 			{showMessage && (
 				<p className="text-muted-foreground text-sm">{message}</p>
 			)}

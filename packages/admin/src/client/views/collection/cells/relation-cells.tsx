@@ -91,15 +91,15 @@ export function RelationCell({
 			return <span className="text-muted-foreground">-</span>;
 		}
 
-		const visibleItems = value.slice(0, 3);
-		const remainingCount = value.length - 3;
+		const visibleItems = value.slice(0, 2);
+		const remainingCount = value.length - 2;
 
 		return (
 			<>
 				<Tooltip>
 					<TooltipTrigger
 						render={
-							<span className="inline-flex max-w-[250px] flex-wrap items-center gap-1 overflow-hidden">
+							<span className="inline-flex max-w-[260px] flex-nowrap items-center gap-1 overflow-hidden">
 								{visibleItems.map((item) => {
 									const itemId = getRelationItemId(item);
 									return (
@@ -108,7 +108,7 @@ export function RelationCell({
 											item={item}
 											targetCollection={targetCollection}
 											onClick={handleChipClick}
-											className="shrink-0"
+											className="max-w-28 shrink-0"
 											showAvatar={showAvatar}
 											avatarField={avatarField}
 											labelField={labelField}
@@ -273,7 +273,7 @@ function ReverseRelationCell({
 		if (value.length <= 2) {
 			return (
 				<>
-					<span className="inline-flex flex-wrap items-center gap-1">
+					<span className="inline-flex max-w-[220px] flex-nowrap items-center gap-1 overflow-hidden">
 						{value.map((item) => {
 							const itemId = getRelationItemId(item);
 							return (
@@ -282,6 +282,7 @@ function ReverseRelationCell({
 									item={item}
 									targetCollection={sourceCollection}
 									onClick={handleChipClick}
+									className="max-w-32 shrink-0"
 								/>
 							);
 						})}

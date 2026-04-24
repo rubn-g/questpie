@@ -283,6 +283,7 @@ export class CRUDGenerator<TState extends CollectionBuilderState> {
 		const find = this.wrapWithAppContext(this.createFind());
 		const findOne = this.wrapWithAppContext(this.createFindOne());
 		const updateMany = this.wrapWithAppContext(this.createUpdateMany());
+		const updateBatch = this.wrapWithAppContext(this.createUpdateBatch());
 		const deleteMany = this.wrapWithAppContext(this.createDeleteMany());
 		const restoreById = this.wrapWithAppContext(this.createRestore());
 
@@ -293,6 +294,7 @@ export class CRUDGenerator<TState extends CollectionBuilderState> {
 			create: this.wrapWithAppContext(this.createCreate()),
 			updateById: this.wrapWithAppContext(this.createUpdate()),
 			update: updateMany,
+			updateBatch,
 			deleteById: this.wrapWithAppContext(this.createDelete()),
 			delete: deleteMany,
 			restoreById,
@@ -1440,7 +1442,9 @@ export class CRUDGenerator<TState extends CollectionBuilderState> {
 	 * Ensures consistency in access control, hooks, validation, and re-fetching.
 	 */
 	private async _executeUpdate(
-		params: UpdateParams | { where: Where; data: Record<string, any> },
+		params:
+			| UpdateParams<any, any, string | number>
+			| { where: Where; data: Record<string, any> },
 		context: CRUDContext = {},
 	) {
 		const normalized = this.normalizeContext(context);
@@ -1975,6 +1979,45 @@ export class CRUDGenerator<TState extends CollectionBuilderState> {
 			context: CRUDContext = {},
 		) => {
 			return this._executeUpdate(params, context);
+		};
+	}
+
+	/**
+	 * Create updateBatch operation - heterogeneous updates in one transaction.
+	 */
+	private createUpdateBatch() {
+		return async (
+			params: {
+				updates: Array<{ id: string | number; data: UpdateParams["data"] }>;
+			},
+			context: CRUDContext = {},
+		) => {
+			if (!Array.isArray(params.updates)) {
+				throw ApiError.badRequest("updates must be an array");
+			}
+
+			if (params.updates.length === 0) {
+				return [];
+			}
+
+			const normalized = this.normalizeContext(context);
+			const db = this.getDb(normalized);
+
+			return withTransaction(db, async (tx: any) => {
+				const txContext = { ...normalized, db: tx };
+				const updatedRecords: any[] = [];
+
+				for (const update of params.updates) {
+					updatedRecords.push(
+						await this._executeUpdate(
+							{ id: update.id, data: update.data },
+							txContext,
+						),
+					);
+				}
+
+				return updatedRecords;
+			});
 		};
 	}
 

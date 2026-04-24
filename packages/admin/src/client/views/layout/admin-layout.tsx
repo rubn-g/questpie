@@ -13,15 +13,10 @@ import * as React from "react";
 
 import { SidebarInset, SidebarProvider } from "../../components/ui/sidebar";
 import { type AdminToasterProps, Toaster } from "../../components/ui/sonner";
-import {
-	BreadcrumbProvider,
-	useCurrentBreadcrumbs,
-} from "../../contexts/breadcrumb-context";
 import { cn } from "../../lib/utils";
 import { useAdminStore } from "../../runtime/provider";
 import { GlobalSearch } from "../common";
 import { AdminSidebar, type AdminSidebarProps } from "./admin-sidebar";
-import { AdminTopbar } from "./admin-topbar";
 
 // ============================================================================
 // Types
@@ -31,6 +26,63 @@ import { AdminTopbar } from "./admin-topbar";
  * Theme mode for the admin interface
  */
 export type AdminTheme = "light" | "dark" | "system";
+
+const ADMIN_THEME_STORAGE_KEY = "questpie:admin-theme";
+
+function getStoredAdminTheme(): AdminTheme {
+	if (typeof window === "undefined") return "system";
+	const stored = window.localStorage.getItem(ADMIN_THEME_STORAGE_KEY);
+	return stored === "light" || stored === "dark" || stored === "system"
+		? stored
+		: "system";
+}
+
+function useManagedAdminTheme(
+	controlledTheme: AdminTheme | undefined,
+	controlledSetTheme: ((theme: AdminTheme) => void) | undefined,
+) {
+	const [uncontrolledTheme, setUncontrolledTheme] =
+		React.useState<AdminTheme>(getStoredAdminTheme);
+	const theme = controlledTheme ?? uncontrolledTheme;
+
+	const setTheme = React.useCallback(
+		(next: AdminTheme) => {
+			if (controlledSetTheme) {
+				controlledSetTheme(next);
+				return;
+			}
+
+			setUncontrolledTheme(next);
+			try {
+				window.localStorage.setItem(ADMIN_THEME_STORAGE_KEY, next);
+			} catch {
+				// Ignore storage failures; class application still updates in memory.
+			}
+		},
+		[controlledSetTheme],
+	);
+
+	React.useEffect(() => {
+		const root = document.documentElement;
+		const media = window.matchMedia("(prefers-color-scheme: dark)");
+
+		const applyTheme = () => {
+			const resolved =
+				theme === "system" ? (media.matches ? "dark" : "light") : theme;
+			root.classList.toggle("dark", resolved === "dark");
+			root.classList.toggle("light", resolved === "light");
+			root.style.colorScheme = resolved;
+		};
+
+		applyTheme();
+		if (theme !== "system") return;
+
+		media.addEventListener("change", applyTheme);
+		return () => media.removeEventListener("change", applyTheme);
+	}, [theme]);
+
+	return { theme, setTheme };
+}
 
 /**
  * Layout mode for content area width
@@ -157,22 +209,6 @@ function useLayoutProps(props: {
 }
 
 // ============================================================================
-// Internal Components
-// ============================================================================
-
-/**
- * Topbar wrapper that reads breadcrumbs from context
- */
-const AdminTopbarWithBreadcrumbs = React.memo(
-	function AdminTopbarWithBreadcrumbs(
-		props: Omit<React.ComponentProps<typeof AdminTopbar>, "breadcrumbs">,
-	) {
-		const breadcrumbs = useCurrentBreadcrumbs();
-		return <AdminTopbar {...props} breadcrumbs={breadcrumbs} />;
-	},
-);
-
-// ============================================================================
 // Component
 // ============================================================================
 
@@ -204,12 +240,13 @@ export function AdminLayout({
 	header,
 	footer,
 	navigate: navigateProp,
-	theme = "system",
-	setTheme,
+	theme: themeProp,
+	setTheme: setThemeProp,
 	showThemeToggle,
 	toasterProps,
 	layoutMode = "wide",
 }: AdminLayoutProps): React.ReactElement {
+	const { theme, setTheme } = useManagedAdminTheme(themeProp, setThemeProp);
 	// Infer show flags from content
 	const shouldShowHeader = !!header;
 	const shouldShowFooter = !!footer;
@@ -236,86 +273,87 @@ export function AdminLayout({
 	}, []);
 
 	return (
-		<BreadcrumbProvider>
-			<div className={cn("qa-admin-layout min-h-screen", className)}>
-				{/* Skip to main content link — visible on focus for keyboard users */}
-				<a
-					href="#main-content"
-					className="qa-admin-layout__skip-link focus:bg-primary focus:text-primary-foreground sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:px-4 focus:py-2 focus:text-sm focus:font-medium"
-				>
-					Skip to main content
-				</a>
+		<div
+			className={cn(
+				"qa-admin-layout bg-sidebar text-foreground min-h-screen",
+				className,
+			)}
+		>
+			{/* Skip to main content link — visible on focus for keyboard users */}
+			<a
+				href="#main-content"
+				className="qa-admin-layout__skip-link focus:bg-surface-high focus:text-foreground sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:rounded-sm focus:px-4 focus:py-2 focus:text-sm focus:font-medium"
+			>
+				Skip to main content
+			</a>
 
-				{isSearchOpen && (
-					<GlobalSearch
-						isOpen={isSearchOpen}
-						onClose={closeSearch}
-						navigate={navigate}
-						basePath={basePath}
-					/>
-				)}
+			{isSearchOpen && (
+				<GlobalSearch
+					isOpen={isSearchOpen}
+					onClose={closeSearch}
+					navigate={navigate}
+					basePath={basePath}
+				/>
+			)}
 
-				{/* Max-width container for ultrawide monitors - centered with subtle side borders */}
-				<SidebarProvider
-					defaultOpen={!sidebarCollapsedProp}
-					className="qa-admin-layout__sidebar-wrapper border-border mx-auto h-svh max-w-[1920px] overflow-hidden border-x"
-				>
-					{/* Sidebar */}
-					<AdminSidebar
-						LinkComponent={LinkComponent}
-						activeRoute={activeRoute}
-						basePath={basePath}
-						brandName={brandName}
-						{...sidebarProps}
-					/>
+			{/* Max-width container for ultrawide monitors - centered with subtle side borders */}
+			<SidebarProvider
+				defaultOpen={!sidebarCollapsedProp}
+				className="qa-admin-layout__sidebar-wrapper bg-sidebar mx-auto h-svh max-w-[1920px] overflow-hidden"
+			>
+				{/* Sidebar */}
+				<AdminSidebar
+					LinkComponent={LinkComponent}
+					activeRoute={activeRoute}
+					basePath={basePath}
+					brandName={brandName}
+					theme={theme}
+					setTheme={setTheme}
+					showThemeToggle={showThemeToggle}
+					onSearchOpen={openSearch}
+					{...sidebarProps}
+				/>
 
-					{/* Content Area */}
-					<SidebarInset className="qa-admin-layout__content flex h-svh flex-col">
-						<AdminTopbarWithBreadcrumbs
-							onSearchOpen={openSearch}
-							theme={theme}
-							setTheme={setTheme}
-							showThemeToggle={showThemeToggle}
-						/>
+				{/* Content Area */}
+				<SidebarInset className="qa-admin-layout__content bg-background flex h-svh flex-col overflow-hidden md:rounded-tl-2xl">
+					{/* Header (optional) */}
+					{shouldShowHeader && header && (
+						<header className="qa-admin-layout__header border-border-subtle border-b">
+							{header}
+						</header>
+					)}
 
-						{/* Header (optional) */}
-						{shouldShowHeader && header && (
-							<header className="qa-admin-layout__header border-b">
-								{header}
-							</header>
-						)}
-
-						<main
-							id="main-content"
-							className="qa-admin-layout__main min-w-0 flex-1 overflow-y-auto"
-							tabIndex={-1}
+					<main
+						id="main-content"
+						className="qa-admin-layout__main min-w-0 flex-1 overflow-y-auto"
+						tabIndex={-1}
+					>
+						<div
+							className={cn(
+								"qa-admin-layout__main-content min-w-0",
+								layoutMode === "default" &&
+									"mx-auto max-w-5xl px-3 pt-1 pb-6 md:px-4 md:pt-2 md:pb-8",
+								layoutMode === "wide" &&
+									"px-3 pt-1 pb-6 md:px-4 md:pt-2 md:pb-8",
+								layoutMode === "full" && "px-2 pt-1 pb-6 md:px-3 md:pb-8",
+								layoutMode === "immersive" && "p-0",
+							)}
 						>
-							<div
-								className={cn(
-									"qa-admin-layout__main-content min-w-0",
-									layoutMode === "default" &&
-										"mx-auto max-w-5xl p-3 md:p-4 lg:p-6",
-									layoutMode === "wide" && "p-3 md:p-4 lg:p-6",
-									layoutMode === "full" && "p-2 md:p-3",
-									layoutMode === "immersive" && "p-0",
-								)}
-							>
-								{children}
-							</div>
-						</main>
+							{children}
+						</div>
+					</main>
 
-						{/* Footer (optional) */}
-						{shouldShowFooter && footer && (
-							<footer className="qa-admin-layout__footer border-t">
-								{footer}
-							</footer>
-						)}
-					</SidebarInset>
-				</SidebarProvider>
+					{/* Footer (optional) */}
+					{shouldShowFooter && footer && (
+						<footer className="qa-admin-layout__footer border-border-subtle border-t">
+							{footer}
+						</footer>
+					)}
+				</SidebarInset>
+			</SidebarProvider>
 
-				{/* Toast notifications */}
-				<Toaster theme={theme} {...toasterProps} />
-			</div>
-		</BreadcrumbProvider>
+			{/* Toast notifications */}
+			<Toaster theme={theme} {...toasterProps} />
+		</div>
 	);
 }

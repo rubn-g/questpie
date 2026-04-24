@@ -800,11 +800,22 @@ function serializeActionFormFields(
 		if (typeof field.getMetadata === "function") {
 			const metadata = field.getMetadata();
 			const s = field._state ?? {};
+			const adminMeta =
+				(metadata.meta && typeof metadata.meta === "object"
+					? (metadata.meta as Record<string, unknown>)
+					: undefined) ??
+				(s.admin && typeof s.admin === "object"
+					? (s.admin as Record<string, unknown>)
+					: undefined) ??
+				(s.extensions?.admin && typeof s.extensions.admin === "object"
+					? (s.extensions.admin as Record<string, unknown>)
+					: undefined);
 
 			const serialized: Record<string, any> = {
 				type: metadata.type ?? field.getType?.() ?? "text",
 				label: metadata.label,
 				description: metadata.description,
+				placeholder: (metadata as { placeholder?: unknown }).placeholder,
 				required: metadata.required ?? false,
 				default: s.defaultValue,
 			};
@@ -818,6 +829,9 @@ function serializeActionFormFields(
 			}
 			if (metadata.multiple !== undefined) {
 				fieldOptions.multiple = metadata.multiple;
+			}
+			if (adminMeta) {
+				Object.assign(fieldOptions, adminMeta);
 			}
 
 			if (Object.keys(fieldOptions).length > 0) {
@@ -833,6 +847,67 @@ function serializeActionFormFields(
 	}
 
 	return result;
+}
+
+function serializeListActionReference(reference: unknown): unknown {
+	if (typeof reference === "string") return reference;
+
+	if (typeof reference === "function") {
+		const actionType = (reference as { type?: unknown }).type;
+		if (typeof actionType === "string") return actionType;
+
+		try {
+			const resolved = (reference as () => unknown)();
+			if (typeof resolved === "string" || typeof resolved === "object") {
+				return resolved;
+			}
+		} catch {
+			return undefined;
+		}
+	}
+
+	if (reference && typeof reference === "object") {
+		return reference;
+	}
+
+	return undefined;
+}
+
+function serializeListActionReferences(
+	references: unknown,
+): unknown[] | undefined {
+	if (!Array.isArray(references)) return undefined;
+
+	const serialized = references
+		.map(serializeListActionReference)
+		.filter((action) => action !== undefined);
+
+	return serialized.length > 0 ? serialized : [];
+}
+
+function serializeListActions(
+	actions: unknown,
+): AdminListViewSchema["actions"] {
+	if (!actions || typeof actions !== "object") return undefined;
+
+	const actionsRecord = actions as {
+		header?: { primary?: unknown; secondary?: unknown };
+		row?: unknown;
+		bulk?: unknown;
+	};
+
+	return {
+		header: actionsRecord.header
+			? {
+					primary: serializeListActionReferences(actionsRecord.header.primary),
+					secondary: serializeListActionReferences(
+						actionsRecord.header.secondary,
+					),
+				}
+			: undefined,
+		row: serializeListActionReferences(actionsRecord.row),
+		bulk: serializeListActionReferences(actionsRecord.bulk),
+	};
 }
 
 /**
@@ -892,7 +967,7 @@ function extractAdminConfig(
 			defaultSort: stateAny.adminList.defaultSort,
 			searchable: stateAny.adminList.searchable,
 			filterable: stateAny.adminList.filterable,
-			actions: stateAny.adminList.actions,
+			actions: serializeListActions(stateAny.adminList.actions),
 		};
 	}
 

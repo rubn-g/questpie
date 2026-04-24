@@ -4,13 +4,13 @@ import type * as React from "react";
 import { cn } from "#questpie/admin/client/lib/utils";
 
 const alertVariants = cva(
-	"qa-alert group/alert relative grid w-full gap-0.5 border px-2 py-1.5 text-left text-xs/relaxed has-data-[slot=alert-action]:relative has-data-[slot=alert-action]:pr-18 has-[>svg]:grid-cols-[auto_1fr] has-[>svg]:gap-x-1.5 *:[svg]:row-span-2 *:[svg]:translate-y-0.5 *:[svg]:text-current *:[svg:not([class*='size-'])]:size-3.5",
+	"qa-alert group/alert border-border-subtle bg-card text-card-foreground *:[svg]:text-muted-foreground relative grid w-full gap-0.5 border px-2 py-1.5 text-left text-xs/relaxed has-data-[slot=alert-action]:relative has-data-[slot=alert-action]:pr-18 has-[>svg]:grid-cols-[auto_1fr] has-[>svg]:gap-x-1.5 *:[svg]:row-span-2 *:[svg]:translate-y-0.5 *:[svg:not([class*='size-'])]:size-3.5",
 	{
 		variants: {
 			variant: {
-				default: "bg-card text-card-foreground",
+				default: "",
 				destructive:
-					"text-destructive bg-card *:data-[slot=alert-description]:text-destructive/90 *:[svg]:text-current",
+					"border-border-strong/40 bg-surface-low text-foreground *:data-[slot=alert-description]:text-muted-foreground *:[svg]:text-foreground-subtle",
 			},
 		},
 		defaultVariants: {

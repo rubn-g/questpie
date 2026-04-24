@@ -12,7 +12,7 @@ function Card({
 			data-slot="card"
 			data-size={size}
 			className={cn(
-				"qa-card rounded-md shadow-xs bg-card text-card-foreground border-border group/card flex flex-col gap-4 overflow-hidden border py-4 text-xs/relaxed data-[size=sm]:gap-3 data-[size=sm]:py-3",
+				"qa-card bg-card text-card-foreground border-border-subtle group/card flex flex-col gap-4 overflow-hidden rounded-[var(--surface-radius)] border py-4 text-xs/relaxed shadow-[var(--surface-shadow)] data-[size=sm]:gap-3 data-[size=sm]:py-3",
 				className,
 			)}
 			{...props}
@@ -37,7 +37,10 @@ function CardTitle({ className, ...props }: React.ComponentProps<"div">) {
 	return (
 		<div
 			data-slot="card-title"
-			className={cn("qa-card__title font-chrome text-sm font-medium", className)}
+			className={cn(
+				"qa-card__title font-chrome text-sm font-semibold tracking-tight",
+				className,
+			)}
 			{...props}
 		/>
 	);

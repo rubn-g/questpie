@@ -32,6 +32,7 @@ import { useGlobalSchema } from "../../hooks/use-global-schema";
 import { parsePrefillParams } from "../../hooks/use-prefill-params";
 import { selectClient, useAdminStore } from "../../runtime/provider";
 import { DashboardGrid } from "../dashboard/dashboard-grid";
+import { AdminViewHeader } from "./admin-view-layout";
 
 // ============================================================================
 // Constants
@@ -547,14 +548,7 @@ function DefaultDashboard() {
 
 	return (
 		<div className="qa-default-dashboard container">
-			<div className="mb-8 flex items-end justify-between">
-				<div>
-					<h1 className="text-3xl font-semibold">Dashboard</h1>
-					<p className="text-muted-foreground font-chrome chrome-meta mt-1 text-xs">
-						{date}
-					</p>
-				</div>
-			</div>
+			<AdminViewHeader className="mb-4" title="Dashboard" meta={date} />
 
 			<div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
 				<Card className="p-6">

@@ -31,15 +31,15 @@ The repo already points toward the right architecture:
 
 Concrete evidence in the current codebase:
 
-| Concern | Current file(s) |
-| --- | --- |
-| Server admin config discovery | `packages/admin/src/server/plugin.ts` |
-| Admin client target categories (`views`, `components`, `fields`, `pages`, `widgets`, `blocks`) | `packages/admin/src/server/plugin.ts` |
-| Generic admin client codegen merge | `packages/admin/src/server/codegen/admin-client-template.ts` |
-| Cross-target validation | `packages/admin/src/server/codegen/projection-validator.ts` |
-| Example app-owned admin shell | `examples/tanstack-barbershop/src/routes/admin.tsx` |
-| Example app-owned admin CSS | `examples/tanstack-barbershop/src/admin.css` |
-| Example server-side admin structure | `examples/tanstack-barbershop/src/questpie/server/config/admin.ts` |
+| Concern                                                                                        | Current file(s)                                                    |
+| ---------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| Server admin config discovery                                                                  | `packages/admin/src/server/plugin.ts`                              |
+| Admin client target categories (`views`, `components`, `fields`, `pages`, `widgets`, `blocks`) | `packages/admin/src/server/plugin.ts`                              |
+| Generic admin client codegen merge                                                             | `packages/admin/src/server/codegen/admin-client-template.ts`       |
+| Cross-target validation                                                                        | `packages/admin/src/server/codegen/projection-validator.ts`        |
+| Example app-owned admin shell                                                                  | `examples/tanstack-barbershop/src/routes/admin.tsx`                |
+| Example app-owned admin CSS                                                                    | `examples/tanstack-barbershop/src/admin.css`                       |
+| Example server-side admin structure                                                            | `examples/tanstack-barbershop/src/questpie/server/config/admin.ts` |
 
 The missing piece is not a new subsystem. The missing piece is a clearer and more explicit story for:
 
@@ -301,37 +301,29 @@ Decision:
 
 ---
 
-## 5. Make theme selection explicit via CSS exports
+## 5. Keep theme selection explicit via CSS exports
 
 The admin theme system is already CSS-first:
 
 - `packages/admin/src/client/styles/index.css`
 - `packages/admin/THEMING.md`
 
-This RFC proposes making the preset story explicit:
+This RFC now keeps the CSS surface minimal while the theme direction settles:
 
 1. `base.css`
-2. `brutal.css`
-3. `soft.css`
 
 Target import style:
 
 ```css
-@import "@questpie/admin/styles/base.css";
-@import "@questpie/admin/themes/brutal.css";
+@import "@questpie/admin/client/styles/base.css";
 ```
 
-or:
-
-```css
-@import "@questpie/admin/styles/base.css";
-@import "@questpie/admin/themes/soft.css";
-```
+`index.css` stays as the default alias for `base.css`.
 
 Compatibility:
 
 1. Keep the current `index.css` path working.
-2. Make `index.css` equivalent to `base + brutal`.
+2. Make `index.css` equivalent to `base.css`.
 
 ---
 
@@ -367,8 +359,8 @@ Also add stable exported props for that component, for example:
 
 ```ts
 type SidebarBrandProps = {
-  name: string;
-  collapsed: boolean;
+	name: string;
+	collapsed: boolean;
 };
 ```
 
@@ -389,9 +381,9 @@ Also add stable exported props, for example:
 
 ```ts
 type SidebarNavItemProps = {
-  item: NavigationItem;
-  isActive: boolean;
-  collapsed: boolean;
+	item: NavigationItem;
+	isActive: boolean;
+	collapsed: boolean;
 };
 ```
 
@@ -442,8 +434,6 @@ Add explicit export paths for:
 
 1. `./styles/base.css`
 2. `./styles/index.css`
-3. `./themes/brutal.css`
-4. `./themes/soft.css`
 
 Keep:
 
@@ -542,7 +532,7 @@ README additions:
 
 THEMING additions:
 
-1. `base`, `brutal`, `soft` preset structure
+1. `base.css` / `index.css` structure
 2. app-owned `src/admin.css` pattern
 3. canonical import paths
 
@@ -565,7 +555,7 @@ The skill should guide users in this order:
 2. use `config/admin.ts` for structure,
 3. use `questpie/admin/pages/*` for full-page overrides,
 4. use `questpie/admin/components/*` for small chrome overrides,
-5. use custom CSS or preset CSS imports for theme changes.
+5. use custom CSS on top of `base.css` for theme changes.
 
 ## B. Add concrete recipes
 
@@ -575,7 +565,7 @@ Add recipes for:
 2. `questpie/admin/components/sidebar-nav-item.tsx`
 3. `questpie/admin/components/auth-layout.tsx`
 4. `questpie/admin/pages/login.tsx`
-5. `src/admin.css` with `brutal` or `soft` presets
+5. `src/admin.css` importing `base.css` and overriding variables
 
 ## C. Add explicit anti-pattern guidance
 
@@ -646,7 +636,7 @@ Rejected because:
 
 1. theming is already CSS-first,
 2. app shells already own theme strategy,
-3. preset CSS exports are enough.
+3. a single base CSS export is enough for now.
 
 ---
 
@@ -657,7 +647,7 @@ Rejected because:
 3. A project can still fully replace login or dashboard through `questpie/admin/pages/*.tsx`.
 4. The docs explicitly describe shell vs server config vs client file responsibilities.
 5. The skill steers users toward file-first overrides before proposing framework changes.
-6. The CSS export story clearly supports `brutal`, `soft`, and fully custom app themes.
+6. The CSS export story clearly supports `base.css`, `index.css`, and fully custom app themes.
 
 ---
 
@@ -669,5 +659,5 @@ The minimal path is:
 2. keep structure in `config/admin.ts`,
 3. reuse existing `pages` and `components` discovery,
 4. add a few reserved client-only component keys,
-5. formalize CSS presets and docs,
+5. formalize the base CSS export and docs,
 6. avoid inventing a new subsystem.

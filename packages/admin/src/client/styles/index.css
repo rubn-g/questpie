@@ -1,11 +1,4 @@
-/* QUESTPIE Admin — Default theme (Brutalist Flat)
-   This file is an alias for brutal.css — the default QUESTPIE admin look.
+/* QUESTPIE Admin — Default stylesheet
+   Alias for base.css. Import base.css directly for explicit intent. */
 
-   Use one of the presets instead of this file for explicit intent:
-     @questpie/admin/client/styles/brutal.css  — sharp corners, no shadows, grid texture
-     @questpie/admin/client/styles/soft.css    — rounded corners, real shadows, Geist UI
-
-   Or import base.css if you want full control over the theme layer yourself:
-     @questpie/admin/client/styles/base.css    — tokens + utilities only, no personality */
-
-@import "./brutal.css";
+@import "./base.css";
