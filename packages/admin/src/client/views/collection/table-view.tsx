@@ -1378,7 +1378,7 @@ function TableViewInner({
 				/>
 
 				{/* Table */}
-				<div className="qa-table-view__table-wrapper border-border/60 min-w-0 border-y">
+				<div className="qa-table-view__table-wrapper min-w-0">
 					<Table
 						aria-label={resolveText(
 							(config as any)?.label ?? schema?.admin?.config?.label,
