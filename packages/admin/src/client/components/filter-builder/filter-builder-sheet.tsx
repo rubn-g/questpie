@@ -233,6 +233,10 @@ export function FilterBuilderSheet({
 											...localConfig,
 											groupBy: value === "__none" ? null : value,
 											collapsedGroups: [],
+											pagination: {
+												...(localConfig.pagination ?? { pageSize: 25 }),
+												page: 1,
+											},
 										})
 									}
 								>

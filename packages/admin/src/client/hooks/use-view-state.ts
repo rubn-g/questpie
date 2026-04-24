@@ -287,7 +287,12 @@ export function useViewState(
 
 	const setGroupBy = useCallback(
 		(groupBy: string | null) => {
-			setConfig((prev) => ({ ...prev, groupBy, collapsedGroups: [] }));
+			setConfig((prev) => ({
+				...prev,
+				groupBy,
+				collapsedGroups: [],
+				pagination: { ...(prev.pagination ?? { pageSize: 25 }), page: 1 },
+			}));
 		},
 		[setConfig],
 	);

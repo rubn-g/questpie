@@ -277,6 +277,16 @@ function stringifyGroupValue(
 	return String(value);
 }
 
+function getGroupSortIndex(value: unknown, field?: AvailableField): number {
+	const options = field?.options?.options;
+	if (!options) return Number.MAX_SAFE_INTEGER;
+	const compareValue = Array.isArray(value) ? value[0] : value;
+	const index = flattenOptions(options).findIndex(
+		(option) => String(option.value) === String(compareValue),
+	);
+	return index === -1 ? Number.MAX_SAFE_INTEGER : index;
+}
+
 /**
  * Props for TableView component
  */
@@ -728,10 +738,18 @@ function TableViewInner({
 			options.where = whereConditions;
 		}
 
-		// Apply sort from view state
-		if (viewState.config.sortConfig) {
-			const { field, direction } = viewState.config.sortConfig;
-			options.orderBy = { [field]: direction };
+		// Keep grouped pages contiguous by sorting by the group field before row sort.
+		const groupBy = viewState.config.groupBy;
+		const sortConfig = viewState.config.sortConfig;
+		if (groupBy && sortConfig?.field && sortConfig.field !== groupBy) {
+			options.orderBy = [
+				{ [groupBy]: "asc" },
+				{ [sortConfig.field]: sortConfig.direction },
+			];
+		} else if (groupBy) {
+			options.orderBy = { [groupBy]: sortConfig?.direction ?? "asc" };
+		} else if (sortConfig) {
+			options.orderBy = { [sortConfig.field]: sortConfig.direction };
 		}
 
 		// Apply pagination from view state
@@ -745,6 +763,7 @@ function TableViewInner({
 		expandedFields,
 		viewState.config.filters,
 		viewState.config.includeDeleted,
+		viewState.config.groupBy,
 		viewState.config.sortConfig,
 		viewState.config.pagination?.page,
 		viewState.config.pagination?.pageSize,
@@ -1047,9 +1066,11 @@ function TableViewInner({
 		}
 
 		const groupField = groupableFields.find((field) => field.name === groupBy);
-		const fieldLabel = resolveText((groupField as any)?.label, groupBy);
 		const collapsedGroups = new Set(viewState.config.collapsedGroups ?? []);
-		const groups = new Map<string, { label: string; rows: typeof rows }>();
+		const groups = new Map<
+			string,
+			{ label: string; rows: typeof rows; sortIndex: number }
+		>();
 
 		for (const row of rows) {
 			const valueLabel = stringifyGroupValue(
@@ -1064,26 +1085,32 @@ function TableViewInner({
 				continue;
 			}
 			groups.set(groupKey, {
-				label: `${fieldLabel}: ${valueLabel}`,
+				label: valueLabel,
 				rows: [row],
+				sortIndex: getGroupSortIndex(
+					(row.original as any)?.[groupBy],
+					groupField,
+				),
 			});
 		}
 
-		return Array.from(groups.entries()).flatMap(([key, group]) => {
-			const collapsed = collapsedGroups.has(key);
-			return [
-				{
-					type: "group" as const,
-					key,
-					label: group.label,
-					count: group.rows.length,
-					collapsed,
-				},
-				...(collapsed
-					? []
-					: group.rows.map((row) => ({ type: "row" as const, row }))),
-			];
-		});
+		return Array.from(groups.entries())
+			.sort(([, a], [, b]) => a.sortIndex - b.sortIndex)
+			.flatMap(([key, group]) => {
+				const collapsed = collapsedGroups.has(key);
+				return [
+					{
+						type: "group" as const,
+						key,
+						label: group.label,
+						count: group.rows.length,
+						collapsed,
+					},
+					...(collapsed
+						? []
+						: group.rows.map((row) => ({ type: "row" as const, row }))),
+				];
+			});
 	}, [
 		tableRows,
 		viewState.config.groupBy,
@@ -1371,7 +1398,7 @@ function TableViewInner({
 													? 36
 													: undefined;
 										// Only show border on the last sticky column (title)
-										const showStickyBorder = headerIndex === 1;
+										const showStickyBorder = false;
 										// Checkbox column gets compact styling
 										const isCheckboxCol = headerIndex === 0;
 
@@ -1438,8 +1465,12 @@ function TableViewInner({
 								if (entry.type === "group") {
 									return (
 										<TableRow key={entry.key} className="hover:bg-transparent">
+											<TableCell className="w-9 min-w-9 px-1.5" />
 											<TableCell
-												colSpan={table.getVisibleLeafColumns().length}
+												colSpan={Math.max(
+													table.getVisibleLeafColumns().length - 1,
+													1,
+												)}
 												className="bg-background text-muted-foreground sticky top-8 z-20 py-2 font-mono text-[11px] font-semibold tracking-[0.12em] uppercase"
 											>
 												<button
@@ -1487,7 +1518,7 @@ function TableViewInner({
 											const stickyLeft =
 												cellIndex === 0 ? 0 : cellIndex === 1 ? 36 : undefined;
 											// Only show border on the last sticky column (title)
-											const showStickyBorder = cellIndex === 1;
+											const showStickyBorder = false;
 											// Checkbox column gets compact styling
 											const isCheckboxCol = cellIndex === 0;
 
