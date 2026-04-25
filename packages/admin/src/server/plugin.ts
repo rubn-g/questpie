@@ -120,7 +120,8 @@ export function adminPlugin(): CodegenPlugin {
 						},
 						form: {
 							stateKey: "form",
-							configType: "(ctx: { f: Record<string, string> }) => { fields: import('@questpie/admin/server').FieldLayoutItem[] }",
+							configType:
+								"(ctx: { f: Record<string, string> }) => { fields: import('@questpie/admin/server').FieldLayoutItem[] }",
 							isCallback: true,
 							callbackContextParams: ["f"],
 						},
