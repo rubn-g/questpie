@@ -1215,17 +1215,23 @@ export function AdminSidebar({
 	);
 
 	// Build effective render functions: prop wins, then registry, then built-in (undefined)
-	const effectiveRenderBrand =
-		renderBrand ??
-		(BrandOverride
-			? (props: AdminSidebarBrandProps) => <BrandOverride {...props} />
-			: undefined);
+	const effectiveRenderBrand = React.useMemo(
+		() =>
+			renderBrand ??
+			(BrandOverride
+				? (props: AdminSidebarBrandProps) => <BrandOverride {...props} />
+				: undefined),
+		[BrandOverride, renderBrand],
+	);
 
-	const effectiveRenderNavItem =
-		renderNavItem ??
-		(NavItemOverride
-			? (props: AdminSidebarNavItemProps) => <NavItemOverride {...props} />
-			: undefined);
+	const effectiveRenderNavItem = React.useMemo(
+		() =>
+			renderNavItem ??
+			(NavItemOverride
+				? (props: AdminSidebarNavItemProps) => <NavItemOverride {...props} />
+				: undefined),
+		[NavItemOverride, renderNavItem],
+	);
 
 	// Close sidebar on mobile when navigating
 	const handleBrandClick = React.useCallback(() => {
@@ -1378,7 +1384,7 @@ export function AdminSidebar({
 			)}
 
 			{/* Navigation */}
-			<SidebarContent className="qa-sidebar__content gap-3 px-2 py-3">
+			<SidebarContent className="qa-sidebar__content gap-3 px-2 py-3 group-data-[collapsible=icon]:gap-2">
 				<nav aria-label="Admin navigation" className="qa-sidebar__nav">
 					{navigation.map((group, index) => (
 						<NavGroup

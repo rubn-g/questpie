@@ -109,6 +109,10 @@ export {
 	type TipTapDoc,
 	type TipTapNode,
 } from "#questpie/admin/components/rich-text/index.js";
+export {
+	RichTextEditor,
+	type RichTextEditorProps,
+} from "#questpie/admin/client/components/fields/rich-text-editor/index.js";
 
 // ============================================================================
 // PREVIEW
@@ -302,9 +306,9 @@ export type CollectionItem<
 	TApp extends QuestpieApp,
 	TName extends CollectionNames<TApp>,
 > =
-	Awaited<
-		ReturnType<AnyQuestpieClient["collections"][TName]["find"]>
-	> extends { docs: Array<infer TItem> }
+	Awaited<ReturnType<AnyQuestpieClient["collections"][TName]["find"]>> extends {
+		docs: Array<infer TItem>;
+	}
 		? TItem
 		: never;
 
@@ -357,6 +361,11 @@ export type {
 	FieldComponentProps,
 	FormViewConfig,
 } from "#questpie/admin/client/builder/types/field-types.js";
+export type {
+	CollectionFormViewProps,
+	CollectionListViewProps,
+	GlobalFormViewProps,
+} from "#questpie/admin/client/builder/types/views.js";
 // Widget types (for implementing custom widgets)
 export type {
 	AnyWidgetConfig,

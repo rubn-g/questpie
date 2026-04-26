@@ -786,7 +786,6 @@ export class CRUDGenerator<TState extends CollectionBuilderState> {
 
 				let groupRows: Array<{ value: unknown; count: number }> | undefined;
 				let totalGroups: number | undefined;
-				let groupColumn: Column | undefined;
 
 				if (groupByOptions) {
 					const column = getColumn(readTable, groupByOptions.field);
@@ -796,7 +795,6 @@ export class CRUDGenerator<TState extends CollectionBuilderState> {
 						);
 					}
 
-					groupColumn = column;
 					let totalGroupsQuery = db
 						.select({ count: sql<number>`count(distinct ${column})::int` })
 						.from(readTable);
@@ -1879,12 +1877,6 @@ export class CRUDGenerator<TState extends CollectionBuilderState> {
 				// Execute all afterChange hooks in parallel (non-fatal)
 				await Promise.allSettled(afterChangePromises);
 
-				// Realtime change
-
-				// Queue search indexing to run after transaction commits (fire-and-forget)
-				for (const updated of refetchedRecords) {
-				}
-
 				return refetchedRecords;
 			});
 		} catch (error: unknown) {
@@ -2738,6 +2730,7 @@ export class CRUDGenerator<TState extends CollectionBuilderState> {
 				toStage,
 				scheduledAt,
 				locale: normalized.locale,
+				accessMode: normalized.accessMode,
 			} as TransitionHookContext;
 
 			// Execute beforeTransition hooks (throw to abort).

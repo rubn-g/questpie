@@ -304,7 +304,7 @@ export function adminPlugin(): CodegenPlugin {
 						dir: "blocks",
 						description: "Server-side block definition",
 						template: ({ kebab, camel }) =>
-							`import { block } from "#questpie/factories";\n\nexport const ${camel}Block = block("${kebab}")\n\t.fields(({ f }) => ({\n\t\ttitle: f.text("Title"),\n\t}));\n`,
+							`import { block } from "#questpie/factories";\n\nexport const ${camel}Block = block("${kebab}")\n\t.fields(({ f }) => ({\n\t\ttitle: f.text(255).label("Title").required(),\n\t}));\n`,
 					},
 					view: {
 						dir: "views",

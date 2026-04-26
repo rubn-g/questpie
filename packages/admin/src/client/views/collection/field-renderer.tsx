@@ -10,8 +10,7 @@ import { useFormContext, useWatch } from "react-hook-form";
 
 import type { ComponentRegistry } from "../../builder";
 import type { FieldInstance } from "../../builder/field/field";
-import type { MaybeLazyComponent } from "../../builder/types/common";
-import { Spinner } from "../../components/ui/spinner";
+import { Skeleton } from "../../components/ui/skeleton";
 import { useAdminConfig } from "../../hooks/use-admin-config";
 import { useFieldHooks } from "../../hooks/use-field-hooks";
 import { useResolveText } from "../../i18n/hooks";
@@ -70,6 +69,23 @@ function renderConfigError(message: string) {
 	return (
 		<div className="border-destructive/40 bg-destructive/5 text-destructive rounded border p-3 text-sm">
 			{message}
+		</div>
+	);
+}
+
+function FieldComponentSkeleton({ type }: { type?: string }) {
+	const largeFieldTypes = new Set(["blocks", "json", "object", "richText"]);
+	const tallFieldTypes = new Set(["textarea", "upload"]);
+	const controlClassName = largeFieldTypes.has(type ?? "")
+		? "h-40 w-full"
+		: tallFieldTypes.has(type ?? "")
+			? "h-28 w-full"
+			: "h-10 w-full";
+
+	return (
+		<div className="space-y-2" aria-busy="true">
+			<Skeleton variant="text" className="h-4 w-24" />
+			<Skeleton className={controlClassName} />
 		</div>
 	);
 }
@@ -399,13 +415,9 @@ export function FieldRenderer({
 		});
 	}
 
-	// 2. Show loading spinner while lazy component is loading
+	// 2. Show field-shaped skeleton while lazy component is loading
 	if (!content && componentLoading) {
-		content = (
-			<div className="flex items-center justify-center p-4">
-				<Spinner className="size-5" />
-			</div>
-		);
+		content = <FieldComponentSkeleton type={context.type} />;
 	}
 
 	// 3. Use FieldDefinition.field.component (registry-first approach)

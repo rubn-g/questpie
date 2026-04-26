@@ -1,7 +1,6 @@
 {
 	"title": "Live Preview",
 	"pages": [
-		"index",
 		"architecture",
 		"same-tab-recipe",
 		"shared-preview",

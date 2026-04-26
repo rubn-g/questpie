@@ -139,6 +139,12 @@ type TableViewConfig = ListViewConfig;
 
 const actionRegistry = createActionRegistryProxy<any>();
 const STICKY_TABLE_COLUMN_COUNT = 2;
+const REORDER_DROP_DURATION = 160;
+const REORDER_MOVE_EASING = "cubic-bezier(0.25, 1, 0.5, 1)";
+const REORDER_DROP_ANIMATION = {
+	duration: REORDER_DROP_DURATION,
+	easing: REORDER_MOVE_EASING,
+};
 
 function getColumnSizeStyle(width: number): React.CSSProperties {
 	return { width, minWidth: width, maxWidth: width };
@@ -425,7 +431,13 @@ function SortableTableRow({
 		transform,
 		transition,
 		isDragging,
-	} = useSortable({ id });
+	} = useSortable({
+		id,
+		transition: {
+			duration: REORDER_DROP_DURATION,
+			easing: REORDER_MOVE_EASING,
+		},
+	});
 
 	return (
 		<TableRow
@@ -688,6 +700,34 @@ function TableViewInner({
 		null,
 	);
 	const reorderStartOrderIdsRef = React.useRef<string[] | null>(null);
+	const reorderOverlayCleanupRef = React.useRef<number | null>(null);
+	const clearReorderOverlay = React.useCallback((delay = 0) => {
+		if (reorderOverlayCleanupRef.current !== null) {
+			window.clearTimeout(reorderOverlayCleanupRef.current);
+			reorderOverlayCleanupRef.current = null;
+		}
+
+		const clear = () => {
+			setActiveReorderId(null);
+			setActiveReorderRect(null);
+			reorderOverlayCleanupRef.current = null;
+		};
+
+		if (delay > 0) {
+			reorderOverlayCleanupRef.current = window.setTimeout(clear, delay);
+			return;
+		}
+
+		clear();
+	}, []);
+	React.useEffect(
+		() => () => {
+			if (reorderOverlayCleanupRef.current !== null) {
+				window.clearTimeout(reorderOverlayCleanupRef.current);
+			}
+		},
+		[],
+	);
 
 	// Default columns using configured columns from .list() or auto-detection
 	// When .list({ columns: [...] }) is defined, those become the defaults
@@ -1407,6 +1447,7 @@ function TableViewInner({
 	const handleReorderDragStart = React.useCallback(
 		(event: DragStartEvent) => {
 			const initialRect = event.active.rect.current.initial;
+			clearReorderOverlay();
 			reorderStartOrderIdsRef.current = sortableRowIds;
 			setActiveReorderId(String(event.active.id));
 			setActiveReorderRect(
@@ -1416,19 +1457,19 @@ function TableViewInner({
 			);
 			setOptimisticOrderIds((current) => current ?? sortableRowIds);
 		},
-		[sortableRowIds],
+		[clearReorderOverlay, sortableRowIds],
 	);
 	const handleReorderDragCancel = React.useCallback(() => {
 		setOptimisticOrderIds(reorderStartOrderIdsRef.current);
-		setActiveReorderId(null);
-		setActiveReorderRect(null);
+		clearReorderOverlay();
 		reorderStartOrderIdsRef.current = null;
-	}, []);
+	}, [clearReorderOverlay]);
 	const handleReorderDragEnd = React.useCallback(
 		async (event: DragEndEvent) => {
-			setActiveReorderId(null);
-			setActiveReorderRect(null);
-			if (updateBatchMutation.isPending) return;
+			if (updateBatchMutation.isPending) {
+				clearReorderOverlay();
+				return;
+			}
 
 			const { active, over } = event;
 			const previousOrderIds =
@@ -1436,6 +1477,7 @@ function TableViewInner({
 			reorderStartOrderIdsRef.current = null;
 			if (!over) {
 				setOptimisticOrderIds(previousOrderIds);
+				clearReorderOverlay();
 				return;
 			}
 
@@ -1444,6 +1486,7 @@ function TableViewInner({
 				const oldIndex = previousOrderIds.indexOf(String(active.id));
 				const newIndex = previousOrderIds.indexOf(String(over.id));
 				if (oldIndex === -1 || newIndex === -1 || oldIndex === newIndex) {
+					clearReorderOverlay(REORDER_DROP_DURATION);
 					return;
 				}
 
@@ -1451,10 +1494,12 @@ function TableViewInner({
 			}
 
 			if (nextOrderIds.join("\0") === previousOrderIds.join("\0")) {
+				clearReorderOverlay(REORDER_DROP_DURATION);
 				return;
 			}
 
 			setOptimisticOrderIds(nextOrderIds);
+			clearReorderOverlay(REORDER_DROP_DURATION);
 			const rowsById = new Map(tableRows.map((row) => [String(row.id), row]));
 			const reorderedRows = nextOrderIds
 				.map((id) => rowsById.get(id))
@@ -1469,6 +1514,7 @@ function TableViewInner({
 				});
 				actionHelpers.toast.success("Order saved");
 			} catch (error) {
+				clearReorderOverlay();
 				setOptimisticOrderIds(previousOrderIds);
 				actionHelpers.toast.error(
 					error instanceof Error ? error.message : "Could not save order",
@@ -1482,6 +1528,7 @@ function TableViewInner({
 			orderField,
 			orderStep,
 			actionHelpers.toast,
+			clearReorderOverlay,
 		],
 	);
 	const groupedRowModel = useMemo(() => {
@@ -1679,21 +1726,7 @@ function TableViewInner({
 	}
 
 	if (isLoading) {
-		return (
-			<div className="container" aria-busy="true">
-				<div
-					className="text-muted-foreground flex h-64 items-center justify-center"
-					role="status"
-				>
-					<Icon
-						icon="ph:spinner-gap"
-						className="size-6 animate-spin"
-						aria-hidden="true"
-					/>
-					<span className="sr-only">Loading collection data...</span>
-				</div>
-			</div>
-		);
+		return <TableViewSkeleton />;
 	}
 
 	const emptyStateTitle =
@@ -2187,7 +2220,10 @@ function TableViewInner({
 									</TableBody>
 								</SortableContext>
 							</Table>
-							<DragOverlay dropAnimation={null}>
+							<DragOverlay
+								adjustScale={false}
+								dropAnimation={REORDER_DROP_ANIMATION}
+							>
 								<ReorderDragOverlay
 									row={activeReorderRow}
 									columns={visibleLeafColumns}

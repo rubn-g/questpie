@@ -97,25 +97,37 @@ export interface DashboardSectionDTO {
 	label?: Record<string, string>;
 	layout?: string;
 	columns?: number;
+	rowHeight?: number | string;
+	gap?: number;
 	items: DashboardWidgetDTO[];
 }
 
 export interface DashboardTabDTO {
+	id: string;
 	label: Record<string, string>;
+	columns?: number;
+	rowHeight?: number | string;
+	gap?: number;
 	items: DashboardWidgetDTO[];
 }
 
 export interface DashboardTabsDTO {
 	type: "tabs";
 	tabs: DashboardTabDTO[];
+	defaultTab?: string;
 }
 
-export type DashboardItemDTO = DashboardWidgetDTO | DashboardSectionDTO | DashboardTabsDTO;
+export type DashboardItemDTO =
+	| DashboardWidgetDTO
+	| DashboardSectionDTO
+	| DashboardTabsDTO;
 
 export interface DashboardConfigDTO {
 	title?: Record<string, string>;
 	description?: Record<string, string>;
 	columns?: number;
+	rowHeight?: number | string;
+	gap?: number;
 	realtime?: boolean;
 	actions?: unknown[];
 	items?: DashboardItemDTO[];
@@ -288,6 +300,8 @@ const dashboardConfigSchema = z.object({
 	title: z.record(z.string(), z.string()).optional(),
 	description: z.record(z.string(), z.string()).optional(),
 	columns: z.number().optional(),
+	rowHeight: z.union([z.number(), z.string()]).optional(),
+	gap: z.number().optional(),
 	realtime: z.boolean().optional(),
 	actions: z.array(z.any()).optional(),
 	items: z.array(z.record(z.string(), z.any())).optional(),

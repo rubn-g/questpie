@@ -566,6 +566,22 @@ export async function collectionAudit(
 			return smartResponse([], request);
 		}
 
+		const record = await crud.findOne(
+			{
+				where: { id: params.id as any },
+				includeDeleted: true,
+			},
+			resolved.appContext,
+		);
+		if (!record) {
+			return errorResponse(
+				app,
+				ApiError.notFound("Record", params.id),
+				request,
+				resolved.appContext.locale,
+			);
+		}
+
 		const result = await auditCrud.find(
 			{
 				where: {

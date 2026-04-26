@@ -45,7 +45,7 @@ const createFirstAdminOutputSchema = z.object({
 // ============================================================================
 
 /**
- * Check if setup is required (no users exist in the system).
+ * Check if setup is required (no admin users exist in the system).
  *
  * @example
  * ```ts
@@ -64,15 +64,16 @@ export const isSetupRequired = route()
 		const userCollection = app.getCollectionConfig("user");
 		const result = await app.db
 			.select({ count: sql`count(*)::int` as any })
-			.from(userCollection.table);
+			.from(userCollection.table)
+			.where(eq(userCollection.table.role as any, "admin") as any);
 		return { required: (result[0] as { count: number }).count === 0 };
 	});
 
 /**
  * Create the first admin user in the system.
- * This function only works when no users exist (setup mode).
+ * This function only works when no admin users exist (setup mode).
  *
- * Security: Once any user exists, this function will refuse to create more users.
+ * Security: Once any admin user exists, this function will refuse to create more users.
  * This prevents unauthorized admin creation after initial setup.
  *
  * @example
@@ -99,15 +100,16 @@ export const createFirstAdmin = route()
 		const input = ctx.input as z.infer<typeof createFirstAdminSchema>;
 		const userCollection = app.getCollectionConfig("user");
 
-		// Check if setup already completed (any users exist)
+		// Check if setup already completed (any admin user exists)
 		const checkResult = await app.db
 			.select({ count: sql`count(*)::int` as any })
-			.from(userCollection.table);
+			.from(userCollection.table)
+			.where(eq(userCollection.table.role as any, "admin") as any);
 
 		if ((checkResult[0] as { count: number }).count > 0) {
 			return {
 				success: false,
-				error: "Setup already completed - users exist in the system",
+				error: "Setup already completed - admin users exist in the system",
 			};
 		}
 

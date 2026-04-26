@@ -1,5 +1,5 @@
 /**
- * Auth Layout - centered card layout for authentication pages
+ * Auth Layout - minimal shell for authentication pages
  *
  * Supports a file-first override via `questpie/admin/components/admin-auth-layout.tsx`.
  * When that component is registered in the admin-client registry under the reserved
@@ -13,16 +13,14 @@
 import * as React from "react";
 
 import type { MaybeLazyComponent } from "../../builder/types/common.js";
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from "../../components/ui/card";
+import { Card, CardContent } from "../../components/ui/card";
 import { cn } from "../../lib/utils";
 import { useAdminStoreRaw } from "../../runtime/provider.js";
 import { useLazyComponent } from "../../utils/use-lazy-component.js";
+import {
+	useHasManagedAdminTheme,
+	useManagedAdminTheme,
+} from "../layout/admin-theme";
 
 /**
  * Props for the auth layout — and for any custom `adminAuthLayout` override.
@@ -44,14 +42,21 @@ export type AuthLayoutProps = {
 	className?: string;
 };
 
-function AuthBrandMark({ className }: { className?: string }) {
+function AuthBrandMark({
+	className,
+	decorative = false,
+}: {
+	className?: string;
+	decorative?: boolean;
+}) {
 	return (
 		<svg
 			xmlns="http://www.w3.org/2000/svg"
 			viewBox="0 0 24 24"
 			fill="none"
 			className={cn("text-foreground size-16 shrink-0", className)}
-			aria-label="QUESTPIE"
+			aria-hidden={decorative ? true : undefined}
+			aria-label={decorative ? undefined : "QUESTPIE"}
 		>
 			<path
 				d="M2 2H22V10"
@@ -65,80 +70,94 @@ function AuthBrandMark({ className }: { className?: string }) {
 				strokeWidth="2"
 				strokeLinecap="square"
 			/>
-			<path d="M23 13H13V23H23V13Z" fill="#B700FF" />
+			<path d="M23 13H13V23H23V13Z" fill="currentColor" opacity="0.72" />
 		</svg>
 	);
 }
 
-/**
- * Built-in centered card layout (fallback when no override is registered).
- */
-function AuthLayoutBuiltIn({
-	title,
-	description,
-	logo,
-	footer,
-	children,
-	className,
-}: AuthLayoutProps) {
+export function AuthDefaultLogo({ brandName }: { brandName: string }) {
 	return (
-		<div className="qa-auth-layout bg-background text-foreground flex min-h-screen">
-			<section className="qa-auth-layout__brand-panel bg-muted/20 relative hidden w-[40%] flex-col items-center justify-center overflow-hidden md:flex lg:w-[45%]">
-				<div className="qa-auth-layout__brand-grid pointer-events-none absolute inset-0 opacity-70" />
-				<div className="qa-auth-layout__brand-glow pointer-events-none absolute h-[520px] w-[520px] rounded-full" />
-				<div className="relative z-10 flex flex-col items-center gap-6 px-8 text-center">
-					{logo ?? <AuthBrandMark />}
-					<div className="flex flex-col items-center gap-2">
-						<span className="text-foreground text-2xl font-bold tracking-[-0.05em]">
-							QUESTPIE
-						</span>
-						<p className="text-muted-foreground/60 max-w-sm text-xs tracking-[0.22em] text-balance uppercase">
-							Build apps · Run companies · One platform
-						</p>
-					</div>
-				</div>
-			</section>
-
-			<div className="qa-auth-layout__form-panel flex min-h-screen flex-1 items-center justify-center px-4 py-10 sm:px-6 lg:px-10">
-				<div className="qa-auth-layout__content w-full max-w-sm space-y-6">
-					<div className="qa-auth-layout__mobile-brand flex justify-center md:hidden">
-						{logo ?? <AuthBrandMark className="size-12" />}
-					</div>
-
-					<Card
-						className={cn(
-							"qa-auth-layout__card border-border-subtle w-full shadow-sm",
-							className,
-						)}
-					>
-						<CardHeader className="qa-auth-layout__card-header text-left">
-							<CardTitle className="text-xl font-semibold tracking-[-0.02em]">
-								{title}
-							</CardTitle>
-							{description && <CardDescription>{description}</CardDescription>}
-						</CardHeader>
-						<CardContent className="qa-auth-layout__card-content">
-							{children}
-						</CardContent>
-					</Card>
-
-					{footer && (
-						<div className="qa-auth-layout__footer text-muted-foreground text-center text-xs">
-							{footer}
-						</div>
-					)}
+		<div className="qa-auth-layout__default-logo flex max-w-full min-w-0 items-center gap-3 text-left">
+			<AuthBrandMark className="size-9" decorative />
+			<div className="min-w-0">
+				<div className="text-foreground truncate text-sm font-semibold tracking-tight">
+					{brandName}
 				</div>
 			</div>
 		</div>
 	);
 }
 
+function AuthLogo({
+	logo,
+	className,
+}: {
+	logo?: React.ReactNode;
+	className?: string;
+}) {
+	return (
+		<div
+			className={cn(
+				"qa-auth-layout__logo flex min-w-0 items-center justify-start text-left",
+				className,
+			)}
+		>
+			{logo ?? <AuthDefaultLogo brandName="QUESTPIE" />}
+		</div>
+	);
+}
+
+/** Built-in minimal split layout (fallback when no override is registered). */
+function AuthLayoutBuiltIn({
+	logo,
+	footer,
+	children,
+	className,
+}: AuthLayoutProps) {
+	return (
+		<div className="qa-auth-layout bg-background text-foreground relative flex min-h-screen items-center justify-center overflow-hidden px-5 py-8 sm:px-8">
+			<div className="qa-auth-layout__shell grid w-full max-w-4xl items-center gap-10 lg:grid-cols-[minmax(220px,280px)_minmax(360px,384px)] lg:gap-16">
+				<aside className="qa-auth-layout__brand flex flex-col items-center justify-center gap-8">
+					<AuthLogo logo={logo} className="max-w-[calc(100vw-2.5rem)]" />
+					<p className="text-muted-foreground hidden text-xs tracking-[0.14em] uppercase lg:block">
+						Built with QUESTPIE
+					</p>
+				</aside>
+
+				<main className="qa-auth-layout__form-panel flex items-center justify-center">
+					<div className="qa-auth-layout__content w-full max-w-sm space-y-5">
+						<Card
+							className={cn(
+								"qa-auth-layout__card border-border-subtle w-full shadow-none",
+								className,
+							)}
+						>
+							<CardContent className="qa-auth-layout__card-content">
+								{children}
+							</CardContent>
+						</Card>
+
+						{footer && (
+							<div className="qa-auth-layout__footer text-muted-foreground text-center text-xs">
+								{footer}
+							</div>
+						)}
+						<div className="text-muted-foreground text-center text-[11px] tracking-[0.14em] uppercase lg:hidden">
+							Built with QUESTPIE
+						</div>
+					</div>
+				</main>
+			</div>
+		</div>
+	);
+}
+
 /**
- * Centered layout for authentication pages (login, register, forgot password, etc.)
+ * Minimal split layout for authentication pages (login, register, forgot password, etc.)
  *
  * Checks `adminAuthLayout` in the component registry (registered via
  * `questpie/admin/components/admin-auth-layout.tsx`) and renders it when present,
- * falling back to the built-in centered card layout.
+ * falling back to the built-in minimal split layout.
  *
  * Works without `<AdminProvider>` and falls back to the built-in layout.
  * When used inside `<AdminProvider>`, a registered `adminAuthLayout` override
@@ -157,6 +176,11 @@ function AuthLayoutBuiltIn({
  * ```
  */
 export function AuthLayout(props: AuthLayoutProps) {
+	const hasManagedAdminTheme = useHasManagedAdminTheme();
+	useManagedAdminTheme(undefined, undefined, {
+		enabled: !hasManagedAdminTheme,
+	});
+
 	const adminStore = useAdminStoreRaw();
 	const overrideLoader = adminStore
 		?.getState()

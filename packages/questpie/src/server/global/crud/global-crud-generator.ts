@@ -6,8 +6,6 @@ import {
 	inArray,
 	max,
 	min,
-	not,
-	or,
 	sql,
 	sum,
 } from "drizzle-orm";
@@ -19,13 +17,6 @@ import {
 	processNestedRelations,
 	separateNestedRelations,
 } from "#questpie/server/collection/crud/relation-mutations/nested-operations.js";
-import {
-	resolveBelongsToRelation,
-	resolveHasManyRelation,
-	resolveHasManyWithAggregation,
-	resolveManyToManyRelation,
-} from "#questpie/server/collection/crud/relation-resolvers/index.js";
-import { resolveFieldKey } from "#questpie/server/collection/crud/shared/field-resolver.js";
 import {
 	executeGlobalGlobalHooks,
 	executeGlobalGlobalTransitionHooks,
@@ -56,7 +47,6 @@ import {
 } from "#questpie/server/fields/runtime.js";
 import type { FieldAccess } from "#questpie/server/fields/types.js";
 import type {
-	GlobalAccessContext,
 	GlobalBuilderState,
 	GlobalHookContext,
 	GlobalHookFunction,
@@ -268,27 +258,7 @@ export class GlobalCRUDGenerator<TState extends GlobalBuilderState> {
 	private wrapGetWithCMSContext<TArgs extends any[], TResult>(
 		fn: (...args: TArgs) => Promise<TResult>,
 	): (...args: TArgs) => Promise<TResult> {
-		return (...args: TArgs) => {
-			let context: CRUDContext | undefined;
-
-			if (args.length > 0) {
-				const lastArg = args[args.length - 1];
-				const isCRUDContext =
-					lastArg &&
-					typeof lastArg === "object" &&
-					("session" in lastArg ||
-						"locale" in lastArg ||
-						"accessMode" in lastArg ||
-						"db" in lastArg ||
-						"defaultLocale" in lastArg);
-
-				if (isCRUDContext) {
-					context = lastArg as CRUDContext;
-				}
-			}
-
-			return fn(...args);
-		};
+		return (...args: TArgs) => fn(...args);
 	}
 
 	/**
@@ -1171,22 +1141,6 @@ export class GlobalCRUDGenerator<TState extends GlobalBuilderState> {
 			}
 
 			const { stage: toStage, scheduledAt } = params;
-
-			// If scheduledAt is in the future, schedule via queue job
-			if (scheduledAt && scheduledAt.getTime() > Date.now()) {
-				const { scheduleGlobalTransition } = await import(
-					"#questpie/server/modules/core/workflow/schedule-transition.js"
-				);
-				await scheduleGlobalTransition((this.app as any)?.queue, {
-					global: this.state.name,
-					stage: toStage,
-					scheduledAt,
-				});
-				// Return the existing global record unchanged
-				const normalized = this.normalizeContext(context);
-				const db = this.getDb(normalized);
-				return (await this.getCurrentRow(db, normalized)) ?? null;
-			}
 			const normalized = this.normalizeContext(context);
 			const db = this.getDb(normalized);
 
@@ -1233,6 +1187,20 @@ export class GlobalCRUDGenerator<TState extends GlobalBuilderState> {
 			const fromStage = await this.getCurrentWorkflowStage(db, existing.id);
 			this.assertTransitionAllowed(fromStage, toStage);
 
+			// If scheduledAt is in the future, schedule only after validating the
+			// target stage, current record, access, and transition graph.
+			if (scheduledAt && scheduledAt.getTime() > Date.now()) {
+				const { scheduleGlobalTransition } = await import(
+					"#questpie/server/modules/core/workflow/schedule-transition.js"
+				);
+				await scheduleGlobalTransition((this.app as any)?.queue, {
+					global: this.state.name,
+					stage: toStage,
+					scheduledAt,
+				});
+				return existing;
+			}
+
 			// Build transition hook context
 			const transitionServices = extractAppServices(this.app, {
 				db,
@@ -1244,6 +1212,7 @@ export class GlobalCRUDGenerator<TState extends GlobalBuilderState> {
 				fromStage,
 				toStage,
 				locale: normalized.locale,
+				accessMode: normalized.accessMode,
 			} as GlobalTransitionHookContext;
 
 			// Execute beforeTransition hooks (throw to abort)

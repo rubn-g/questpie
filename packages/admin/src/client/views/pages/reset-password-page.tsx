@@ -16,7 +16,7 @@ import {
 	selectNavigate,
 	useAdminStore,
 } from "../../runtime/provider";
-import { AuthLayout } from "../auth/auth-layout";
+import { AuthDefaultLogo, AuthLayout } from "../auth/auth-layout";
 import {
 	ResetPasswordForm,
 	type ResetPasswordFormValues,
@@ -144,7 +144,7 @@ export function ResetPasswordPage({
 			<AuthLayout
 				title={t("auth.invalidLink")}
 				description={t("auth.invalidLinkDescription")}
-				logo={logo ?? <DefaultLogo brandName={brandName} />}
+				logo={logo ?? <AuthDefaultLogo brandName={brandName} />}
 			>
 				<div className="space-y-4 text-center">
 					<p className="text-muted-foreground text-sm">
@@ -162,7 +162,7 @@ export function ResetPasswordPage({
 		<AuthLayout
 			title={title ?? t("auth.resetPassword")}
 			description={description ?? t("auth.enterNewPassword")}
-			logo={logo ?? <DefaultLogo brandName={brandName} />}
+			logo={logo ?? <AuthDefaultLogo brandName={brandName} />}
 			className="qa-reset-password-page"
 		>
 			<ResetPasswordForm
@@ -173,13 +173,5 @@ export function ResetPasswordPage({
 				error={error}
 			/>
 		</AuthLayout>
-	);
-}
-
-function DefaultLogo({ brandName }: { brandName: string }) {
-	return (
-		<div className="text-center">
-			<h1 className="text-xl font-bold">{brandName}</h1>
-		</div>
 	);
 }

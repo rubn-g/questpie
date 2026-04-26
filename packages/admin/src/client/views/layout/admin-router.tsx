@@ -34,6 +34,10 @@ import { useResolveText, useTranslation } from "../../i18n/hooks";
 import type { I18nText } from "../../i18n/types";
 import { formatLabel } from "../../lib/utils";
 import { selectClient, useAdminStore } from "../../runtime/provider";
+import {
+	FormViewSkeleton,
+	TableViewSkeleton,
+} from "../collection/view-skeletons";
 import { DashboardGrid } from "../dashboard/dashboard-grid";
 import { AdminViewHeader } from "./admin-view-layout";
 
@@ -44,6 +48,17 @@ import { AdminViewHeader } from "./admin-view-layout";
 // Module-level constants for empty objects to avoid recreating on each render
 const EMPTY_COLLECTION_COMPONENTS: Record<string, any> = {};
 const EMPTY_GLOBAL_COMPONENTS: Record<string, any> = {};
+const AUTH_ROUTE_SEGMENTS = new Set([
+	"login",
+	"forgot-password",
+	"reset-password",
+	"accept-invite",
+	"setup",
+]);
+const componentLoaderCache = new WeakMap<
+	() => Promise<any>,
+	React.ComponentType<any>
+>();
 
 // ============================================================================
 // Types
@@ -387,12 +402,21 @@ function isDynamicImportLoader(
 	return loader.length === 0;
 }
 
-function ViewLoadingState() {
-	return (
-		<div className="text-muted-foreground flex h-64 items-center justify-center">
-			<Icon icon="ph:spinner-gap" className="size-6 animate-spin" />
-		</div>
-	);
+function getCachedComponent(loader: MaybeLazyComponent | undefined) {
+	if (!isDynamicImportLoader(loader)) return undefined;
+	return componentLoaderCache.get(loader);
+}
+
+function cacheComponent(
+	loader: MaybeLazyComponent | undefined,
+	Component: React.ComponentType<any>,
+) {
+	if (!isDynamicImportLoader(loader)) return;
+	componentLoaderCache.set(loader, Component);
+}
+
+function ViewLoadingState({ viewKind }: { viewKind: "list" | "form" }) {
+	return viewKind === "list" ? <TableViewSkeleton /> : <FormViewSkeleton />;
 }
 
 function UnknownViewState({
@@ -429,6 +453,57 @@ function RouterSkeleton() {
 			</div>
 		</div>
 	);
+}
+
+function AuthPageSkeleton() {
+	return (
+		<div className="qa-auth-layout bg-background text-foreground relative flex min-h-screen items-center justify-center overflow-hidden px-5 py-8 sm:px-8">
+			<div className="qa-auth-layout__shell grid w-full max-w-4xl items-center gap-10 lg:grid-cols-[minmax(220px,280px)_minmax(360px,384px)] lg:gap-16">
+				<aside className="qa-auth-layout__brand flex flex-col items-center justify-center gap-8">
+					<div className="flex items-center gap-3">
+						<Skeleton className="size-9" />
+						<Skeleton variant="text" className="h-4 w-36" />
+					</div>
+					<Skeleton variant="text" className="hidden h-3 w-40 lg:block" />
+				</aside>
+
+				<main className="qa-auth-layout__form-panel flex items-center justify-center">
+					<Card className="border-border-subtle w-full max-w-sm shadow-none">
+						<div className="space-y-5 p-4">
+							<div className="space-y-2">
+								<Skeleton variant="text" className="h-4 w-20" />
+								<Skeleton className="h-10 w-full" />
+							</div>
+							<div className="space-y-2">
+								<Skeleton variant="text" className="h-4 w-24" />
+								<Skeleton className="h-10 w-full" />
+							</div>
+							<Skeleton variant="text" className="h-4 w-28" />
+							<Skeleton className="h-10 w-full" />
+						</div>
+					</Card>
+				</main>
+			</div>
+		</div>
+	);
+}
+
+function getFallbackForSegments(segments: string[]) {
+	const [first, second, third] = segments;
+
+	if (first && AUTH_ROUTE_SEGMENTS.has(first)) {
+		return <AuthPageSkeleton />;
+	}
+
+	if (first === "collections" && second) {
+		return third ? <FormViewSkeleton /> : <TableViewSkeleton />;
+	}
+
+	if (first === "globals" && second) {
+		return <FormViewSkeleton />;
+	}
+
+	return <RouterSkeleton />;
 }
 
 function shallowEqualComponentProps(
@@ -491,10 +566,13 @@ const RegistryViewRenderer = React.memo(function RegistryViewRenderer({
 		Component: React.ComponentType<any> | React.LazyExoticComponent<any> | null;
 		loading: boolean;
 		error: Error | null;
-	}>({
-		Component: null,
-		loading: true,
-		error: null,
+	}>(() => {
+		const cachedComponent = getCachedComponent(loader);
+		return {
+			Component: cachedComponent ?? null,
+			loading: !cachedComponent,
+			error: null,
+		};
 	});
 
 	React.useEffect(() => {
@@ -506,6 +584,16 @@ const RegistryViewRenderer = React.memo(function RegistryViewRenderer({
 		if (!isDynamicImportLoader(loader)) {
 			setState({
 				Component: loader as React.ComponentType<any>,
+				loading: false,
+				error: null,
+			});
+			return;
+		}
+
+		const cachedComponent = getCachedComponent(loader);
+		if (cachedComponent) {
+			setState({
+				Component: cachedComponent,
 				loading: false,
 				error: null,
 			});
@@ -526,6 +614,7 @@ const RegistryViewRenderer = React.memo(function RegistryViewRenderer({
 				} else {
 					Component = result as unknown as React.ComponentType<any>;
 				}
+				cacheComponent(loader, Component);
 				setState({ Component, loading: false, error: null });
 			} catch (error) {
 				if (!mounted) return;
@@ -549,7 +638,7 @@ const RegistryViewRenderer = React.memo(function RegistryViewRenderer({
 	}, [loader]);
 
 	if (state.loading) {
-		return <ViewLoadingState />;
+		return <ViewLoadingState viewKind={viewKind} />;
 	}
 
 	if (state.error || !state.Component) {
@@ -559,7 +648,7 @@ const RegistryViewRenderer = React.memo(function RegistryViewRenderer({
 	const Component = state.Component;
 
 	return (
-		<React.Suspense fallback={<ViewLoadingState />}>
+		<React.Suspense fallback={<ViewLoadingState viewKind={viewKind} />}>
 			<Component {...componentProps} />
 		</React.Suspense>
 	);
@@ -653,9 +742,9 @@ function RestrictedAccess({
 function LazyPageRenderer({ config }: { config: PageDefinition<string> }) {
 	const component = config.component;
 	const [Component, setComponent] = React.useState<React.ComponentType | null>(
-		null,
+		() => getCachedComponent(component as MaybeLazyComponent) ?? null,
 	);
-	const [loading, setLoading] = React.useState(true);
+	const [loading, setLoading] = React.useState(() => Component == null);
 	const [error, setError] = React.useState<Error | null>(null);
 
 	React.useEffect(() => {
@@ -663,6 +752,23 @@ function LazyPageRenderer({ config }: { config: PageDefinition<string> }) {
 
 		async function load() {
 			try {
+				const cachedComponent = getCachedComponent(
+					component as MaybeLazyComponent,
+				);
+				if (cachedComponent) {
+					if (mounted) {
+						setComponent(() => cachedComponent);
+						setLoading(false);
+						setError(null);
+					}
+					return;
+				}
+
+				if (mounted) {
+					setLoading(true);
+					setError(null);
+				}
+
 				if (typeof component === "function") {
 					const result = (component as () => any)();
 					let isThenable = false;
@@ -680,6 +786,7 @@ function LazyPageRenderer({ config }: { config: PageDefinition<string> }) {
 							} else {
 								resolved = mod;
 							}
+							cacheComponent(component as MaybeLazyComponent, resolved);
 							setComponent(() => resolved);
 						}
 					} else {
@@ -718,10 +825,11 @@ function LazyPageRenderer({ config }: { config: PageDefinition<string> }) {
 	}, [component]);
 
 	if (loading) {
-		return (
-			<div className="text-muted-foreground flex h-64 items-center justify-center">
-				<Icon icon="ph:spinner-gap" className="size-6 animate-spin" />
-			</div>
+		const path = config.path?.replace(/^\//, "") ?? "";
+		return AUTH_ROUTE_SEGMENTS.has(path) ? (
+			<AuthPageSkeleton />
+		) : (
+			<RouterSkeleton />
 		);
 	}
 
@@ -749,7 +857,7 @@ function LazyPageRenderer({ config }: { config: PageDefinition<string> }) {
  */
 export function AdminRouter(props: AdminRouterProps): React.ReactElement {
 	return (
-		<React.Suspense fallback={<RouterSkeleton />}>
+		<React.Suspense fallback={getFallbackForSegments(props.segments)}>
 			<AdminRouterInner {...props} />
 		</React.Suspense>
 	);

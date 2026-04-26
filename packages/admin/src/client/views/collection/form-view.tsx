@@ -63,7 +63,6 @@ import {
 	useSearchParamToggle,
 	useSidebarSearchParam,
 } from "../../hooks";
-import { useCollectionAuditHistory } from "../../hooks/use-audit-history";
 import {
 	useCollectionCreate,
 	useCollectionDelete,
@@ -92,6 +91,7 @@ import {
 	detectManyToManyRelations,
 	hasManyToManyRelations,
 } from "../../utils/detect-relations";
+import { shouldHandleAdminShortcut } from "../../utils/keyboard-shortcuts";
 import { AdminViewHeader } from "../layout/admin-view-layout";
 import { AutoFormFields } from "./auto-form-fields";
 import { FormViewSkeleton } from "./view-skeletons";
@@ -709,14 +709,6 @@ export default function FormView({
 			},
 		);
 
-	const { data: auditData, isLoading: auditLoading } =
-		useCollectionAuditHistory(
-			collection,
-			id ?? "",
-			{ limit: 50 },
-			{ enabled: isEditMode && !!id && isHistoryOpen },
-		);
-
 	// ========================================================================
 	// Workflow — stage badge, transition dropdown, scheduling
 	// ========================================================================
@@ -1101,7 +1093,12 @@ export default function FormView({
 	// Keyboard shortcut: Cmd+S to save
 	React.useEffect(() => {
 		const handleKeyDown = (e: KeyboardEvent) => {
-			if ((e.metaKey || e.ctrlKey) && e.key === "s") {
+			if (
+				shouldHandleAdminShortcut(e, {
+					allowEditableTarget: true,
+					key: "s",
+				})
+			) {
 				e.preventDefault();
 				e.stopPropagation();
 				form.handleSubmit(onSubmitRef.current, (errors) => {
@@ -2087,9 +2084,8 @@ export default function FormView({
 				<HistorySidebar
 					open={isHistoryOpen}
 					onOpenChange={setIsHistoryOpen}
-					auditEntries={auditData ?? []}
-					isLoadingAudit={auditLoading}
 					versions={(versionsData ?? []) as any[]}
+					fields={schema?.fields as any}
 					isLoadingVersions={versionsLoading}
 					isReverting={revertVersionMutation.isPending}
 					onRevert={async (version) => {

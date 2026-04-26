@@ -17,6 +17,7 @@ import { useResolveText } from "../../i18n/hooks";
 import { cn } from "../../lib/utils";
 import { selectClient, useAdminStore } from "../../runtime";
 import { WidgetCard } from "../../views/dashboard/widget-card";
+import { WidgetEmptyState } from "./widget-empty-state";
 import { ValueWidgetSkeleton } from "./widget-skeletons";
 
 /**
@@ -79,22 +80,51 @@ export default function ValueWidget({ config }: ValueWidgetProps) {
 	const isFeatured = config.cardVariant === "featured";
 
 	// Handle loading/error via WidgetCard
-	if (isLoading || error || !data) {
+	if (isLoading || error) {
 		return (
 			<WidgetCard
 				title={config.title ? resolveText(config.title) : undefined}
+				description={
+					config.description ? resolveText(config.description) : undefined
+				}
+				icon={config.icon}
+				variant={config.cardVariant}
 				isLoading={isLoading}
 				loadingSkeleton={<ValueWidgetSkeleton featured={isFeatured} />}
 				error={
 					error instanceof Error
 						? error
-						: !data && !isLoading
-							? new Error("No data returned")
+						: error
+							? new Error(String(error))
 							: null
 				}
 				onRefresh={() => refetch()}
-				className={data?.classNames?.root}
+				actions={config.actions}
+				className={cn(config.className, data?.classNames?.root)}
 			/>
+		);
+	}
+
+	if (!data) {
+		return (
+			<WidgetCard
+				title={config.title ? resolveText(config.title) : undefined}
+				description={
+					config.description ? resolveText(config.description) : undefined
+				}
+				icon={config.icon}
+				variant={config.cardVariant}
+				isRefreshing={isFetching && !isLoading}
+				onRefresh={() => refetch()}
+				actions={config.actions}
+				className={config.className}
+			>
+				<WidgetEmptyState
+					iconName="ph:gauge"
+					title="No value to display"
+					description="There is no value for this card yet."
+				/>
+			</WidgetCard>
 		);
 	}
 
@@ -103,7 +133,11 @@ export default function ValueWidget({ config }: ValueWidgetProps) {
 	const TrendIcon = data.trend?.icon;
 
 	// Resolve all text fields (supports both string and i18n objects)
-	const label = data.label ? resolveText(data.label) : undefined;
+	const label = data.label
+		? resolveText(data.label)
+		: config.title
+			? resolveText(config.title)
+			: undefined;
 	const subtitle = data.subtitle ? resolveText(data.subtitle) : undefined;
 	const footer = data.footer ? resolveText(data.footer) : undefined;
 
@@ -111,9 +145,14 @@ export default function ValueWidget({ config }: ValueWidgetProps) {
 		<WidgetCard
 			title={label}
 			icon={Icon}
+			description={
+				config.description ? resolveText(config.description) : undefined
+			}
+			variant={config.cardVariant}
 			onRefresh={() => refetch()}
 			isRefreshing={isFetching && !isLoading}
-			className={cls.root}
+			actions={config.actions}
+			className={cn(config.className, cls.root)}
 		>
 			<div className={cn("space-y-1", cls.content)}>
 				{/* Main value */}
