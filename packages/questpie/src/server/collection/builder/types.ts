@@ -188,36 +188,6 @@ export interface RelationConfig {
 	targetField?: string; // Foreign key column in junction table pointing to target
 }
 
-type InferRelationTargetName<TTarget> = TTarget extends string
-	? TTarget
-	: TTarget extends () => { name: infer TName extends string }
-		? TName
-		: TTarget extends Record<string, any>
-			? Extract<keyof TTarget, string>
-			: string;
-
-type InferRelationTypeFromConfig<TConfig> = TConfig extends {
-	morphName: string;
-}
-	? "many"
-	: TConfig extends { hasMany: true }
-		? TConfig extends { through: any }
-			? "manyToMany"
-			: "many"
-		: "one";
-
-/** Infer upload relation type: through → manyToMany, else one */
-type InferUploadRelationType<TConfig> = TConfig extends { through: string }
-	? "manyToMany"
-	: "one";
-
-/** Infer upload target collection: config.to or default "assets" */
-type InferUploadTargetCollection<TConfig> = TConfig extends {
-	to: infer TTo extends string;
-}
-	? TTo
-	: "assets";
-
 export type InferRelationConfigsFromFields<
 	TFields extends Record<string, any>,
 > = {
@@ -606,6 +576,8 @@ export type TransitionHookContext<TData = any> = AppContext & {
 	scheduledAt?: Date;
 	/** Current locale */
 	locale?: string;
+	/** Current access mode */
+	accessMode?: AccessMode;
 };
 
 /**

@@ -4,7 +4,7 @@
  * Default login page that uses AuthLayout and LoginForm.
  * Integrates with authClient from AdminProvider context.
  *
- * Automatically redirects to setup page if no users exist.
+ * Automatically redirects to setup page if no admin users exist.
  */
 
 import * as React from "react";
@@ -18,7 +18,7 @@ import {
 	selectNavigate,
 	useAdminStore,
 } from "../../runtime/provider";
-import { AuthLayout } from "../auth/auth-layout";
+import { AuthDefaultLogo, AuthLayout } from "../auth/auth-layout";
 import { LoginForm, type LoginFormValues } from "../auth/login-form";
 
 export interface LoginPageProps {
@@ -73,7 +73,7 @@ export interface LoginPageProps {
  * Default login page component.
  *
  * Uses authClient from AdminProvider to handle authentication.
- * Automatically redirects to setup page if no users exist.
+ * Automatically redirects to setup page if no admin users exist.
  *
  * @example
  * ```tsx
@@ -99,10 +99,10 @@ export function LoginPage({
 
 	const [error, setError] = React.useState<string | null>(null);
 
-	// Check if setup is required (no users exist)
+	// Check if setup is required (no admin users exist)
 	const { data: setupStatus, isLoading: isCheckingSetup } = useSetupStatus();
 
-	// Redirect to setup page if no users exist
+	// Redirect to setup page if no admin users exist
 	React.useEffect(() => {
 		if (!isCheckingSetup && setupStatus && setupStatus.required) {
 			navigate(`${basePath}/setup`);
@@ -154,7 +154,7 @@ export function LoginPage({
 		<AuthLayout
 			title={title ?? t("auth.signIn")}
 			description={description ?? t("auth.signInDescription")}
-			logo={logo ?? <DefaultLogo brandName={brandName} />}
+			logo={logo ?? <AuthDefaultLogo brandName={brandName} />}
 			className="qa-login-page"
 		>
 			<LoginForm
@@ -166,13 +166,5 @@ export function LoginPage({
 				error={error}
 			/>
 		</AuthLayout>
-	);
-}
-
-function DefaultLogo({ brandName }: { brandName: string }) {
-	return (
-		<div className="text-center">
-			<h1 className="text-xl font-bold">{brandName}</h1>
-		</div>
 	);
 }

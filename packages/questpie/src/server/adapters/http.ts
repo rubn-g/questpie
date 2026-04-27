@@ -13,8 +13,8 @@ import type { Questpie } from "../config/questpie.js";
 import type { QuestpieConfig } from "../config/types.js";
 import { ApiError } from "../errors/index.js";
 import {
-	executeJsonRoute,
-	executeRawRoute,
+	executeJsonRouteInternal,
+	executeRawRouteInternal,
 } from "../routes/execute.js";
 import { filePathToRoutePattern } from "../routes/file-path-convention.js";
 import { compileMatcher, type RouteMatcher } from "../routes/route-matcher.js";
@@ -177,27 +177,22 @@ export const createFetchHandler = (
 				}
 
 				// Resolve session, locale, and create app context
-				const resolved = await resolveContext(
-					_app,
-					request,
-					config,
-					context,
-				);
+				const resolved = await resolveContext(_app, request, config, context);
 
 				try {
 					if (isJsonRoute(def)) {
 						const body = await parseRouteBody(request);
 						if (body === null) {
-							return handleError(
-								ApiError.badRequest("Invalid JSON body"),
-								{ request, app: _app },
-							);
+							return handleError(ApiError.badRequest("Invalid JSON body"), {
+								request,
+								app: _app,
+							});
 						}
-						const result = await executeJsonRoute(
+						const result = await executeJsonRouteInternal(
 							_app,
 							def,
 							body,
-							resolved.appContext,
+							resolved,
 							request,
 							match.params,
 						);
@@ -205,11 +200,11 @@ export const createFetchHandler = (
 					}
 
 					// Raw route — pass matched params through
-					return await executeRawRoute(
+					return await executeRawRouteInternal(
 						_app,
 						def,
 						request,
-						resolved.appContext,
+						resolved,
 						match.params,
 					);
 				} catch (error) {

@@ -217,7 +217,7 @@ export function BlockLibrarySidebar({
 												className={cn(
 													"panel-surface flex flex-col items-start gap-2 p-3 text-left",
 													"hover:border-border hover:bg-accent transition-colors",
-													"focus-visible:ring-primary focus:outline-none focus-visible:ring-2",
+													"focus-visible:ring-ring/25 focus:outline-none focus-visible:ring-3",
 												)}
 												onClick={() => handleSelectBlock(block.name)}
 											>

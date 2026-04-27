@@ -40,6 +40,7 @@ export default {
 	"common.view": "Zobraziť",
 	"common.open": "Otvoriť",
 	"common.retry": "Skúsiť znova",
+	"common.backToList": "Späť na zoznam",
 	"common.submit": "Odoslať",
 	"common.deleted": "Vymazaný",
 
@@ -342,6 +343,7 @@ export default {
 	"table.hideColumn": "Skryť stĺpec",
 	"table.showColumn": "Zobraziť stĺpec",
 	"table.noItemsInCollection": "V tejto kolekcii sa nenašli žiadne položky",
+	"table.emptyDescription": "Záznamy sa tu zobrazia hneď po vytvorení.",
 	"table.pagination": "Stránkovanie",
 	"table.editing": "Upravuje",
 
@@ -395,6 +397,17 @@ export default {
 	"editor.underline": "Podčiarknuté",
 	"editor.strikethrough": "Prečiarknuté",
 	"editor.heading": "Nadpis {{level}}",
+	"editor.richTextToolbar": "Panel bohatého textu",
+	"editor.blockType": "Typ bloku",
+	"editor.selectionBlockType": "Typ označeného bloku",
+	"editor.paragraph": "Odsek",
+	"editor.textBlocks": "Textové bloky",
+	"editor.headings": "Nadpisy",
+	"editor.blocks": "Bloky",
+	"editor.formatting": "Formátovanie",
+	"editor.moreFormatting": "Ďalšie formátovanie",
+	"editor.alignment": "Zarovnanie",
+	"editor.insert": "Vložiť",
 	"editor.link": "Vložiť odkaz",
 	"editor.image": "Vložiť obrázok",
 	"editor.list": "Zoznam",
@@ -429,6 +442,17 @@ export default {
 	"editor.uploading": "Nahráva sa...",
 	"editor.browseLibrary": "Prehľadať knižnicu",
 	"editor.startWriting": "Začnite písať...",
+	"editor.pasteOrTypeLink": "Prilepte alebo zadajte odkaz...",
+	"editor.paragraphDescription": "Začať obyčajným textom",
+	"editor.heading1Description": "Veľký sekčný nadpis",
+	"editor.heading2Description": "Stredný sekčný nadpis",
+	"editor.heading3Description": "Menší sekčný nadpis",
+	"editor.bulletListDescription": "Vytvoriť odrážkový zoznam",
+	"editor.orderedListDescription": "Vytvoriť číslovaný zoznam",
+	"editor.quoteDescription": "Vložiť citát",
+	"editor.codeBlockDescription": "Vložiť ukážku kódu",
+	"editor.dividerDescription": "Vložiť vodorovnú čiaru",
+	"editor.tableDescription": "Vložiť tabuľku 3x3",
 
 	// Toasts
 	"toast.success": "Úspech",
@@ -621,14 +645,23 @@ export default {
 	"viewOptions.savedViews": "Uložené zobrazenia",
 	"viewOptions.apply": "Použiť",
 	"viewOptions.reset": "Obnoviť",
+	"viewOptions.realtime": "Realtime aktualizácie",
+	"viewOptions.realtimeDescription":
+		"Automaticky obnoví tabuľku, keď sa zmenia dáta.",
 	"viewOptions.showDeleted": "Zobraziť vymazané",
 	"viewOptions.showDeletedDescription":
 		"Zahrnúť soft-delete záznamy do tohto zobrazenia.",
+	"viewOptions.groupBy": "Zoskupiť podľa",
+	"viewOptions.groupByDescription":
+		"Zoskupí aktuálnu stránku podľa nakonfigurovaného poľa.",
+	"viewOptions.noGrouping": "Bez zoskupenia",
+	"viewOptions.sort": "Zoradenie",
 
 	// Saved Views Tab
 	"viewOptions.saveCurrentConfig": "Uložiť aktuálnu konfiguráciu",
 	"viewOptions.viewNamePlaceholder": "Názov zobrazenia...",
-	"viewOptions.saveDescription": "Uloží aktuálne stĺpce, filtre a zoradenie.",
+	"viewOptions.saveDescription":
+		"Uloží aktuálne stĺpce, filtre, zoskupenie a zoradenie.",
 	"viewOptions.noChangesToSave": "Žiadne filtre ani zmeny stĺpcov na uloženie.",
 	"viewOptions.noSavedViews": "Zatiaľ žiadne uložené zobrazenia.",
 	"viewOptions.filtersCount": {
@@ -664,6 +697,15 @@ export default {
 		other: "{{count}} aktívnych filtrov",
 	},
 	"viewOptions.clearFilters": "Vymazať filtre",
+	"viewOptions.noResultsDescription":
+		"Aktívnym filtrom nezodpovedá žiadny záznam. Upravte ich alebo vymažte, aby ste videli viac výsledkov.",
+
+	// Vyhľadávanie v kolekcii
+	"collectionSearch.placeholder": "Hľadať záznamy...",
+	"collectionSearch.noResults": "Nenašli sa žiadne zodpovedajúce záznamy",
+	"collectionSearch.noResultsDescription":
+		"Skúste iný výraz alebo vymažte vyhľadávanie a vráťte sa na celý zoznam.",
+	"collectionSearch.searching": "Hľadá sa...",
 
 	// Verzie
 	"version.history": "História verzií",
@@ -752,6 +794,56 @@ export default {
 	"audit.widget.recentActivity.title": "Posledná aktivita",
 	"audit.widget.recentActivity.empty":
 		"Žiadna nedávna aktivita nebola zaznamenaná.",
+
+	// História
+	"history.title": "História",
+	"history.description": "Zmeny a aktivita pre tento záznam",
+	"history.versionDescription":
+		"Prehliadajte snapshoty verzií a diffy na úrovni polí.",
+	"history.tabActivity": "Aktivita",
+	"history.tabVersions": "Verzie",
+	"history.empty": "Žiadna aktivita nebola zaznamenaná",
+	"history.showChanges": {
+		one: "Zobraziť zmenu ({{count}})",
+		few: "Zobraziť zmeny ({{count}})",
+		other: "Zobraziť zmeny ({{count}})",
+	},
+	"history.hideChanges": "Skryť zmeny",
+	"history.changedFields": {
+		one: "{{count}} zmenené pole",
+		few: "{{count}} zmenené polia",
+		other: "{{count}} zmenených polí",
+	},
+	"history.moreFields": {
+		one: "ešte {{count}}",
+		few: "ešte {{count}}",
+		other: "ešte {{count}}",
+	},
+	"history.changeAdded": "Pridané",
+	"history.changeRemoved": "Odstránené",
+	"history.changeChanged": "Zmenené",
+	"history.diffAgainstVersion": "Diff oproti verzii {{number}}",
+	"history.initialSnapshot": "Počiatočný snapshot",
+	"history.noFieldChanges": "V tomto snapshote nie sú zmeny na úrovni polí.",
+	"history.before": "Predtým",
+	"history.after": "Potom",
+	"history.stage": "Stav",
+	"history.systemUser": "Systém",
+	"history.itemsCount": {
+		one: "{{count}} položka",
+		few: "{{count}} položky",
+		other: "{{count}} položiek",
+	},
+	"history.blocksCount": {
+		one: "{{count}} blok",
+		few: "{{count}} bloky",
+		other: "{{count}} blokov",
+	},
+	"history.objectWithKeys": {
+		one: "Objekt s {{count}} kľúčom",
+		few: "Objekt s {{count}} kľúčmi",
+		other: "Objekt s {{count}} kľúčmi",
+	},
 
 	// UI
 	"ui.toggleSidebar": "Prepnúť bočný panel",

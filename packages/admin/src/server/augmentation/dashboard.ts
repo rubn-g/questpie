@@ -70,6 +70,8 @@ export interface ServerStatsWidget {
 	filter?: Record<string, unknown>;
 	/** Grid span (1-4) */
 	span?: number;
+	/** Grid row span. span=2 + rowSpan=2 renders as a 2x2 tile. */
+	rowSpan?: number;
 	/** Optional server-side data loader (overrides collection count) */
 	loader?: (ctx: WidgetFetchContext) => Promise<{ count: number }>;
 	/** Per-widget access rule */
@@ -99,6 +101,8 @@ export interface ServerChartWidget {
 	filter?: Record<string, unknown>;
 	/** Grid span (1-4) */
 	span?: number;
+	/** Grid row span. */
+	rowSpan?: number;
 	/** Optional server-side data loader (overrides collection query) */
 	loader?: (
 		ctx: WidgetFetchContext,
@@ -126,6 +130,8 @@ export interface ServerRecentItemsWidget {
 	filter?: Record<string, unknown>;
 	/** Grid span (1-4) */
 	span?: number;
+	/** Grid row span. */
+	rowSpan?: number;
 	/** Optional server-side data loader */
 	loader?: (ctx: WidgetFetchContext) => Promise<unknown>;
 	/** Per-widget access rule */
@@ -143,8 +149,12 @@ export interface ServerQuickActionsWidget {
 	label?: I18nText;
 	/** Actions to display */
 	actions: ServerQuickAction[];
+	/** Layout variant */
+	layout?: "grid" | "list";
 	/** Grid span (1-4) */
 	span?: number;
+	/** Grid row span. */
+	rowSpan?: number;
 	/** Per-widget access rule */
 	access?: WidgetAccessRule;
 }
@@ -157,6 +167,8 @@ export interface ServerQuickAction {
 	label: I18nText;
 	/** Action icon */
 	icon?: ComponentReference;
+	/** Visual variant */
+	variant?: "default" | "primary" | "secondary" | "outline";
 	/** Action to perform */
 	action:
 		| { type: "create"; collection: string }
@@ -179,6 +191,8 @@ export interface ServerCustomWidget {
 	props?: Record<string, unknown>;
 	/** Grid span (1-4) */
 	span?: number;
+	/** Grid row span. */
+	rowSpan?: number;
 	/** Optional server-side data loader */
 	loader?: (ctx: WidgetFetchContext) => Promise<unknown>;
 	/** Per-widget access rule */
@@ -196,8 +210,12 @@ export interface ServerValueWidget {
 	label?: I18nText;
 	/** Icon reference */
 	icon?: ComponentReference;
+	/** Card visual variant */
+	cardVariant?: "default" | "compact" | "featured";
 	/** Grid span (1-4) */
 	span?: number;
+	/** Grid row span. */
+	rowSpan?: number;
 	/** Auto-refresh interval in milliseconds */
 	refreshInterval?: number;
 	/** Server-side data loader (required) */
@@ -238,6 +256,8 @@ export interface ServerTableWidget {
 	filter?: Record<string, unknown>;
 	/** Grid span (1-4) */
 	span?: number;
+	/** Grid row span. */
+	rowSpan?: number;
 	/** Optional server-side data loader */
 	loader?: (ctx: WidgetFetchContext) => Promise<unknown>;
 	/** Per-widget access rule */
@@ -263,6 +283,8 @@ export interface ServerTimelineWidget {
 	emptyMessage?: I18nText;
 	/** Grid span (1-4) */
 	span?: number;
+	/** Grid row span. */
+	rowSpan?: number;
 	/** Server-side data loader (required) */
 	loader: (ctx: WidgetFetchContext) => Promise<
 		Array<{
@@ -294,6 +316,8 @@ export interface ServerProgressWidget {
 	showPercentage?: boolean;
 	/** Grid span (1-4) */
 	span?: number;
+	/** Grid row span. */
+	rowSpan?: number;
 	/** Server-side data loader (required) */
 	loader: (ctx: WidgetFetchContext) => Promise<{
 		current: number;
@@ -310,6 +334,8 @@ export interface ServerProgressWidget {
  */
 export interface ServerDashboardSection {
 	type: "section";
+	/** Stable section ID, useful for keyed updates and contributions */
+	id?: string;
 	/** Section label */
 	label?: I18nText;
 	/** Section description */
@@ -320,12 +346,18 @@ export interface ServerDashboardSection {
 	layout?: "grid" | "stack";
 	/** Grid columns */
 	columns?: number;
+	/** Fixed row height for widgets in this section */
+	rowHeight?: number | string;
+	/** Gap between items */
+	gap?: number;
 	/** Wrapper style */
 	wrapper?: "flat" | "card" | "collapsible";
 	/** Default collapsed (for collapsible) */
 	defaultCollapsed?: boolean;
 	/** Section items */
 	items: ServerDashboardItem[];
+	/** Custom CSS class */
+	className?: string;
 }
 
 /**
@@ -333,10 +365,14 @@ export interface ServerDashboardSection {
  */
 export interface ServerDashboardTabs {
 	type: "tabs";
+	/** Stable tabs group ID */
+	id?: string;
 	/** Tabs configuration */
 	tabs: ServerDashboardTab[];
 	/** Default active tab ID */
 	defaultTab?: string;
+	/** Custom CSS class */
+	className?: string;
 }
 
 /**
@@ -351,6 +387,14 @@ export interface ServerDashboardTab {
 	icon?: ComponentReference;
 	/** Tab items */
 	items: ServerDashboardItem[];
+	/** Grid columns for this tab */
+	columns?: number;
+	/** Fixed row height for widgets in this tab */
+	rowHeight?: number | string;
+	/** Gap between tab items */
+	gap?: number;
+	/** Badge text */
+	badge?: string | number;
 }
 
 /**
@@ -389,6 +433,8 @@ export interface ServerDashboardConfig {
 	actions?: ServerDashboardAction[];
 	/** Grid columns (default: 4) */
 	columns?: number;
+	/** Fixed row height for dashboard widgets */
+	rowHeight?: number | string;
 	/** Gap between widgets */
 	gap?: number;
 	/** Dashboard items */
@@ -534,10 +580,22 @@ export interface DashboardSectionDef {
 	id: string;
 	/** Section title. */
 	label?: I18nText;
+	/** Section description. */
+	description?: I18nText;
 	/** Layout mode. */
-	layout?: "grid";
+	layout?: "grid" | "stack";
 	/** Grid columns for this section. */
 	columns?: number;
+	/** Fixed row height for widgets in this section. */
+	rowHeight?: number | string;
+	/** Gap between section items. */
+	gap?: number;
+	/** Wrapper style. */
+	wrapper?: "flat" | "card" | "collapsible";
+	/** Default collapsed state for collapsible sections. */
+	defaultCollapsed?: boolean;
+	/** Custom CSS class. */
+	className?: string;
 }
 
 /**
@@ -565,6 +623,8 @@ export interface DashboardItemDef {
 	label?: I18nText;
 	/** Grid span (1-4). */
 	span?: number;
+	/** Grid row span. */
+	rowSpan?: number;
 	/** Refresh interval in ms. */
 	refreshInterval?: number;
 	/** Widget-specific config (collection, filter, loader, chartType, etc.) */
@@ -583,6 +643,10 @@ export interface DashboardContribution {
 	description?: I18nText;
 	/** Grid columns — last module/user wins. */
 	columns?: number;
+	/** Fixed widget row height — last module/user wins. */
+	rowHeight?: number | string;
+	/** Widget gap — last module/user wins. */
+	gap?: number;
 	/** Enable realtime — last module/user wins. */
 	realtime?: boolean;
 
@@ -590,8 +654,8 @@ export interface DashboardContribution {
 	actions?: ServerDashboardAction[];
 	/** Section definitions — merged by id across modules. */
 	sections?: DashboardSectionDef[];
-	/** Widget items — appended to sections by sectionId. */
-	items?: DashboardItemDef[];
+	/** Widget items — appended to sections by sectionId, or direct layout items. */
+	items?: Array<DashboardItemDef | ServerDashboardItem>;
 }
 
 /**

@@ -15,7 +15,7 @@ import {
 	selectNavigate,
 	useAdminStore,
 } from "../../runtime/provider";
-import { AuthLayout } from "../auth/auth-layout";
+import { AuthDefaultLogo, AuthLayout } from "../auth/auth-layout";
 import {
 	ForgotPasswordForm,
 	type ForgotPasswordFormValues,
@@ -128,7 +128,7 @@ export function ForgotPasswordPage({
 		<AuthLayout
 			title={title ?? t("auth.forgotPasswordTitle")}
 			description={description ?? t("auth.forgotPasswordDescription")}
-			logo={logo ?? <DefaultLogo brandName={brandName} />}
+			logo={logo ?? <AuthDefaultLogo brandName={brandName} />}
 			className="qa-forgot-password-page"
 		>
 			<ForgotPasswordForm
@@ -137,13 +137,5 @@ export function ForgotPasswordPage({
 				error={error}
 			/>
 		</AuthLayout>
-	);
-}
-
-function DefaultLogo({ brandName }: { brandName: string }) {
-	return (
-		<div className="text-center">
-			<h1 className="text-xl font-bold">{brandName}</h1>
-		</div>
 	);
 }

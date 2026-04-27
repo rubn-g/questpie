@@ -78,7 +78,7 @@ export function RelationChip({
 			<img
 				src={avatarUrl}
 				alt={label}
-				className="border-border size-4 rounded-full border object-cover"
+				className="image-outline size-4 rounded-full object-cover"
 			/>
 		) : null;
 
@@ -104,14 +104,10 @@ export function RelationChip({
 						onPointerDown={(e) => e.stopPropagation()}
 					/>
 				}
-				className={cn(
-					"qa-relation-chip item-surface border-border cursor-pointer gap-1.5",
-					"hover:bg-accent hover:text-accent-foreground",
-					className,
-				)}
+				className={cn("qa-relation-chip cursor-pointer", "max-w-40", className)}
 			>
 				{avatar}
-				{label}
+				<span className="truncate">{label}</span>
 			</Badge>
 		);
 	}
@@ -120,13 +116,10 @@ export function RelationChip({
 	return (
 		<Badge
 			variant="secondary"
-			className={cn(
-				"qa-relation-chip item-surface border-border gap-1.5",
-				className,
-			)}
+			className={cn("qa-relation-chip cursor-default", className)}
 		>
 			{avatar}
-			{label}
+			<span className="truncate">{label}</span>
 		</Badge>
 	);
 }

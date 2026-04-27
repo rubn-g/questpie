@@ -275,13 +275,12 @@ export function useActions<TItem = any>({
 	const actions: Required<ActionsConfig<TItem>> = React.useMemo(
 		() => ({
 			header:
-				actionsConfig?.header &&
-				((actionsConfig.header as any).primary?.length > 0 ||
-					(actionsConfig.header as any).secondary?.length > 0)
+				actionsConfig?.header !== undefined
 					? actionsConfig.header
 					: (defaultActions.header ?? { primary: [], secondary: [] }),
+			row: actionsConfig?.row ?? [],
 			bulk:
-				actionsConfig?.bulk && actionsConfig.bulk.length > 0
+				actionsConfig?.bulk !== undefined
 					? actionsConfig.bulk
 					: (defaultActions.bulk ?? []),
 		}),

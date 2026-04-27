@@ -40,6 +40,7 @@ export default {
 	"common.view": "View",
 	"common.open": "Open",
 	"common.retry": "Retry",
+	"common.backToList": "Back to list",
 	"common.submit": "Submit",
 	"common.deleted": "Deleted",
 
@@ -331,6 +332,7 @@ export default {
 	"table.hideColumn": "Hide column",
 	"table.showColumn": "Show column",
 	"table.noItemsInCollection": "No items found in this collection",
+	"table.emptyDescription": "Records will appear here once they are created.",
 	"table.pagination": "Pagination",
 	"table.editing": "Editing",
 
@@ -373,6 +375,17 @@ export default {
 	"editor.underline": "Underline",
 	"editor.strikethrough": "Strikethrough",
 	"editor.heading": "Heading {{level}}",
+	"editor.richTextToolbar": "Rich text toolbar",
+	"editor.blockType": "Block type",
+	"editor.selectionBlockType": "Selection block type",
+	"editor.paragraph": "Paragraph",
+	"editor.textBlocks": "Text blocks",
+	"editor.headings": "Headings",
+	"editor.blocks": "Blocks",
+	"editor.formatting": "Formatting",
+	"editor.moreFormatting": "More formatting",
+	"editor.alignment": "Alignment",
+	"editor.insert": "Insert",
 	"editor.link": "Insert link",
 	"editor.image": "Insert image",
 	"editor.list": "List",
@@ -407,6 +420,17 @@ export default {
 	"editor.uploading": "Uploading...",
 	"editor.browseLibrary": "Browse library",
 	"editor.startWriting": "Start writing...",
+	"editor.pasteOrTypeLink": "Paste or type a link...",
+	"editor.paragraphDescription": "Start with plain text",
+	"editor.heading1Description": "Large section heading",
+	"editor.heading2Description": "Medium section heading",
+	"editor.heading3Description": "Small section heading",
+	"editor.bulletListDescription": "Create a bulleted list",
+	"editor.orderedListDescription": "Create an ordered list",
+	"editor.quoteDescription": "Capture a quote",
+	"editor.codeBlockDescription": "Insert code snippet",
+	"editor.dividerDescription": "Insert a horizontal rule",
+	"editor.tableDescription": "Insert a 3x3 table",
 
 	// Toasts
 	"toast.success": "Success",
@@ -607,9 +631,17 @@ export default {
 	"viewOptions.savedViews": "Saved Views",
 	"viewOptions.apply": "Apply",
 	"viewOptions.reset": "Reset",
+	"viewOptions.realtime": "Realtime updates",
+	"viewOptions.realtimeDescription":
+		"Auto-refresh this table when data changes.",
 	"viewOptions.showDeleted": "Show deleted",
 	"viewOptions.showDeletedDescription":
 		"Include soft-deleted records in this view.",
+	"viewOptions.groupBy": "Group by",
+	"viewOptions.groupByDescription":
+		"Group the current page by a configured field.",
+	"viewOptions.noGrouping": "No grouping",
+	"viewOptions.sort": "Sort",
 
 	// Versions
 	"version.history": "Version history",
@@ -635,7 +667,7 @@ export default {
 	"viewOptions.saveCurrentConfig": "Save Current Configuration",
 	"viewOptions.viewNamePlaceholder": "View Name...",
 	"viewOptions.saveDescription":
-		"Saves current columns, filters, and sort order.",
+		"Saves current columns, filters, grouping, and sort order.",
 	"viewOptions.noChangesToSave": "No filters or column changes to save.",
 	"viewOptions.noSavedViews": "No saved views yet.",
 	"viewOptions.filtersCount": {
@@ -665,6 +697,8 @@ export default {
 		other: "{{count}} filters active",
 	},
 	"viewOptions.clearFilters": "Clear filters",
+	"viewOptions.noResultsDescription":
+		"No records match the active filters. Adjust or clear them to see more results.",
 
 	// Filter Operators
 	"filter.contains": "Contains",
@@ -726,6 +760,8 @@ export default {
 	// Collection Search
 	"collectionSearch.placeholder": "Search records...",
 	"collectionSearch.noResults": "No matching records found",
+	"collectionSearch.noResultsDescription":
+		"Try a different search term or clear the search to return to the full list.",
 	"collectionSearch.searching": "Searching...",
 
 	// Audit Log
@@ -742,6 +778,8 @@ export default {
 	// History Sidebar
 	"history.title": "History",
 	"history.description": "Changes and activity for this record",
+	"history.versionDescription":
+		"Browse version snapshots and inspect field-level diffs.",
 	"history.tabActivity": "Activity",
 	"history.tabVersions": "Versions",
 	"history.empty": "No activity recorded",
@@ -750,6 +788,27 @@ export default {
 		other: "Show changes ({{count}})",
 	},
 	"history.hideChanges": "Hide changes",
+	"history.changedFields": {
+		one: "{{count}} field changed",
+		other: "{{count}} fields changed",
+	},
+	"history.moreFields": { one: "{{count}} more", other: "{{count}} more" },
+	"history.changeAdded": "Added",
+	"history.changeRemoved": "Removed",
+	"history.changeChanged": "Changed",
+	"history.diffAgainstVersion": "Diff against version {{number}}",
+	"history.initialSnapshot": "Initial snapshot",
+	"history.noFieldChanges": "No field-level changes in this snapshot.",
+	"history.before": "Before",
+	"history.after": "After",
+	"history.stage": "Stage",
+	"history.systemUser": "System",
+	"history.itemsCount": { one: "{{count}} item", other: "{{count}} items" },
+	"history.blocksCount": { one: "{{count}} block", other: "{{count}} blocks" },
+	"history.objectWithKeys": {
+		one: "Object with {{count}} key",
+		other: "Object with {{count}} keys",
+	},
 
 	// Workflow
 	"workflow.transition": "Transition",

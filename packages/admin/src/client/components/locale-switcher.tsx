@@ -115,7 +115,7 @@ export function LocaleSwitcher({
 				<img
 					src={getLocaleFlagUrl(resolvedValue)}
 					alt={resolvedValue}
-					className="h-2.5 w-3.5 rounded-[1px] object-cover"
+					className="image-outline h-2.5 w-3.5 rounded-[1px] object-cover"
 					onError={() => setImgError(true)}
 				/>
 			)}
@@ -176,7 +176,7 @@ export function LocaleSwitcher({
 							<img
 								src={getLocaleFlagUrl(locale.code)}
 								alt={locale.code}
-								className="h-2.5 w-3.5 rounded-[1px] object-cover"
+								className="image-outline h-2.5 w-3.5 rounded-[1px] object-cover"
 								onError={(event) => {
 									event.currentTarget.style.display = "none";
 								}}

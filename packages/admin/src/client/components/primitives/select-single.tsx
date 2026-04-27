@@ -8,7 +8,6 @@ import { useCallback, useDeferredValue, useId, useMemo, useState } from "react";
 import { useIsMobile } from "../../hooks/use-media-query";
 import { useResolveText } from "../../i18n/hooks";
 import { cn } from "../../lib/utils";
-import { Button } from "../ui/button";
 import {
 	Command,
 	CommandEmpty,
@@ -25,11 +24,13 @@ import {
 	DrawerTrigger,
 } from "../ui/drawer";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { FieldSelectTrigger } from "./field-select-control";
 import type { BasePrimitiveProps, SelectOption, SelectOptions } from "./types";
 import { flattenOptions } from "./types";
 
 // Module-level constant for empty options to avoid recreating on each render
 const EMPTY_OPTIONS: SelectOptions<string> = [];
+const SEARCH_OPTION_THRESHOLD = 8;
 
 interface SelectSingleProps<
 	TValue extends string = string,
@@ -55,6 +56,8 @@ interface SelectSingleProps<
 	loading?: boolean;
 	/** Empty state message */
 	emptyMessage?: string;
+	/** Show search input in popup. "auto" shows it for async or larger option lists. */
+	searchable?: boolean | "auto";
 	/** Title for mobile drawer */
 	drawerTitle?: string;
 	/**
@@ -78,7 +81,7 @@ interface SelectSingleProps<
  * SelectSingle - Single select component with search
  *
  * Features:
- * - Always searchable
+ * - Searchable when async or option list is large
  * - Responsive: Popover on desktop, Drawer on mobile
  * - Supports static and async options
  * - Keyboard navigation
@@ -105,6 +108,7 @@ export function SelectSingle<TValue extends string = string>({
 	clearable = true,
 	loading: externalLoading = false,
 	emptyMessage = "No options found",
+	searchable = "auto",
 	placeholder = "Select...",
 	disabled,
 	className,
@@ -164,9 +168,16 @@ export function SelectSingle<TValue extends string = string>({
 		);
 		return Array.from(mergedMap.values());
 	}, [loadOptions, dynamicOptions, flatStaticOptions]);
+	const showSearchInput =
+		searchable === "auto"
+			? !!loadOptions || allOptions.length > SEARCH_OPTION_THRESHOLD
+			: searchable;
 
 	// Filter options by search (for static options)
 	const filteredOptions = useMemo(() => {
+		if (!showSearchInput) {
+			return allOptions;
+		}
 		if (loadOptions) {
 			return allOptions; // Dynamic options are already filtered by server
 		}
@@ -176,7 +187,7 @@ export function SelectSingle<TValue extends string = string>({
 		return allOptions.filter((opt: SelectOption<TValue>) =>
 			resolveText(opt.label).toLowerCase().includes(search.toLowerCase()),
 		);
-	}, [allOptions, search, loadOptions, resolveText]);
+	}, [allOptions, search, loadOptions, resolveText, showSearchInput]);
 
 	// Get label for a value — falls back to selectedLabel, then raw value string
 	const getLabel = useCallback(
@@ -201,11 +212,27 @@ export function SelectSingle<TValue extends string = string>({
 	);
 
 	const handleClear = useCallback(
-		(e: React.MouseEvent) => {
+		(e: React.MouseEvent | React.PointerEvent | React.KeyboardEvent) => {
+			e.preventDefault();
 			e.stopPropagation();
 			onChange(null);
 		},
 		[onChange],
+	);
+
+	const handleTriggerKeyDown = useCallback(
+		(event: React.KeyboardEvent) => {
+			if (
+				clearable &&
+				value &&
+				!disabled &&
+				!isLoadingValue &&
+				(event.key === "Backspace" || event.key === "Delete")
+			) {
+				handleClear(event);
+			}
+		},
+		[clearable, disabled, handleClear, isLoadingValue, value],
 	);
 
 	const showLoading = isFetching || externalLoading;
@@ -213,24 +240,21 @@ export function SelectSingle<TValue extends string = string>({
 	const listboxId = `${instanceId}-listbox`;
 
 	const TriggerButton = (
-		<Button
+		<FieldSelectTrigger
 			id={id}
-			variant="outline"
 			role="combobox"
 			aria-expanded={open}
 			aria-controls={listboxId}
 			aria-invalid={ariaInvalid}
 			disabled={disabled}
-			data-slot={asInputGroupControl ? "input-group-control" : undefined}
+			hasValue={!!value}
+			onKeyDown={handleTriggerKeyDown}
+			asInputGroupControl={asInputGroupControl}
 			className={cn(
-				"qa-select-single w-full justify-between font-normal",
-				!value && "text-muted-foreground",
 				// flex-1 min-w-0: override Button's shrink-0 so the control yields
 				// space to sibling InputGroupAddon buttons. The CSS rule in base.css
 				// targeting [data-slot="input-group-control"] provides the same fix
 				// at the CSS layer as a safety net.
-				asInputGroupControl &&
-					"flex-1 min-w-0 h-full rounded-none border-0 shadow-none focus-visible:ring-0",
 				className,
 			)}
 		>
@@ -250,35 +274,32 @@ export function SelectSingle<TValue extends string = string>({
 					{value ? getLabel(value) : resolvedPlaceholder}
 				</span>
 			</span>
-			<div className="flex shrink-0 items-center gap-1">
+			<div className="flex h-full shrink-0 items-center gap-1">
 				{clearable && value && !disabled && !isLoadingValue && (
 					<span
-						role="button"
-						tabIndex={-1}
+						aria-hidden="true"
+						title="Clear selection"
+						onPointerDown={handleClear}
 						onClick={handleClear}
-						onKeyDown={(event) => {
-							if (event.key === "Enter" || event.key === " ") {
-								event.preventDefault();
-								handleClear(event as unknown as React.MouseEvent);
-							}
-						}}
-						className="hover:bg-muted -mr-1 p-0.5 opacity-50 hover:opacity-100"
+						className="hover:bg-surface-high -mr-1 inline-flex size-6 items-center justify-center rounded-md opacity-60 transition-[background-color,opacity] hover:opacity-100"
 					>
 						<Icon icon="ph:x" className="size-3" />
 					</span>
 				)}
 				<Icon icon="ph:caret-up-down" className="size-3.5 opacity-50" />
 			</div>
-		</Button>
+		</FieldSelectTrigger>
 	);
 
 	const CommandContent = (
-		<Command shouldFilter={!loadOptions}>
-			<CommandInput
-				placeholder="Search..."
-				value={search}
-				onValueChange={setSearch}
-			/>
+		<Command shouldFilter={showSearchInput && !loadOptions}>
+			{showSearchInput && (
+				<CommandInput
+					placeholder="Search..."
+					value={search}
+					onValueChange={setSearch}
+				/>
+			)}
 			<CommandList id={listboxId}>
 				{showLoading && (
 					<div className="flex items-center justify-center py-6">

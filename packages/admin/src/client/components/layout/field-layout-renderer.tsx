@@ -17,6 +17,7 @@ import {
 	getFieldName,
 	isFieldReference,
 } from "../../builder/types/field-types";
+import { cn } from "../../lib/utils";
 import { resolveIconElement } from "../component-renderer";
 import { getGridColumnsClass } from "../fields/field-utils";
 import {
@@ -25,13 +26,7 @@ import {
 	AccordionItem,
 	AccordionTrigger,
 } from "../ui/accordion";
-import {
-	Tabs,
-	TabsContent,
-	TabsList,
-	TabsTrigger,
-} from "../ui/tabs";
-import { cn } from "../../lib/utils";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 
 // ============================================================================
 // Types
@@ -39,7 +34,10 @@ import { cn } from "../../lib/utils";
 
 export interface FieldLayoutContext {
 	/** Render a single field by name */
-	renderField: (fieldName: string, opts?: { className?: string }) => React.ReactNode;
+	renderField: (
+		fieldName: string,
+		opts?: { className?: string },
+	) => React.ReactNode;
 	/** Resolve i18n text to string */
 	resolveText: (text: any, fallback?: string) => string;
 }
@@ -95,11 +93,7 @@ export function FieldLayoutRenderer({
 					);
 				case "tabs":
 					return (
-						<TabsRenderer
-							key={`tabs-${index}`}
-							tabsLayout={item}
-							ctx={ctx}
-						/>
+						<TabsRenderer key={`tabs-${index}`} tabsLayout={item} ctx={ctx} />
 					);
 				default:
 					return null;
@@ -189,9 +183,7 @@ function SectionRenderer({
 		}
 
 		// Stack (default) — recurse for nested containers
-		return (
-			<FieldLayoutRenderer items={section.fields} ctx={ctx} />
-		);
+		return <FieldLayoutRenderer items={section.fields} ctx={ctx} />;
 	};
 
 	const content = renderSectionContent();
@@ -203,7 +195,7 @@ function SectionRenderer({
 		const defaultOpen = section.defaultCollapsed !== true;
 		return (
 			<Accordion defaultValue={defaultOpen ? [value] : []} className="w-full">
-				<AccordionItem value={value} className="border px-4">
+				<AccordionItem value={value} className="border-transparent px-4">
 					<AccordionTrigger className="hover:no-underline">
 						<span className="font-semibold">
 							{ctx.resolveText(section.label, "Section")}
@@ -211,7 +203,7 @@ function SectionRenderer({
 					</AccordionTrigger>
 					<AccordionContent className="pt-2 pb-4">
 						{section.description && (
-							<p className="text-muted-foreground mb-4 text-sm">
+							<p className="text-muted-foreground mb-4 text-sm text-pretty">
 								{ctx.resolveText(section.description, "")}
 							</p>
 						)}
@@ -232,7 +224,7 @@ function SectionRenderer({
 					</h3>
 				)}
 				{section.description && (
-					<p className="text-muted-foreground mt-1 text-sm">
+					<p className="text-muted-foreground mt-1 text-sm text-pretty">
 						{ctx.resolveText(section.description, "")}
 					</p>
 				)}
@@ -265,10 +257,10 @@ function TabsRenderer({
 
 	return (
 		<Tabs defaultValue={defaultTab}>
-			<TabsList variant="line">
+			<TabsList className="w-full">
 				{tabs.map((tab: any) => (
-					<TabsTrigger key={tab.id} value={tab.id}>
-						{resolveIconElement(tab.icon, { className: "mr-2 size-4" })}
+					<TabsTrigger key={tab.id} value={tab.id} className="flex-1">
+						{resolveIconElement(tab.icon, { className: "size-3.5" })}
 						{ctx.resolveText(tab.label, tab.id)}
 					</TabsTrigger>
 				))}

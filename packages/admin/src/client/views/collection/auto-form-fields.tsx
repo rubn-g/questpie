@@ -682,7 +682,7 @@ function SectionLayoutRenderer({
 					</h3>
 				)}
 				{section.description && (
-					<p className="text-muted-foreground mt-1 text-sm">
+					<p className="text-muted-foreground mt-1 text-sm text-pretty">
 						{resolveText(section.description, "", formValues)}
 					</p>
 				)}
@@ -700,7 +700,7 @@ function SectionLayoutRenderer({
 				defaultValue={defaultOpen ? [value] : []}
 				className="w-full"
 			>
-				<AccordionItem value={value} className="border px-4">
+				<AccordionItem value={value} className="border-transparent px-4">
 					<AccordionTrigger className="hover:no-underline">
 						<span className="font-semibold">
 							{resolveText(section.label, "Section", formValues)}
@@ -708,7 +708,7 @@ function SectionLayoutRenderer({
 					</AccordionTrigger>
 					<AccordionContent className="pt-2 pb-4">
 						{section.description && (
-							<p className="text-muted-foreground mb-4 text-sm">
+							<p className="text-muted-foreground mb-4 text-sm text-pretty">
 								{resolveText(section.description, "", formValues)}
 							</p>
 						)}
@@ -770,10 +770,10 @@ function TabsLayoutRenderer({
 
 	return (
 		<Tabs defaultValue={defaultTab}>
-			<TabsList variant="line">
+			<TabsList className="w-full">
 				{visibleTabs.map((tab: TabConfig) => (
-					<TabsTrigger key={tab.id} value={tab.id}>
-						{resolveIconElement(tab.icon, { className: "mr-2 size-4" })}
+					<TabsTrigger key={tab.id} value={tab.id} className="flex-1">
+						{resolveIconElement(tab.icon, { className: "size-3.5" })}
 						{resolveText(tab.label, tab.id, formValues)}
 					</TabsTrigger>
 				))}
@@ -906,19 +906,20 @@ export function AutoFormFields<T extends QuestpieApp, K extends string>({
 	fieldPrefix,
 	allCollectionsConfig,
 }: AutoFormFieldsProps<T, K>): React.ReactElement {
+	const isActionForm = collection === "__action__";
 	// Use the appropriate hook based on mode
 	const collectionResult = useCollectionFields(
 		mode === "collection" ? collection : "",
 		{
 			fallbackFields: mode === "collection" ? config?.fields : undefined,
-			schemaQueryOptions: { enabled: mode === "collection" },
+			schemaQueryOptions: { enabled: mode === "collection" && !isActionForm },
 		},
 	);
 	const globalResult = useGlobalFields(mode === "global" ? collection : "", {
 		schemaQueryOptions: { enabled: mode === "global" },
 	});
 	const { data: collectionMeta } = useCollectionMeta(collection as any, {
-		enabled: mode === "collection",
+		enabled: mode === "collection" && !isActionForm,
 	});
 	const { data: globalMeta } = useGlobalMeta(collection as any, {
 		enabled: mode === "global",
@@ -1058,11 +1059,10 @@ export function AutoFormFields<T extends QuestpieApp, K extends string>({
 					<aside
 						className={cn(
 							"qa-form-fields__sidebar",
-							"border-border w-full @max-2xl:border-b @max-2xl:pb-4 @2xl:border-l @2xl:pl-4",
-							"w-full @2xl:max-w-xs",
+							"w-full @max-2xl:pb-2 @2xl:max-w-[18rem] @2xl:pl-1",
 						)}
 					>
-						<div className="space-y-4 @2xl:sticky @2xl:top-4 @2xl:h-auto">
+						<div className="bg-surface-low/45 space-y-4 rounded-md px-3 py-3 @2xl:sticky @2xl:top-4 @2xl:h-auto">
 							<SidebarRenderer
 								sidebar={formConfig.sidebar}
 								fields={fields}

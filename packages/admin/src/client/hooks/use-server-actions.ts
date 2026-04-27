@@ -8,10 +8,14 @@
 
 "use client";
 
-import * as React from "react";
 import type { CollectionSchema } from "questpie/client";
+import * as React from "react";
 
-import type { FieldDefinition } from "../builder/field/field";
+import {
+	configureField,
+	type FieldDefinition,
+	type FieldInstance,
+} from "../builder/field/field";
 import type {
 	ActionContext,
 	ActionDefinition,
@@ -66,54 +70,72 @@ async function applyServerActionEffects(
 
 function buildServerFormFields(
 	rawFields: Record<string, any> | undefined,
-	fieldRegistry: Record<string, any> | null,
-): Record<string, FieldDefinition> {
+	fieldRegistry: Record<string, FieldDefinition> | null,
+): Record<string, FieldInstance> {
 	if (!rawFields || !fieldRegistry) return {};
 
-	const result: Record<string, FieldDefinition> = {};
+	const result: Record<string, FieldInstance> = {};
 
 	for (const [fieldName, fieldConfig] of Object.entries(rawFields)) {
+		if (!fieldConfig || typeof fieldConfig !== "object") {
+			continue;
+		}
+
+		if (
+			"name" in fieldConfig &&
+			"component" in fieldConfig &&
+			"~options" in fieldConfig
+		) {
+			result[fieldName] = fieldConfig as FieldInstance;
+			continue;
+		}
+
 		const fc = fieldConfig as {
 			type?: string;
 			label?: unknown;
 			description?: unknown;
 			required?: boolean;
 			default?: unknown;
+			defaultValue?: unknown;
+			admin?: unknown;
 			options?: unknown;
+			[key: string]: unknown;
 		};
-
-		if (
-			fieldConfig &&
-			typeof fieldConfig === "object" &&
-			"name" in (fieldConfig as Record<string, unknown>) &&
-			"field" in (fieldConfig as Record<string, unknown>) &&
-			"~options" in (fieldConfig as Record<string, unknown>)
-		) {
-			result[fieldName] = fieldConfig as FieldDefinition;
-			continue;
-		}
 
 		const requestedType =
 			typeof fc.type === "string" && fc.type.length > 0 ? fc.type : "text";
 		const fieldBuilder =
 			fieldRegistry[requestedType] ?? fieldRegistry.text ?? null;
 
-		if (!fieldBuilder || typeof fieldBuilder.$options !== "function") {
+		if (!fieldBuilder) {
 			continue;
 		}
 
 		const options: Record<string, unknown> = {
-			label: fc.label,
-			description: fc.description,
-			required: fc.required,
-			defaultValue: fc.default,
+			...fc,
 		};
+		delete options.type;
+		delete options.options;
+		delete options.admin;
+		delete options.default;
 
-		if (fc.options && typeof fc.options === "object") {
+		if (fc.default !== undefined) {
+			options.defaultValue = fc.default;
+		} else if (fc.defaultValue !== undefined) {
+			options.defaultValue = fc.defaultValue;
+		}
+
+		if (Array.isArray(fc.options)) {
+			options.options = fc.options;
+		} else if (fc.options && typeof fc.options === "object") {
 			Object.assign(options, fc.options as Record<string, unknown>);
 		}
 
-		result[fieldName] = fieldBuilder.$options(options) as FieldDefinition;
+		if (fc.admin && typeof fc.admin === "object") {
+			Object.assign(options, fc.admin as Record<string, unknown>);
+		}
+
+		result[fieldName] = configureField(fieldBuilder, options);
 	}
 
 	return result;
@@ -253,12 +275,10 @@ export function useServerActions({
 }: UseServerActionsOptions): UseServerActionsReturn {
 	const admin = useAdminStore(selectAdmin);
 	const client = useAdminStore(selectClient);
-	const { data: queriedSchema, isPending: isSchemaPending } = useCollectionSchema(
-		collection,
-		{
+	const { data: queriedSchema, isPending: isSchemaPending } =
+		useCollectionSchema(collection, {
 			enabled: !schemaOverride,
-		},
-	);
+		});
 	const schema = schemaOverride ?? queriedSchema;
 	const isPending = schemaOverride ? false : isSchemaPending;
 
@@ -291,6 +311,7 @@ export function mergeServerActions<TItem = any>(
 
 	const headerActions = [...(localActions.header?.primary ?? [])];
 	const headerSecondary = [...(localActions.header?.secondary ?? [])];
+	const rowActions = [...(localActions.row ?? [])];
 	const bulkActions = [...(localActions.bulk ?? [])];
 
 	for (const action of serverActions) {
@@ -300,11 +321,14 @@ export function mergeServerActions<TItem = any>(
 			case "bulk":
 				bulkActions.push(action as ActionDefinition<TItem>);
 				break;
+			case "row":
+				rowActions.push(action as ActionDefinition<TItem>);
+				break;
 			case "header":
 				headerActions.push(action as ActionDefinition<TItem>);
 				break;
 			default:
-				// single/row actions are resolved in form view
+				// single actions are resolved in form view
 				break;
 		}
 	}
@@ -314,6 +338,7 @@ export function mergeServerActions<TItem = any>(
 			primary: headerActions as ActionDefinition<TItem>[],
 			secondary: headerSecondary as ActionDefinition<TItem>[],
 		},
+		row: rowActions as ActionDefinition<TItem>[],
 		bulk: bulkActions,
 	};
 }

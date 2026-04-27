@@ -55,6 +55,7 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "../../components/ui/dropdown-menu";
+import { EmptyState } from "../../components/ui/empty-state";
 import { Label } from "../../components/ui/label";
 import {
 	useCollectionValidation,
@@ -62,7 +63,6 @@ import {
 	useSearchParamToggle,
 	useSidebarSearchParam,
 } from "../../hooks";
-import { useCollectionAuditHistory } from "../../hooks/use-audit-history";
 import {
 	useCollectionCreate,
 	useCollectionDelete,
@@ -91,6 +91,8 @@ import {
 	detectManyToManyRelations,
 	hasManyToManyRelations,
 } from "../../utils/detect-relations";
+import { shouldHandleAdminShortcut } from "../../utils/keyboard-shortcuts";
+import { AdminViewHeader } from "../layout/admin-view-layout";
 import { AutoFormFields } from "./auto-form-fields";
 import { FormViewSkeleton } from "./view-skeletons";
 
@@ -410,6 +412,7 @@ const SaveSubmitButton = React.memo(function SaveSubmitButton({
 	return (
 		<Button
 			type="submit"
+			size="sm"
 			disabled={isSubmittingNow || !isDirty}
 			className="gap-2"
 		>
@@ -704,14 +707,6 @@ export default function FormView({
 				enabled:
 					isEditMode && !!id && isHistoryOpen && !!schema?.options?.versioning,
 			},
-		);
-
-	const { data: auditData, isLoading: auditLoading } =
-		useCollectionAuditHistory(
-			collection,
-			id ?? "",
-			{ limit: 50 },
-			{ enabled: isEditMode && !!id && isHistoryOpen },
 		);
 
 	// ========================================================================
@@ -1098,7 +1093,12 @@ export default function FormView({
 	// Keyboard shortcut: Cmd+S to save
 	React.useEffect(() => {
 		const handleKeyDown = (e: KeyboardEvent) => {
-			if ((e.metaKey || e.ctrlKey) && e.key === "s") {
+			if (
+				shouldHandleAdminShortcut(e, {
+					allowEditableTarget: true,
+					key: "s",
+				})
+			) {
 				e.preventDefault();
 				e.stopPropagation();
 				form.handleSubmit(onSubmitRef.current, (errors) => {
@@ -1537,12 +1537,14 @@ export default function FormView({
 	}, []);
 
 	const workflowTransitionTriggerRender = React.useMemo(
-		() => <Button type="button" variant="outline" className="gap-2" />,
+		() => (
+			<Button type="button" variant="outline" size="sm" className="gap-2" />
+		),
 		[],
 	);
 
 	const secondaryActionsTriggerRender = React.useMemo(
-		() => <Button variant="outline" size="icon" className="size-9" />,
+		() => <Button variant="outline" size="icon-sm" />,
 		[],
 	);
 
@@ -1639,28 +1641,38 @@ export default function FormView({
 			"status" in itemError &&
 			(itemError as any).status === 404;
 		return (
-			<div className="text-muted-foreground flex h-64 flex-col items-center justify-center gap-3">
-				<Icon
-					icon={is404 ? "ph:file-dashed" : "ph:warning-circle"}
-					className="text-destructive size-8"
-				/>
-				<p className="text-sm">
-					{is404
-						? t("errors.notFound")
-						: itemError instanceof Error
-							? itemError.message
-							: t("errors.failedToLoad")}
-				</p>
-				{is404 && (
-					<Button
-						variant="outline"
-						size="sm"
-						onClick={() => navigate(`${basePath}/collections/${collection}`)}
-					>
-						{t("common.backToList")}
-					</Button>
-				)}
-			</div>
+			<EmptyState
+				variant={is404 ? "empty" : "error"}
+				iconName={is404 ? "ph:file-dashed" : "ph:warning-circle"}
+				title={is404 ? t("error.notFound") : t("error.failedToLoad")}
+				description={
+					!is404 && itemError instanceof Error ? itemError.message : undefined
+				}
+				height="h-64"
+				action={
+					is404 ? (
+						<Button
+							variant="outline"
+							size="sm"
+							className="gap-2"
+							onClick={() => navigate(`${basePath}/collections/${collection}`)}
+						>
+							<Icon icon="ph:arrow-left" className="size-3.5" />
+							{t("common.backToList")}
+						</Button>
+					) : (
+						<Button
+							variant="outline"
+							size="sm"
+							className="gap-2"
+							onClick={() => window.location.reload()}
+						>
+							<Icon icon="ph:arrow-clockwise" className="size-3.5" />
+							{t("common.retry")}
+						</Button>
+					)
+				}
+			/>
 		);
 	}
 
@@ -1691,7 +1703,7 @@ export default function FormView({
 						<img
 							src={blockedByUser.image}
 							alt=""
-							className="size-8 rounded-full"
+							className="image-outline size-8 rounded-full"
 						/>
 					) : (
 						<div className="bg-warning/20 flex size-8 items-center justify-center rounded-full">
@@ -1765,13 +1777,11 @@ export default function FormView({
 						}}
 						className="qa-form-view__form space-y-4"
 					>
-						{/* Header - Title, Meta & Actions */}
-						<div className="qa-form-view__header flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-							<div className="min-w-0 flex-1">
-								<div className="flex flex-wrap items-center gap-3">
-									<h1 className="qa-form-view__title truncate text-2xl font-extrabold tracking-tight md:text-3xl">
-										{title}
-									</h1>
+						<AdminViewHeader
+							className="qa-form-view__header"
+							title={title}
+							titleAccessory={
+								<>
 									{localeOptions.length > 0 && (
 										<LocaleSwitcher
 											locales={localeOptions}
@@ -1799,192 +1809,201 @@ export default function FormView({
 											{currentStageLabel}
 										</Badge>
 									)}
-								</div>
-								{/* Metadata - horizontal scroll on mobile */}
-								{showMeta && item && (
-									<div className="qa-form-view__meta no-scrollbar mt-1 overflow-x-auto">
-										<p className="text-muted-foreground flex items-center gap-2 font-mono text-xs whitespace-nowrap">
-											<span className="opacity-60">{t("form.id")}:</span>
-											<button
-												type="button"
-												className="hover:text-foreground cursor-pointer transition-colors"
-												onClick={() => {
-													navigator.clipboard.writeText(String(item.id)).then(
-														() => toast.success(t("toast.idCopied")),
-														() => toast.error(t("toast.copyFailed")),
-													);
-												}}
-												title={t("common.copy")}
-											>
-												{item.id}
-											</button>
-											{item.createdAt && (
-												<>
-													<span className="opacity-40">·</span>
-													<span>
-														<span className="opacity-60">
-															{t("form.created")}{" "}
-														</span>
-														{formatDate(item.createdAt)}
-													</span>
-												</>
-											)}
-											{item.updatedAt && (
-												<>
-													<span className="opacity-40">·</span>
-													<span>
-														<span className="opacity-60">
-															{t("form.updated")}{" "}
-														</span>
-														{formatDate(item.updatedAt)}
-													</span>
-												</>
-											)}
-										</p>
-									</div>
-								)}
-							</div>
-
-							<div className="qa-form-view__actions flex w-auto shrink-0 items-center gap-2">
-								{headerActions}
-
-								{/* Live Preview button */}
-								{canUseLivePreview && (
-									<Button
-										type="button"
-										variant="outline"
-										size="icon"
-										className="size-9"
-										onClick={() => setIsLivePreviewOpen(true)}
-										title={t("preview.livePreview")}
-									>
-										<Icon icon="ph:eye" className="size-4" />
-										<span className="sr-only">{t("preview.livePreview")}</span>
-									</Button>
-								)}
-
-								{/* History button — only show when versioning is enabled */}
-								{isEditMode && id && schema?.options?.versioning && (
-									<Button
-										type="button"
-										variant="outline"
-										size="icon"
-										className="size-9"
-										onClick={() => setIsHistoryOpen(true)}
-										title={t("history.title")}
-									>
-										<Icon
-											icon="ph:clock-counter-clockwise"
-											className="size-4"
-										/>
-										<span className="sr-only">{t("history.title")}</span>
-									</Button>
-								)}
-
-								{/* Workflow transition dropdown */}
-								{workflowEnabled &&
-									isEditMode &&
-									id &&
-									allowedTransitions.length > 0 && (
-									<DropdownMenu>
-										<DropdownMenuTrigger
-											render={workflowTransitionTriggerRender}
+								</>
+							}
+							meta={
+								showMeta && item ? (
+									<>
+										<span className="opacity-60">{t("form.id")}:</span>
+										<button
+											type="button"
+											className="hover:text-foreground cursor-pointer transition-colors"
+											onClick={() => {
+												navigator.clipboard.writeText(String(item.id)).then(
+													() => toast.success(t("toast.idCopied")),
+													() => toast.error(t("toast.copyFailed")),
+												);
+											}}
+											title={t("common.copy")}
 										>
-												<Icon icon="ph:arrows-left-right" className="size-4" />
-												{t("workflow.transition")}
+											{item.id}
+										</button>
+										{item.createdAt && (
+											<>
+												<span className="opacity-40">·</span>
+												<span>
+													<span className="opacity-60">
+														{t("form.created")}{" "}
+													</span>
+													{formatDate(item.createdAt)}
+												</span>
+											</>
+										)}
+										{item.updatedAt && (
+											<>
+												<span className="opacity-40">·</span>
+												<span>
+													<span className="opacity-60">
+														{t("form.updated")}{" "}
+													</span>
+													{formatDate(item.updatedAt)}
+												</span>
+											</>
+										)}
+									</>
+								) : undefined
+							}
+							actions={
+								<>
+									{headerActions}
+
+									{/* Live Preview button */}
+									{canUseLivePreview && (
+										<Button
+											type="button"
+											variant="outline"
+											size="icon-sm"
+											onClick={() => setIsLivePreviewOpen(true)}
+											title={t("preview.livePreview")}
+										>
+											<Icon icon="ph:eye" className="size-4" />
+											<span className="sr-only">
+												{t("preview.livePreview")}
+											</span>
+										</Button>
+									)}
+
+									{/* History button — only show when versioning is enabled */}
+									{isEditMode && id && schema?.options?.versioning && (
+										<Button
+											type="button"
+											variant="outline"
+											size="icon-sm"
+											onClick={() => setIsHistoryOpen(true)}
+											title={t("history.title")}
+										>
+											<Icon
+												icon="ph:clock-counter-clockwise"
+												className="size-4"
+											/>
+											<span className="sr-only">{t("history.title")}</span>
+										</Button>
+									)}
+
+									{/* Workflow transition dropdown */}
+									{workflowEnabled &&
+										isEditMode &&
+										id &&
+										allowedTransitions.length > 0 && (
+											<DropdownMenu>
+												<DropdownMenuTrigger
+													render={workflowTransitionTriggerRender}
+												>
+													<Icon
+														icon="ph:arrows-left-right"
+														className="size-4"
+													/>
+													{t("workflow.transition")}
+												</DropdownMenuTrigger>
+												<DropdownMenuContent align="end">
+													{allowedTransitions.map((stage) => (
+														<DropdownMenuItem
+															key={stage.name}
+															onClick={() =>
+																setTransitionTarget({
+																	name: stage.name,
+																	label: stage.label,
+																})
+															}
+														>
+															<Icon
+																icon="ph:arrow-right"
+																className="mr-2 size-4"
+															/>
+															{stage.label || stage.name}
+														</DropdownMenuItem>
+													))}
+												</DropdownMenuContent>
+											</DropdownMenu>
+										)}
+
+									{/* Primary form actions as buttons */}
+									{visiblePrimaryActions.map((action) => (
+										<ActionButton
+											key={action.id}
+											action={action}
+											collection={collection}
+											helpers={actionHelpers}
+											size="sm"
+											onOpenDialog={(a) => setDialogAction(a)}
+										/>
+									))}
+
+									{/* Save button */}
+									<SaveSubmitButton
+										control={form.control}
+										isMutationPending={isMutationPending}
+										t={t}
+									/>
+
+									{/* Secondary form actions in dropdown */}
+									{visibleSecondaryActions.length > 0 && (
+										<DropdownMenu>
+											<DropdownMenuTrigger
+												render={secondaryActionsTriggerRender}
+											>
+												<Icon
+													icon="ph:dots-three-vertical"
+													className="size-4"
+												/>
+												<span className="sr-only">
+													{t("common.moreActions")}
+												</span>
 											</DropdownMenuTrigger>
 											<DropdownMenuContent align="end">
-												{allowedTransitions.map((stage) => (
-													<DropdownMenuItem
-														key={stage.name}
-														onClick={() =>
-															setTransitionTarget({
-																name: stage.name,
-																label: stage.label,
-															})
-														}
-													>
-														<Icon
-															icon="ph:arrow-right"
-															className="mr-2 size-4"
-														/>
-														{stage.label || stage.name}
-													</DropdownMenuItem>
-												))}
+												{regularSecondary.map((action) => {
+													const iconElement = resolveIconElement(action.icon, {
+														className: "mr-2 size-4",
+													});
+													return (
+														<DropdownMenuItem
+															key={action.id}
+															onClick={() => handleActionClick(action)}
+															disabled={actionLoading}
+														>
+															{iconElement}
+															{resolveText(action.label)}
+														</DropdownMenuItem>
+													);
+												})}
+
+												{regularSecondary.length > 0 &&
+													destructiveSecondary.length > 0 && (
+														<DropdownMenuSeparator />
+													)}
+
+												{destructiveSecondary.map((action) => {
+													const iconElement = resolveIconElement(action.icon, {
+														className: "mr-2 size-4",
+													});
+													return (
+														<DropdownMenuItem
+															key={action.id}
+															variant="destructive"
+															onClick={() => handleActionClick(action)}
+															disabled={actionLoading}
+														>
+															{iconElement}
+															{resolveText(action.label)}
+														</DropdownMenuItem>
+													);
+												})}
 											</DropdownMenuContent>
 										</DropdownMenu>
 									)}
-
-								{/* Primary form actions as buttons */}
-								{visiblePrimaryActions.map((action) => (
-									<ActionButton
-										key={action.id}
-										action={action}
-										collection={collection}
-										helpers={actionHelpers}
-										onOpenDialog={(a) => setDialogAction(a)}
-									/>
-								))}
-
-								{/* Save button */}
-								<SaveSubmitButton
-									control={form.control}
-									isMutationPending={isMutationPending}
-									t={t}
-								/>
-
-								{/* Secondary form actions in dropdown */}
-								{visibleSecondaryActions.length > 0 && (
-									<DropdownMenu>
-										<DropdownMenuTrigger
-											render={secondaryActionsTriggerRender}
-										>
-											<Icon icon="ph:dots-three-vertical" className="size-4" />
-											<span className="sr-only">{t("common.moreActions")}</span>
-										</DropdownMenuTrigger>
-										<DropdownMenuContent align="end">
-											{regularSecondary.map((action) => {
-												const iconElement = resolveIconElement(action.icon, {
-													className: "mr-2 size-4",
-												});
-												return (
-													<DropdownMenuItem
-														key={action.id}
-														onClick={() => handleActionClick(action)}
-														disabled={actionLoading}
-													>
-														{iconElement}
-														{resolveText(action.label)}
-													</DropdownMenuItem>
-												);
-											})}
-
-											{regularSecondary.length > 0 &&
-												destructiveSecondary.length > 0 && (
-													<DropdownMenuSeparator />
-												)}
-
-											{destructiveSecondary.map((action) => {
-												const iconElement = resolveIconElement(action.icon, {
-													className: "mr-2 size-4",
-												});
-												return (
-													<DropdownMenuItem
-														key={action.id}
-														variant="destructive"
-														onClick={() => handleActionClick(action)}
-														disabled={actionLoading}
-													>
-														{iconElement}
-														{resolveText(action.label)}
-													</DropdownMenuItem>
-												);
-											})}
-										</DropdownMenuContent>
-									</DropdownMenu>
-								)}
-							</div>
-						</div>
+								</>
+							}
+						/>
 
 						{/* Soft-deleted banner */}
 						{item?.deletedAt && (
@@ -2065,9 +2084,8 @@ export default function FormView({
 				<HistorySidebar
 					open={isHistoryOpen}
 					onOpenChange={setIsHistoryOpen}
-					auditEntries={auditData ?? []}
-					isLoadingAudit={auditLoading}
 					versions={(versionsData ?? []) as any[]}
+					fields={schema?.fields as any}
 					isLoadingVersions={versionsLoading}
 					isReverting={revertVersionMutation.isPending}
 					onRevert={async (version) => {
@@ -2109,7 +2127,8 @@ export default function FormView({
 							<DialogTitle className="flex items-center gap-2">
 								<Icon icon="ph:arrows-left-right" className="size-5" />
 								{t("workflow.transitionTo", {
-									stage: transitionTarget?.label ?? transitionTarget?.name ?? "",
+									stage:
+										transitionTarget?.label ?? transitionTarget?.name ?? "",
 								})}
 							</DialogTitle>
 							<DialogDescription>

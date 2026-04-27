@@ -14,7 +14,7 @@ import {
 	selectNavigate,
 	useAdminStore,
 } from "../../runtime/provider";
-import { AuthLayout } from "../auth/auth-layout";
+import { AuthDefaultLogo, AuthLayout } from "../auth/auth-layout";
 import { SetupForm, type SetupFormValues } from "../auth/setup-form";
 
 export interface SetupPageProps {
@@ -125,7 +125,7 @@ export function SetupPage({
 		<AuthLayout
 			title={title}
 			description={description}
-			logo={logo ?? <DefaultLogo brandName={brandName} />}
+			logo={logo ?? <AuthDefaultLogo brandName={brandName} />}
 			className="qa-setup-page"
 			footer={
 				showLoginLink && (
@@ -134,7 +134,7 @@ export function SetupPage({
 						<button
 							type="button"
 							onClick={handleLoginClick}
-							className="text-primary hover:underline"
+							className="text-foreground underline-offset-4 hover:underline"
 						>
 							Sign in
 						</button>
@@ -144,13 +144,5 @@ export function SetupPage({
 		>
 			<SetupForm onSubmit={handleSubmit} error={error} />
 		</AuthLayout>
-	);
-}
-
-function DefaultLogo({ brandName }: { brandName: string }) {
-	return (
-		<div className="text-center">
-			<h1 className="text-xl font-bold">{brandName}</h1>
-		</div>
 	);
 }

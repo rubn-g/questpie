@@ -1,7 +1,9 @@
 import {
 	and,
+	asc,
 	type Column,
 	count,
+	desc,
 	eq,
 	inArray,
 	type SQL,
@@ -77,6 +79,8 @@ import type {
 	Extras,
 	FindManyOptions,
 	FindOneOptionsBase,
+	GroupedPaginatedResult,
+	GroupByOptions,
 	FindVersionsOptions,
 	OrderBy,
 	PaginatedResult,
@@ -283,16 +287,18 @@ export class CRUDGenerator<TState extends CollectionBuilderState> {
 		const find = this.wrapWithAppContext(this.createFind());
 		const findOne = this.wrapWithAppContext(this.createFindOne());
 		const updateMany = this.wrapWithAppContext(this.createUpdateMany());
+		const updateBatch = this.wrapWithAppContext(this.createUpdateBatch());
 		const deleteMany = this.wrapWithAppContext(this.createDeleteMany());
 		const restoreById = this.wrapWithAppContext(this.createRestore());
 
 		const crud: CRUD = {
-			find,
+			find: find as CRUD["find"],
 			findOne,
 			count: this.wrapWithAppContext(this.createCount()),
 			create: this.wrapWithAppContext(this.createCreate()),
 			updateById: this.wrapWithAppContext(this.createUpdate()),
 			update: updateMany,
+			updateBatch,
 			deleteById: this.wrapWithAppContext(this.createDelete()),
 			delete: deleteMany,
 			restoreById,
@@ -379,6 +385,22 @@ export class CRUDGenerator<TState extends CollectionBuilderState> {
 		});
 	}
 
+	private normalizeGroupBy(
+		groupBy: FindManyOptions["groupBy"] | undefined,
+	): (GroupByOptions & { order: "asc" | "desc" }) | undefined {
+		if (!groupBy) return undefined;
+		if (typeof groupBy === "string") return { field: groupBy, order: "asc" };
+		if (!groupBy.field) return undefined;
+		return {
+			field: groupBy.field,
+			order: groupBy.order === "desc" ? "desc" : "asc",
+		};
+	}
+
+	private getGroupKey(value: unknown): string {
+		return value === null || value === undefined ? "__empty" : String(value);
+	}
+
 	/**
 	 * Internal find execution - shared logic for find and findOne
 	 * Reduces code duplication between the two methods
@@ -391,7 +413,7 @@ export class CRUDGenerator<TState extends CollectionBuilderState> {
 		options: FindManyOptions | FindOneOptionsBase,
 		context: CRUDContext,
 		mode: "many" | "one",
-	): Promise<PaginatedResult<T> | T | null> {
+	): Promise<PaginatedResult<T> | GroupedPaginatedResult<T> | T | null> {
 		// Normalize context FIRST to ensure locale defaults are applied
 		const normalized = this.normalizeContext({
 			...context,
@@ -461,6 +483,16 @@ export class CRUDGenerator<TState extends CollectionBuilderState> {
 					!!this.workflowConfig &&
 					!!readStage &&
 					readStage !== this.workflowConfig.initialStage;
+				const groupByOptions =
+					mode === "many"
+						? this.normalizeGroupBy((options as FindManyOptions).groupBy)
+						: undefined;
+
+				if (groupByOptions && useStageVersions) {
+					throw ApiError.badRequest(
+						"Grouped find is not supported for workflow stage reads yet",
+					);
+				}
 
 				// Get total count only for 'many' mode (pagination)
 				let totalDocs = 0;
@@ -752,6 +784,110 @@ export class CRUDGenerator<TState extends CollectionBuilderState> {
 					whereClauses.push(searchFilter);
 				}
 
+				let groupRows: Array<{ value: unknown; count: number }> | undefined;
+				let totalGroups: number | undefined;
+
+				if (groupByOptions) {
+					const column = getColumn(readTable, groupByOptions.field);
+					if (!column) {
+						throw ApiError.badRequest(
+							`Cannot group ${this.state.name} by unknown field "${groupByOptions.field}"`,
+						);
+					}
+
+					let totalGroupsQuery = db
+						.select({ count: sql<number>`count(distinct ${column})::int` })
+						.from(readTable);
+					let groupsQuery = db
+						.select({ value: column, count: count() })
+						.from(readTable);
+
+					if (useI18n && i18nCurrentTable) {
+						totalGroupsQuery = totalGroupsQuery.leftJoin(
+							i18nCurrentTable,
+							and(
+								eq(
+									getColumn(i18nCurrentTable, "parentId")!,
+									getColumn(readTable, "id")!,
+								),
+								eq(getColumn(i18nCurrentTable, "locale")!, normalized.locale!),
+							),
+						);
+						groupsQuery = groupsQuery.leftJoin(
+							i18nCurrentTable,
+							and(
+								eq(
+									getColumn(i18nCurrentTable, "parentId")!,
+									getColumn(readTable, "id")!,
+								),
+								eq(getColumn(i18nCurrentTable, "locale")!, normalized.locale!),
+							),
+						);
+
+						if (needsFallback && i18nFallbackTable) {
+							totalGroupsQuery = totalGroupsQuery.leftJoin(
+								i18nFallbackTable,
+								and(
+									eq(
+										getColumn(i18nFallbackTable, "parentId")!,
+										getColumn(readTable, "id")!,
+									),
+									eq(
+										getColumn(i18nFallbackTable, "locale")!,
+										normalized.defaultLocale!,
+									),
+								),
+							);
+							groupsQuery = groupsQuery.leftJoin(
+								i18nFallbackTable,
+								and(
+									eq(
+										getColumn(i18nFallbackTable, "parentId")!,
+										getColumn(readTable, "id")!,
+									),
+									eq(
+										getColumn(i18nFallbackTable, "locale")!,
+										normalized.defaultLocale!,
+									),
+								),
+							);
+						}
+					}
+
+					if (whereClauses.length > 0) {
+						totalGroupsQuery = totalGroupsQuery.where(and(...whereClauses));
+						groupsQuery = groupsQuery.where(and(...whereClauses));
+					}
+
+					const manyOptions = options as FindManyOptions;
+					const groupLimit = manyOptions.limit ?? totalDocs;
+					const groupOffset = manyOptions.offset ?? 0;
+					const totalGroupRows = await totalGroupsQuery;
+					totalGroups = totalGroupRows[0]?.count ?? 0;
+					groupsQuery = groupsQuery
+						.groupBy(column)
+						.orderBy(
+							groupByOptions.order === "desc" ? desc(column) : asc(column),
+						);
+					if (groupLimit !== undefined) {
+						groupsQuery = groupsQuery.limit(groupLimit);
+					}
+					if (groupOffset !== undefined) {
+						groupsQuery = groupsQuery.offset(groupOffset);
+					}
+
+					const selectedGroupRows = await groupsQuery;
+					groupRows = selectedGroupRows;
+					const groupValues = selectedGroupRows.map(
+						(row: { value: unknown }) => row.value,
+					);
+					if (groupValues.length === 0) {
+						whereClauses.push(sql`1 = 0`);
+					} else {
+						whereClauses.push(inArray(column, groupValues as any[]));
+					}
+				}
+
 				if (whereClauses.length > 0) {
 					query = query.where(and(...whereClauses));
 				}
@@ -775,10 +911,10 @@ export class CRUDGenerator<TState extends CollectionBuilderState> {
 					query = query.limit(1);
 				} else {
 					const manyOptions = options as FindManyOptions;
-					if (manyOptions.limit !== undefined) {
+					if (!groupByOptions && manyOptions.limit !== undefined) {
 						query = query.limit(manyOptions.limit);
 					}
-					if (manyOptions.offset !== undefined) {
+					if (!groupByOptions && manyOptions.offset !== undefined) {
 						query = query.offset(manyOptions.offset);
 					}
 				}
@@ -833,8 +969,9 @@ export class CRUDGenerator<TState extends CollectionBuilderState> {
 
 				// Construct paginated result for 'many' mode
 				const manyOptions = options as FindManyOptions;
-				const limit = manyOptions.limit ?? totalDocs;
-				const totalPages = limit > 0 ? Math.ceil(totalDocs / limit) : 1;
+				const paginatedTotal = groupByOptions ? (totalGroups ?? 0) : totalDocs;
+				const limit = manyOptions.limit ?? paginatedTotal;
+				const totalPages = limit > 0 ? Math.ceil(paginatedTotal / limit) : 1;
 				const offset = manyOptions.offset ?? 0;
 				const page = limit > 0 ? Math.floor(offset / limit) + 1 : 1;
 				const pagingCounter = (page - 1) * limit + 1;
@@ -842,8 +979,7 @@ export class CRUDGenerator<TState extends CollectionBuilderState> {
 				const hasNextPage = page < totalPages;
 				const prevPage = hasPrevPage ? page - 1 : null;
 				const nextPage = hasNextPage ? page + 1 : null;
-
-				return {
+				const baseResult = {
 					docs: rows as T[],
 					totalDocs,
 					limit,
@@ -854,6 +990,27 @@ export class CRUDGenerator<TState extends CollectionBuilderState> {
 					hasNextPage,
 					prevPage,
 					nextPage,
+				};
+
+				if (!groupByOptions) return baseResult;
+
+				return {
+					...baseResult,
+					groupBy: {
+						field: groupByOptions.field,
+						order: groupByOptions.order,
+					},
+					groups: (groupRows ?? []).map((group) => ({
+						key: this.getGroupKey(group.value),
+						value: group.value,
+						count: group.count,
+						docs: (rows as T[]).filter(
+							(row: any) =>
+								this.getGroupKey(row[groupByOptions.field]) ===
+								this.getGroupKey(group.value),
+						),
+					})),
+					totalGroups: totalGroups ?? 0,
 				};
 			},
 		);
@@ -866,9 +1023,9 @@ export class CRUDGenerator<TState extends CollectionBuilderState> {
 		return async (
 			options: FindManyOptions = {},
 			context: CRUDContext = {},
-		): Promise<PaginatedResult<any>> => {
+		): Promise<PaginatedResult<any> | GroupedPaginatedResult<any>> => {
 			return this._executeFind(options, context, "many") as Promise<
-				PaginatedResult<any>
+				PaginatedResult<any> | GroupedPaginatedResult<any>
 			>;
 		};
 	}
@@ -1440,7 +1597,9 @@ export class CRUDGenerator<TState extends CollectionBuilderState> {
 	 * Ensures consistency in access control, hooks, validation, and re-fetching.
 	 */
 	private async _executeUpdate(
-		params: UpdateParams | { where: Where; data: Record<string, any> },
+		params:
+			| UpdateParams<any, any, string | number>
+			| { where: Where; data: Record<string, any> },
 		context: CRUDContext = {},
 	) {
 		const normalized = this.normalizeContext(context);
@@ -1718,12 +1877,6 @@ export class CRUDGenerator<TState extends CollectionBuilderState> {
 				// Execute all afterChange hooks in parallel (non-fatal)
 				await Promise.allSettled(afterChangePromises);
 
-				// Realtime change
-
-				// Queue search indexing to run after transaction commits (fire-and-forget)
-				for (const updated of refetchedRecords) {
-				}
-
 				return refetchedRecords;
 			});
 		} catch (error: unknown) {
@@ -1975,6 +2128,45 @@ export class CRUDGenerator<TState extends CollectionBuilderState> {
 			context: CRUDContext = {},
 		) => {
 			return this._executeUpdate(params, context);
+		};
+	}
+
+	/**
+	 * Create updateBatch operation - heterogeneous updates in one transaction.
+	 */
+	private createUpdateBatch() {
+		return async (
+			params: {
+				updates: Array<{ id: string | number; data: UpdateParams["data"] }>;
+			},
+			context: CRUDContext = {},
+		) => {
+			if (!Array.isArray(params.updates)) {
+				throw ApiError.badRequest("updates must be an array");
+			}
+
+			if (params.updates.length === 0) {
+				return [];
+			}
+
+			const normalized = this.normalizeContext(context);
+			const db = this.getDb(normalized);
+
+			return withTransaction(db, async (tx: any) => {
+				const txContext = { ...normalized, db: tx };
+				const updatedRecords: any[] = [];
+
+				for (const update of params.updates) {
+					updatedRecords.push(
+						await this._executeUpdate(
+							{ id: update.id, data: update.data },
+							txContext,
+						),
+					);
+				}
+
+				return updatedRecords;
+			});
 		};
 	}
 
@@ -2538,6 +2730,7 @@ export class CRUDGenerator<TState extends CollectionBuilderState> {
 				toStage,
 				scheduledAt,
 				locale: normalized.locale,
+				accessMode: normalized.accessMode,
 			} as TransitionHookContext;
 
 			// Execute beforeTransition hooks (throw to abort).

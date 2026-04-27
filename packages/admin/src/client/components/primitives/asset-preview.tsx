@@ -269,7 +269,7 @@ export function AssetPreview({
 					<img
 						src={thumbnailUrl}
 						alt={asset.alt || filename}
-						className="h-full w-full object-cover"
+						className="image-outline h-full w-full object-cover"
 						onError={() => setImageError(true)}
 					/>
 				) : (
@@ -290,7 +290,7 @@ export function AssetPreview({
 								className="text-muted-foreground size-6 animate-spin"
 							/>
 							{typeof progress === "number" && (
-								<span className="text-muted-foreground absolute inset-0 flex items-center justify-center text-[10px] font-medium">
+								<span className="text-muted-foreground absolute inset-0 flex items-center justify-center text-[10px] font-medium tabular-nums">
 									{progress}%
 								</span>
 							)}
@@ -407,7 +407,7 @@ export function AssetPreview({
 						<img
 							src={thumbnailUrl}
 							alt={asset.alt || filename}
-							className="h-full w-full object-cover"
+							className="image-outline h-full w-full object-cover"
 							onError={() => setImageError(true)}
 						/>
 					) : (
@@ -422,7 +422,7 @@ export function AssetPreview({
 				<div className="min-w-0 flex-1">
 					<p className="truncate text-sm font-medium">{filename}</p>
 					{size && (
-						<p className="text-muted-foreground text-xs">
+						<p className="text-muted-foreground text-xs tabular-nums">
 							{formatFileSize(size)}
 						</p>
 					)}
@@ -538,7 +538,7 @@ export function AssetPreview({
 					<img
 						src={thumbnailUrl}
 						alt={asset.alt || filename}
-						className="h-full w-full object-contain"
+						className="image-outline h-full w-full object-contain"
 						onError={() => setImageError(true)}
 					/>
 				) : (
@@ -564,12 +564,12 @@ export function AssetPreview({
 						/>
 						{typeof progress === "number" && (
 							<>
-								<span className="text-muted-foreground text-sm font-medium">
+								<span className="text-muted-foreground text-sm font-medium tabular-nums">
 									{progress}%
 								</span>
 								<div className="bg-muted h-1.5 w-24 overflow-hidden rounded-sm">
 									<div
-										className="bg-primary h-full rounded-sm transition-all duration-300"
+										className="bg-primary h-full rounded-sm transition-[width] duration-300"
 										style={{ width: `${progress}%` }}
 									/>
 								</div>
@@ -601,7 +601,7 @@ export function AssetPreview({
 					<p className="truncate text-sm font-medium" title={filename}>
 						{filename}
 					</p>
-					<p className="text-muted-foreground text-xs">
+					<p className="text-muted-foreground text-xs tabular-nums">
 						{formatFileSize(size)}
 						{mimeType && ` • ${mimeType.split("/")[1]?.toUpperCase()}`}
 					</p>

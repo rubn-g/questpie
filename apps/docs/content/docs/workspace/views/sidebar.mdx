@@ -139,13 +139,16 @@ Replace the logo + name area:
 ```tsx title="questpie/admin/components/admin-sidebar-brand.tsx"
 import type { AdminSidebarBrandProps } from "@questpie/admin/client";
 
-export default function SidebarBrand({ name, collapsed }: AdminSidebarBrandProps) {
-  return (
-    <div className="flex items-center gap-2">
-      <img src="/logo.svg" alt={name} className="size-6 shrink-0" />
-      {!collapsed && <span className="font-bold">{name}</span>}
-    </div>
-  );
+export default function SidebarBrand({
+	name,
+	collapsed,
+}: AdminSidebarBrandProps) {
+	return (
+		<div className="flex items-center gap-2">
+			<img src="/logo.svg" alt={name} className="size-6 shrink-0" />
+			{!collapsed && <span className="font-bold">{name}</span>}
+		</div>
+	);
 }
 ```
 
@@ -156,15 +159,23 @@ Replace every navigation item row:
 ```tsx title="questpie/admin/components/admin-sidebar-nav-item.tsx"
 import type { AdminSidebarNavItemProps } from "@questpie/admin/client";
 
-export default function NavItem({ item, isActive, collapsed }: AdminSidebarNavItemProps) {
-  return (
-    <a
-      href={item.href}
-      className={`flex items-center gap-2 px-3 py-2 text-sm ${isActive ? "font-bold" : ""}`}
-    >
-      {!collapsed && <span>{typeof item.label === "string" ? item.label : item.label.en}</span>}
-    </a>
-  );
+export default function NavItem({
+	item,
+	isActive,
+	collapsed,
+}: AdminSidebarNavItemProps) {
+	return (
+		<a
+			href={item.href}
+			className={`flex items-center gap-2 px-3 py-2 text-sm ${isActive ? "font-bold" : ""}`}
+		>
+			{!collapsed && (
+				<span>
+					{typeof item.label === "string" ? item.label : item.label.en}
+				</span>
+			)}
+		</a>
+	);
 }
 ```
 
@@ -179,5 +190,5 @@ Modules can contribute sidebar items. The `adminModule` adds an "Administration"
 ## Related Pages
 
 - [Dashboard](/docs/workspace/views/dashboard) — Dashboard widgets
-- [Branding](/docs/workspace/branding) — App name and logo
+- [Branding](/docs/workspace/branding) — App name and brand chrome
 - [Setup](/docs/workspace/setup) — Admin setup

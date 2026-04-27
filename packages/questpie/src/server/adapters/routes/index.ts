@@ -26,6 +26,7 @@ export {
 	collectionTransition,
 	collectionRestore,
 	collectionUpdateMany,
+	collectionUpdateBatch,
 	collectionDeleteMany,
 	collectionAudit,
 	collectionMeta,

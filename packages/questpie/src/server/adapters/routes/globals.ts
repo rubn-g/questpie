@@ -303,6 +303,10 @@ export async function globalAudit(
 			return smartResponse([], request);
 		}
 
+		const globalInstance = app.getGlobalConfig(params.global as any);
+		const crud = globalInstance.generateCRUD(resolved.appContext.db, app);
+		await crud.get({}, resolved.appContext);
+
 		const result = await auditCrud.find(
 			{
 				where: {

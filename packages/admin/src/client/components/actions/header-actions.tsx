@@ -18,14 +18,11 @@ import type {
 	ActionQueryClient,
 	HeaderActionsConfig,
 } from "../../builder/types/action-types";
-import { resolveIconElement } from "../../components/component-renderer";
-import { useResolveText } from "../../i18n/hooks";
 import { selectAuthClient, useAdminStore } from "../../runtime/provider";
 import { Button } from "../ui/button";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
-	DropdownMenuItem,
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
@@ -67,7 +64,6 @@ export function HeaderActions<TItem = any>({
 	helpers,
 	onOpenDialog,
 }: HeaderActionsProps<TItem>): React.ReactElement | null {
-	const resolveText = useResolveText();
 	const authClient = useAdminStore(selectAuthClient);
 	const queryClient = useQueryClient();
 
@@ -130,7 +126,7 @@ export function HeaderActions<TItem = any>({
 	}
 
 	return (
-		<div className="qa-header-actions flex items-center gap-2">
+		<div className="qa-header-actions flex items-center gap-1.5">
 			{/* Primary actions as buttons */}
 			{visiblePrimary.map((action) => (
 				<ActionButton
@@ -138,6 +134,7 @@ export function HeaderActions<TItem = any>({
 					action={action}
 					collection={collection}
 					helpers={helpers}
+					size="sm"
 					onOpenDialog={onOpenDialog}
 				/>
 			))}
@@ -147,46 +144,39 @@ export function HeaderActions<TItem = any>({
 				<DropdownMenu>
 					<DropdownMenuTrigger
 						nativeButton={false}
-						render={<Button variant="outline" size="icon" className="size-9" />}
+						render={<Button variant="outline" size="icon-sm" />}
 					>
-						<Icon icon="ph:dots-three-vertical" className="size-4" />
+						<Icon icon="ph:dots-three-vertical" className="size-3.5" />
 						<span className="sr-only">More actions</span>
 					</DropdownMenuTrigger>
 					<DropdownMenuContent align="end">
-						{regularSecondary.map((action) => {
-							const iconElement = resolveIconElement(action.icon, {
-								className: "mr-2 size-4",
-							});
-							return (
-								<DropdownMenuItem
-									key={action.id}
-									onClick={() => onOpenDialog?.(action)}
-								>
-									{iconElement}
-									{resolveText(action.label)}
-								</DropdownMenuItem>
-							);
-						})}
+						{regularSecondary.map((action) => (
+							<ActionButton
+								key={action.id}
+								action={action}
+								collection={collection}
+								helpers={helpers}
+								size="sm"
+								presentation="menu"
+								onOpenDialog={onOpenDialog}
+							/>
+						))}
 
 						{regularSecondary.length > 0 && destructiveSecondary.length > 0 && (
 							<DropdownMenuSeparator />
 						)}
 
-						{destructiveSecondary.map((action) => {
-							const iconElement = resolveIconElement(action.icon, {
-								className: "mr-2 size-4",
-							});
-							return (
-								<DropdownMenuItem
-									key={action.id}
-									variant="destructive"
-									onClick={() => onOpenDialog?.(action)}
-								>
-									{iconElement}
-									{resolveText(action.label)}
-								</DropdownMenuItem>
-							);
-						})}
+						{destructiveSecondary.map((action) => (
+							<ActionButton
+								key={action.id}
+								action={action}
+								collection={collection}
+								helpers={helpers}
+								size="sm"
+								presentation="menu"
+								onOpenDialog={onOpenDialog}
+							/>
+						))}
 					</DropdownMenuContent>
 				</DropdownMenu>
 			)}

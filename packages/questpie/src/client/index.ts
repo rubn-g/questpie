@@ -27,9 +27,9 @@ import type {
 	ApplyQuery,
 	CreateInputBase,
 	CreateInputWithRelations,
+	FindResult,
 	FindManyOptions,
 	FindOneOptionsBase,
-	PaginatedResult,
 	UpdateInput,
 	Where,
 	With,
@@ -298,12 +298,10 @@ type CollectionAPI<
 	>(
 		options?: TQuery,
 	) => Promise<
-		PaginatedResult<
-			ApplyQuery<
-				CollectionSelect<TCollection>,
-				ResolveRelationsDeep<CollectionRelations<TCollection>, TCollections>,
-				TQuery
-			>
+		FindResult<
+			CollectionSelect<TCollection>,
+			ResolveRelationsDeep<CollectionRelations<TCollection>, TCollections>,
+			TQuery
 		>
 	>;
 
@@ -428,6 +426,22 @@ type CollectionAPI<
 				CollectionUpdate<TCollection>,
 				ResolveRelationsDeep<CollectionRelations<TCollection>, TCollections>
 			>;
+		},
+		options?: LocaleOptions,
+	) => Promise<CollectionSelect<TCollection>[]>;
+
+	/**
+	 * Update multiple records with distinct data per record
+	 */
+	updateBatch: (
+		params: {
+			updates: Array<{
+				id: string;
+				data: UpdateInput<
+					CollectionUpdate<TCollection>,
+					ResolveRelationsDeep<CollectionRelations<TCollection>, TCollections>
+				>;
+			}>;
 		},
 		options?: LocaleOptions,
 	) => Promise<CollectionSelect<TCollection>[]>;
@@ -1042,6 +1056,21 @@ export function createClient<TApp extends QuestpieApp>(
 					return request(path, {
 						method: "PATCH",
 						body: JSON.stringify({ where, data }),
+					});
+				},
+
+				updateBatch: async (
+					{ updates }: { updates: Array<{ id: string; data: any }> },
+					options: LocaleOptions = {},
+				) => {
+					const queryString = qs.stringify(options, {
+						skipNulls: true,
+						arrayFormat: "brackets",
+					});
+					const path = `${apiBasePath}/${collectionName}/update-batch${queryString ? `?${queryString}` : ""}`;
+					return request(path, {
+						method: "POST",
+						body: JSON.stringify({ updates }),
 					});
 				},
 

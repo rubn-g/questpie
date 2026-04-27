@@ -8,6 +8,7 @@
 import { DEFAULT_LOCALE } from "#questpie/shared/constants.js";
 
 import { validationMessagesEN } from "./messages/en.js";
+import { validationMessagesSK } from "./messages/sk.js";
 
 // ============================================================================
 // Types
@@ -43,6 +44,11 @@ export type ValidationTranslateFn = (
 	key: ValidationMessageKey | (string & {}),
 	params?: Record<string, unknown>,
 ) => string;
+
+const bundledValidationMessages: Record<string, ValidationMessagesMap> = {
+	en: validationMessagesEN,
+	sk: validationMessagesSK,
+};
 
 // ============================================================================
 // Re-export new structure
@@ -122,6 +128,20 @@ function interpolate(
 	});
 }
 
+function getLocaleMessages(
+	messages: Record<string, ValidationMessagesMap> | undefined,
+	locale: string,
+): ValidationMessagesMap | undefined {
+	const normalizedLocale = locale.toLowerCase();
+	const baseLocale = normalizedLocale.split("-")[0];
+
+	return (
+		messages?.[locale] ??
+		messages?.[normalizedLocale] ??
+		(baseLocale ? messages?.[baseLocale] : undefined)
+	);
+}
+
 /**
  * Create a translate function for validation messages
  *
@@ -149,17 +169,33 @@ export function createValidationTranslator(
 ): ValidationTranslateFn {
 	return (key, params) => {
 		// Try custom messages for current locale
-		let message: ValidationMessage | undefined =
-			customMessages?.[locale]?.[key];
+		let message: ValidationMessage | undefined = getLocaleMessages(
+			customMessages,
+			locale,
+		)?.[key];
 
-		// Try default messages
+		// Try bundled messages for current locale
 		if (message === undefined) {
-			message = validationMessagesEN[key as ValidationMessageKey];
+			message = getLocaleMessages(bundledValidationMessages, locale)?.[
+				key as ValidationMessageKey
+			];
 		}
 
 		// Try custom messages for fallback locale
 		if (message === undefined && locale !== fallbackLocale) {
-			message = customMessages?.[fallbackLocale]?.[key];
+			message = getLocaleMessages(customMessages, fallbackLocale)?.[key];
+		}
+
+		// Try bundled messages for fallback locale
+		if (message === undefined && locale !== fallbackLocale) {
+			message = getLocaleMessages(bundledValidationMessages, fallbackLocale)?.[
+				key as ValidationMessageKey
+			];
+		}
+
+		// Final bundled English fallback
+		if (message === undefined) {
+			message = validationMessagesEN[key as ValidationMessageKey];
 		}
 
 		// Return key if no message found

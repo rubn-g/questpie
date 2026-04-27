@@ -104,6 +104,12 @@ export function getActionsConfig(
 	// Strip handlers from custom actions for client
 	const customWithoutHandlers = (actionsConfig.custom || []).map((action) => {
 		const { handler, ...rest } = action;
+		if (rest.form?.fields) {
+			rest.form = {
+				...rest.form,
+				fields: serializeActionFormFields(rest.form.fields),
+			};
+		}
 		return rest;
 	});
 
@@ -119,6 +125,53 @@ export function getActionsConfig(
 		],
 		custom: customWithoutHandlers,
 	};
+}
+
+function serializeActionFormFields(
+	fields: Record<string, any>,
+): Record<string, any> {
+	const result: Record<string, any> = {};
+
+	for (const [fieldName, field] of Object.entries(fields)) {
+		if (!field || typeof field !== "object") {
+			result[fieldName] = field;
+			continue;
+		}
+
+		if (typeof field.getMetadata === "function") {
+			const metadata = field.getMetadata();
+			const state = field._state ?? {};
+			const adminMeta =
+				(metadata.meta && typeof metadata.meta === "object"
+					? (metadata.meta as Record<string, unknown>)
+					: undefined) ??
+				(state.admin && typeof state.admin === "object"
+					? (state.admin as Record<string, unknown>)
+					: undefined) ??
+				(state.extensions?.admin && typeof state.extensions.admin === "object"
+					? (state.extensions.admin as Record<string, unknown>)
+					: undefined);
+
+			const options: Record<string, unknown> = {};
+			if (metadata.options) options.options = metadata.options;
+			if (metadata.multiple !== undefined) options.multiple = metadata.multiple;
+			if (adminMeta) Object.assign(options, adminMeta);
+
+			result[fieldName] = {
+				type: metadata.type ?? field.getType?.() ?? "text",
+				label: metadata.label,
+				description: metadata.description,
+				required: metadata.required ?? false,
+				default: state.defaultValue,
+				options,
+			};
+			continue;
+		}
+
+		result[fieldName] = field;
+	}
+
+	return result;
 }
 
 /**
@@ -459,10 +512,7 @@ async function executeBuiltinAction(
 				}
 				// Remove id and timestamps for duplication
 				const { id, createdAt, updatedAt, ...duplicateData } = original;
-				const duplicated = await appRec.create(
-					collectionSlug,
-					duplicateData,
-				);
+				const duplicated = await appRec.create(collectionSlug, duplicateData);
 				return {
 					success: true,
 					result: {
@@ -564,7 +614,10 @@ async function executeBuiltinAction(
 function isFieldDefinition(
 	field: ServerActionFormField,
 ): field is { state: any; getMetadata(): any; toZodSchema(): unknown } {
-	return typeof (field as unknown as Record<string, unknown>).getMetadata === "function";
+	return (
+		typeof (field as unknown as Record<string, unknown>).getMetadata ===
+		"function"
+	);
 }
 
 /**
@@ -572,7 +625,7 @@ function isFieldDefinition(
  */
 function isFieldRequired(field: ServerActionFormField): boolean {
 	if (isFieldDefinition(field)) {
-		return !!((field as unknown as Record<string, any>)._state?.notNull);
+		return !!(field as unknown as Record<string, any>)._state?.notNull;
 	}
 	return !!field.required;
 }

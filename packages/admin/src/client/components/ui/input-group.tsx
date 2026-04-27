@@ -14,7 +14,7 @@ function InputGroup({ className, ...props }: React.ComponentProps<"div">) {
 			data-slot="input-group"
 			role="group"
 			className={cn(
-				"qa-input-group rounded-sm font-chrome border-input bg-transparent has-[[data-slot=input-group-control]:focus-visible]:border-ring has-[[data-slot=input-group-control]:focus-visible]:ring-ring/30 has-[[data-slot][aria-invalid=true]]:ring-destructive/20 has-[[data-slot][aria-invalid=true]]:border-destructive dark:has-[[data-slot][aria-invalid=true]]:ring-destructive/40 group/input-group relative flex h-7 w-full min-w-0 items-center overflow-hidden border transition-colors outline-none hover:border-ring/50 has-[[data-slot=input-group-control]:focus-visible]:ring-[2px] has-[[data-slot][aria-invalid=true]]:ring-[2px] has-[>[data-align=block-end]]:h-auto has-[>[data-align=block-end]]:flex-col has-[>[data-align=block-start]]:h-auto has-[>[data-align=block-start]]:flex-col has-[>textarea]:h-auto has-[>[data-align=block-end]]:[&>input]:pt-3 has-[>[data-align=block-start]]:[&>input]:pb-3 has-[>[data-align=inline-end]]:[&>input]:pr-1.5 has-[>[data-align=inline-start]]:[&>input]:pl-1.5 [[data-slot=combobox-content]_&]:focus-within:border-inherit [[data-slot=combobox-content]_&]:focus-within:ring-0",
+				"qa-input-group control-surface font-chrome has-[[data-slot=input-group-control]:focus-visible]:border-border-strong has-[[data-slot=input-group-control]:focus-visible]:ring-ring/20 has-[[data-slot=input-group-control][aria-expanded=true]]:border-border-strong has-[[data-slot=input-group-control][aria-expanded=true]]:ring-ring/20 has-[[data-slot][aria-invalid=true]]:ring-ring/20 has-[[data-slot][aria-invalid=true]]:border-border-strong group/input-group hover:border-border-strong/70 relative flex w-full min-w-0 items-center overflow-hidden outline-none has-[[data-slot=input-group-control]:focus-visible]:ring-[3px] has-[[data-slot=input-group-control][aria-expanded=true]]:ring-[3px] has-[[data-slot][aria-invalid=true]]:ring-[3px] has-[>[data-align=block-end]]:h-auto has-[>[data-align=block-end]]:flex-col has-[>[data-align=block-start]]:h-auto has-[>[data-align=block-start]]:flex-col has-[>textarea]:h-auto has-[>[data-align=block-end]]:[&>input]:pt-3 has-[>[data-align=block-start]]:[&>input]:pb-3 has-[>[data-align=inline-end]]:[&>input]:pr-1.5 has-[>[data-align=inline-start]]:[&>input]:pl-1.5 [[data-slot=combobox-content]_&]:focus-within:border-inherit [[data-slot=combobox-content]_&]:focus-within:ring-0",
 				className,
 			)}
 			{...props}
@@ -23,7 +23,7 @@ function InputGroup({ className, ...props }: React.ComponentProps<"div">) {
 }
 
 const inputGroupAddonVariants = cva(
-	"qa-input-group__addon font-chrome text-muted-foreground **:data-[slot=kbd]:bg-muted-foreground/10 flex h-auto cursor-text items-center justify-center gap-1 py-2 text-xs/relaxed font-medium select-none group-data-[disabled=true]/input-group:opacity-50 **:data-[slot=kbd]:px-1 **:data-[slot=kbd]:text-[0.625rem] [&>svg:not([class*='size-'])]:size-3.5",
+	"qa-input-group__addon font-chrome text-muted-foreground **:data-[slot=kbd]:bg-muted-foreground/10 flex h-full cursor-text items-center justify-center gap-1 py-1 text-xs/relaxed font-medium select-none group-data-[disabled=true]/input-group:opacity-50 **:data-[slot=kbd]:px-1 **:data-[slot=kbd]:text-[0.625rem] [&>svg:not([class*='size-'])]:size-3.5",
 	{
 		variants: {
 			align: {
@@ -77,7 +77,7 @@ function InputGroupAddon({
 }
 
 const inputGroupButtonVariants = cva(
-	"qa-input-group__button flex items-center gap-2 text-xs/relaxed shadow-none",
+	"qa-input-group__button flex items-center gap-2 rounded-[var(--control-radius-inner)] text-xs/relaxed shadow-none",
 	{
 		variants: {
 			size: {

@@ -132,7 +132,6 @@ export function ResourceSheet(props: ResourceSheetProps) {
 		<Sheet open={open} onOpenChange={onOpenChange} modal={false}>
 			<SheetContent
 				side={side}
-				animated={false}
 				showOverlay={false}
 				className="qa-resource-sheet overflow-y-auto p-6 pt-12"
 			>

@@ -79,7 +79,10 @@ export function SearchInput({
 
 	return (
 		<InputGroup
-			className={cn("qa-search-input bg-transparent", containerClassName)}
+			className={cn(
+				"qa-search-input border-border-subtle bg-card hover:bg-surface-low focus-within:border-border-strong focus-within:bg-card",
+				containerClassName,
+			)}
 		>
 			<InputGroupAddon align="inline-start">
 				{isLoading ? (

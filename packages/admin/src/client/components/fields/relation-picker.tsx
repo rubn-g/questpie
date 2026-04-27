@@ -411,7 +411,7 @@ export function RelationPicker<T extends QuestpieApp>({
 						{resolvedLabel}
 						{required && <span className="text-destructive">*</span>}
 						{maxItems && (
-							<span className="text-muted-foreground font-chrome chrome-meta ml-2 text-xs">
+							<span className="text-muted-foreground font-chrome chrome-meta ml-2 text-xs tabular-nums">
 								({selectedIds.length}/{maxItems})
 							</span>
 						)}
@@ -442,7 +442,7 @@ export function RelationPicker<T extends QuestpieApp>({
 
 			{/* Add More */}
 			{!readOnly && canAddMore && (
-				<div className="qa-relation-picker__add-more flex gap-2">
+				<div className="qa-relation-picker__add-more flex items-center gap-2">
 					{/* Searchable Select to add existing items - uses server-side search */}
 					<div className="flex-1">
 						<SelectSingle
@@ -476,6 +476,7 @@ export function RelationPicker<T extends QuestpieApp>({
 						type="button"
 						variant="outline"
 						size="icon"
+						className="text-muted-foreground hover:text-foreground size-10"
 						onClick={handleOpenCreate}
 						disabled={disabled}
 						title={createLabel}
@@ -488,15 +489,15 @@ export function RelationPicker<T extends QuestpieApp>({
 
 			{/* Empty State - only show when not loading */}
 			{selectedIds.length === 0 && !isLoadingItems && (
-				<div className="qa-relation-picker__empty-state panel-surface border-dashed p-4 text-center">
-					<p className="text-muted-foreground text-sm">
+				<div className="qa-relation-picker__empty-state py-2">
+					<p className="text-muted-foreground text-sm text-pretty">
 						{resolvedPlaceholder || emptyLabel}
 					</p>
 				</div>
 			)}
 
 			{/* Error message */}
-			{error && <p className="text-destructive text-sm">{error}</p>}
+			{error && <p className="text-destructive text-sm text-pretty">{error}</p>}
 
 			{/* Side Sheet for Create/Edit */}
 			<ResourceSheet

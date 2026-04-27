@@ -320,6 +320,20 @@ export interface CategoryDeclaration {
 	 */
 	keyFromProperty?: string;
 
+	/**
+	 * When set, use the discovered source path as the object key.
+	 *
+	 * This is useful for client-side convention files that mirror a server runtime
+	 * name but do not export a runtime object with that name attached.
+	 *
+	 * @example
+	 * ```ts
+	 * blocks: { dirs: ["blocks"], keyFromSource: "basename" }
+	 * // blocks/image-text.tsx → "image-text": _block_imageText
+	 * ```
+	 */
+	keyFromSource?: "basename";
+
 	// ── Multi-export discovery ────────────────────────────────
 
 	/**
@@ -549,7 +563,6 @@ export interface CodegenTargetContribution {
 	 * creates files in ALL matching targets (they write to different roots).
 	 */
 	scaffolds?: Record<string, ScaffoldConfig>;
-
 }
 
 // ============================================================================

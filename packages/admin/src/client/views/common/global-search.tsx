@@ -18,6 +18,11 @@ import { useCallback, useMemo, useRef, useState } from "react";
 import type { ComponentReference } from "#questpie/admin/server/augmentation.js";
 
 import { resolveIconElement } from "../../components/component-renderer";
+import {
+	InputGroup,
+	InputGroupAddon,
+	InputGroupInput,
+} from "../../components/ui/input-group";
 import { Kbd } from "../../components/ui/kbd";
 import {
 	ResponsiveDialog,
@@ -441,31 +446,29 @@ export function GlobalSearch({
 				showCloseButton={false}
 			>
 				{/* Search Input */}
-				<div className="qa-global-search__input-area border-border bg-background flex items-center border-b px-3">
-					<Icon
-						icon="ph:magnifying-glass"
-						className="text-muted-foreground mr-2 h-5 w-5 shrink-0"
-					/>
-					<input
-						ref={inputRef}
-						className="placeholder:text-muted-foreground flex h-14 w-full rounded-none bg-transparent py-3 text-base outline-none disabled:cursor-not-allowed disabled:opacity-50"
-						placeholder={t("globalSearch.placeholder")}
-						value={query}
-						onChange={(e) => {
-							setQuery(e.target.value);
-							setSelectedIndex(0);
-						}}
-						onKeyDown={handleKeyDown}
-					/>
-					<div className="flex shrink-0 items-center gap-1">
-						{isSearching && (
-							<Icon
-								icon="ph:spinner"
-								className="text-muted-foreground h-4 w-4 animate-spin"
-							/>
-						)}
-						<Kbd>ESC</Kbd>
-					</div>
+				<div className="qa-global-search__input-area border-border-subtle bg-popover border-b p-3">
+					<InputGroup className="h-12 border-transparent bg-transparent focus-within:border-transparent focus-within:ring-0 hover:border-transparent">
+						<InputGroupAddon align="inline-start" className="pl-0">
+							<Icon icon="ph:magnifying-glass" className="size-5" />
+						</InputGroupAddon>
+						<InputGroupInput
+							ref={inputRef}
+							className="h-12 px-0 text-base"
+							placeholder={t("globalSearch.placeholder")}
+							value={query}
+							onChange={(e) => {
+								setQuery(e.target.value);
+								setSelectedIndex(0);
+							}}
+							onKeyDown={handleKeyDown}
+						/>
+						<InputGroupAddon align="inline-end" className="gap-2 pr-0">
+							{isSearching && (
+								<Icon icon="ph:spinner" className="size-4 animate-spin" />
+							)}
+							<Kbd>ESC</Kbd>
+						</InputGroupAddon>
+					</InputGroup>
 				</div>
 
 				{/* Results */}

@@ -19,6 +19,7 @@ import { useResolveText } from "../../i18n/hooks";
 import { cn } from "../../lib/utils";
 import { selectClient, useAdminStore } from "../../runtime";
 import { WidgetCard } from "../../views/dashboard/widget-card";
+import { WidgetEmptyState } from "./widget-empty-state";
 import { TimelineWidgetSkeleton } from "./widget-skeletons";
 
 /**
@@ -126,7 +127,7 @@ export default function TimelineWidget({
 		enabled: !useServerData && !!config.loader,
 		refetchInterval: config.refreshInterval,
 	});
-	const { data, isLoading, error, refetch } = useServerData
+	const { data, isLoading, error, refetch, isFetching } = useServerData
 		? serverQuery
 		: clientQuery;
 
@@ -140,13 +141,19 @@ export default function TimelineWidget({
 		}
 	};
 
+	const resolvedEmptyMessage = emptyMessage
+		? resolveText(emptyMessage)
+		: undefined;
+
 	// Empty state
 	const emptyContent = (
-		<div className="text-muted-foreground flex h-24 items-center justify-center">
-			<p className="text-sm">
-				{emptyMessage ? resolveText(emptyMessage) : "No activity yet"}
-			</p>
-		</div>
+		<WidgetEmptyState
+			iconName="ph:clock-counter-clockwise"
+			title={resolvedEmptyMessage ?? "No activity yet"}
+			description={
+				resolvedEmptyMessage ? undefined : "There are no events to display."
+			}
+		/>
 	);
 
 	// Timeline content
@@ -212,7 +219,8 @@ export default function TimelineWidget({
 										tabIndex: 0,
 										onClick: () => handleItemClick(item),
 										onKeyDown: (e: React.KeyboardEvent) => {
-											if (e.key === "Enter" || e.key === " ") handleItemClick(item);
+											if (e.key === "Enter" || e.key === " ")
+												handleItemClick(item);
 										},
 										style: { cursor: "pointer" },
 									}
@@ -228,12 +236,20 @@ export default function TimelineWidget({
 	return (
 		<WidgetCard
 			title={title}
+			description={
+				config.description ? resolveText(config.description) : undefined
+			}
+			icon={config.icon}
+			variant={config.cardVariant}
 			isLoading={isLoading}
+			isRefreshing={isFetching && !isLoading}
 			loadingSkeleton={<TimelineWidgetSkeleton count={maxItems} />}
 			error={
 				error instanceof Error ? error : error ? new Error(String(error)) : null
 			}
 			onRefresh={() => refetch()}
+			actions={config.actions}
+			className={config.className}
 		>
 			{timelineContent}
 		</WidgetCard>

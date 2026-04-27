@@ -6,6 +6,7 @@ import { Icon } from "@iconify/react";
 import * as React from "react";
 
 import { useTranslation } from "../../../../i18n/hooks";
+import { cn } from "../../../../lib/utils";
 import { CollectionEditLink } from "../../../admin-link";
 import { resolveIconElement } from "../../../component-renderer";
 import { Button } from "../../../ui/button";
@@ -88,7 +89,7 @@ export function GridDisplay({
 								<img
 									src={image}
 									alt={getTitle(item)}
-									className="h-full w-full object-cover"
+									className="image-outline h-full w-full object-cover"
 								/>
 							</div>
 						) : collectionIcon ? (
@@ -101,12 +102,13 @@ export function GridDisplay({
 						<span className="flex-1 truncate text-sm">{getTitle(item)}</span>
 						{/* Action buttons for editable mode */}
 						{editable && (actions?.onEdit || actions?.onRemove) && (
-							<div className="flex shrink-0 items-center gap-0.5">
+							<div className="flex shrink-0 items-center gap-1">
 								{actions?.onEdit && (
 									<Button
 										type="button"
 										variant="ghost"
 										size="icon-xs"
+										className="relative after:absolute after:-inset-1"
 										onClick={(e) => {
 											e.preventDefault();
 											e.stopPropagation();
@@ -122,6 +124,7 @@ export function GridDisplay({
 										type="button"
 										variant="ghost"
 										size="icon-xs"
+										className="relative after:absolute after:-inset-1"
 										onClick={(e) => {
 											e.preventDefault();
 											e.stopPropagation();

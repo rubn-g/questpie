@@ -185,7 +185,7 @@ function ViewErrorBoundary({
 									<button
 										type="button"
 										onClick={onRetry}
-										className="text-primary mt-3 text-sm font-medium hover:underline"
+										className="text-foreground mt-3 text-sm font-medium underline-offset-4 hover:underline"
 									>
 										{t("error.tryAgain")}
 									</button>

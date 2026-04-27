@@ -453,6 +453,45 @@ export async function collectionUpdateMany(
 	}
 }
 
+export async function collectionUpdateBatch(
+	app: Questpie<any>,
+	request: Request,
+	params: Record<string, string>,
+	context?: AdapterContext,
+	config: AdapterConfig<any> = {},
+	input?: unknown,
+): Promise<Response> {
+	const resolved = await resolveContext(app, request, config, context);
+	const crud = app.collections[params.collection as any];
+
+	if (!crud) {
+		return errorResponse(
+			app,
+			ApiError.notFound("Collection", params.collection),
+			request,
+			resolved.appContext.locale,
+		);
+	}
+
+	const body = input !== undefined ? input : await parseRouteBody(request);
+	if (body === null || typeof body !== "object") {
+		return errorResponse(
+			app,
+			ApiError.badRequest("Invalid JSON body"),
+			request,
+			resolved.appContext.locale,
+		);
+	}
+
+	try {
+		const { updates } = body as { updates: Array<{ id: any; data: any }> };
+		const result = await crud.updateBatch({ updates }, resolved.appContext);
+		return smartResponse(result, request);
+	} catch (error) {
+		return errorResponse(app, error, request, resolved.appContext.locale);
+	}
+}
+
 export async function collectionDeleteMany(
 	app: Questpie<any>,
 	request: Request,
@@ -525,6 +564,22 @@ export async function collectionAudit(
 		const auditCrud = app.collections[auditCollectionName as any] as any;
 		if (!auditCrud) {
 			return smartResponse([], request);
+		}
+
+		const record = await crud.findOne(
+			{
+				where: { id: params.id as any },
+				includeDeleted: true,
+			},
+			resolved.appContext,
+		);
+		if (!record) {
+			return errorResponse(
+				app,
+				ApiError.notFound("Record", params.id),
+				request,
+				resolved.appContext.locale,
+			);
 		}
 
 		const result = await auditCrud.find(
@@ -719,6 +774,22 @@ export const createCollectionRoutes = <
 			input?: unknown,
 		): Promise<Response> => {
 			return collectionUpdateMany(app, request, params, context, config, input);
+		},
+
+		updateBatch: async (
+			request: Request,
+			params: { collection: string },
+			context?: AdapterContext,
+			input?: unknown,
+		): Promise<Response> => {
+			return collectionUpdateBatch(
+				app,
+				request,
+				params,
+				context,
+				config,
+				input,
+			);
 		},
 
 		deleteMany: async (

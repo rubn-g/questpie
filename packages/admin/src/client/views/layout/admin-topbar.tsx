@@ -14,37 +14,26 @@ import type { Breadcrumb } from "../../contexts/breadcrumb-context";
 import { useResolveText, useTranslation } from "../../i18n/hooks";
 import { cn } from "../../lib/utils";
 
-type Theme = "light" | "dark" | "system";
-
 // Module-level constant for empty array to avoid recreating on each render
 const EMPTY_BREADCRUMBS: Breadcrumb[] = [];
 
 interface AdminTopbarProps {
 	onSearchOpen: () => void;
 	breadcrumbs?: Breadcrumb[];
-	theme?: Theme;
-	setTheme?: (theme: Theme) => void;
-	showThemeToggle?: boolean;
 }
 
 export const AdminTopbar = React.memo(function AdminTopbar({
 	onSearchOpen,
 	breadcrumbs,
-	theme: _theme = "system",
-	setTheme,
-	showThemeToggle,
 }: AdminTopbarProps) {
 	const resolvedBreadcrumbs = breadcrumbs ?? EMPTY_BREADCRUMBS;
 	const resolveText = useResolveText();
 	const { t } = useTranslation();
 
-	// Show theme toggle if setTheme is provided and showThemeToggle is not explicitly false
-	const shouldShowThemeToggle = setTheme && showThemeToggle !== false;
-
 	return (
 		<header
 			role="banner"
-			className="qa-topbar border-border bg-background relative sticky top-0 z-50 flex h-14 w-full items-center justify-between border-b px-4 md:px-6"
+			className="qa-topbar border-border-subtle bg-background/95 relative sticky top-0 z-50 flex h-12 w-full items-center justify-between border-b px-3 backdrop-blur md:px-4"
 		>
 			<div className="qa-topbar__left flex items-center gap-2">
 				{/* Sidebar toggle - works for both mobile (opens sheet) and desktop (collapses) */}
@@ -157,12 +146,12 @@ export const AdminTopbar = React.memo(function AdminTopbar({
 					variant="outline"
 					onClick={onSearchOpen}
 					size="icon-sm"
-					className="qa-topbar__search-btn bg-card text-muted-foreground gap-2 md:size-auto md:h-9 md:w-64 md:justify-between md:px-3"
+					className="qa-topbar__search-btn border-border-subtle bg-card text-muted-foreground hover:bg-surface-low hover:text-foreground h-9 gap-2 overflow-hidden rounded-md md:w-64 md:justify-between md:px-3"
 					aria-label={t("ui.searchPlaceholder")}
 				>
-					<span className="flex items-center gap-2">
+					<span className="flex min-w-0 items-center gap-2">
 						<Icon icon="ph:magnifying-glass" />
-						<span className="hidden md:inline">
+						<span className="hidden truncate md:inline">
 							{t("ui.searchPlaceholder")}
 						</span>
 					</span>
@@ -170,44 +159,6 @@ export const AdminTopbar = React.memo(function AdminTopbar({
 						<span className="text-xs">⌘</span>K
 					</Kbd>
 				</Button>
-
-				{shouldShowThemeToggle && (
-					<DropdownMenu>
-						<DropdownMenuTrigger
-							render={
-								<Button
-									variant="ghost"
-									size="icon"
-									className="qa-topbar__theme-toggle"
-								>
-									<Icon
-										icon="ph:sun"
-										className="size-4 scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90"
-									/>
-									<Icon
-										icon="ph:moon"
-										className="absolute size-4 scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0"
-									/>
-									<span className="sr-only">{t("ui.toggleTheme")}</span>
-								</Button>
-							}
-						/>
-						<DropdownMenuContent align="end">
-							<DropdownMenuItem onClick={() => setTheme("light")}>
-								<Icon icon="ph:sun" className="mr-2 size-4" />
-								{t("ui.themeLight")}
-							</DropdownMenuItem>
-							<DropdownMenuItem onClick={() => setTheme("dark")}>
-								<Icon icon="ph:moon" className="mr-2 size-4" />
-								{t("ui.themeDark")}
-							</DropdownMenuItem>
-							<DropdownMenuItem onClick={() => setTheme("system")}>
-								<Icon icon="ph:monitor" className="mr-2 size-4" />
-								{t("ui.themeSystem")}
-							</DropdownMenuItem>
-						</DropdownMenuContent>
-					</DropdownMenu>
-				)}
 			</div>
 		</header>
 	);

@@ -864,6 +864,17 @@ export interface FindManyOptionsBase<TFields = any, TRelations = any> {
 	 * Workflow stage to read from.
 	 */
 	stage?: string;
+	/**
+	 * Group results by a top-level field. When enabled, limit/offset paginate
+	 * groups, and the returned result includes group metadata with whole-result
+	 * counts for each group on the current page.
+	 */
+	groupBy?: (keyof TFields & string) | GroupByOptions<keyof TFields & string>;
+}
+
+export interface GroupByOptions<TField extends string = string> {
+	field: TField;
+	order?: "asc" | "desc";
 }
 
 export type FindManyOptions<
@@ -884,6 +895,7 @@ type FindOptionsShared<TSelect, TRelations> = {
 	localeFallback?: boolean;
 	includeDeleted?: boolean;
 	stage?: string;
+	groupBy?: (keyof TSelect & string) | GroupByOptions<keyof TSelect & string>;
 };
 
 export type FindOptions<TCollection, TApp> = FindOptionsShared<
@@ -1166,6 +1178,20 @@ export interface UpdateManyParams<
 }
 
 /**
+ * Update multiple records with distinct data per record.
+ */
+export interface UpdateBatchParams<
+	TUpdate = any,
+	TRelations = any,
+	TId = string,
+> {
+	updates: Array<{
+		id: TId;
+		data: UpdateInput<TUpdate, TRelations>;
+	}>;
+}
+
+/**
  * Delete single record params
  */
 export interface DeleteParams<TId = string> {
@@ -1233,7 +1259,40 @@ export interface PaginatedResult<T> {
 	hasNextPage: boolean;
 	prevPage: number | null;
 	nextPage: number | null;
+	groupBy?: never;
+	groups?: never;
+	totalGroups?: never;
 }
+
+export interface GroupedPaginatedResult<T, TValue = unknown> extends Omit<
+	PaginatedResult<T>,
+	"groupBy" | "groups" | "totalGroups"
+> {
+	groupBy: { field: string; order: "asc" | "desc" };
+	groups: Array<{
+		key: string;
+		value: TValue;
+		count: number;
+		docs: T[];
+	}>;
+	totalGroups: number;
+}
+
+type GroupFieldFromQuery<TQuery> = TQuery extends { groupBy: infer TGroupBy }
+	? TGroupBy extends string
+		? TGroupBy
+		: TGroupBy extends { field: infer TField }
+			? TField
+			: never
+	: never;
+
+type GroupValueFromQuery<TSelect, TQuery> =
+	Extract<
+		GroupFieldFromQuery<TQuery>,
+		keyof TSelect
+	> extends infer TField extends keyof TSelect
+		? TSelect[TField]
+		: unknown;
 
 /**
  * Type Helper for Partial Selection
@@ -1343,6 +1402,17 @@ export type ApplyQuery<
 					RelationResult<TRelations, TQuery>
 >;
 
+export type FindResult<
+	TSelect,
+	TRelations,
+	TQuery extends Record<string, any> | undefined | boolean,
+> = [GroupFieldFromQuery<TQuery>] extends [never]
+	? PaginatedResult<ApplyQuery<TSelect, TRelations, TQuery>>
+	: GroupedPaginatedResult<
+			ApplyQuery<TSelect, TRelations, TQuery>,
+			GroupValueFromQuery<TSelect, TQuery>
+		>;
+
 /**
  * CRUD operations interface
  * Clear naming: find/findOne for reads, updateById/update for updates, deleteById/delete for deletes
@@ -1361,7 +1431,7 @@ export interface CRUD<
 	find<TQuery extends FindManyOptions<TSelect, TRelations>>(
 		options?: TQuery,
 		context?: CRUDContext,
-	): Promise<PaginatedResult<ApplyQuery<TSelect, TRelations, TQuery>>>;
+	): Promise<FindResult<TSelect, TRelations, TQuery>>;
 
 	/**
 	 * Find single record matching query
@@ -1405,6 +1475,15 @@ export interface CRUD<
 	 */
 	update(
 		params: UpdateManyParams<TUpdate, TSelect, TRelations>,
+		context?: CRUDContext,
+	): Promise<TSelect[]>;
+
+	/**
+	 * Update multiple records with distinct data per record.
+	 * Runs each update through the normal update pipeline in one transaction.
+	 */
+	updateBatch(
+		params: UpdateBatchParams<TUpdate, TRelations, TId>,
 		context?: CRUDContext,
 	): Promise<TSelect[]>;
 

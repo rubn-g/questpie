@@ -98,10 +98,33 @@ export interface ListViewConfig {
 	columns?: string[];
 	/** Default sort configuration */
 	defaultSort?: { field: string; direction: "asc" | "desc" };
+	/**
+	 * Enables reorder mode for this list.
+	 * Requires a numeric field named `order` on the collection.
+	 */
+	orderable?:
+		| boolean
+		| {
+				/** Direction used when rendering the ordered list */
+				direction?: "asc" | "desc";
+				/** Gap between generated order values when writes are enabled */
+				step?: number;
+		  };
 	/** Searchable fields */
 	searchable?: string[];
 	/** Filterable fields */
 	filterable?: string[];
+	/** Client-side grouping options for the current fetched page */
+	grouping?: {
+		/** Fields users can group by */
+		fields: string[];
+		/** Initial grouping field */
+		defaultField?: string;
+		/** Whether groups start collapsed */
+		defaultCollapsed?: boolean;
+		/** Show page-local item counts in group headers */
+		showCounts?: boolean;
+	};
 	/** Actions configuration */
 	actions?: {
 		header?: { primary?: ActionReference[]; secondary?: ActionReference[] };

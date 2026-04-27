@@ -200,6 +200,13 @@ export function MediaPickerDialog({
 		() => assets.find((asset) => asset.id === previewAssetId) ?? null,
 		[assets, previewAssetId],
 	);
+	const selectedMimeFilterLabel = React.useMemo(() => {
+		const selectedFilter =
+			MIME_TYPE_FILTERS.find((filter) => filter.value === mimeFilter) ??
+			MIME_TYPE_FILTERS[0];
+
+		return t(selectedFilter.labelKey);
+	}, [mimeFilter, t]);
 
 	// Reset state when dialog closes
 	React.useEffect(() => {
@@ -270,9 +277,10 @@ export function MediaPickerDialog({
 	};
 
 	return (
-		<Sheet open={open} onOpenChange={onOpenChange}>
+		<Sheet open={open} onOpenChange={onOpenChange} modal={false}>
 			<SheetContent
 				side="right"
+				showOverlay={false}
 				className="qa-media-picker w-full p-0 data-[side=right]:sm:max-w-6xl"
 			>
 				<SheetHeader className="px-6 pt-6">
@@ -319,7 +327,7 @@ export function MediaPickerDialog({
 								<SelectTrigger className="w-full sm:w-[180px]">
 									<div className="flex items-center gap-2">
 										<Icon icon="ph:funnel-simple-bold" className="size-4" />
-										<SelectValue />
+										<SelectValue>{selectedMimeFilterLabel}</SelectValue>
 									</div>
 								</SelectTrigger>
 								<SelectContent>
@@ -354,7 +362,7 @@ export function MediaPickerDialog({
 							{previewAsset ? (
 								<AssetPreview asset={previewAsset} variant="card" />
 							) : (
-								<div className="panel-surface text-muted-foreground flex items-center justify-center border-dashed p-6 text-sm">
+								<div className="text-muted-foreground flex min-h-24 items-center justify-center p-4 text-sm">
 									Select an asset to preview
 								</div>
 							)}
@@ -365,7 +373,7 @@ export function MediaPickerDialog({
 						{previewAsset ? (
 							<AssetPreview asset={previewAsset} variant="compact" />
 						) : (
-							<div className="panel-surface text-muted-foreground flex items-center justify-center border-dashed p-4 text-sm">
+							<div className="text-muted-foreground flex min-h-16 items-center justify-center p-2 text-sm">
 								Select an asset to preview
 							</div>
 						)}
@@ -378,6 +386,7 @@ export function MediaPickerDialog({
 							Cancel
 						</Button>
 						<Button
+							className="tabular-nums"
 							onClick={handleSelect}
 							disabled={selectedIds.size === 0 || isLoading}
 						>

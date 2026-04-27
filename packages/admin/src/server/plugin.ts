@@ -80,6 +80,7 @@ export function adminPlugin(): CodegenPlugin {
 						dirs: ["blocks"],
 						prefix: "bloc",
 						factoryFunctions: ["block"],
+						keyFromProperty: "state.name",
 						registryKey: true,
 						includeInAppState: true,
 						extractFromModules: true,
@@ -119,7 +120,8 @@ export function adminPlugin(): CodegenPlugin {
 						},
 						form: {
 							stateKey: "form",
-							configType: "(ctx: { f: Record<string, string> }) => { fields: import('@questpie/admin/server').FieldLayoutItem[] }",
+							configType:
+								"(ctx: { f: Record<string, string> }) => { fields: import('@questpie/admin/server').FieldLayoutItem[] }",
 							isCallback: true,
 							callbackContextParams: ["f"],
 						},
@@ -302,7 +304,7 @@ export function adminPlugin(): CodegenPlugin {
 						dir: "blocks",
 						description: "Server-side block definition",
 						template: ({ kebab, camel }) =>
-							`import { block } from "#questpie/factories";\n\nexport const ${camel}Block = block("${kebab}")\n\t.fields(({ f }) => ({\n\t\ttitle: f.text("Title"),\n\t}));\n`,
+							`import { block } from "#questpie/factories";\n\nexport const ${camel}Block = block("${kebab}")\n\t.fields(({ f }) => ({\n\t\ttitle: f.text(255).label("Title").required(),\n\t}));\n`,
 					},
 					view: {
 						dir: "views",
@@ -331,6 +333,7 @@ export function adminPlugin(): CodegenPlugin {
 					blocks: {
 						dirs: ["blocks"],
 						prefix: "block",
+						keyFromSource: "basename",
 						registryKey: false,
 						includeInAppState: false,
 						extractFromModules: false,
@@ -406,7 +409,7 @@ export function adminPlugin(): CodegenPlugin {
 							`type { ${varName} }`,
 							`../../server/blocks/${kebab}`,
 						);
-						entries.push(`${JSON.stringify(key)}: typeof ${varName}`);
+						entries.push(`${JSON.stringify(kebab)}: typeof ${varName}`);
 					}
 
 					// Emit _ServerBlocks map + BlockProps<T> helper

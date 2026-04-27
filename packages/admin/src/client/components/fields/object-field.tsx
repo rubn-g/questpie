@@ -13,10 +13,13 @@ import { configureField } from "../../builder/field/field";
 import { useResolveText } from "../../i18n/hooks";
 import { cn } from "../../lib/utils";
 import { selectAdmin, useAdminStore } from "../../runtime";
+import {
+	FieldLayoutRenderer,
+	type FieldLayoutContext,
+} from "../layout/field-layout-renderer";
 import type { BaseFieldProps, ObjectFieldConfig } from "./field-types";
 import { gridColumnClasses } from "./field-utils";
 import { FieldWrapper } from "./field-wrapper";
-import { FieldLayoutRenderer, type FieldLayoutContext } from "../layout/field-layout-renderer";
 
 // ============================================================================
 // Types
@@ -178,11 +181,11 @@ export function ObjectField({
 		// Wrap in collapsible or flat container
 		if (wrapper === "collapsible") {
 			return (
-				<div className={cn("qa-object-field border-border bg-card border", className)}>
+				<div className={cn("qa-object-field panel-surface", className)}>
 					<button
 						type="button"
 						onClick={() => setIsCollapsed(!isCollapsed)}
-						className="hover:bg-muted flex w-full items-center justify-between p-3 text-left"
+						className="hover:bg-muted flex min-h-10 w-full items-center justify-between p-3 text-left transition-colors active:scale-[0.96]"
 						disabled={disabled}
 					>
 						<div className="flex items-center gap-2">
@@ -195,16 +198,22 @@ export function ObjectField({
 							{required && <span className="text-destructive">*</span>}
 						</div>
 					</button>
-					{!isCollapsed && (
-						<div className="border-t p-4">{content}</div>
-					)}
+					{!isCollapsed && <div className="border-t p-4">{content}</div>}
 				</div>
 			);
 		}
 
 		if (label) {
 			return (
-				<FieldWrapper name={name} label={resolveText(label)} description={description} required={required} disabled={disabled} localized={localized} locale={locale}>
+				<FieldWrapper
+					name={name}
+					label={resolveText(label)}
+					description={description}
+					required={required}
+					disabled={disabled}
+					localized={localized}
+					locale={locale}
+				>
 					<div className={cn("qa-object-field pt-1", className)}>{content}</div>
 				</FieldWrapper>
 			);
@@ -216,16 +225,11 @@ export function ObjectField({
 	// Collapsible wrapper (also support legacy layout="collapsible" for backwards compatibility)
 	if (wrapper === "collapsible" || (layout as string) === "collapsible") {
 		return (
-			<div
-				className={cn(
-					"qa-object-field border-border bg-card border",
-					className,
-				)}
-			>
+			<div className={cn("qa-object-field panel-surface", className)}>
 				<button
 					type="button"
 					onClick={() => setIsCollapsed(!isCollapsed)}
-					className="hover:bg-muted flex w-full items-center justify-between p-3 text-left"
+					className="hover:bg-muted flex min-h-10 w-full items-center justify-between p-3 text-left transition-colors active:scale-[0.96]"
 					disabled={disabled}
 				>
 					<div className="flex items-center gap-2">
@@ -241,7 +245,7 @@ export function ObjectField({
 				{!isCollapsed && (
 					<div className="border-t p-4">
 						{description && (
-							<p className="text-muted-foreground mb-4 text-sm">
+							<p className="text-muted-foreground mb-4 text-sm text-pretty">
 								{resolveText(description)}
 							</p>
 						)}

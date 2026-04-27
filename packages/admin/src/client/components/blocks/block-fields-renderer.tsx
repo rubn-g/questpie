@@ -15,7 +15,12 @@ import type { FieldInstance } from "../../builder/field/field.js";
 import { useResolveText, useTranslation } from "../../i18n/hooks.js";
 import { selectAdmin, useAdminStore } from "../../runtime/provider.js";
 import { buildFieldDefinitionsFromMetadata } from "../../utils/build-field-definitions-from-schema.js";
-import { FieldLayoutRenderer, type FieldLayoutContext } from "../layout/field-layout-renderer.js";
+import { useLazyComponent } from "../../utils/use-lazy-component.js";
+import {
+	FieldLayoutRenderer,
+	type FieldLayoutContext,
+} from "../layout/field-layout-renderer.js";
+import { Skeleton } from "../ui/skeleton.js";
 
 // ============================================================================
 // Types
@@ -64,7 +69,7 @@ export function BlockFieldsRenderer({
 	// When form layout is defined, use the shared layout renderer
 	if (blockSchema.form?.fields?.length) {
 		const layoutCtx: FieldLayoutContext = {
-			renderField: (fieldName, opts) => {
+			renderField: (fieldName) => {
 				const fieldDef = blockFields[fieldName];
 				if (!fieldDef) return null;
 				return (
@@ -111,6 +116,16 @@ type BlockFieldProps = {
 	definition: FieldInstance;
 };
 
+function BlockFieldSkeleton({ type }: { type?: string }) {
+	const isLarge = type === "blocks" || type === "json" || type === "richText";
+	return (
+		<div className="space-y-2" aria-busy="true">
+			<Skeleton variant="text" className="h-4 w-24" />
+			<Skeleton className={isLarge ? "h-40 w-full" : "h-10 w-full"} />
+		</div>
+	);
+}
+
 function BlockField({ name, blockId, definition }: BlockFieldProps) {
 	const resolveText = useResolveText();
 	const options = (definition["~options"] || {}) as Record<string, any>;
@@ -126,9 +141,12 @@ function BlockField({ name, blockId, definition }: BlockFieldProps) {
 	const scopedName = `content._values.${blockId}.${name}`;
 
 	// Check if field has a registered component
-	const FieldComponent = definition.component as
-		| React.ComponentType<any>
-		| undefined;
+	const { Component: FieldComponent, loading: componentLoading } =
+		useLazyComponent(definition.component);
+
+	if (componentLoading) {
+		return <BlockFieldSkeleton type={fieldType} />;
+	}
 
 	// All fields should have a registered component (registry-first)
 	if (!FieldComponent) {
