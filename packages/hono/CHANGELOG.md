@@ -1,5 +1,12 @@
 # @questpie/hono
 
+## 3.0.4
+
+### Patch Changes
+
+- Updated dependencies [[`affb27e`](https://github.com/questpie/questpie/commit/affb27efff0837d181351793c5db3434e34616cb)]:
+  - questpie@3.0.4
+
 ## 3.0.3
 
 ### Patch Changes
