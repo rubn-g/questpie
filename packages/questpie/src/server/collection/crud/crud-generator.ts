@@ -2142,7 +2142,11 @@ export class CRUDGenerator<TState extends CollectionBuilderState> {
 			context: CRUDContext = {},
 		) => {
 			if (!Array.isArray(params.updates)) {
-				throw ApiError.badRequest("updates must be an array");
+				throw ApiError.badRequest(
+					"updates must be an array",
+					undefined,
+					"error.updatesMustBeArray",
+				);
 			}
 
 			if (params.updates.length === 0) {
@@ -2426,7 +2430,11 @@ export class CRUDGenerator<TState extends CollectionBuilderState> {
 			const hasVersion = typeof options.version === "number";
 
 			if (!hasVersionId && !hasVersion) {
-				throw ApiError.badRequest("Version or versionId required");
+				throw ApiError.badRequest(
+					"Version or versionId required",
+					undefined,
+					"error.versionRequired",
+				);
 			}
 
 			const versionRows = await db
@@ -3286,6 +3294,9 @@ export class CRUDGenerator<TState extends CollectionBuilderState> {
 			if (uploadOptions.maxSize && file.size > uploadOptions.maxSize) {
 				throw ApiError.badRequest(
 					`File size ${file.size} exceeds maximum allowed size ${uploadOptions.maxSize}`,
+					undefined,
+					"upload.tooLarge",
+					{ maxSize: uploadOptions.maxSize },
 				);
 			}
 
@@ -3315,7 +3326,12 @@ export class CRUDGenerator<TState extends CollectionBuilderState> {
 				? `.${file.name.split(".").pop()?.toLowerCase()}`
 				: "";
 			if (BLOCKED_EXTENSIONS.includes(fileExt)) {
-				throw ApiError.badRequest(`File extension "${fileExt}" is not allowed`);
+				throw ApiError.badRequest(
+					`File extension "${fileExt}" is not allowed`,
+					undefined,
+					"upload.extensionNotAllowed",
+					{ extension: fileExt },
+				);
 			}
 
 			// Validate MIME type
@@ -3332,6 +3348,9 @@ export class CRUDGenerator<TState extends CollectionBuilderState> {
 				if (!isAllowed) {
 					throw ApiError.badRequest(
 						`File type "${file.type}" is not allowed. Allowed types: ${uploadOptions.allowedTypes.join(", ")}`,
+						undefined,
+						"upload.invalidType",
+						{ type: file.type },
 					);
 				}
 			}

@@ -10,6 +10,7 @@
 		"filters",
 		"history",
 		"localization",
+		"ui-language-and-messages",
 		"media",
 		"visibility",
 		"live-preview"

@@ -35,7 +35,7 @@ import { useCollectionList } from "../../hooks/use-collection";
 import { useCollectionFields } from "../../hooks/use-collection-fields";
 import { useCollectionMeta } from "../../hooks/use-collection-meta";
 import { useServerWidgetData } from "../../hooks/use-server-widget-data";
-import { useResolveText } from "../../i18n/hooks";
+import { useResolveText, useTranslation } from "../../i18n/hooks";
 import { cn, formatLabel } from "../../lib/utils";
 import {
 	autoExpandFields,
@@ -113,6 +113,7 @@ export default function TableWidget({
 	navigate,
 }: TableWidgetProps) {
 	const resolveText = useResolveText();
+	const { t } = useTranslation();
 
 	const {
 		collection,
@@ -232,11 +233,9 @@ export default function TableWidget({
 	const emptyContent = (
 		<WidgetEmptyState
 			iconName="ph:table"
-			title={resolvedEmptyMessage ?? "No rows to show"}
+			title={resolvedEmptyMessage ?? t("widget.table.emptyTitle")}
 			description={
-				resolvedEmptyMessage
-					? undefined
-					: "There are no records for the current criteria."
+				resolvedEmptyMessage ? undefined : t("widget.table.emptyDescription")
 			}
 			className="min-h-32"
 		/>

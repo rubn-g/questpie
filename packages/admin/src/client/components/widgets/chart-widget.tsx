@@ -30,7 +30,7 @@ import type {
 
 import { useCollectionList } from "../../hooks/use-collection";
 import { useServerWidgetData } from "../../hooks/use-server-widget-data";
-import { useResolveText } from "../../i18n/hooks";
+import { useResolveText, useTranslation } from "../../i18n/hooks";
 import { formatLabel } from "../../lib/utils";
 import { WidgetCard } from "../../views/dashboard/widget-card";
 import { WidgetEmptyState } from "./widget-empty-state";
@@ -117,6 +117,7 @@ function ChartTooltip({
  */
 export default function ChartWidget({ config }: ChartWidgetProps) {
 	const resolveText = useResolveText();
+	const { t } = useTranslation();
 	const {
 		collection,
 		field,
@@ -204,8 +205,8 @@ export default function ChartWidget({ config }: ChartWidgetProps) {
 	const emptyContent = (
 		<WidgetEmptyState
 			iconName="ph:chart-line"
-			title="No chart data"
-			description="There are no values for this range."
+			title={t("widget.chart.emptyTitle")}
+			description={t("widget.chart.emptyDescription")}
 			className="min-h-48"
 		/>
 	);

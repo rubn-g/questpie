@@ -15,7 +15,7 @@ import type {
 } from "../../builder/types/widget-types";
 import { resolveIconElement } from "../../components/component-renderer";
 import { useServerWidgetData } from "../../hooks/use-server-widget-data";
-import { useResolveText } from "../../i18n/hooks";
+import { useResolveText, useTranslation } from "../../i18n/hooks";
 import { cn } from "../../lib/utils";
 import { selectClient, useAdminStore } from "../../runtime";
 import { WidgetCard } from "../../views/dashboard/widget-card";
@@ -46,15 +46,23 @@ const variantStyles = {
 function formatTimestamp(
 	date: Date | string,
 	format: TimelineWidgetConfig["timestampFormat"] = "relative",
+	t: (key: string, params?: Record<string, unknown>) => string,
+	formatDate: (
+		date: Date | number,
+		options?: Intl.DateTimeFormatOptions,
+	) => string,
 ): string {
 	const d = typeof date === "string" ? new Date(date) : date;
 
 	switch (format) {
 		case "absolute":
-			return d.toLocaleDateString();
+			return formatDate(d);
 
 		case "datetime":
-			return d.toLocaleString();
+			return formatDate(d, {
+				dateStyle: "medium",
+				timeStyle: "short",
+			});
 
 		case "relative":
 		default: {
@@ -65,11 +73,11 @@ function formatTimestamp(
 			const hours = Math.floor(minutes / 60);
 			const days = Math.floor(hours / 24);
 
-			if (days > 7) return d.toLocaleDateString();
-			if (days > 0) return `${days}d ago`;
-			if (hours > 0) return `${hours}h ago`;
-			if (minutes > 0) return `${minutes}m ago`;
-			return "just now";
+			if (days > 7) return formatDate(d);
+			if (days > 0) return t("time.daysAgoShort", { count: days });
+			if (hours > 0) return t("time.hoursAgoShort", { count: hours });
+			if (minutes > 0) return t("time.minutesAgoShort", { count: minutes });
+			return t("time.justNow");
 		}
 	}
 }
@@ -109,6 +117,7 @@ export default function TimelineWidget({
 }: TimelineWidgetProps) {
 	const client = useAdminStore(selectClient);
 	const resolveText = useResolveText();
+	const { t, formatDate } = useTranslation();
 	const {
 		maxItems = 10,
 		showTimestamps = true,
@@ -149,9 +158,9 @@ export default function TimelineWidget({
 	const emptyContent = (
 		<WidgetEmptyState
 			iconName="ph:clock-counter-clockwise"
-			title={resolvedEmptyMessage ?? "No activity yet"}
+			title={resolvedEmptyMessage ?? t("widget.timeline.emptyTitle")}
 			description={
-				resolvedEmptyMessage ? undefined : "There are no events to display."
+				resolvedEmptyMessage ? undefined : t("widget.timeline.emptyDescription")
 			}
 		/>
 	);
@@ -202,7 +211,12 @@ export default function TimelineWidget({
 								)}
 								{showTimestamps && item.timestamp && (
 									<p className="text-muted-foreground mt-1 text-xs">
-										{formatTimestamp(item.timestamp, timestampFormat)}
+										{formatTimestamp(
+											item.timestamp,
+											timestampFormat,
+											t,
+											formatDate,
+										)}
 									</p>
 								)}
 							</div>

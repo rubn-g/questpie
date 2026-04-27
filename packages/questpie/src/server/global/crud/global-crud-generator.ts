@@ -1,14 +1,4 @@
-import {
-	and,
-	avg,
-	count,
-	eq,
-	inArray,
-	max,
-	min,
-	sql,
-	sum,
-} from "drizzle-orm";
+import { and, avg, count, eq, inArray, max, min, sql, sum } from "drizzle-orm";
 import { alias, type PgTable } from "drizzle-orm/pg-core";
 
 import type { RelationConfig } from "#questpie/server/collection/builder/types.js";
@@ -870,7 +860,11 @@ export class GlobalCRUDGenerator<TState extends GlobalBuilderState> {
 			const hasVersion = typeof options.version === "number";
 
 			if (!hasVersionId && !hasVersion) {
-				throw ApiError.badRequest("Version or versionId required");
+				throw ApiError.badRequest(
+					"Version or versionId required",
+					undefined,
+					"error.versionRequired",
+				);
 			}
 
 			const parentId = options.id ?? (await this.getCurrentRow(db))?.id;
@@ -1190,9 +1184,8 @@ export class GlobalCRUDGenerator<TState extends GlobalBuilderState> {
 			// If scheduledAt is in the future, schedule only after validating the
 			// target stage, current record, access, and transition graph.
 			if (scheduledAt && scheduledAt.getTime() > Date.now()) {
-				const { scheduleGlobalTransition } = await import(
-					"#questpie/server/modules/core/workflow/schedule-transition.js"
-				);
+				const { scheduleGlobalTransition } =
+					await import("#questpie/server/modules/core/workflow/schedule-transition.js");
 				await scheduleGlobalTransition((this.app as any)?.queue, {
 					global: this.state.name,
 					stage: toStage,

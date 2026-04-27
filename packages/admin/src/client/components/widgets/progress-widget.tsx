@@ -9,7 +9,7 @@ import { useQuery } from "@tanstack/react-query";
 
 import type { ProgressWidgetConfig } from "../../builder/types/widget-types";
 import { useServerWidgetData } from "../../hooks/use-server-widget-data";
-import { useResolveText } from "../../i18n/hooks";
+import { useResolveText, useTranslation } from "../../i18n/hooks";
 import { cn } from "../../lib/utils";
 import { selectClient, useAdminStore } from "../../runtime";
 import { WidgetCard } from "../../views/dashboard/widget-card";
@@ -48,6 +48,7 @@ interface ProgressWidgetProps {
 export default function ProgressWidget({ config }: ProgressWidgetProps) {
 	const client = useAdminStore(selectClient);
 	const resolveText = useResolveText();
+	const { t } = useTranslation();
 	const { color, showPercentage = true } = config;
 
 	type ProgressData = {
@@ -125,8 +126,8 @@ export default function ProgressWidget({ config }: ProgressWidgetProps) {
 	) : (
 		<WidgetEmptyState
 			iconName="ph:target"
-			title="No progress data"
-			description="There is no target value to display."
+			title={t("widget.progress.emptyTitle")}
+			description={t("widget.progress.emptyDescription")}
 		/>
 	);
 

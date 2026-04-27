@@ -114,6 +114,44 @@ export default {
 		few: "Obnovené {{success}} položky, {{failed}} zlyhali",
 		other: "Obnovených {{success}} položiek, {{failed}} zlyhalo",
 	},
+	// Actions
+	"action.collectionNotFound": 'Kolekcia "{{collection}}" nebola nájdená',
+	"action.notFound":
+		'Akcia "{{action}}" nebola nájdená v kolekcii "{{collection}}"',
+	"action.executionFailed": "Vykonanie akcie zlyhalo",
+	"action.itemCreated": "Položka bola úspešne vytvorená",
+	"action.itemIdRequired.save": "Pre akciu uloženia je povinné ID položky",
+	"action.itemSaved": "Položka bola úspešne uložená",
+	"action.itemIdRequired.delete": "Pre akciu vymazania je povinné ID položky",
+	"action.itemDeleted": "Položka bola úspešne vymazaná",
+	"action.itemIdsRequired.bulkDelete":
+		"Pre hromadné mazanie sú povinné ID položiek",
+	"action.itemsDeleted": {
+		one: "{{count}} položka bola úspešne vymazaná",
+		few: "{{count}} položky boli úspešne vymazané",
+		other: "{{count}} položiek bolo úspešne vymazaných",
+	},
+	"action.itemIdRequired.restore": "Pre akciu obnovenia je povinné ID položky",
+	"action.restoreUnsupported": "Obnovenie nie je pre túto kolekciu podporované",
+	"action.itemRestored": "Položka bola úspešne obnovená",
+	"action.itemIdsRequired.bulkRestore":
+		"Pre hromadné obnovenie sú povinné ID položiek",
+	"action.itemsRestored": {
+		one: "{{count}} položka bola úspešne obnovená",
+		few: "{{count}} položky boli úspešne obnovené",
+		other: "{{count}} položiek bolo úspešne obnovených",
+	},
+	"action.itemIdRequired.duplicate":
+		"Pre akciu duplikovania je povinné ID položky",
+	"action.itemNotFound": "Položka nebola nájdená",
+	"action.itemDuplicated": "Položka bola úspešne zduplikovaná",
+	"action.itemIdRequired.transition":
+		"Pre akciu prechodu je povinné ID položky",
+	"action.targetStageRequired": "Pre akciu prechodu je povinná cieľová fáza",
+	"action.workflowUnsupported":
+		"Workflow prechody nie sú pre túto kolekciu podporované",
+	"action.unknownBuiltin": "Neznáma vstavaná akcia: {{action}}",
+	"action.fieldRequired": 'Pole "{{field}}" je povinné',
 
 	// Relations
 	"relation.select": "Vybrať {{name}}",
@@ -273,6 +311,9 @@ export default {
 		"Odkaz na obnovenie hesla je neplatný alebo expiroval.",
 	"auth.requestNewResetLink":
 		"Prosím, požiadajte o nový odkaz na obnovenie hesla.",
+	"auth.setupAlreadyCompleted":
+		"Nastavenie už bolo dokončené - v systéme existujú admin používatelia",
+	"auth.failedToCreateUserAccount": "Nepodarilo sa vytvoriť používateľský účet",
 
 	// Errors
 	"error.notFound": "Nenájdené",
@@ -761,6 +802,19 @@ export default {
 	"preview.refreshing": "Obnovuje sa...",
 	"preview.showPreview": "Zobraziť náhľad",
 	"preview.hidePreview": "Skryť náhľad",
+	"preview.pathRequired": "Cesta je povinná",
+	"preview.collectionNameRequired": "Názov kolekcie je povinný",
+	"preview.adminSessionRequired": "Vyžaduje sa admin relácia",
+	"preview.invalidTokenFormat": "Neplatný formát tokenu",
+	"preview.invalidSignature": "Neplatný podpis",
+	"preview.invalidPayload": "Neplatné dáta tokenu",
+	"preview.tokenExpired": "Platnosť tokenu vypršala",
+	"preview.invalidPath": "Neplatná cesta",
+	"preview.collectionNotFound": 'Kolekcia "{{collection}}" nebola nájdená',
+	"preview.noUrlConfigured": "Pre túto kolekciu nie je nastavená URL náhľadu",
+	"preview.disabledForCollection": "Náhľad je pre túto kolekciu vypnutý",
+	"preview.generateUrlFailed":
+		"Nepodarilo sa vygenerovať URL náhľadu: {{message}}",
 
 	// Autosave
 	"autosave.saving": "Ukladá sa...",
@@ -908,4 +962,118 @@ export default {
 	},
 	"cell.more": "+{{count}} ďalších",
 	"cell.blocks": "Bloky",
+
+	// English parity additions
+	"globalSearch.placeholder":
+		"Hľadať kolekcie, globálne nastavenia, akcie, záznamy...",
+	"globalSearch.collections": "Kolekcie",
+	"globalSearch.globals": "Globálne nastavenia",
+	"globalSearch.quickActions": "Rýchle akcie",
+	"globalSearch.records": "Záznamy",
+	"globalSearch.createNew": "Vytvoriť nový {{name}}",
+	"globalSearch.noResults": "Nenašli sa žiadne výsledky",
+	"globalSearch.searching": "Hľadá sa...",
+	"globalSearch.navigate": "na navigáciu",
+	"globalSearch.select": "na výber",
+
+	"workflow.transition": "Prechod",
+	"workflow.currentStage": "Aktuálna fáza",
+	"workflow.transitionTo": "Prejsť do {{stage}}",
+	"workflow.transitionDescription":
+		'Táto akcia vykoná prechod z "{{from}}" do "{{to}}".',
+	"workflow.scheduleLabel": "Naplánovať na neskôr",
+	"workflow.scheduledAt": "Naplánovaný dátum a čas",
+	"workflow.scheduledDescription":
+		"Prechod prebehne automaticky v naplánovanom čase.",
+	"workflow.transitionSuccess": 'Úspešne prevedené do "{{stage}}"',
+	"workflow.scheduledSuccess": 'Prechod do "{{stage}}" naplánovaný na {{date}}',
+	"workflow.transitionFailed": "Prechod zlyhal",
+	"workflow.noTransitions": "Z tejto fázy nie sú dostupné žiadne prechody",
+
+	"lock.blockedTitle": "{{name}} práve upravuje",
+	"lock.blockedDescription":
+		"Tento dokument je uzamknutý. Môžete ho zobraziť, ale nemôžete vykonávať zmeny, kým zámok nevyprší.",
+	"lock.openElsewhere":
+		"Tento dokument máte otvorený v inej karte. Zmeny sa budú automaticky synchronizovať.",
+	"lock.cannotSave":
+		"Nie je možné uložiť - dokument je uzamknutý iným používateľom",
+
+	// Planned additions
+	"preview.mode": "Režim náhľadu",
+	"media.noAssets": "Nenašli sa žiadne médiá",
+	"error.failedToCreateAdminAccount":
+		"Nepodarilo sa vytvoriť administrátorský účet",
+	"common.done": "Hotovo",
+	"common.noValue": "Žiadna hodnota",
+	"nav.breadcrumb": "Drobečková navigácia",
+	"nav.adminNavigation": "Navigácia administrácie",
+	"auth.user": "Používateľ",
+	"widget.quickActions.emptyTitle": "Žiadne rýchle akcie",
+	"widget.quickActions.emptyDescription":
+		"Rýchle akcie sa tu zobrazia po nakonfigurovaní.",
+	"widget.chart.emptyTitle": "Žiadne dáta grafu",
+	"widget.chart.emptyDescription":
+		"Dáta grafu sa tu zobrazia, keď budú dostupné.",
+	"widget.recentItems.emptyTitle": "Žiadne nedávne položky",
+	"widget.recentItems.emptyDescription":
+		"Nedávne položky sa tu zobrazia po vytvorení záznamov.",
+	"widget.value.emptyTitle": "Žiadna hodnota na zobrazenie",
+	"widget.value.emptyDescription":
+		"Táto hodnota sa zobrazí, keď budú dostupné dáta.",
+	"widget.progress.emptyTitle": "Žiadne dáta priebehu",
+	"widget.progress.emptyDescription":
+		"Priebeh sa tu zobrazí, keď budú dostupné dáta.",
+	"widget.timeline.emptyTitle": "Zatiaľ žiadna aktivita",
+	"widget.timeline.emptyDescription":
+		"Nie sú dostupné žiadne udalosti na zobrazenie.",
+	"widget.table.emptyTitle": "Žiadne riadky na zobrazenie",
+	"widget.table.emptyDescription":
+		"Pre aktuálne kritériá nie sú dostupné žiadne záznamy.",
+	"blocks.emptyTitle": "Zatiaľ žiadne bloky",
+	"blocks.libraryDescription": "Vyberte typ bloku, ktorý chcete pridať.",
+	"blocks.noSearchResults": "Vyhľadávaniu nezodpovedajú žiadne bloky",
+	"blocks.tryDifferentSearch": "Skúste iný vyhľadávací výraz.",
+	"error.accessRestrictedResourceDescription":
+		'{{type}} "{{name}}" nie je dostupný v administrácii. Môže byť skrytý alebo k nemu nemáte oprávnenie.',
+	"collection.orderSaved": "Poradie uložené",
+	"collection.orderSaveFailed": "Poradie sa nepodarilo uložiť",
+	"collection.reorderMode": "Režim zmeny poradia",
+	"collection.sortedByField": "Zoradené podľa {{field}} {{direction}}.",
+	"collection.reorderEnableOrderable":
+		"Pred zmenou poradia povoľte možnosť radenia",
+	"collection.reorderAddOrderField":
+		"Pred zmenou poradia pridajte číselné pole pre poradie",
+	"collection.reorderClearSearch": "Pre zmenu poradia vymažte vyhľadávanie",
+	"collection.reorderRemoveGrouping": "Pre zmenu poradia odstráňte zoskupenie",
+	"collection.reorderClearFilters": "Pre zmenu poradia vymažte filtre",
+	"collection.reorderShowOnePage":
+		"Pre zmenu poradia zobrazte jednu stránku položiek",
+	"collection.reorderExitMode": "Ukončiť režim zmeny poradia",
+	"collection.reorderItems": "Zmeniť poradie položiek",
+	"collection.reorderSwitchSort":
+		"Prepnúť na zoradenie podľa {{field}} a zmeniť poradie",
+	"collection.reorderUnavailable": "Zmena poradia nie je dostupná: {{reason}}",
+	"collection.reorderEnterMode": "Spustiť režim zmeny poradia",
+	"error.unregisteredViewDescription":
+		'Zobrazenie "{{viewId}}" nie je zaregistrované v registri administrátorských zobrazení.',
+	"table.show": "Zobraziť",
+	"ui.expandSidebar": "Rozbaliť bočný panel",
+	"ui.skipToMainContent": "Preskočiť na hlavný obsah",
+
+	"time.justNow": "práve teraz",
+	"time.minutesAgoShort": {
+		one: "pred {{count}}m",
+		few: "pred {{count}}m",
+		other: "pred {{count}}m",
+	},
+	"time.hoursAgoShort": {
+		one: "pred {{count}}h",
+		few: "pred {{count}}h",
+		other: "pred {{count}}h",
+	},
+	"time.daysAgoShort": {
+		one: "pred {{count}}d",
+		few: "pred {{count}}d",
+		other: "pred {{count}}d",
+	},
 } as const;

@@ -222,11 +222,19 @@ export class ApiError extends Error {
 	/**
 	 * Create UNAUTHORIZED error
 	 */
-	static unauthorized(message = "Authentication required"): ApiError {
+	static unauthorized(
+		message = "Authentication required",
+		messageKey?: BackendMessageKey,
+		messageParams?: Record<string, unknown>,
+	): ApiError {
+		const useDefaultTranslation = message === "Authentication required";
 		return new ApiError({
 			code: "UNAUTHORIZED",
 			message,
-			messageKey: "error.unauthorized",
+			messageKey:
+				messageKey ??
+				(useDefaultTranslation ? "error.unauthorized" : undefined),
+			messageParams,
 		});
 	}
 
@@ -236,12 +244,16 @@ export class ApiError extends Error {
 	static badRequest(
 		message = "Bad request",
 		fieldErrors?: FieldError[],
+		messageKey?: BackendMessageKey,
+		messageParams?: Record<string, unknown>,
 	): ApiError {
 		const useDefaultTranslation = message === "Bad request";
 		return new ApiError({
 			code: "BAD_REQUEST",
 			message,
-			messageKey: useDefaultTranslation ? "error.badRequest" : undefined,
+			messageKey:
+				messageKey ?? (useDefaultTranslation ? "error.badRequest" : undefined),
+			messageParams,
 			fieldErrors,
 		});
 	}

@@ -13,7 +13,13 @@
 
 import {
 	type ValidationMessage,
+	validationMessagesCS,
+	validationMessagesDE,
 	validationMessagesEN,
+	validationMessagesES,
+	validationMessagesFR,
+	validationMessagesPL,
+	validationMessagesPT,
 	validationMessagesSK,
 } from "questpie/shared";
 
@@ -25,12 +31,12 @@ export { messages } from "./messages/index.js";
 // Export individual locale messages for direct access
 export const adminMessagesEN = messages.en;
 export const adminMessagesSK = messages.sk;
-const adminMessagesCS = messages.cs;
-const adminMessagesDE = messages.de;
-const adminMessagesFR = messages.fr;
-const adminMessagesES = messages.es;
-const adminMessagesPT = messages.pt;
-const adminMessagesPL = messages.pl;
+export const adminMessagesCS = messages.cs;
+export const adminMessagesDE = messages.de;
+export const adminMessagesFR = messages.fr;
+export const adminMessagesES = messages.es;
+export const adminMessagesPT = messages.pt;
+export const adminMessagesPL = messages.pl;
 
 /**
  * Message value type - string or plural form
@@ -61,7 +67,13 @@ const validationMessagesByLocale: Record<
 	string,
 	Record<string, ValidationMessage>
 > = {
+	cs: validationMessagesCS,
+	de: validationMessagesDE,
 	en: validationMessagesEN,
+	es: validationMessagesES,
+	fr: validationMessagesFR,
+	pl: validationMessagesPL,
+	pt: validationMessagesPT,
 	sk: validationMessagesSK,
 };
 

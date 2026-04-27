@@ -7,7 +7,13 @@
 
 import {
 	type ValidationMessage,
+	validationMessagesCS,
+	validationMessagesDE,
 	validationMessagesEN,
+	validationMessagesES,
+	validationMessagesFR,
+	validationMessagesPL,
+	validationMessagesPT,
 	validationMessagesSK,
 } from "#questpie/shared/i18n/index.js";
 
@@ -87,7 +93,13 @@ const validationMessagesByLocale: Record<
 	string,
 	Record<string, ValidationMessage>
 > = {
+	cs: validationMessagesCS,
+	de: validationMessagesDE,
 	en: validationMessagesEN,
+	es: validationMessagesES,
+	fr: validationMessagesFR,
+	pl: validationMessagesPL,
+	pt: validationMessagesPT,
 	sk: validationMessagesSK,
 };
 
@@ -144,6 +156,12 @@ export function getBackendMessages(
 // ============================================================================
 
 export {
+	validationMessagesCS,
+	validationMessagesDE,
 	validationMessagesEN,
+	validationMessagesES,
+	validationMessagesFR,
+	validationMessagesPL,
+	validationMessagesPT,
 	validationMessagesSK,
 } from "#questpie/shared/i18n/index.js";

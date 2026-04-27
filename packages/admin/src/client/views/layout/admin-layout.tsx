@@ -13,6 +13,7 @@ import * as React from "react";
 
 import { SidebarInset, SidebarProvider } from "../../components/ui/sidebar";
 import { type AdminToasterProps, Toaster } from "../../components/ui/sonner";
+import { useSafeI18n } from "../../i18n/hooks";
 import { cn } from "../../lib/utils";
 import { useAdminStore } from "../../runtime/provider";
 import { shouldHandleAdminShortcut } from "../../utils/keyboard-shortcuts";
@@ -201,6 +202,11 @@ export function AdminLayout({
 		brandName: brandNameProp,
 		navigate: navigateProp,
 	});
+	const i18n = useSafeI18n();
+	const t = (key: string, fallback: string) => {
+		const message = i18n?.t(key);
+		return message && message !== key ? message : fallback;
+	};
 
 	const [isSearchOpen, setIsSearchOpen] = React.useState(false);
 	const openSearch = React.useCallback(() => setIsSearchOpen(true), []);
@@ -231,7 +237,7 @@ export function AdminLayout({
 					href="#main-content"
 					className="qa-admin-layout__skip-link focus:bg-surface-high focus:text-foreground sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:rounded-sm focus:px-4 focus:py-2 focus:text-sm focus:font-medium"
 				>
-					Skip to main content
+					{t("ui.skipToMainContent", "Skip to main content")}
 				</a>
 
 				{isSearchOpen && (

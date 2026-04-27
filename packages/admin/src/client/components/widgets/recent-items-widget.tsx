@@ -7,7 +7,7 @@
 
 import { useCollectionList } from "../../hooks/use-collection";
 import { useServerWidgetData } from "../../hooks/use-server-widget-data";
-import { useResolveText } from "../../i18n/hooks";
+import { useResolveText, useTranslation } from "../../i18n/hooks";
 import { formatLabel } from "../../lib/utils";
 import { WidgetCard } from "../../views/dashboard/widget-card";
 import { WidgetEmptyState } from "./widget-empty-state";
@@ -58,6 +58,7 @@ type RecentItemsWidgetProps = {
  */
 export default function RecentItemsWidget({ config }: RecentItemsWidgetProps) {
 	const resolveText = useResolveText();
+	const { t } = useTranslation();
 	const {
 		collection,
 		limit = 5,
@@ -133,8 +134,8 @@ export default function RecentItemsWidget({ config }: RecentItemsWidgetProps) {
 		items.length === 0 ? (
 			<WidgetEmptyState
 				iconName="ph:clock-counter-clockwise"
-				title="No recent items"
-				description="There are no recent records to show."
+				title={t("widget.recentItems.emptyTitle")}
+				description={t("widget.recentItems.emptyDescription")}
 			/>
 		) : (
 			<div className="space-y-1">

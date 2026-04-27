@@ -7,7 +7,13 @@
 
 import { DEFAULT_LOCALE } from "#questpie/shared/constants.js";
 
+import { validationMessagesCS } from "./messages/cs.js";
+import { validationMessagesDE } from "./messages/de.js";
 import { validationMessagesEN } from "./messages/en.js";
+import { validationMessagesES } from "./messages/es.js";
+import { validationMessagesFR } from "./messages/fr.js";
+import { validationMessagesPL } from "./messages/pl.js";
+import { validationMessagesPT } from "./messages/pt.js";
 import { validationMessagesSK } from "./messages/sk.js";
 
 // ============================================================================
@@ -46,7 +52,13 @@ export type ValidationTranslateFn = (
 ) => string;
 
 const bundledValidationMessages: Record<string, ValidationMessagesMap> = {
+	cs: validationMessagesCS,
+	de: validationMessagesDE,
 	en: validationMessagesEN,
+	es: validationMessagesES,
+	fr: validationMessagesFR,
+	pl: validationMessagesPL,
+	pt: validationMessagesPT,
 	sk: validationMessagesSK,
 };
 
@@ -55,7 +67,13 @@ const bundledValidationMessages: Record<string, ValidationMessagesMap> = {
 // ============================================================================
 
 export {
+	validationMessagesCS,
+	validationMessagesDE,
 	validationMessagesEN,
+	validationMessagesES,
+	validationMessagesFR,
+	validationMessagesPL,
+	validationMessagesPT,
 	validationMessagesSK,
 } from "./messages/index.js";
 

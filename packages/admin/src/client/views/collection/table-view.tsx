@@ -468,14 +468,18 @@ function stringifyGroupValue(
 	value: unknown,
 	field?: AvailableField,
 	resolveText?: (value: any, fallback?: string) => string,
+	noValueLabel = "No value",
 ): string {
-	if (value === null || value === undefined || value === "") return "No value";
+	if (value === null || value === undefined || value === "")
+		return noValueLabel;
 	if (Array.isArray(value)) {
 		return value.length > 0
 			? value
-					.map((item) => stringifyGroupValue(item, field, resolveText))
+					.map((item) =>
+						stringifyGroupValue(item, field, resolveText, noValueLabel),
+					)
 					.join(", ")
-			: "No value";
+			: noValueLabel;
 	}
 
 	const options = field?.options?.options;
@@ -1531,30 +1535,30 @@ function TableViewInner({
 		(effectiveSort.direction ?? "asc") === orderDirection;
 	const hasMultiplePages = !isSearching && (listData?.totalPages ?? 1) > 1;
 	const reorderHardBlocker = !isOrderableEnabled
-		? "Enable orderable before reordering"
+		? t("collection.reorderEnableOrderable")
 		: !hasOrderField
-			? "Add a numeric order field before reordering"
+			? t("collection.reorderAddOrderField")
 			: isSearching
-				? "Clear search to reorder"
+				? t("collection.reorderClearSearch")
 				: viewState.config.groupBy
-					? "Remove grouping to reorder"
+					? t("collection.reorderRemoveGrouping")
 					: hasActiveFilters
-						? "Clear filters to reorder"
+						? t("collection.reorderClearFilters")
 						: hasMultiplePages
-							? "Show one page of items to reorder"
+							? t("collection.reorderShowOnePage")
 							: null;
 	const reorderTooltip =
 		reorderHardBlocker ??
 		(isOrderSortActive
 			? isReorderMode
-				? "Exit reorder mode"
-				: "Reorder items"
-			: `Switch to ${orderField} sort and reorder`);
+				? t("collection.reorderExitMode")
+				: t("collection.reorderItems")
+			: t("collection.reorderSwitchSort", { field: orderField }));
 	const reorderAriaLabel = reorderHardBlocker
-		? `Reorder unavailable: ${reorderHardBlocker}`
+		? t("collection.reorderUnavailable", { reason: reorderHardBlocker })
 		: isReorderMode
-			? "Exit reorder mode"
-			: "Enter reorder mode";
+			? t("collection.reorderExitMode")
+			: t("collection.reorderEnterMode");
 	const canReorder = isOrderableEnabled && !reorderHardBlocker;
 	const handleReorderToggle = React.useCallback(() => {
 		if (!canReorder) return;
@@ -1689,12 +1693,14 @@ function TableViewInner({
 						data: { [orderField]: (index + 1) * orderStep },
 					})),
 				});
-				actionHelpers.toast.success("Order saved");
+				actionHelpers.toast.success(t("collection.orderSaved"));
 			} catch (error) {
 				clearReorderOverlay();
 				setOptimisticOrderIds(previousOrderIds);
 				actionHelpers.toast.error(
-					error instanceof Error ? error.message : "Could not save order",
+					error instanceof Error
+						? error.message
+						: t("collection.orderSaveFailed"),
 				);
 			}
 		},
@@ -1704,6 +1710,7 @@ function TableViewInner({
 			updateBatchMutation,
 			orderField,
 			orderStep,
+			t,
 			actionHelpers.toast,
 			clearReorderOverlay,
 		],
@@ -1721,7 +1728,12 @@ function TableViewInner({
 		if (serverGroups?.length) {
 			const rowsById = new Map(rows.map((row) => [row.id, row]));
 			return serverGroups.flatMap((group: any) => {
-				const label = stringifyGroupValue(group.value, groupField, resolveText);
+				const label = stringifyGroupValue(
+					group.value,
+					groupField,
+					resolveText,
+					t("common.noValue"),
+				);
 				const groupKey = `${groupBy}:${label}`;
 				const collapsed = collapsedGroups.has(groupKey);
 				const groupRows = (group.docs ?? [])
@@ -1753,6 +1765,7 @@ function TableViewInner({
 				(row.original as any)?.[groupBy],
 				groupField,
 				resolveText,
+				t("common.noValue"),
 			);
 			const groupKey = `${groupBy}:${valueLabel}`;
 			const group = groups.get(groupKey);
@@ -1795,6 +1808,7 @@ function TableViewInner({
 		isSearching,
 		listData?.groups,
 		resolveText,
+		t,
 	]);
 
 	// Handlers
@@ -2081,9 +2095,14 @@ function TableViewInner({
 							<span className="bg-foreground text-background inline-flex size-5 items-center justify-center rounded-full">
 								<Icon icon="ph:arrows-down-up" className="size-3" />
 							</span>
-							<span className="text-foreground font-medium">Reorder mode</span>
+							<span className="text-foreground font-medium">
+								{t("collection.reorderMode")}
+							</span>
 							<span className="hidden sm:inline">
-								Sorted by {orderField} {orderDirection}.
+								{t("collection.sortedByField", {
+									field: orderField,
+									direction: orderDirection,
+								})}
 							</span>
 						</div>
 						<Button
@@ -2091,7 +2110,7 @@ function TableViewInner({
 							size="xs"
 							onClick={() => setIsReorderMode(false)}
 						>
-							Done
+							{t("common.done")}
 						</Button>
 					</div>
 				)}
@@ -2454,10 +2473,10 @@ function TableViewInner({
 								{filteredItems.length > 0
 									? `${((viewState.config.pagination?.page ?? 1) - 1) * (viewState.config.pagination?.pageSize ?? 25) + 1}-${Math.min(((viewState.config.pagination?.page ?? 1) - 1) * (viewState.config.pagination?.pageSize ?? 25) + (viewState.config.pagination?.pageSize ?? 25), listData?.totalDocs ?? filteredItems.length)}`
 									: "0"}{" "}
-								of {listData?.totalDocs ?? 0}
+								{t("table.of")} {listData?.totalDocs ?? 0}
 							</span>
 							<div className="flex items-center gap-2">
-								<span className="text-muted-foreground">Show</span>
+								<span className="text-muted-foreground">{t("table.show")}</span>
 								<Select
 									value={String(viewState.config.pagination?.pageSize ?? 25)}
 									onValueChange={(value) =>
@@ -2490,7 +2509,7 @@ function TableViewInner({
 										(viewState.config.pagination?.page ?? 1) - 1,
 									)
 								}
-								aria-label="Previous page"
+								aria-label={t("table.previousPage")}
 							>
 								<Icon icon="ph:caret-left" className="size-4" />
 							</Button>
@@ -2522,7 +2541,7 @@ function TableViewInner({
 											size="sm"
 											className="size-8 min-w-[32px] p-0 tabular-nums"
 											onClick={() => viewState.setPage(pageNum)}
-											aria-label={`Page ${pageNum}`}
+											aria-label={t("table.page", { page: pageNum })}
 											aria-current={
 												currentPage === pageNum ? "page" : undefined
 											}
@@ -2546,7 +2565,7 @@ function TableViewInner({
 										(viewState.config.pagination?.page ?? 1) + 1,
 									)
 								}
-								aria-label="Next page"
+								aria-label={t("table.nextPage")}
 							>
 								<Icon icon="ph:caret-right" className="size-4" />
 							</Button>

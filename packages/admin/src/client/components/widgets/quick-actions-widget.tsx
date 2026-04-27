@@ -9,7 +9,7 @@ import { Icon } from "@iconify/react";
 
 import type { QuickActionsWidgetConfig } from "../../builder/types/widget-types";
 import { resolveIconElement } from "../../components/component-renderer";
-import { useResolveText } from "../../i18n/hooks";
+import { useResolveText, useTranslation } from "../../i18n/hooks";
 import { cn, formatLabel } from "../../lib/utils";
 import { WidgetCard } from "../../views/dashboard/widget-card";
 import { WidgetEmptyState } from "./widget-empty-state";
@@ -54,13 +54,14 @@ export default function QuickActionsWidget({
 	navigate,
 }: QuickActionsWidgetProps) {
 	const resolveText = useResolveText();
+	const { t } = useTranslation();
 	const { layout = "list" } = config;
 	const quickActions = config.quickActions ?? config.actions ?? [];
 	const title = config.title
 		? resolveText(config.title)
 		: config.label
 			? resolveText(config.label)
-			: "Quick Actions";
+			: t("dashboard.quickActions");
 
 	const resolveActionHref = (
 		action: ServerQuickActionTarget | undefined,
@@ -83,7 +84,10 @@ export default function QuickActionsWidget({
 			const [collection, actionType] = action.split(".");
 			return {
 				id: `${action}-${index}`,
-				label: `${actionType === "create" ? "New" : actionType} ${formatLabel(collection)}`,
+				label:
+					actionType === "create"
+						? t("collection.new", { name: formatLabel(collection) })
+						: `${actionType} ${formatLabel(collection)}`,
 				href: `${basePath}/collections/${collection}/${actionType === "create" ? "create" : ""}`,
 				icon: undefined,
 				variant: "default" as const,
@@ -146,8 +150,8 @@ export default function QuickActionsWidget({
 			>
 				<WidgetEmptyState
 					iconName="ph:lightning"
-					title="No actions configured"
-					description="There are no shortcuts to display."
+					title={t("widget.quickActions.emptyTitle")}
+					description={t("widget.quickActions.emptyDescription")}
 				/>
 			</WidgetCard>
 		);

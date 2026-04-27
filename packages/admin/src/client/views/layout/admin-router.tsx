@@ -426,12 +426,16 @@ function UnknownViewState({
 	viewKind: "list" | "form";
 	viewId: string;
 }) {
+	const { t } = useTranslation();
+
 	return (
 		<div className="container">
 			<Card className="border-warning/30 bg-warning/5 p-6">
-				<h1 className="text-lg font-semibold">Unknown {viewKind} view</h1>
+				<h1 className="text-lg font-semibold">
+					{t("error.failedToLoadView", { viewType: viewKind })}
+				</h1>
 				<p className="text-muted-foreground mt-2 text-sm">
-					View "{viewId}" is not registered in the admin view registry.
+					{t("error.unregisteredViewDescription", { viewId })}
 				</p>
 			</Card>
 		</div>
@@ -659,7 +663,8 @@ const RegistryViewRenderer = React.memo(function RegistryViewRenderer({
 // ============================================================================
 
 function DefaultDashboard() {
-	const date = new Date().toLocaleDateString("en-US", {
+	const { t, formatDate } = useTranslation();
+	const date = formatDate(new Date(), {
 		weekday: "long",
 		year: "numeric",
 		month: "long",
@@ -668,7 +673,11 @@ function DefaultDashboard() {
 
 	return (
 		<div className="qa-default-dashboard container">
-			<AdminViewHeader className="mb-4" title="Dashboard" meta={date} />
+			<AdminViewHeader
+				className="mb-4"
+				title={t("dashboard.title")}
+				meta={date}
+			/>
 
 			<div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
 				<Card className="p-6">
@@ -676,12 +685,14 @@ function DefaultDashboard() {
 						<div className="mb-4 flex items-center gap-3">
 							<div className="bg-primary h-2 w-2 rounded-full" />
 							<h3 className="text-muted-foreground font-chrome chrome-meta text-xs font-medium">
-								System Status
+								{t("dashboard.systemStatus")}
 							</h3>
 						</div>
-						<h2 className="mb-2 text-xl font-semibold">Welcome back</h2>
+						<h2 className="mb-2 text-xl font-semibold">
+							{t("dashboard.welcome")}
+						</h2>
 						<p className="text-muted-foreground text-sm leading-relaxed">
-							Select a collection from the sidebar to manage your content.
+							{t("dashboard.welcomeDescription")}
 						</p>
 					</div>
 				</Card>
@@ -691,11 +702,13 @@ function DefaultDashboard() {
 }
 
 function DefaultNotFound() {
+	const { t } = useTranslation();
+
 	return (
 		<div className="qa-not-found container">
-			<h1 className="mb-4 text-2xl font-bold">Page Not Found</h1>
+			<h1 className="mb-4 text-2xl font-bold">{t("error.pageNotFound")}</h1>
 			<p className="text-muted-foreground">
-				The page you're looking for doesn't exist.
+				{t("error.pageNotFoundDescription")}
 			</p>
 		</div>
 	);
@@ -712,6 +725,8 @@ function RestrictedAccess({
 	navigate: (path: string) => void;
 	basePath: string;
 }) {
+	const { t } = useTranslation();
+
 	return (
 		<div className="qa-restricted-access container py-12">
 			<Card className="mx-auto max-w-lg p-8 text-center">
@@ -722,16 +737,15 @@ function RestrictedAccess({
 							className="text-muted-foreground h-8 w-8"
 						/>
 					</div>
-					<h1 className="mb-2 text-xl font-semibold">Access Restricted</h1>
+					<h1 className="mb-2 text-xl font-semibold">
+						{t("error.accessRestricted")}
+					</h1>
 					<p className="text-muted-foreground mb-6 text-sm">
-						The {type}{" "}
-						<span className="text-foreground font-mono">"{name}"</span> is not
-						available in the admin panel. It may be hidden or you don't have
-						permission to access it.
+						{t("error.accessRestrictedResourceDescription", { type, name })}
 					</p>
 					<Button variant="outline" onClick={() => navigate(basePath)}>
 						<Icon icon="ph:arrow-left" className="h-4 w-4" />
-						Back to Dashboard
+						{t("error.backToDashboard")}
 					</Button>
 				</div>
 			</Card>
@@ -740,6 +754,7 @@ function RestrictedAccess({
 }
 
 function LazyPageRenderer({ config }: { config: PageDefinition<string> }) {
+	const { t } = useTranslation();
 	const component = config.component;
 	const [Component, setComponent] = React.useState<React.ComponentType | null>(
 		() => getCachedComponent(component as MaybeLazyComponent) ?? null,
@@ -808,7 +823,7 @@ function LazyPageRenderer({ config }: { config: PageDefinition<string> }) {
 					if (err instanceof Error) {
 						resolvedError = err;
 					} else {
-						resolvedError = new Error("Failed to load");
+						resolvedError = new Error(t("error.failedToLoad"));
 					}
 					setError(resolvedError);
 				}
@@ -822,7 +837,7 @@ function LazyPageRenderer({ config }: { config: PageDefinition<string> }) {
 		return () => {
 			mounted = false;
 		};
-	}, [component]);
+	}, [component, t]);
 
 	if (loading) {
 		const path = config.path?.replace(/^\//, "") ?? "";
@@ -836,7 +851,9 @@ function LazyPageRenderer({ config }: { config: PageDefinition<string> }) {
 	if (error) {
 		return (
 			<div className="container">
-				<h1 className="text-destructive mb-4 text-2xl font-bold">Error</h1>
+				<h1 className="text-destructive mb-4 text-2xl font-bold">
+					{t("error.unexpectedError")}
+				</h1>
 				<p className="text-muted-foreground">{error.message}</p>
 			</div>
 		);

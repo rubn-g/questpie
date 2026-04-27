@@ -13,7 +13,7 @@ import type {
 } from "../../builder/types/widget-types";
 import { resolveIconElement } from "../../components/component-renderer";
 import { useServerWidgetData } from "../../hooks/use-server-widget-data";
-import { useResolveText } from "../../i18n/hooks";
+import { useResolveText, useTranslation } from "../../i18n/hooks";
 import { cn } from "../../lib/utils";
 import { selectClient, useAdminStore } from "../../runtime";
 import { WidgetCard } from "../../views/dashboard/widget-card";
@@ -60,6 +60,7 @@ function formatValue(value: number | string): string {
 export default function ValueWidget({ config }: ValueWidgetProps) {
 	const client = useAdminStore(selectClient);
 	const resolveText = useResolveText();
+	const { t } = useTranslation();
 
 	const useServerData = !!config.hasLoader;
 	const serverQuery = useServerWidgetData<ValueWidgetResult>(config.id, {
@@ -121,8 +122,8 @@ export default function ValueWidget({ config }: ValueWidgetProps) {
 			>
 				<WidgetEmptyState
 					iconName="ph:gauge"
-					title="No value to display"
-					description="There is no value for this card yet."
+					title={t("widget.value.emptyTitle")}
+					description={t("widget.value.emptyDescription")}
 				/>
 			</WidgetCard>
 		);
