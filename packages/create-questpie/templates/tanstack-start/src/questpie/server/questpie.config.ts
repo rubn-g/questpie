@@ -12,7 +12,7 @@ import { env } from "@/lib/env.js";
 
 export default runtimeConfig({
 	app: { url: env.APP_URL },
-	db: { url: env.DATABASE_URL },
+	// db: { url: env.DATABASE_URL },
 	storage: { basePath: "/api" },
 	email: {
 		adapter: new ConsoleAdapter({ logHtml: false }),
