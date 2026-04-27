@@ -1,6 +1,6 @@
 {
 	"name": "@questpie/vite-plugin-iconify",
-	"version": "0.0.1",
+	"version": "0.0.2",
 	"description": "Vite plugin that auto-bundles only the Iconify icons you use",
 	"repository": {
 		"type": "git",
