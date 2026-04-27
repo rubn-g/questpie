@@ -9,7 +9,6 @@ export default defineConfig({
 	plugins: [
 		devtools(),
 		nitro({ preset: "bun" }) as any,
-		viteTsConfigPaths({ projects: ["./tsconfig.json"] }),
 		tailwindcss(),
 		tanstackStart(),
 		viteReact(),
